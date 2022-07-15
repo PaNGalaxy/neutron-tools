@@ -1,0 +1,465 @@
+<tool id="ornl_qclimax" name="QClimax" version="0.0.0">
+  <description>analysis tool</description>
+<!--  <requirements>
+    <container type="docker">smithrw/qclimax</container>
+  </requirements>-->
+  <command>
+	bash 'docker run -e INIFILE="$ini_file" -v $__tool_directory__/:/functions -v $__tool_directory__/:/input -v $__tool_directory__/:/constraints -v $__tool_directory__/:/output smithrw/qclimax' </command>
+	<configfiles>
+	    <configfile name="ini_file">
+    
+      #if $errorCalculationMethod != "none"
+          -error-calculation ${errorCalculationMethod}
+          -error-calculation-steps ${errorCalculationSteps}
+          #if $forceErrorCalculation == True
+              -force-error-calculation
+          #end if
+          #if $convolveBackground == True
+              -convolve-background
+          #end if
+          #if $prefit == "single"
+              -single-Q-prefit
+          #end if
+          #if $prefit == "center"
+              -center-prefit
+          #end if
+          #if $plotLinear == True
+              -plot-linear
+          #end if
+          #if $plotBackground == True
+              -plot-background
+          #end if
+      #end if
+      -select-qs 0,1,2,3,4,5,6,7,8
+      -export-params
+      -method ${method}
+      #if $setTemperature.setTemperature == True
+          #for $d in $setTemperature.dataFiles
+              #if $d.setDataRange.dataRange == True
+                  -restrict-range ${d.temperature} ${d.setDataRange.dataRangeStart} ${d.setDataRange.dataRangeEnd}
+              #end if
+          #end for
+      #end if
+      -instrument Instrument
+      -resolution ${resolutionFile}
+      #for $d in $setTemperature.dataFiles
+          -data "${d.dataFile}"
+      #end for
+      #for $f in $functions
+          #if $f.function.name == "ColeCole"
+              #x = 'test'
+              -function ColeCole:alpha,value=#echo x
+          #end if
+
+              -function Lorentz:amp,value=1.0,min=0.0:cen,value=1.0E-4,min=-100.0,max=100.0:wid,value=0.5,min=0.025
+      #end for
+
+<!--     
+$f.alphaColeCole.alphaColeColeValue
+{#if f.alphaColeCole.alphaColeColeUseMax then ,max=$f.alphaColeCole.alphaColeColeMax}:alpha,value=$f.alphaColeCole.alphaColeColeValue{#if f.alphaColeCole.alphaColeColeUseMin then ,min=$f.alphaColeCole.alphaColeColeMin}{#if f.alphaColeCole.alphaColeColeUseMax then ,max=$f.alphaColeCole.alphaColeColeMax}
+ $x = "test"
+          value = ${x}
+		#if $errorCalculationMethod != none
+              		-error-calculation "${errorCalculationMethod}"
+			-error-calculation-steps "${errorCalculationSteps}"
+			#if $forceErrorCalculation == true
+				-force-error-calculation
+		#if $convolveBackground == true
+              		-convolve-background
+		#if $prefit == single
+			-single-Q-prefit
+		#if $prefit == center
+			-center-prefit
+		#if $plotLinear == true
+              		-plot-linear
+		#if $plotBackground == true
+              		-plot-background
+		-select-qs 0,1,2,3,4,5,6,7,8
+		-export-params
+		-method "${method}"
+		#if $setTemperature.setTemperature == true:
+			#for $d in $setTemperature.dataFiles
+				#if $d.setDataRange.dataRange == true
+					-restrict-range "${d.temperature}" "${d.setDataRange.dataRangeStart}" "${d.setDataRange.dataRangeEnd}"
+		-instrument Instrument
+		-resolution "${resolutionFile}"
+
+		#for $d in $setTemperature.dataFiles
+			-data "${d.dataFile}"
+		#for $f in $functions-->
+
+	    </configfile>
+	</configfiles>
+  <inputs>
+    <!--<param name="dataFile" type="data" format="???" label="Data File" help="The data file" />
+	<param label="Task" name="TaskOption" type="text" value="0">
+		<option value="0">Powder calculation with incoherent approximation</option>
+		<option value="1">Full powder calculation including the coherent effect</option>
+		<option value="2">Single crystal Q-w calculation</option>
+		<option value="3">Single crystal Q-Q calculation</option>
+	</param>-->
+	<param name="resolutionFile" type="data" format="dat,hdf5,inx" label="Resolution File">
+	</param>
+	<conditional name="setTemperature">
+		<param name="setTemperature" type="boolean" checked="false" label="Set Temperature" help="Whether to specify a temperature for the data files."> 
+		</param>
+		<when value="false">
+			<repeat name="dataFiles" title="Data Files">
+				<param name="dataFile" type="data" format="dat,hdf5,inx" label="Data File">
+				</param>
+			</repeat>
+		</when>
+		<when value="true">
+			<repeat name="dataFiles" title="Data Files">
+				<param name="dataFile" type="data" format="dat,hdf5,inx" label="Data File">
+				</param>
+				<param name="temperature" type="float" value="0" label="Temperature" help="The file's temperature in degrees"> 
+				</param>
+				<conditional name="dataRangeCond">
+					<param name="setDataRange" type="boolean" checked="false" label="Limit Data Range"> 
+					</param>
+					<when value="true">
+						<param name="dataRangeStart" type="float" value="0" label="Start"> 
+						</param>
+						<param name="dataRangeEnd" type="float" value="0" label="End"> 
+						</param>
+					</when>
+				</conditional>
+			</repeat>
+		</when>
+	</conditional>
+	<repeat name="functions" title="Functions">
+		<conditional name="function">
+			<param name="name" type="select" optional="false" value="ColeCole" label="Method" help="Which calculation to perform">
+				<option value="ColeCole">ColeCole</option>
+				<option value="Delta">Delta</option>
+				<option value="FourierStetchedExponential">Fourier Stetched Exponential</option>
+				<option value="Linear">Linear</option>
+				<option value="Lorentz">Lorentzian</option>
+				<option value="PlaneDiffusion">Plane Diffusion</option>
+			</param>
+			<when value="ColeCole">
+				<section name="alphaColeCole" help="Alpha parameter" title="Alpha">
+					<param name="alphaColeColeValue" type="float" value="0.5" label="Starting Value"> 
+					</param>
+					<param name="alphaColeColeUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="alphaColeColeMin" type="float" value="0.00005" label="Min"> 
+					</param>
+					<param name="alphaColeColeUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="alphaColeColeMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>	
+				<section name="ampColeCole" help="Amplitude parameter" title="Amplitude">
+					<param name="ampColeColeValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="ampColeColeUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="ampColeColeMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="ampColeColeUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="ampColeColeMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>	
+				<section name="cenColeCole" help="Center parameter" title="Center">
+					<param name="cenColeColeValue" type="float" value="0.0001" label="Starting Value"> 
+					</param>
+					<param name="cenColeColeUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="cenColeColeMin" type="float" value="-100" label="Min"> 
+					</param>
+					<param name="cenColeColeUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="cenColeColeMax" type="float" value="100" label="Max"> 
+					</param>
+				</section>	
+				<section name="tauColeCole" help="Tau parameter" title="Tau">
+					<param name="tauColeColeValue" type="float" value="0.5" label="Starting Value"> 
+					</param>
+					<param name="tauColeColeUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="tauColeColeMin" type="float" value="0.0025" label="Min"> 
+					</param>
+					<param name="tauColeColeUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="tauColeColeMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>	
+			</when>
+			<when value="Delta">
+				<section name="ampDelta" help="Amplitude parameter" title="Amplitude">
+					<param name="ampDeltaValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="ampDeltaUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="ampDeltaMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="ampDeltaUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="ampDeltaMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+				<section name="cenDelta" help="Center parameter" title="Center">
+					<param name="cenDeltaValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="cenDeltaUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="cenDeltaMin" type="float" value="-3900" label="Min"> 
+					</param>
+					<param name="cenDeltaUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="cenDeltaMax" type="float" value="3900" label="Max"> 
+					</param>
+				</section>	
+			</when>
+			<when value="FourierStetchedExponential">
+				<section name="ampFourierStetchedExponential" help="Amplitude parameter" title="Amplitude">
+					<param name="ampFourierStetchedExponentialValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="ampFourierStetchedExponentialUseMin" type="boolean" checked="false" label="Set min"> 
+					</param>
+					<param name="ampFourierStetchedExponentialMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="ampFourierStetchedExponentialUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="ampFourierStetchedExponentialMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+				<section name="betaFourierStetchedExponential" help="Beta parameter" title="Beta">
+					<param name="betaFourierStetchedExponentialValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="betaFourierStetchedExponentialUseMin" type="boolean" checked="false" label="Set min"> 
+					</param>
+					<param name="betaFourierStetchedExponentialMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="betaFourierStetchedExponentialUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="betaFourierStetchedExponentialMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+				<section name="cenFourierStetchedExponential" help="Center parameter" title="Center">
+					<param name="cenFourierStetchedExponentialValue" type="float" value="0" label="Starting Value"> 
+					</param>
+					<param name="cenFourierStetchedExponentialUseMin" type="boolean" checked="false" label="Set min"> 
+					</param>
+					<param name="cenFourierStetchedExponentialMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="cenFourierStetchedExponentialUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="cenFourierStetchedExponentialMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+				<section name="tauFourierStetchedExponential" help="Tau parameter" title="Tau">
+					<param name="tauFourierStetchedExponentialValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="tauFourierStetchedExponentialUseMin" type="boolean" checked="false" label="Set min"> 
+					</param>
+					<param name="tauFourierStetchedExponentialMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="tauFourierStetchedExponentialUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="tauFourierStetchedExponentialMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+			</when>
+			<when value="Linear">
+				<section name="interceptLinear" help="Intercept parameter" title="Intercept">
+					<param name="interceptLinearValue" type="float" value="0.00000001" label="Starting Value"> 
+					</param>
+					<param name="interceptLinearUseMin" type="boolean" checked="false" label="Set min"> 
+					</param>
+					<param name="interceptLinearMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="interceptLinearUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="interceptLinearMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+				<section name="slopeLinear" help="Slope parameter" title="Slope">
+					<param name="slopeLinearValue" type="float" value="0.00000001" label="Starting Value"> 
+					</param>
+					<param name="slopeLinearUseMin" type="boolean" checked="false" label="Set min"> 
+					</param>
+					<param name="slopeLinearMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="slopeLinearUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="slopeLinearMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+			</when>
+			<when value="Lorentz">
+				<section name="ampLorentz" help="Amplitude parameter" title="Amplitude">
+					<param name="ampLorentzValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="ampLorentzUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="ampLorentzMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="ampLorentzUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="ampLorentzMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+				<section name="cenLorentz" help="Center parameter" title="Center">
+					<param name="cenLorentzValue" type="float" value="0.0001" label="Starting Value"> 
+					</param>
+					<param name="cenLorentzUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="cenLorentzMin" type="float" value="-100" label="Min"> 
+					</param>
+					<param name="cenLorentzUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="cenLorentzMax" type="float" value="100" label="Max"> 
+					</param>
+				</section>
+				<section name="widLorentz" help="Half-width half-max parameter" title="Width">
+					<param name="widLorentzValue" type="float" value="0.5" label="Starting Value"> 
+					</param>
+					<param name="widLorentzUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="widLorentzMin" type="float" value="0.025" label="Min"> 
+					</param>
+					<param name="widLorentzUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="widLorentzMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+			</when>
+			<when value="PlaneDiffusion">
+				<section name="ampPlaneDiffusion" help="Amplitude parameter" title="Amplitude">
+					<param name="ampPlaneDiffusionValue" type="float" value="1" label="Starting Value"> 
+					</param>
+					<param name="ampPlaneDiffusionUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="ampPlaneDiffusionMin" type="float" value="0" label="Min"> 
+					</param>
+					<param name="ampPlaneDiffusionUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="ampPlaneDiffusionMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+				<section name="cenPlaneDiffusion" help="Center parameter" title="Center">
+					<param name="cenPlaneDiffusionValue" type="float" value="0.0001" label="Starting Value"> 
+					</param>
+					<param name="cenPlaneDiffusionUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="cenPlaneDiffusionMin" type="float" value="-100" label="Min"> 
+					</param>
+					<param name="cenPlaneDiffusionUseMax" type="boolean" checked="true" label="Set max"> 
+					</param>
+					<param name="cenPlaneDiffusionMax" type="float" value="100" label="Max"> 
+					</param>
+				</section>
+				<section name="widPlaneDiffusion" help="Width parameter" title="Width">
+					<param name="widPlaneDiffusionValue" type="float" value="0.5" label="Starting Value"> 
+					</param>
+					<param name="widPlaneDiffusionUseMin" type="boolean" checked="true" label="Set min"> 
+					</param>
+					<param name="widPlaneDiffusionMin" type="float" value="0.025" label="Min"> 
+					</param>
+					<param name="widPlaneDiffusionUseMax" type="boolean" checked="false" label="Set max"> 
+					</param>
+					<param name="widPlaneDiffusionMax" type="float" value="1" label="Max"> 
+					</param>
+				</section>
+			</when>
+		</conditional>
+	</repeat>
+	<repeat name="constraintParameters" title="Constraint Parameters">
+		<section name="constraintParameter" help="Parameter for use in defining constraints" title="Parameter">
+			<param name="constraintParameterValue" type="float" value="0.5" label="Starting Value"> 
+			</param>
+			<param name="constraintParameterMin" type="boolean" checked="false" label="Set min"> 
+			</param>
+			<param name="constraintParameterMin" type="float" value="0" label="Min"> 
+			</param>
+			<param name="constraintParameterMax" type="boolean" checked="false" label="Set max"> 
+			</param>
+			<param name="constraintParameterMax" type="float" value="1" label="Max"> 
+			</param>
+		</section>	
+	</repeat>
+	<repeat name="constraintFunctions" title="Constraint Functions">
+	    <param name="constraintFunction" type="data" format="txt" label="Constraint Function">
+	    </param>
+	</repeat>
+	<repeat name="runs" title="Runs">
+		<repeat name="constraints" title="Constraints">
+			<param name="constrainedParameter" type="text" label="Constrained Parameter" help="The parameter to constrain">
+	    		</param>
+	    		<param name="constraint" type="text" label="Constraint" help="(give link to public QClimax documentation)">
+	    		</param>
+			<conditional name="constraintRelax">
+				<param name="relax" type="boolean" checked="false" label="Relax Constraint" help="Relax the constraint from the previous run."> 
+				</param>
+				<when value="true">
+					<param name="relaxationPercent" type="integer" value="0" label="Relaxation %" help="The percent around the constrained value in which the parameter can vary"> 
+					</param>
+					<param name="ratle" type="boolean" checked="false" label="Rattle Constraint" help="Force the variable to vary within the relaxed constraint"> 
+					</param>
+				</when>
+			</conditional>
+		</repeat>
+	</repeat>
+	<param name="runName" type="text" label="Name" help="Name for the output files">
+	</param>
+	<param name="method" type="select" optional="false" value="leastsq" label="Method" help="Which calculation to perform">
+				<option value="leastsq">Levenberg-Marquadt</option>
+				<option value="least_squares">Least-Squares (Trust Region Reflective)</option>
+				<option value="nelder">Nelder-Mead</option>
+				<option value="lbfgsb">L-BFGS-B</option>
+				<option value="powell">Powell</option>
+				<option value="coblya">Coblya</option>
+				<option value="tnc">Truncate Newton</option>
+				<option value="slsqp">Sequential Linear Squares Programming</option>
+	</param>
+	<param name="errorCalculationMethod" type="select" optional="false" value="none" label="Task" help="Which error calculation algorithm to use">
+				<option value="none">None</option>
+				<option value="average">Average</option>
+				<option value="markov">Markov Chain Monte Carlo</option>
+				<option value="monotonic">Monotonic</option>
+				<option value="monotonic-average">Monotonic Average</option>
+	</param>
+	<param name="errorCalculationSteps" type="float" value="10" label="# of Error Calculation Steps"> 
+	</param>
+	<param name="epsilon" type="float" value="0" label="Epsilon" help="Epsilon value for average error calculation types"> 
+	</param>
+	<param name="forceErrorCalculation" type="boolean" checked="false" label="Force Error Calculation"> 
+	</param>
+	<param name="convolveBackground" type="boolean" checked="false" label="Convolve Background"> 
+	</param>
+	<param name="prefit" type="select" optional="false" value="none" label="Prefit" help="Which prefit algorithm to perform">
+				<option value="none">None</option>
+				<option value="single">Single Q</option>
+				<option value="center">Center</option>
+	</param>
+	<param name="linearPlot" type="boolean" checked="false" label="Linear Plot"> 
+	</param>
+	<param name="plotBackground" type="boolean" checked="false" label="Plot Background"> 
+	</param>
+  </inputs>
+  <outputs>
+    <!--<data format="csv" name="out.csv">
+    </data>-->
+	<data format="csv" name="out.restart">
+	</data>
+  </outputs>
+
+
+
+  <!--<tests>
+    <test>
+      <param name="input" value="fa_gc_content_input.fa"/>
+      <output name="out_file1" file="fa_gc_content_output.txt"/>
+    </test>
+  </tests>
+ -->
+
+  <help>
+Runs the OClimax code.
+  </help>
+
+</tool>
