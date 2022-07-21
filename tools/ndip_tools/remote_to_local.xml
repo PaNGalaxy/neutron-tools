@@ -1,0 +1,24 @@
+<tool id="ndip_r2l" name="remote to local" version="0.1.0" python_template_version="3.5">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python '$__tool_directory__/remote_to_local.py' '$input1' '$output1'
+    ]]></command>
+    <environment_variables>
+        <environment_variable name="_GALAXY_REMOTE_DATA_BROKER_URL">$__app__.config.remote_data_broker_url</environment_variable>
+        <environment_variable name="_GALAXY_OIDC_TOKEN" inject="oidc_token"/>
+    </environment_variables>
+    <inputs>
+        <param type="data" name="input1"/>
+    </inputs>
+    <outputs>
+        <data name="output1" format="input">
+            <actions>
+                <action type="metadata" name="remote" default="0"/>
+            </actions>
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>

@@ -1,0 +1,25 @@
+<tool id="remote_command" name="remote command" version="0.1.0" python_template_version="3.5">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        echo -n 'hostname: ' > '$output1' && hostname >> '$output1' && $command >> '$output1'
+    ]]></command>
+    <inputs>
+        <param name="command" type="select" display="radio" label="Select Remote Command" help="a command to be executed on remote worker node">
+            <option value="uptime" selected="true">uptime</option>
+            <option value="lscpu">lscpu</option>
+            <option value="ls -a /">ls</option>
+            <option value="cat /etc/os-release">os version</option>
+        </param>
+        <param name="security" type="select" display="radio" label="Security level" help="...">
+            <option value="open" selected="true">Open</option>
+            <option value="moderate">Moderate</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="output1" format="txt" />
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>

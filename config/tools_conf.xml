@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<toolbox monitor="true">
+    <section id="ndip_test" name="NDIP Test Tools">
+        <tool file="ndip_tools/local_to_remote.xml"/>
+        <tool file="ndip_tools/remote_to_local.xml"/>
+        <tool file="ndip_tools/copy_machine.xml"/>
+        <tool file="ndip_tools/remote_command.xml"/>
+    </section>
+
+    <section id="getext" name="Get Data">
+        <tool file="ndip_tools/import_oncat.xml"/>
+    </section>
+
+    <section id="interactivetools" name="Interactive tools">
+        <tool file="ndip_tools/interactivetool_jupyter_notebook.xml"/>
+    </section>
+
+    <section id="ndip_asrp" name="Automated Structural Refinement Platform">
+    </section>
+
+    <section id="ndip_ins" name="Inelastic Neutron Scattering">
+        <tool file="ndip_tools/qclimax.xml"/>
+    </section>
+
+    <section id="ndip_dca" name="Advanced Neutron Data Analysis for Quantum Materials">
+    </section>
+
+    <section id="ndip_mcu" name="Monte Carlo Ray Tracing Analysis of Mixed Samples">
+    </section>
+</toolbox>

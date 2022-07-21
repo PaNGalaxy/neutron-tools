@@ -1,0 +1,33 @@
+SNS	Wide Angular-Range Chopper Spectrometer	ARCS	ARCS
+SNS	Backscattering Spectrometer	BSS	BASIS
+SNS	Cold Neutron Chopper Spectrometer	CNCS	CNCS
+SNS	Elastic Diffuse Scattering Spectrometer	CORELLI	CORELLI
+SNS	Extended Q-Range Small-Angle Neutron Scattering Difffractometer	EQSANS	EQ-SANS
+SNS	Hybrid Spectrometer	HYS	HYSPEC
+SNS	Macromolecular Neutron Diffractometer	MANDI	MANDI
+SNS	Nanoscale-Ordered Materials Diffractometer	NOM	NOMAD
+SNS	nED on Wheels 2	NOW2	NOW2
+SNS	nED on Wheels 4	NOW4	NOW4
+SNS	None	NOWB	None
+SNS	Powder Diffractometer	PG3	POWGEN
+SNS	Liquids Reflectometer	REF_L	LIQREF
+SNS	Magnetism Reflectometer	REF_M	MAGREF
+SNS	Fine-Resolution Fermi Chopper Spectrometer	SEQ	SEQUOIA
+SNS	Spallation Neutrons and Pressure Diffractometer	SNAP	SNAP
+SNS	Single-Crystal Diffractometer	TOPAZ	TOPAZ
+SNS	Ultra-Small-Angle Neutron Scattering Instrument	USANS	USANS
+SNS	Versatile Neutron Imaging Instrument	VENUS	VENUS
+SNS	Vibrational Spectrometer	VIS	VISION
+SNS	Engineering Materials Diffractometer	VULCAN	VULCAN
+HFIR	Instrument Development Beam Line	CG1B	DEV BEAM
+HFIR	Neutron Imaging Facility	CG1D	IMAGING
+HFIR	General-Purpose Small-Angle Neutron Scattering Diffractometer	CG2	GP-SANS
+HFIR	Biological Small-Angle Neutron Scattering Instrument	CG3	BIO-SANS
+HFIR	Cold Neutron Triple-Axis Spectrometer	CG4C	CTAX
+HFIR	Polarized Triple-Axis Spectrometer	HB1	PTAX
+HFIR	Fixed-Incident-Energy Triple-Axis Spectrometer	HB1A	FIE-TAX
+HFIR	Neutron Powder Diffractometer	HB2A	POWDER
+HFIR	High Intensity Diffractometer for Residual stress Analysis	HB2B	HIDRA
+HFIR	Wide-Angle Neutron Diffractometer	HB2C	WAND2
+HFIR	Triple-Axis Spectrometer	HB3	TAX
+HFIR	Dimensional Extreme Magnetic Neutron Diffractometer	HB3A	DEMAND
