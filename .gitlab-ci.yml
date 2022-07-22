@@ -1,0 +1,35 @@
+stages:
+  - build
+
+variables:
+  GIT_STRATEGY: clone
+  CONTAINER_URL: "${CI_REGISTRY_IMAGE}/galaxy_tools"
+
+# This import is for the func_rse_docker_* functions
+before_script:
+  - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - source rse-bash-modules.sh
+  - func_rse_docker_cleanup
+
+after_script:
+  - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
+  - source rse-bash-modules.sh
+  - func_rse_docker_cleanup
+  - sudo chown -R gitlab-runner .
+
+service-build:
+  stage: build
+  script:
+    - >    
+      docker build
+      -f dockerfiles/Dockerfile 
+      -t galaxy_tools .
+    - docker tag galaxy_tools $CONTAINER_URL/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+    - docker tag galaxy_tools $CONTAINER_URL/$CI_COMMIT_REF_NAME:latest
+    - docker push $CONTAINER_URL/$CI_COMMIT_REF_NAME:latest
+    - docker push $CONTAINER_URL/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+  tags:
+    - rse-multi-builder
+  except:
+      - docker-base
