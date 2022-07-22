@@ -3,7 +3,7 @@ stages:
 
 variables:
   GIT_STRATEGY: clone
-  CONTAINER_URL: "${CI_REGISTRY_IMAGE}/galaxy_tools"
+  CONTAINER_URL: "${CI_REGISTRY_IMAGE}"
 
 # This import is for the func_rse_docker_* functions
 before_script:
