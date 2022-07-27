@@ -1,4 +1,4 @@
-<tool id="interactive_tool_jupyter_notebook" tool_type="interactive" name="Interactive Jupyter Notebook" version="0.2">
+<tool id="interactive_tool_jupyter_notebook" tool_type="interactive" name="Interactive Jupyter Notebook" version="0.3" profile="22.01">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/calvera/jupyter-notebook:test</container>
     </requirements>
@@ -10,11 +10,11 @@
     </entry_points>
     <environment_variables>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
-	<environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
-	<environment_variable name="GALAXY_URL">https://calvera.ornl.gov</environment_variable>
+        <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key" />
     </environment_variables>
-    <command detect_errors="aggressive"><![CDATA[
+    <command><![CDATA[
         #import re
         export GALAXY_WORKING_DIR=`pwd` &&
         mkdir -p ./jupyter/outputs/ &&
@@ -34,8 +34,7 @@
             ## copy default notebook
             cp '$__tool_directory__/default_notebook.ipynb' ./ipython_galaxy_notebook.ipynb &&
             jupyter trust ./ipython_galaxy_notebook.ipynb &&
-            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
-            cp ./ipython_galaxy_notebook.ipynb '$jupyter_notebook'
+            bash -c '$__tool_directory__/run_notebook.sh ./ipython_galaxy_notebook.ipynb $jupyter_notebook'
         #else:
             #set $noteboook_name = re.sub('[^\w\-\.\s]', '_', str($mode.ipynb.element_identifier))
             cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
