@@ -25,14 +25,15 @@ This is the repo for Galaxy tools that we create within the NDIP project. At the
 
 ### Updating tool_conf.xml and tool_data_table.conf
 the following example merges Galaxy's `tool_conf.xml` with `ndip_tool_conf.xml` (call it from the repo's root folder). 
-You can omit `--ndip-tools-dir` if you installed ndip_tools to `$GALAXY_ROOT/tools`. Modify as needed.
+You can omit `--ndip-tools-dir` if you installed ndip_tools to `$GALAXY_ROOT/tools`. 
+Modify as needed. You can als0 add `--dry-run` to check the output before overwriting the file 
 ```bash
 cd config
 GALAXY_ROOT=/galaxy # path to the Galaxy root folder
-python3 tool_combine.py --ndip-tools-dir=/local_tools_folder/neutrons $GALAXY_ROOT/config/tool_conf.xml > $GALAXY_ROOT/config/tool_conf.xml
+python3 tool_combine.py --ndip-tools-dir=/local_tools_folder/neutrons $GALAXY_ROOT/config/tool_conf.xml
 ```
 similar for `tool_data_table.conf`
 ```
-python3 table_combine.py  $GALAXY_ROOT/config/tool_data_table_conf.xml > $GALAXY_ROOT/config/tool_data_table_conf.xml
+python3 table_combine.py $GALAXY_ROOT/config/tool_data_table_conf.xml
 ```
 

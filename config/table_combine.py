@@ -36,9 +36,15 @@ if __name__ == '__main__':
                         help='table config xml file to merge with')
     parser.add_argument('--ndip-table-conf', type=str, default='ndip_tool_data_table_conf.xml',
                         help='a path to file with ndip tool data table')
+    parser.add_argument('--dry-run', action=argparse.BooleanOptionalAction,
+                        help='print output to screen ')
 
     args = parser.parse_args()
 
     r = XMLCombiner([args.ndip_table_conf, args.table_conf_file[0]]).combine()
+    if args.dry_run:
+        print(r.decode())
+    else:
+        with open(args.table_conf_file[0], "w") as file:
+            print(r.decode(), file=file)
 
-    print(r.decode())

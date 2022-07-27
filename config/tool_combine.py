@@ -50,9 +50,20 @@ if __name__ == '__main__':
                         help='a folder with ndip tools')
     parser.add_argument('--ndip-tool-conf', type=str, default='ndip_tool_conf.xml',
                         help='a path to file with ndip tools')
+    parser.add_argument('--dry-run', action=argparse.BooleanOptionalAction,
+                        help='print output to screen ')
 
     args = parser.parse_args()
 
     r = XMLCombiner([args.ndip_tool_conf, args.tool_conf_file[0]]).combine()
 
-    print(r.decode().replace('file="ndip_tools', 'file="' + args.ndip_tools_dir))
+    print()
+    res = r.decode().replace('file="ndip_tools', 'file="' + args.ndip_tools_dir)
+
+
+    if args.dry_run:
+        print(res)
+    else:
+        with open(args.tool_conf_file[0], "w") as file:
+            print(res, file=file)
+
