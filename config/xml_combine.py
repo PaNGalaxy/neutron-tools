@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys
 from xml.etree import ElementTree as et
+import argparse
+
 
 class XMLCombiner(object):
     def __init__(self, filenames):
@@ -40,5 +42,17 @@ class XMLCombiner(object):
 
 
 if __name__ == '__main__':
-    r = XMLCombiner(sys.argv[1:]).combine()
-    print(r.decode())
+    parser = argparse.ArgumentParser(
+        description='Merge ndip_tool_conf.xml from local directory with another tools file')
+    parser.add_argument('tool_conf_file', type=str, nargs=1,
+                        help='tool config xml file to merge with')
+    parser.add_argument('--ndip-tools-dir', type=str, default='ndip_tools',
+                        help='a folder with ndip tools')
+    parser.add_argument('--ndip-tool-conf', type=str, default='ndip_tool_conf.xml',
+                        help='a path to file with ndip tools')
+
+    args = parser.parse_args()
+
+    r = XMLCombiner([args.ndip_tool_conf, args.tool_conf_file[0]]).combine()
+
+    print(r.decode().replace('file="ndip_tools', 'file="' + args.ndip_tools_dir))
