@@ -1,6 +1,5 @@
-<!-- Paths are relative to the value of `tool_data_path` in galaxy.ini -->
+<!-- Paths are relative to the value of `tool_data_path` in galaxy.yml -->
 <tables>
-    <!-- Locations of all fasta files under genome directory -->
     <table name="instruments" comment_char="#" allow_duplicate_entries="False">
         <columns>facility, full_name, value, name</columns>
 	<file path="instruments.loc" />
