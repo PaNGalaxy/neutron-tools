@@ -1,4 +1,4 @@
-<tool id="ndip_r2l" name="remote to local" version="0.1.0" python_template_version="3.5">
+<tool id="neutrons_r2l" name="remote to local" version="0.1.0" python_template_version="3.5">
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

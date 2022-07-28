@@ -1,4 +1,4 @@
-<tool id="ndip_l2r" name="local to remote" version="0.1.0" python_template_version="3.5">
+<tool id="neutrons_l2r" name="local to remote" version="0.1.0" python_template_version="3.5">
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

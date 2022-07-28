@@ -1,4 +1,4 @@
-<tool id="copy_machine" name="copy machine" version="0.1.0" python_template_version="3.5">
+<tool id="neutrons_copy_machine" name="copy machine" version="0.1.0" python_template_version="3.5">
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

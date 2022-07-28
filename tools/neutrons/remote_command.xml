@@ -1,4 +1,4 @@
-<tool id="remote_command" name="remote command" version="0.1.0" python_template_version="3.5">
+<tool id="neutrons_remote_command" name="remote command" version="0.1.0" python_template_version="3.5">
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

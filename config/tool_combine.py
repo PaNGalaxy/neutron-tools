@@ -43,22 +43,22 @@ class XMLCombiner(object):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Merge ndip_tool_conf.xml from local directory with another tools file')
+        description='Merge neutrons_tool_conf.xml from local directory with another tools file')
     parser.add_argument('tool_conf_file', type=str, nargs=1,
                         help='tool config xml file to merge with')
-    parser.add_argument('--ndip-tools-dir', type=str, default='ndip_tools',
-                        help='a folder with ndip tools')
-    parser.add_argument('--ndip-tool-conf', type=str, default='ndip_tool_conf.xml',
-                        help='a path to file with ndip tools')
+    parser.add_argument('--neutrons-tools-dir', type=str, default='neutrons',
+                        help='a folder with neutrons tools')
+    parser.add_argument('--neutrons-tool-conf', type=str, default='neutrons_tool_conf.xml',
+                        help='a path to file with neutrons tools')
     parser.add_argument('--dry-run', action=argparse.BooleanOptionalAction,
                         help='print output to screen ')
 
     args = parser.parse_args()
 
-    with open(args.ndip_tool_conf, 'r') as file:
+    with open(args.neutrons_tool_conf, 'r') as file:
         filedata = file.read()
 
-    f = io.StringIO(filedata.replace('file="ndip_tools', 'file="' + args.ndip_tools_dir))
+    f = io.StringIO(filedata.replace('file="neutrons', 'file="' + args.neutrons_dir))
 
     r = XMLCombiner([f, args.tool_conf_file[0]]).combine()
 
