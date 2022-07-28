@@ -2,7 +2,7 @@
 import sys
 from xml.etree import ElementTree as et
 import argparse
-
+import io
 
 class XMLCombiner(object):
     def __init__(self, filenames):
@@ -55,11 +55,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    r = XMLCombiner([args.ndip_tool_conf, args.tool_conf_file[0]]).combine()
+    with open(args.ndip_tool_conf, 'r') as file:
+        filedata = file.read()
 
-    print()
-    res = r.decode().replace('file="ndip_tools', 'file="' + args.ndip_tools_dir)
+    f = io.StringIO(filedata.replace('file="ndip_tools', 'file="' + args.ndip_tools_dir))
 
+    r = XMLCombiner([f, args.tool_conf_file[0]]).combine()
+
+    res = r.decode()
 
     if args.dry_run:
         print(res)
