@@ -1,0 +1,40 @@
+<tool id="neutrons_import_oncat" name="Import data from ONCat" version="0.1.0" python_template_version="3.5">
+    <requirements>
+	<requirement type="package" version="3.6">python</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+	    python $__tool_directory__/import_oncat.py --facility $facility --instrument $instrument
+	    #if $ipts:
+	      --ipts $ipts 
+	      #if $run:
+	        --run $run 
+	      #end if
+	    #end if
+	    > $output
+    ]]></command>
+    <inputs>
+	<param name="facility" type="select" label="Facility Name" optional="false">
+		<option value="SNS" selected="true">SNS</option>
+		<option value="HFIR">HFIR</option>
+	</param>
+	<param name="instrument" type="select" label="Instrument Name" optional="false">
+		<options from_data_table="instruments">
+			<column name="name" index="3"/>
+			<column name="value" index="2"/>
+			<filter type="param_value" ref="facility" column="0"/>
+		</options>
+	</param>
+	<param name="ipts" type="text" label="IPTS Number" optional="true"/>
+	<param name="run" type="integer" label="Run Number" optional="true"/>
+    </inputs>
+    <outputs>
+	<data format="h5" name="output">
+		<change_format>
+		    <when input="run" value="" format="tabular" />
+		</change_format>
+    	</data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>

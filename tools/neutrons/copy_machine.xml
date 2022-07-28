@@ -1,0 +1,21 @@
+<tool id="neutrons_copy_machine" name="copy machine" version="0.1.0" python_template_version="3.5">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        echo `date`, processed at `hostname`  > '$output1';
+        cat '$input1' >> '$output1'
+    ]]></command>
+    <inputs>
+        <param type="data" name="input1" format="txt" />
+        <param name="security" type="select" display="radio" label="Security level" help="...">
+            <option value="open" selected="true">Open</option>
+            <option value="moderate">Moderate</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="output1" format="txt" />
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
