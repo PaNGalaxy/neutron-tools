@@ -34,7 +34,8 @@
             ## copy default notebook
             cp '$__tool_directory__/default_notebook.ipynb' ./ipython_galaxy_notebook.ipynb &&
             jupyter trust ./ipython_galaxy_notebook.ipynb &&
-            bash -c '$__tool_directory__/run_notebook.sh ./ipython_galaxy_notebook.ipynb $jupyter_notebook'
+            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+            cp ./ipython_galaxy_notebook.ipynb '$jupyter_notebook'
         #else:
             #set $noteboook_name = re.sub('[^\w\-\.\s]', '_', str($mode.ipynb.element_identifier))
             cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
