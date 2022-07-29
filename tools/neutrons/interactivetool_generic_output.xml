@@ -1,0 +1,112 @@
+<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Notebook with output" version="0.1" profile="22.01">
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/calvera/jupyter-notebook:test</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Jupyter Interactive Tool" requires_domain="True">
+            <port>8888</port>
+            <url>ipython/lab</url>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="API_KEY" inject="api_key" />
+    </environment_variables>
+    <command><![CDATA[
+        #import re
+        #from pathlib import Path
+        export GALAXY_WORKING_DIR=`pwd` &&
+        mkdir -p ./jupyter/outputs/ &&
+        mkdir -p ./jupyter/data &&
+        #if $input_mode.input_mode_collection == 'true':
+            #for $el in $input_mode.input:
+               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+               #if Path($cleaned_name).suffix == '':
+                #set $cleaned_name=$cleaned_name + '.'+$el.ext
+               #end if
+               ln -sf '$el' './jupyter/data/${cleaned_name}' &&
+            #end for
+        #else:
+            #for $i, $s in enumerate($input_mode.series)
+                #if $s.alias == '':
+                    #set $name_in_notebook = 'dataset_' + str($i + 1) + '.' + str($s.input.ext)
+                #else:
+                    #set $name_in_notebook = $s.alias
+                #end if
+                ln -sf '${s.input}' './jupyter/data/${name_in_notebook}' &&
+            #end for
+        #end if
+
+        ## change into the directory where the notebooks are located
+        cd ./jupyter/ &&
+        export HOME=/home/jovyan/ &&
+        export PATH=/home/jovyan/.local/bin:\$PATH &&
+
+        #if $mode.mode_select == 'scratch':
+            ## copy default notebook
+            cp '$__tool_directory__/default_notebook.ipynb' ./ipython_galaxy_notebook.ipynb &&
+            jupyter trust ./ipython_galaxy_notebook.ipynb &&
+            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+            cp ./ipython_galaxy_notebook.ipynb '$jupyter_notebook'
+        #else:
+            #set $noteboook_name = re.sub('[^\w\-\.\s]', '_', str($mode.ipynb.element_identifier))
+            cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
+            jupyter trust './${noteboook_name}.ipynb' &&
+            #if $mode.run_it:
+                jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook.ipynb --allow-errors  ./*.ipynb &&
+                #set $noteboook_name = 'ipython_galaxy_notebook'
+            #else:
+                jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+            #end if
+            cp './${noteboook_name}.ipynb' '$jupyter_notebook'
+        #end if
+    ]]>
+    </command>
+    <inputs>
+
+        <conditional name="mode">
+            <param name="mode_select" type="select" label="Do you already have a notebook?" help="If not, no problem we will provide you with a default one.">
+                <option value="scratch">Start with a fresh notebook</option>
+                <option value="previous">Load a previous notebook</option>
+            </param>
+            <when value="scratch"/>
+            <when value="previous">
+                <param name="ipynb" type="data" format="ipynb" label="IPython Notebook"/>
+                <param name="run_it" type="boolean" truevalue="true" falsevalue="false" label="Execute notebook and return a new one."
+                    help="This option is useful in workflows when you just want to execute a notebook and not dive into the webfrontend."/>
+            </when>
+        </conditional>
+        <conditional name="input_mode">
+            <param name="input_mode_collection" type="boolean" truevalue="true" falsevalue="false" label="Use data collection for input"
+            help=""/>
+            <when value="true">
+                <param name="input" type="data_collection" optional="true" collection_type="list" label="Collection"/>
+            </when>
+            <when value="false">
+                 <repeat name="series" title="Datasets">
+                    <param name="input" type="data" label="Dataset"/>
+                    <param name="alias" type="text" optional="true" default="" label="Filename in Notebook"/>
+                </repeat>
+            </when>
+        </conditional>
+
+    </inputs>
+    <outputs>
+        <data name="jupyter_notebook" format="ipynb" label="Executed Notebook"></data>
+        <collection type="list" name="output" label="Executed Notebook Output">
+            <discover_datasets pattern="__designation_and_ext__" directory="jupyter/outputs" />
+        </collection>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="mode" value="previous" />
+            <param name="ipynb" value="test.ipynb" />
+            <param name="run_it" value="true" />
+            <output name="jupyter_notebook" file="test.ipynb" ftype="ipynb"/>
+        </test>
+    </tests>
+    <help>
+    </help>
+</tool>
