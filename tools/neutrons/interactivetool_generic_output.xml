@@ -1,4 +1,4 @@
-<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Notebook with output" version="0.1" profile="22.01">
+<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook ORNL" version="0.1" profile="22.01">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/calvera/jupyter-notebook:test</container>
     </requirements>
@@ -44,42 +44,42 @@
         export HOME=/home/jovyan/ &&
         export PATH=/home/jovyan/.local/bin:\$PATH &&
 
+        #set $noteboook_name = 'ipython_galaxy_notebook'
         #if $mode.mode_select == 'scratch':
-            ## copy default notebook
-            cp '$__tool_directory__/default_notebook.ipynb' ./ipython_galaxy_notebook.ipynb &&
-            jupyter trust ./ipython_galaxy_notebook.ipynb &&
-            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
-            cp ./ipython_galaxy_notebook.ipynb '$jupyter_notebook'
+            cp '$__tool_directory__/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
         #else:
-            #set $noteboook_name = re.sub('[^\w\-\.\s]', '_', str($mode.ipynb.element_identifier))
             cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
-            jupyter trust './${noteboook_name}.ipynb' &&
-            #if $mode.run_it:
-                jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook.ipynb --allow-errors  ./*.ipynb &&
-                #set $noteboook_name = 'ipython_galaxy_notebook'
-            #else:
-                jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
-            #end if
-            cp './${noteboook_name}.ipynb' '$jupyter_notebook'
+        #end if
+        jupyter trust './${noteboook_name}.ipynb' &&
+        #if $run_it:
+            jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
+            #set $noteboook_name = 'ipython_galaxy_notebook_converted'
+        #else:
+            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+        #end if
+        cp './${noteboook_name}.ipynb' '$jupyter_notebook' &&
+        #if $output_option == '1':
+            cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single'
+        #else:
+            :
         #end if
     ]]>
     </command>
     <inputs>
-
         <conditional name="mode">
-            <param name="mode_select" type="select" label="Do you already have a notebook?" help="If not, no problem we will provide you with a default one.">
+            <param name="mode_select" type="select" label="Jupyter notebook" help="Select 'Start with a fresh notebook' to use a default one.">
                 <option value="scratch">Start with a fresh notebook</option>
                 <option value="previous">Load a previous notebook</option>
             </param>
             <when value="scratch"/>
             <when value="previous">
                 <param name="ipynb" type="data" format="ipynb" label="IPython Notebook"/>
-                <param name="run_it" type="boolean" truevalue="true" falsevalue="false" label="Execute notebook and return a new one."
-                    help="This option is useful in workflows when you just want to execute a notebook and not dive into the webfrontend."/>
             </when>
         </conditional>
+        <param name="run_it" type="boolean" truevalue="true" falsevalue="false" label="Execute notebook noninteractively"
+                    help="This option is useful in workflows when you just want to execute a notebook and not dive into the webfrontend."/>
         <conditional name="input_mode">
-            <param name="input_mode_collection" type="boolean" truevalue="true" falsevalue="false" label="Use data collection for input"
+            <param name="input_mode_collection" type="boolean" truevalue="true" falsevalue="false" label="Use dataset collection for input"
             help=""/>
             <when value="true">
                 <param name="input" type="data_collection" optional="true" collection_type="list" label="Collection"/>
@@ -91,13 +91,20 @@
                 </repeat>
             </when>
         </conditional>
-
+       <param name="output_option" type="select" label="Type of output">
+           <option value="1">Single Dataset</option>
+           <option value="2">Dataset Collection</option>
+       </param>
     </inputs>
     <outputs>
         <data name="jupyter_notebook" format="ipynb" label="Executed Notebook"></data>
-        <collection type="list" name="output" label="Executed Notebook Output">
+        <collection type="list" name="output_collection" label="Executed Notebook Output">
             <discover_datasets pattern="__designation_and_ext__" directory="jupyter/outputs" />
+            <filter>output_option == "2"</filter>
         </collection>
+        <data name="output_single" auto_format="true" label="Executed Notebook Output">
+            <filter>output_option == "1"</filter>
+        </data>
     </outputs>
     <tests>
         <test expect_num_outputs="1">
