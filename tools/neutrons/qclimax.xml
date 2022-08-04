@@ -100,7 +100,7 @@
       -export-params
       #if $parameterInit.useParamInit == True
             #set $parameterIniName = str($parameterInit.parameterInitFile)[str($parameterInit.parameterInitFile).rfind("/") +1:]
-            -initial-parameters /input$parameterIniName
+            -initial-parameters /input/$parameterIniName
       #end if
       -method ${method}
       #if $setTemperature.setTemperature == True
