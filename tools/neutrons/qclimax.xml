@@ -26,7 +26,7 @@
 	#end if
 
 	##cp $ini_file $output ;
-	cat $ini_file > $output ;
+	echo $iniName > $output ;
 
 	mkdir functions ;
 	mkdir input ;
