@@ -28,10 +28,10 @@
 	##cp $ini_file $output ;
 	##whoami > $output ;
 
-	mkdir functions
-	mkdir input
-	mkdir constraints
-	mkdir output
+	mkdir functions ;
+	mkdir input ;
+	mkdir constraints ;
+	mkdir output ;
 	cp $ini_file ./input/ ;
 	cp $resolutionFile ./input/ ;
 	#for $i in range(len(list($setTemperature.dataFiles)))
