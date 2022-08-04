@@ -15,8 +15,10 @@
 	##set $dataNames = [os.path.basename(str(list($setTemperature.dataFiles)[i]["dataFile"])) for i in range(len(list($runs)))]
 	##set $dataName = os.path.basename(str(list($setTemperature.dataFiles)[0]["dataFile"]))
 	##set $dataName = str($dataName)[0:str($dataName).rfind(".")]
-	#set $iniName = os.path.basename(str($ini_file))
-	#set $iniName = str($ini_file)[str($ini_file).rfind("/tmp"):]
+	##set $iniName = os.path.basename(str($ini_file))
+
+	##This assumes all ini names are exactly 11 characters long but basename isn't working on Calvera
+	#set $iniName = $ini_file[-11:]
 	##cp $ini_file "$dataDir""$iniName" ;
 	##cp $ini_file ./ ;
 	#if $parameterInit.useParamInit == True
