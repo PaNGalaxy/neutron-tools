@@ -26,7 +26,7 @@
 	#end if
 
 	##cp $ini_file $output ;
-	##whoami > $output ;
+	cat $ini_file > $output ;
 
 	mkdir functions ;
 	mkdir input ;
@@ -679,7 +679,7 @@ $f.alphaColeCole.alphaColeColeValue
 	</conditional>
   </inputs>
   <outputs>
-    <data format="csv" name="out.csv">
+    <data format="csv" name="output">
     </data>
 	<!--<data format="csv" name="data0_0" >
 	</data>
