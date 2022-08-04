@@ -25,7 +25,7 @@
 	#end if
 
 	##cp $ini_file $output ;
-	echo $ini_file > $output ;
+	echo "$ini_file" > $output ;
 
 	mkdir functions ;
 	mkdir input ;
