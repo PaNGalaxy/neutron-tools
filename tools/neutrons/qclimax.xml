@@ -15,8 +15,7 @@
 	##set $dataNames = [os.path.basename(str(list($setTemperature.dataFiles)[i]["dataFile"])) for i in range(len(list($runs)))]
 	##set $dataName = os.path.basename(str(list($setTemperature.dataFiles)[0]["dataFile"]))
 	##set $dataName = str($dataName)[0:str($dataName).rfind(".")]
-	##set $iniName = os.path.basename(str($ini_file))
-	#set $iniName = str($ini_file)[str($ini_file).rfind("/")]
+	#set $iniName = os.path.basename(str($ini_file))
 	##cp $ini_file "$dataDir""$iniName" ;
 	##cp $ini_file ./ ;
 	#if $parameterInit.useParamInit == True
