@@ -679,8 +679,8 @@ $f.alphaColeCole.alphaColeColeValue
 	</conditional>
   </inputs>
   <outputs>
-    <!--<data format="csv" name="out.csv">
-    </data>-->
+    <data format="csv" name="out.csv">
+    </data>
 	<!--<data format="csv" name="data0_0" >
 	</data>
 	<data format="csv" name="data1_0" >
