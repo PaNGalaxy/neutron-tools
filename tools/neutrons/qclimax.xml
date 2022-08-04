@@ -21,10 +21,6 @@
 	#set $iniName = $ini_file[-11:]
 	##cp $ini_file "$dataDir""$iniName" ;
 	##cp $ini_file ./ ;
-	#if $parameterInit.useParamInit == True
-		#set $parameterInitName = os.path.basename(str($parameterInit.parameterInitFile))
-		cp $parameterInit.parameterInitFile ./input/ ;
-	#end if
 
 	##cp $ini_file $output ;
 
@@ -39,6 +35,10 @@
 		#set $dataName = str(list($dataNames)[$i])
 		cp $dataFile ./input/ ;
 	#end for 
+	#if $parameterInit.useParamInit == True
+		#set $parameterInitName = os.path.basename(str($parameterInit.parameterInitFile))
+		cp $parameterInit.parameterInitFile ./input/ ;
+	#end if
 
 
 	## Desktop execution only, switch docker container path to host mounted volume path
