@@ -23,7 +23,7 @@
 	##cp $ini_file ./ ;
 	#if $parameterInit.useParamInit == True
 		#set $parameterInitName = os.path.basename(str($parameterInit.parameterInitFile))
-		cp $parameterInit.parameterInitFile ./input ;
+		cp $parameterInit.parameterInitFile ./input/ ;
 	#end if
 
 	##cp $ini_file $output ;
