@@ -300,10 +300,11 @@
           -run
           #for $c in $r.constraints
               #if $c.constraintRelax.relax
+                    #set $relaxAmount = float($c.constraintRelax.relaxationPercent) / 100.0
                     #if $c.constraintRelax.rattle
-                          -relax-and-rattle ${c.constrainedParameter} ${c.constraintRelax.relaxationPercent}
+                          -relax-and-rattle ${c.constrainedParameter} $relaxAmount
                     #else
-                          -relax ${c.constrainedParameter} ${c.constraintRelax.relaxationPercent}
+                          -relax ${c.constrainedParameter} $relaxAmount
                     #end if
               #else
                     ##Fix sanitized user input with brackets
