@@ -1,0 +1,85 @@
+<tool id="neutrons_reduce120" tool_type="interactive" name="Reduce120" version="0.1" profile="22.05">
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/calvera/jupyter-notebook:test</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Jupyter Interactive Tool" requires_domain="True">
+            <port>8888</port>
+            <url>ipython/lab</url>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="API_KEY" inject="api_key" />
+    </environment_variables>
+    <command><![CDATA[
+        #import re
+        export GALAXY_WORKING_DIR=`pwd` &&
+        mkdir -p ./jupyter/outputs/ &&
+        mkdir -p ./jupyter/data &&
+
+        ln -sf '$data' './jupyter/data/data.h5' &&
+        ln -sf '$monitor' './jupyter/data/mon.h5' &&
+        ln -sf '$van' './jupyter/data/van.nxs' &&
+
+        ## change into the directory where the notebooks are located
+        cd ./jupyter/ &&
+        export HOME=/home/jovyan/ &&
+        export PATH=/home/jovyan/.local/bin:\$PATH &&
+        #set $noteboook_name = 'ipython_galaxy_notebook'
+        #if $mode.mode_select == 'scratch':
+            cp '$__tool_directory__/reduce120.ipynb' './${noteboook_name}.ipynb' &&
+        #else:
+            cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
+        #end if
+        jupyter trust './${noteboook_name}.ipynb' &&
+        #if $run_it:
+            jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
+            #set $noteboook_name = 'ipython_galaxy_notebook_converted'
+        #else:
+            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+        #end if
+        cp './${noteboook_name}.ipynb' '$jupyter_notebook' &&
+        cp Data120.h5  '$data_120' &&
+        cp MT120.h5    '$mt_120' &&
+        cp plots.png   '$plots'
+
+    ]]>
+    </command>
+    <inputs>
+
+        <conditional name="mode">
+            <param name="mode_select" type="select" label="Jupyter notebook" help="Select 'Start with a fresh notebook' to use a default one.">
+                <option value="scratch">Start with a fresh notebook</option>
+                <option value="previous">Load a previous notebook</option>
+            </param>
+            <when value="scratch"/>
+            <when value="previous">
+                <param name="ipynb" type="data" format="ipynb" label="IPython Notebook"/>
+            </when>
+        </conditional>
+        <param name="run_it" type="boolean" truevalue="true" falsevalue="false" label="Execute notebook noninteractively"
+                    help="This option is useful in workflows when you just want to execute a notebook and not dive into the webfrontend."/>
+        <param name="data" type="data" format="h5" optional="false" label="Data File"/>
+        <param name="monitor"  type="data" format="h5" optional="false" label="Monitor File"/>
+        <param name="van"  type="data" format="h5" optional="false" label="Vanadium File"/>
+    </inputs>
+    <outputs>
+        <data name="jupyter_notebook" format="ipynb" label="Executed Notebook"></data>
+        <data name="data_120" format="h5" label="Data120"></data>
+        <data name="mt_120" format="h5" label="MT120"></data>
+        <data name="plots" format="png" label="Plots"></data>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="mode" value="previous" />
+            <param name="ipynb" value="test.ipynb" />
+            <param name="run_it" value="true" />
+            <output name="jupyter_notebook" file="test.ipynb" ftype="ipynb"/>
+        </test>
+    </tests>
+    <help>
+    </help>
+</tool>
