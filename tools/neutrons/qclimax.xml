@@ -35,10 +35,6 @@
 		#set $dataName = str(list($dataNames)[$i])
 		cp $dataFile ./input/ ;
 	#end for
-		<repeat name="constraintFunctions" title="Constraint Functions">
-	    <param name="constraintFunction" type="data" format="txt" label="Constraint Function">
-	    </param>
-	</repeat>
 	#for $c in $constraintFunctions
 		##Rename constraint functions as python files
 		#set $constraintPython = os.path.basename(str($c.constraintFunction))[:-3] + "py"
