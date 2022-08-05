@@ -105,7 +105,7 @@
       -export-params
       #if(len(list($constraintParameters)) > 0) 
 	      #set $constraintParams = ""
-		  #for $c in constraintParameters 
+		  #for $c in $constraintParameters 
 		      #set $constraintParams = $constraintParams + " " + $c.constraintParameter.constraintParameterName + ",value=" + str($c.constraintParameter.constraintParameterValue)
 			  #if $c.constraintParameter.constraintParameterUseMin == True
 			      #set $constraintParams = $constraintParams + ",min=" + $c.constraintParameter.constraintParameterMin
@@ -286,6 +286,9 @@
       ##If there's no constraints in any runs, Galaxy doesn't create an empty list for the empty runs, so just put it in manually
       #if len($runs) == 0
           -run
+		  #if $orderLorentzians == True
+		      -ordered Lorentz
+		  #end if 
       #end if
       #for $r in $runs
           -run
@@ -300,6 +303,9 @@
                     -constraint $c.constrainedParameter $constraint
               #end if
           #end for
+          #if $orderLorentzians == True
+		      -ordered Lorentz
+		  #end if 
       #end for
 
 <!--     
@@ -619,7 +625,7 @@ $f.alphaColeCole.alphaColeColeValue
 	</repeat>
 	<repeat name="constraintParameters" title="Constraint Parameters">
 		<section name="constraintParameter" help="Parameter for use in defining constraints" title="Parameter">
-			<param name="constraintParameterName" type="text" value="0.5" label="Name"> 
+			<param name="constraintParameterName" type="text" value="A" label="Name"> 
 			</param>
 			<param name="constraintParameterValue" type="float" value="0.5" label="Starting Value"> 
 			</param>
@@ -673,6 +679,8 @@ $f.alphaColeCole.alphaColeColeValue
 				<option value="markov">Markov Chain Monte Carlo</option>
 				<option value="monotonic">Monotonic</option>
 				<option value="monotonic-average">Monotonic Average</option>
+	</param>
+	<param name="orderLorentzians" type="boolean" checked="false" label="Order Lorentzians" help="Whether to force the Lorentzians to maintain the same amplitude ordering across Q values"> 
 	</param>
 	<param name="errorCalculationSteps" type="float" value="10" label="# of Error Calculation Steps"> 
 	</param>
