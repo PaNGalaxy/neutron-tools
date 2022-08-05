@@ -300,7 +300,7 @@
                           -relax $c.constrainedParameter $c.constraintRelax.relaxationPercent
                     #end if
               #else
-                    -constraint $c.constrainedParameter $constraint
+                    -constraint $c.constrainedParameter $c.constraint
               #end if
           #end for
           #if $orderLorentzians == True
