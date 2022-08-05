@@ -34,6 +34,15 @@
 		#set $dataFile = str(list($setTemperature.dataFiles)[i]["dataFile"])
 		#set $dataName = str(list($dataNames)[$i])
 		cp $dataFile ./input/ ;
+	#end for
+		<repeat name="constraintFunctions" title="Constraint Functions">
+	    <param name="constraintFunction" type="data" format="txt" label="Constraint Function">
+	    </param>
+	</repeat>
+	#for $c in $constraintFunctions
+		##Rename constraint functions as python files
+		#set $constraintPython = os.path.basename(str($c.constraintFunction))[:-3] + "py"
+		cp $c.constraintFunction ./constraints/$constraintPython
 	#end for 
 	#if $parameterInit.useParamInit == True
 		#set $parameterInitName = os.path.basename(str($parameterInit.parameterInitFile))
@@ -98,6 +107,19 @@
       #end if
       -select-qs 0,1,2,3,4,5,6,7,8
       -export-params
+      #if(len(list($constraintParameters)) > 0) 
+	      #set $constraintParams = ""
+		  #for $c in constraintParameters 
+		      #set $constraintParams = $constraintParams + " " + $c.constraintParameter.constraintParameterName + ",value=" + str($c.constraintParameter.constraintParameterValue)
+			  #if $c.constraintParameter.constraintParameterUseMin == True
+			      #set $constraintParams = $constraintParams + ",min=" + $c.constraintParameter.constraintParameterMin
+			  #end if
+			  #if $c.constraintParameter.constraintParameterUseMax == True
+			      #set $constraintParams = $constraintParams + ",min=" + $c.constraintParameter.constraintParameterMax
+			  #end if
+		  #end for
+          -params $constraintParams
+	  #end if
       #if $parameterInit.useParamInit == True
             #set $parameterIniName = str($parameterInit.parameterInitFile)[str($parameterInit.parameterInitFile).rfind("/") +1:]
             -initial-parameters /input/$parameterIniName
@@ -599,13 +621,15 @@ $f.alphaColeCole.alphaColeColeValue
 	</repeat>
 	<repeat name="constraintParameters" title="Constraint Parameters">
 		<section name="constraintParameter" help="Parameter for use in defining constraints" title="Parameter">
+			<param name="constraintParameterName" type="text" value="0.5" label="Name"> 
+			</param>
 			<param name="constraintParameterValue" type="float" value="0.5" label="Starting Value"> 
 			</param>
-			<param name="constraintParameterMin" type="boolean" checked="false" label="Set min"> 
+			<param name="constraintParameterUseMin" type="boolean" checked="false" label="Set min"> 
 			</param>
 			<param name="constraintParameterMin" type="float" value="0" label="Min"> 
 			</param>
-			<param name="constraintParameterMax" type="boolean" checked="false" label="Set max"> 
+			<param name="constraintParameterUseMax" type="boolean" checked="false" label="Set max"> 
 			</param>
 			<param name="constraintParameterMax" type="float" value="1" label="Max"> 
 			</param>
