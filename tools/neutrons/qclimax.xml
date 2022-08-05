@@ -280,7 +280,7 @@
               #if $f.function.widPlaneDiffusion.widPlaneDiffusionUseMin 
                     #set $vars = str($vars) + ",min=" + str($f.function.widPlaneDiffusion.widPlaneDiffusionMin)
               #end if
-              -function Lorentz:amp,value=#echo vars
+              -function PlaneDiffusion:amp,value=#echo vars
           #end if
       #end for
       ##If there's no constraints in any runs, Galaxy doesn't create an empty list for the empty runs, so just put it in manually
@@ -295,12 +295,12 @@
           #for $c in $r.constraints
               #if $c.constraintRelax.relax
                     #if $c.constraintRelax.rattle
-                          -relax-and-rattle $c.constrainedParameter $c.constraintRelax.relaxationPercent
+                          -relax-and-rattle ${c.constrainedParameter} ${c.constraintRelax.relaxationPercent}
                     #else
-                          -relax $c.constrainedParameter $c.constraintRelax.relaxationPercent
+                          -relax ${c.constrainedParameter} ${c.constraintRelax.relaxationPercent}
                     #end if
               #else
-                    -constraint $c.constrainedParameter $c.constraint
+                    -constraint ${c.constrainedParameter} ${c.constraint}
               #end if
           #end for
           #if $orderLorentzians == True
