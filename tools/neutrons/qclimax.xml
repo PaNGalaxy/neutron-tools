@@ -300,7 +300,9 @@
                           -relax ${c.constrainedParameter} ${c.constraintRelax.relaxationPercent}
                     #end if
               #else
-                    -constraint ${c.constrainedParameter} ${c.constraint}
+                    ##Fix sanitized user input with brackets
+					#set $constraintString = str(${c.constraint}).replace("__ob__", "[").replace("__cb__", "]")
+					-constraint ${c.constrainedParameter} $constraintString
               #end if
           #end for
           #if $orderLorentzians == True
