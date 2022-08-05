@@ -22,7 +22,7 @@
 	##cp $ini_file "$dataDir""$iniName" ;
 	##cp $ini_file ./ ;
 
-	##cp $ini_file $output ;
+	cp $ini_file $output ;
 
 	mkdir functions ;
 	mkdir input ;
@@ -49,7 +49,7 @@
 		cp $parameterInit.parameterInitFile ./input/ ;
 	#end if
 
-
+	
 	## Desktop execution only, switch docker container path to host mounted volume path
 	##bash -c 'sudo docker run -e INIFILE="$iniName" -v /home$dataDir:/functions -v /home$dataDir:/input -v /home$dataDir:/constraints -v /home$dataDir:/output smithrw/qclimax' ;
 
