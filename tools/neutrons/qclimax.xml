@@ -106,12 +106,12 @@
       #if(len(list($constraintParameters)) > 0) 
 	      #set $constraintParams = ""
 		  #for $c in $constraintParameters 
-		      #set $constraintParams = $constraintParams + " " + $c.constraintParameter.constraintParameterName + ",value=" + str($c.constraintParameter.constraintParameterValue)
+		      #set $constraintParams = $constraintParams + " " + str($c.constraintParameter.constraintParameterName) + ",value=" + str($c.constraintParameter.constraintParameterValue)
 			  #if $c.constraintParameter.constraintParameterUseMin == True
-			      #set $constraintParams = $constraintParams + ",min=" + $c.constraintParameter.constraintParameterMin
+			      #set $constraintParams = $constraintParams + ",min=" + str($c.constraintParameter.constraintParameterMin)
 			  #end if
 			  #if $c.constraintParameter.constraintParameterUseMax == True
-			      #set $constraintParams = $constraintParams + ",min=" + $c.constraintParameter.constraintParameterMax
+			      #set $constraintParams = $constraintParams + ",min=" + str($c.constraintParameter.constraintParameterMax)
 			  #end if
 		  #end for
           -params $constraintParams
