@@ -41,8 +41,10 @@
 		cp $c.constraintFunction ./constraints/$constraintPython
 	#end for 
 	#if $parameterInit.useParamInit == True
-		#set $parameterInitName = os.path.basename(str($parameterInit.parameterInitFile))
-		cp $parameterInit.parameterInitFile ./input/ ;
+		#for pif in $parameterInit.parameterInitFiles
+			##set $parameterInitName = os.path.basename(str($parameterInit.parameterInitFile))
+			cp $pif.parameterInitFile ./input/ ;
+		#end for
 	#end if
 
 	
@@ -117,8 +119,11 @@
           -params $constraintParams
 	  #end if
       #if $parameterInit.useParamInit == True
-            #set $parameterIniName = str($parameterInit.parameterInitFile)[str($parameterInit.parameterInitFile).rfind("/") +1:]
-            -initial-parameters /input/$parameterIniName
+			#set $parameterInitString = ""
+			#for $pif in $parameterInit.parameterInitFiles
+				#set $parameterInitString = $parameterInitString + "/input/" + str($parameterInit.parameterInitFile)[str($parameterInit.parameterInitFile).rfind("/") +1:] + " "
+			#end for
+            -initial-parameters $parameterInitString
       #end if
       -method ${method}
       #if $setTemperature.setTemperature == True
@@ -705,8 +710,10 @@ $f.alphaColeCole.alphaColeColeValue
 		<param name="useParamInit" type="boolean" checked="false" label="Use Initialized Parameters" help="Whether to use a previous execution's output as starting values."> 
 		</param>
 		<when value="true">
-			<param name="parameterInitFile" type="data" format="json" label="Parameter Initialization File" help="JSON file from a previous QClimax output.">
-			</param>
+			<repeat name="parameterInitFiles" title="Parameter Initialization Files" help="Must have one initialization file per data file">
+				<param name="parameterInitFile" type="data" format="json" label="Parameter Initialization File" help="JSON file from a previous QClimax output.">
+				</param>
+			</repeat>
 		</when>
 	</conditional>
   </inputs>
