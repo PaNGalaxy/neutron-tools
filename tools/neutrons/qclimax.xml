@@ -121,7 +121,7 @@
       #if $parameterInit.useParamInit == True
 			#set $parameterInitString = ""
 			#for $pif in $parameterInit.parameterInitFiles
-				#set $parameterInitString = $parameterInitString + "/input/" + str($parameterInit.parameterInitFile)[str($parameterInit.parameterInitFile).rfind("/") +1:] + " "
+				#set $parameterInitString = $parameterInitString + "/input/" + str($pif.parameterInitFile)[str($pif.parameterInitFile).rfind("/") +1:] + " "
 			#end for
             -initial-parameters $parameterInitString
       #end if
