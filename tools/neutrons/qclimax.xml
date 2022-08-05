@@ -135,10 +135,12 @@
       -instrument Instrument
       #set resolutionFileName = str($resolutionFile)[str($resolutionFile).rfind("/") +1:]
       -resolution ${resolutionFileName}
+	  #set $dataFileNames = ""
       #for $d in $setTemperature.dataFiles
-          #set $dataFileName = str($d.dataFile)[str($d.dataFile).rfind("/") + 1:]
-          -data ${dataFileName}
+          #set $dataFileName = $dataFileNames + str($d.dataFile)[str($d.dataFile).rfind("/") + 1:] + ","
       #end for
+	  #set $dataFileNames = str($dataFileNames)[:-1]:
+	  -data ${dataFileNames}
       #for $f in $functions
           #if $f.function.name == "ColeCole"
               #set $vars = $f.function.alphaColeCole.alphaColeColeValue
