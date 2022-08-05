@@ -41,8 +41,8 @@
 		cp $c.constraintFunction ./constraints/$constraintPython
 	#end for 
 	#if $parameterInit.useParamInit == True
-		#for pif in $parameterInit.parameterInitFiles
-			##set $parameterInitName = os.path.basename(str($parameterInit.parameterInitFile))
+		#for $pif in $parameterInit.parameterInitFiles
+			##set $parameterInitName = os.path.basename(str($pif.parameterInitFile))
 			cp $pif.parameterInitFile ./input/ ;
 		#end for
 	#end if
