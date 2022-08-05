@@ -135,7 +135,7 @@
       #for $d in $setTemperature.dataFiles
           #set $dataFileName = $dataFileNames + str($d.dataFile)[str($d.dataFile).rfind("/") + 1:] + ","
       #end for
-	  #set $dataFileNames = str($dataFileNames)[:-1]:
+	  #set $dataFileNames = str($dataFileNames)[:-1]
 	  -data ${dataFileNames}
       #for $f in $functions
           #if $f.function.name == "ColeCole"
