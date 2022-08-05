@@ -127,7 +127,7 @@
       -method ${method}
       #if $setTemperature.setTemperature == True
           #for $d in $setTemperature.dataFiles
-              #if $d.dataRangeCond.setDataRange.setDataRange == True
+              #if $d.dataRangeCond.setDataRange == True
                   -restrict-range ${d.temperature} ${d.dataRangeCond.setDataRange.dataRangeStart} ${d.dataRangeCond.setDataRange.dataRangeEnd}
               #end if
           #end for
