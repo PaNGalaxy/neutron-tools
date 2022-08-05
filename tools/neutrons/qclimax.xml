@@ -301,7 +301,7 @@
                     #end if
               #else
                     ##Fix sanitized user input with brackets
-					#set $constraintString = str(${c.constraint}).replace("__ob__", "[").replace("__cb__", "]")
+					#set $constraintString = str(${c.constraint}).replace("__ob__", "\[").replace("__cb__", "\]")
 					-constraint ${c.constrainedParameter} $constraintString
               #end if
           #end for
