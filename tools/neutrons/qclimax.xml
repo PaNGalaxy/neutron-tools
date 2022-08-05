@@ -133,7 +133,7 @@
       -resolution ${resolutionFileName}
 	  #set $dataFileNames = ""
       #for $d in $setTemperature.dataFiles
-          #set $dataFileName = $dataFileNames + str($d.dataFile)[str($d.dataFile).rfind("/") + 1:] + ","
+          #set $dataFileNames = $dataFileNames + str($d.dataFile)[str($d.dataFile).rfind("/") + 1:] + ","
       #end for
 	  #set $dataFileNames = str($dataFileNames)[:-1]
 	  -data ${dataFileNames}
