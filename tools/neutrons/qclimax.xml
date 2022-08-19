@@ -103,7 +103,12 @@
               -plot-background
           #end if
       #end if
-      -select-qs 0,1,2,3,4,5,6,7,8
+      #set $q_string = ""
+      #for $q in list($qValues)
+	      #set $q_string = $q_string + $q[1:$q.find("(")] + ","
+      #end for 
+      #set $q_string = $q_string[:-1]
+      -select-qs $q_string
       -export-params
       #if(len(list($constraintParameters)) > 0) 
 	      #set $constraintParams = ""
@@ -363,6 +368,12 @@ $f.alphaColeCole.alphaColeColeValue
 		<option value="3">Single crystal Q-Q calculation</option>
 	</param>-->
 	<param name="resolutionFile" type="data" format="dat,hdf5,inx" label="Resolution File">
+	</param>
+	<param name="qValues" type="select" label="Q Values" multiple="true">
+	    <options>
+	        <filter type="data_meta" ref="resolutionFile" key="q_values"/>
+	        <filter type="sort_by" name="sorted_taxon" column="1"/>
+	    </options>
 	</param>
 	<conditional name="setTemperature">
 		<param name="setTemperature" type="boolean" checked="false" label="Set Temperature" help="Whether to specify a temperature for the data files."> 
