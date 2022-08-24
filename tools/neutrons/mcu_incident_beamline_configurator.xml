@@ -1,18 +1,40 @@
 <tool id="neutrons_mcu_ibc" name="Incident Beamline Configurator" version="0.0.1">
   <description></description>
     <requirements>
-	<requirement type="package" version="3.6">python</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        #if $template_mode.oncat:
+            #set $instrument_template = $__tool_data_path__ + "/"+str($template_mode.facility).lower() + '_' + str($template_mode.instrument).lower()+"_pv.json"
+        #end if
     	docker run
-    	    -v $data:/input/data.nxs.h5
-    	    -v $instrument_template:/input/instrument_pv.json
+            --mount type=bind,source=$data,target=/input/data.nxs.h5,readonly
+            --mount type=bind,source=$instrument_template,target=/input/instrument_pv.json,readonly
     	    code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_configurator
 	    > $output
     ]]></command>
     <inputs>
+        <conditional name="template_mode">
+            <param name="oncat" type="boolean" truevalue="true" falsevalue="false" label="Select instrument"
+            help=""/>
+            <when value="true">
+                <param name="facility" type="select" refresh_on_change="true" label="Facility Name" optional="false">
+                    <option value="none" selected="true">None</option>
+                    <option value="SNS">SNS</option>
+                    <option value="HFIR">HFIR</option>
+                </param>
+                <param name="instrument" type="select" label="Instrument Name" optional="false">
+                    <options from_data_table="instruments">
+                        <column name="name" index="3"/>
+                        <column name="value" index="2"/>
+                        <filter type="param_value" ref="facility" column="0"/>
+                    </options>
+                </param>
+            </when>
+            <when value="false">
+                <param name="instrument_template"  type="data" format="json" optional="false" label="Instrument Template File"/>
+            </when>
+        </conditional>
         <param name="data" type="data" format="h5" optional="false" label="Data File"/>
-        <param name="instrument_template"  type="data" format="json" optional="false" label="Instrument Template File"/>
     </inputs>
     <outputs>
 		<data format="txt" name="output">
