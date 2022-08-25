@@ -29,11 +29,11 @@
 	mkdir constraints ;
 	mkdir output ;
 	cp $ini_file ./input/ ;
-	cp $resolutionFile ./input/ ;
+	cp $resolutionFile ./input/res ;
 	#for $i in range(len(list($setTemperature.dataFiles)))
 		#set $dataFile = str(list($setTemperature.dataFiles)[i]["dataFile"])
 		#set $dataName = str(list($dataNames)[$i])
-		cp $dataFile ./input/ ;
+		cp $dataFile ./input/data"$i" ;
 	#end for
 	#for $c in $constraintFunctions
 		##Rename constraint functions as python files
@@ -140,11 +140,10 @@
           #end for
       #end if
       -instrument Instrument
-      #set resolutionFileName = str($resolutionFile)[str($resolutionFile).rfind("/") +1:]
-      -resolution ${resolutionFileName}
+      -resolution res
 	  #set $dataFileNames = ""
-      #for $d in $setTemperature.dataFiles
-          #set $dataFileNames = $dataFileNames + str($d.dataFile)[str($d.dataFile).rfind("/") + 1:] + ","
+      #for $i, $d in enumerate($setTemperature.dataFiles)
+          #set $dataFileNames = $dataFileNames + "data" + str($i) + ","
       #end for
 	  #set $dataFileNames = str($dataFileNames)[:-1]
 	  -data ${dataFileNames}
