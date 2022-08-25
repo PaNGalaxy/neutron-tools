@@ -22,14 +22,13 @@
 	##cp $ini_file "$dataDir""$iniName" ;
 	##cp $ini_file ./ ;
 
-	cp $ini_file $output ;
-
 	mkdir functions ;
 	mkdir input ;
 	mkdir constraints ;
 	mkdir output ;
 	cp $ini_file ./input/ ;
 	cp $resolutionFile ./input/res ;
+	cp ./input/res $output ;
 	#for $i in range(len(list($setTemperature.dataFiles)))
 		#set $dataFile = str(list($setTemperature.dataFiles)[i]["dataFile"])
 		#set $dataName = str(list($dataNames)[$i])
