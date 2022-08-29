@@ -5,13 +5,14 @@
     <command detect_errors="exit_code"><![CDATA[
         mkdir \${_GALAXY_JOB_TMP_DIR}/outputs &&
         #set $gpu_str = "gpu" if $gpu else ""
+        #set $image_tag = "0.1"
         #if $input_mode.manual_input:
             docker run
                 --mount type=bind,source=$input,target=/inputs/input.txt,readonly
                 --mount type=bind,source=$instrument_source_code,target=/inputs/instrument_source.c,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
                 --cap-add SYS_NICE
-                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator-devel:0.1
+                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator-devel:$image_tag
                 /inputs/instrument_source.c $nproc $n $gpu_str &&
         #else
             #set $fi_str = str($input_mode.facility).lower()+'_'+str($input_mode.instrument).lower()
@@ -19,7 +20,7 @@
                 --mount type=bind,source=$input,target=/inputs/input.txt,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
                 --cap-add SYS_NICE
-                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator:0.1
+                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator:$image_tag
                 $fi_str $nproc $n $gpu_str &&
         #end if
         mv \${_GALAXY_JOB_TMP_DIR}/outputs/mon1.tdat $out_mon1 &&
