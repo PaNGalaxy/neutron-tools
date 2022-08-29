@@ -13,7 +13,7 @@
 	#set $dataNames = [os.path.basename(str(i["dataFile"])) for i in list($setTemperature.dataFiles)]
 
 	##This assumes all ini names are exactly 11 characters long but basename isn't working on Calvera
-	#set $iniName = $ini_file[-11:]
+	#set $iniName = str($ini_file.element_identifier)
 
 	mkdir functions ;
 	mkdir input ;
@@ -37,10 +37,6 @@
 			cp $pif.parameterInitFile ./input/ ;
 		#end for
 	#end if
-
-	
-	## Desktop execution only, switch docker container path to host mounted volume path
-	##bash -c 'sudo docker run -e INIFILE="$iniName" -v /home$dataDir:/functions -v /home$dataDir:/input -v /home$dataDir:/constraints -v /home$dataDir:/output smithrw/qclimax' ;
 
 	## Run the docker container
 	bash -c 'docker run -e INIFILE="$iniName" -v \$(pwd)/functions:/functions -v \$(pwd)/input:/input -v \$(pwd)/constraints:/constraints -v \$(pwd)/output:/output smithrw/qclimax' ;
