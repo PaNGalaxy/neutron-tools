@@ -1,0 +1,31 @@
+{
+  "name": "seq",
+  "run": "template",
+  "parameters": [
+    {"pv": "BL17:CS:RunControl:LastRunNumber","res":"N/A", "use": "catalog"},
+    {"pv": "BL17:Mot:s1l","res":0.001, "use": "not implemented","sim_name":"s1l", "value":  "N/A"},
+    {"pv": "BL17:Mot:s1r","res":0.001, "use": "not implemented","sim_name":"s1r"},
+    {"pv": "BL17:Mot:s1b","res":0.001, "use": "not implemented","sim_name":"s1b"},
+    {"pv": "BL17:Mot:s1t","res":0.001, "use": "not implemented","sim_name":"s1t"},
+    {"pv": "BL17:Mot:s2l","res":0.001, "use": "incident simulation","sim_name":"s2l"},
+    {"pv": "BL17:Mot:s2r","res":0.001, "use": "incident simulation","sim_name":"s2r"},
+    {"pv": "BL17:Mot:s2b","res":0.001, "use": "incident simulation","sim_name":"s2b"},
+    {"pv": "BL17:Mot:s2t","res":0.001, "use": "incident simulation","sim_name":"s2t"},
+    {"pv": "BL17:Chop:InUse:ChopperId","res":"N/A", "use": "not implemented","sim_name":"slitpackage"},
+    {"pv": "BL17:Mot:chtrans:Position", "res": 1, "use": "incident simulation","sim_name":"choppos"},
+    {"pv": "BL17:Chop:InUse:ChopperName", "use" : "not used"},
+    {"pv": "BL17:Chop:Skf1:ChopperId", "use" : "not used"},
+    {"pv": "BL17:Chop:Skf2:ChopperId","res":"N/A", "use": "incident simulation","sim_name":"FC1id"},
+    {"pv": "BL17:Chop:Skf3:ChopperId","res":"N/A", "use": "incident simulation","sim_name":"FC2id"},
+    {"pv": "BL17:Chop:Skf1:MotorSpeed","res":30, "use": "incident simulation","sim_name":"T0_nu"},
+    {"pv": "BL17:Chop:Skf2:MotorSpeed","res":60, "use": "incident simulation","sim_name":"FC1nu"},
+    {"pv": "BL17:Chop:Skf3:MotorSpeed", "res":60, "use": "incident simulation","sim_name":"FC2nu"},
+    {"pv": "BL17:Chop:Skf2:PhaseTimeDelaySet", "use": "not implemented","sim_name":"FC1dly" },
+    {"pv": "BL17:Chop:Skf1:PhaseTimeDelaySet", "use": "not implemented","sim_name":"T0dly"},
+    {"pv": "BL17:Chop:Skf3:PhaseTimeDelaySet", "use": "not implemented","sim_name":"FC2dly"},
+    {"pv": "BL17:Mot:attenuator1","res":"bool", "use": "not implemented","sim_name":"at1"},
+    {"pv": "BL17:Mot:attenuator2","res":"bool", "use": "not implemented","sim_name":"at2"},
+    {"pv": "BL17:CS:Energy:Ei", "use": "not used"},
+    {"pv": "BL17:Chop:Skf1:EnergyUserReq","res":1, "use": "incident simulation","sim_name":"Edes"}
+  ]
+}
