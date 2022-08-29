@@ -3,20 +3,21 @@
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #if $template_mode.oncat:
+        #set $image_tag = "0.1"
+        #if not $template_mode.manual_input:
             #set $instrument_template = $__tool_data_path__ + "/"+str($template_mode.facility).lower() + '_' + str($template_mode.instrument).lower()+"_pv.json"
         #end if
     	docker run
             --mount type=bind,source=$data,target=/input/data.nxs.h5,readonly
             --mount type=bind,source=$instrument_template,target=/input/instrument_pv.json,readonly
-    	    code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_configurator
+    	    code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_configurator:$image_tag
 	    > $output
     ]]></command>
     <inputs>
         <conditional name="template_mode">
-            <param name="oncat" type="boolean" truevalue="true" falsevalue="false" label="Select instrument"
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="false" label="Manual input"
             help=""/>
-            <when value="true">
+            <when value="false">
                 <param name="facility" type="select" refresh_on_change="true" label="Facility Name" optional="false">
                     <option value="none" selected="true">None</option>
                     <option value="SNS">SNS</option>
@@ -30,7 +31,7 @@
                     </options>
                 </param>
             </when>
-            <when value="false">
+            <when value="true">
                 <param name="instrument_template"  type="data" format="json" optional="false" label="Instrument Template File"/>
             </when>
         </conditional>
