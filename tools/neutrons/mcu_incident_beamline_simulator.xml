@@ -1,0 +1,65 @@
+<tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator" version="0.0.1">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir \${_GALAXY_JOB_TMP_DIR}/outputs &&
+        #set $gpu_str = "gpu" if $gpu else ""
+        #if $input_mode.manual_input:
+            docker run
+                --mount type=bind,source=$input,target=/inputs/input.txt,readonly
+                --mount type=bind,source=$instrument_source_code,target=/inputs/instrument_source.c,readonly
+                --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
+                --cap-add SYS_NICE
+                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator-devel:0.1
+                /inputs/instrument_source.c $nproc $n $gpu_str &&
+        #else
+            #set $fi_str = str($input_mode.facility).lower()+'_'+str($input_mode.instrument).lower()
+            docker run
+                --mount type=bind,source=$input,target=/inputs/input.txt,readonly
+                --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
+                --cap-add SYS_NICE
+                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator:0.1
+                $fi_str $nproc $n $gpu_str &&
+        #end if
+        mv \${_GALAXY_JOB_TMP_DIR}/outputs/mon1.tdat $out_mon1 &&
+        mv \${_GALAXY_JOB_TMP_DIR}/outputs/vsource.mcpl.gz $out_mcpl &&
+        mv \${_GALAXY_JOB_TMP_DIR}/outputs/mccode.sim $out_mccode
+    ]]></command>
+    <inputs>
+        <conditional name="input_mode">
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="false" label="Manual input"
+            help=""/>
+            <when value="false">
+                <param name="facility" type="select" refresh_on_change="true" label="Facility Name" optional="false">
+                    <option value="none" selected="true">None</option>
+                    <option value="SNS">SNS</option>
+                    <option value="HFIR">HFIR</option>
+                </param>
+                <param name="instrument" type="select" label="Instrument Name" optional="false">
+                    <options from_data_table="instruments">
+                        <column name="name" index="3"/>
+                        <column name="value" index="2"/>
+                        <filter type="param_value" ref="facility" column="0"/>
+                    </options>
+                </param>
+            </when>
+            <when value="true">
+                <param name="instrument_source_code"  type="data" format="txt" optional="false" label="Simulation code source"/>
+            </when>
+        </conditional>
+        <param name="input" type="data" format="txt" optional="false" label="Simulation input"/>
+        <param name="n" type="text" value="1e4" label="Number of particles"/>
+        <param name="nproc" type="integer" value="4" label="Number of processes"/>
+        <param name="gpu" type="boolean" checked="false" label="Use GPU"/>
+    </inputs>
+    <outputs>
+		<data format="gz" name="out_mcpl" label="mcpl"/>
+		<data format="txt" name="out_mon1" label="mon"/>
+		<data format="txt" name="out_mccode" label="mccode"/>
+    </outputs>
+    <help><![CDATA[
+A tool to run incident beamline simulations
+]]></help>
+</tool>
+
