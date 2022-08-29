@@ -1,8 +1,5 @@
 <tool id="ornl_qclimax" name="QClimax" version="0.0.0">
   <description>analysis tool</description>
-<!--  <requirements>
-    <container type="docker">smithrw/qclimax</container>
-  </requirements>-->
   <command>
 
 	#set $dataDir = str($resolutionFile)[0:str($resolutionFile).rfind("/") + 1]
