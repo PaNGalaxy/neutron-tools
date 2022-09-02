@@ -1,4 +1,4 @@
-<tool id="neutrons_get_experiment_location" name="Get experiment location(facility/instrument)" version="0.1.0" python_template_version="3.5">
+<tool id="neutrons_mcu_get_supported_instrument" name="Get instrument" version="0.1.0" python_template_version="3.5">
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -11,7 +11,7 @@
 		<option value="HFIR">HFIR</option>
 	</param>
 	<param name="instrument" type="select" label="Instrument Name" optional="false">
-		<options from_data_table="instruments">
+		<options from_data_table="mcu_supported_instruments">
 			<column name="name" index="3"/>
 			<column name="value" index="2"/>
 			<filter type="param_value" ref="facility" column="0"/>

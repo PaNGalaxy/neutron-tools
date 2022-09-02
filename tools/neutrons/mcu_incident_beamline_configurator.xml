@@ -8,6 +8,7 @@
             #set $instrument_template = $__tool_data_path__ + "/"+str($template_mode.facility).lower() + '_' + str($template_mode.instrument).lower()+"_pv.json"
         #end if
     	docker run
+    	    --rm
             --mount type=bind,source=$data,target=/input/data.nxs.h5,readonly
             --mount type=bind,source=$instrument_template,target=/input/instrument_pv.json,readonly
     	    code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_configurator:$image_tag
@@ -24,7 +25,7 @@
                     <option value="HFIR">HFIR</option>
                 </param>
                 <param name="instrument" type="select" label="Instrument Name" optional="false">
-                    <options from_data_table="instruments">
+                    <options from_data_table="mcu_supported_instruments">
                         <column name="name" index="3"/>
                         <column name="value" index="2"/>
                         <filter type="param_value" ref="facility" column="0"/>
