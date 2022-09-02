@@ -6,6 +6,7 @@
         #import re
         #set $name = re.sub('[^\w\-\.\s]', '_', str($input.element_identifier)) + "." + str($input.ext)
         docker run
+                --rm
                 --mount type=bind,source=$input,target=/$name,readonly
                 docker.io/mccode/mcstas-2.7.1-3.1:1.0
                 mcpltool $dump_options /$name > $output
