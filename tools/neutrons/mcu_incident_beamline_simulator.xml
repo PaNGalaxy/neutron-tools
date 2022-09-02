@@ -5,13 +5,14 @@
     <command detect_errors="exit_code"><![CDATA[
         mkdir \${_GALAXY_JOB_TMP_DIR}/outputs &&
         #set $gpu_str = "gpu" if $gpu else ""
+        #set $gpu_cmd_str = "--gpus all" if $gpu else ""
         #set $image_tag = "0.1"
         #if $input_mode.manual_input:
             docker run
                 --mount type=bind,source=$input,target=/inputs/input.txt,readonly
                 --mount type=bind,source=$instrument_source_code,target=/inputs/instrument_source.c,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
-                --cap-add SYS_NICE
+                --cap-add SYS_NICE $gpu_cmd_str
                 code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator-devel:$image_tag
                 /inputs/instrument_source.c $nproc $n $gpu_str &&
         #else
@@ -19,8 +20,8 @@
             docker run
                 --mount type=bind,source=$input,target=/inputs/input.txt,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
-                --cap-add SYS_NICE
-                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator:$image_tag
+                --cap-add SYS_NICE $gpu_cmd_str
+                m
                 $fi_str $nproc $n $gpu_str &&
         #end if
         mv \${_GALAXY_JOB_TMP_DIR}/outputs/mon1.tdat $out_mon1 &&
@@ -38,7 +39,7 @@
                     <option value="HFIR">HFIR</option>
                 </param>
                 <param name="instrument" type="select" label="Instrument Name" optional="false">
-                    <options from_data_table="instruments">
+                    <options from_data_table="mcu_supported_instruments">
                         <column name="name" index="3"/>
                         <column name="value" index="2"/>
                         <filter type="param_value" ref="facility" column="0"/>

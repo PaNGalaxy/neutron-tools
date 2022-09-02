@@ -24,7 +24,7 @@
                     <option value="HFIR">HFIR</option>
                 </param>
                 <param name="instrument" type="select" label="Instrument Name" optional="false">
-                    <options from_data_table="instruments">
+                    <options from_data_table="mcu_supported_instruments">
                         <column name="name" index="3"/>
                         <column name="value" index="2"/>
                         <filter type="param_value" ref="facility" column="0"/>
