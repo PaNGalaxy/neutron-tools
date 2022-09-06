@@ -10,6 +10,7 @@
         #if $input_mode.manual_input:
             docker run
                 --rm
+                --init
                 --mount type=bind,source=$input,target=/inputs/input.txt,readonly
                 --mount type=bind,source=$instrument_source_code,target=/inputs/instrument_source.c,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
@@ -20,6 +21,7 @@
             #set $fi_str = str($input_mode.facility).lower()+'_'+str($input_mode.instrument).lower()
             docker run
                 --rm
+                --init
                 --mount type=bind,source=$input,target=/inputs/input.txt,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/outputs
                 --cap-add SYS_NICE $gpu_cmd_str
