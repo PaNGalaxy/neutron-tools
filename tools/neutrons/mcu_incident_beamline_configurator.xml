@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_ibc" name="Incident Beamline Configurator" version="0.0.1">
+<tool id="neutrons_mcu_ibc" name="Incident Beamline Configurator" version="0.2.0">
   <description></description>
     <requirements>
     </requirements>
