@@ -62,6 +62,7 @@
 		<data format="gz" name="out_mcpl" label="mcpl"/>
         <collection type="list" name="output_collection" label="debug output">
             <discover_datasets pattern="__designation_and_ext__" directory="outputs" />
+            <filter>debug_output</filter>
         </collection>
     </outputs>
     <help><![CDATA[
