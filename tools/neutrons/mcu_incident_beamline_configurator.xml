@@ -3,16 +3,23 @@
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "0.1"
+        #set $image_tag = "0.2"
         #if not $template_mode.manual_input:
-            #set $instrument_template = $__tool_data_path__ + "/"+str($template_mode.facility).lower() + '_' + str($template_mode.instrument).lower()+"_pv.json"
+            #set $instrument = str($template_mode.facility).lower() + '_' + str($template_mode.instrument).lower()
+   	        docker run
+    	        --rm
+                --mount type=bind,source=$data,target=/input/data.nxs.h5,readonly
+    	        code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_configurator:$image_tag
+    	        $instrument
+	        > $output
+	    #else
+            docker run
+                --rm
+                --mount type=bind,source=$data,target=/input/data.nxs.h5,readonly
+                --mount type=bind,source=$instrument_template,target=/input/instrument_pv.json,readonly
+                code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_configurator:$image_tag
+            > $output
         #end if
-    	docker run
-    	    --rm
-            --mount type=bind,source=$data,target=/input/data.nxs.h5,readonly
-            --mount type=bind,source=$instrument_template,target=/input/instrument_pv.json,readonly
-    	    code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_configurator:$image_tag
-	    > $output
     ]]></command>
     <inputs>
         <conditional name="template_mode">
