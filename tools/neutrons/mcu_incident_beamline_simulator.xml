@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator" version="0.0.1">
+<tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator" version="0.2.0">
   <description></description>
     <requirements>
     </requirements>
@@ -6,7 +6,7 @@
         mkdir \${_GALAXY_JOB_TMP_DIR}/outputs &&
         #set $gpu_str = "gpu" if $gpu else ""
         #set $gpu_cmd_str = "--gpus all" if $gpu else ""
-        #set $image_tag = "0.1"
+        #set $image_tag = "0.2"
         #if $input_mode.manual_input:
             docker run
                 --rm
@@ -26,9 +26,8 @@
                 code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator:$image_tag
                 $fi_str $nproc $n $gpu_str &&
         #end if
-        mv \${_GALAXY_JOB_TMP_DIR}/outputs/mon1.tdat $out_mon1 &&
-        mv \${_GALAXY_JOB_TMP_DIR}/outputs/vsource.mcpl.gz $out_mcpl &&
-        mv \${_GALAXY_JOB_TMP_DIR}/outputs/mccode.sim $out_mccode
+        mv \${_GALAXY_JOB_TMP_DIR}/outputs/*vsource.mcpl.gz $out_mcpl &&
+        mv \${_GALAXY_JOB_TMP_DIR}/outputs .
     ]]></command>
     <inputs>
         <conditional name="input_mode">
@@ -56,11 +55,14 @@
         <param name="n" type="text" value="1e9" label="Number of particles"/>
         <param name="nproc" type="integer" value="2" label="Number of processes"/>
         <param name="gpu" type="boolean" checked="true" label="Use GPU"/>
+        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" default="false" label="Output debug files"
+            help=""/>
     </inputs>
     <outputs>
 		<data format="gz" name="out_mcpl" label="mcpl"/>
-		<data format="txt" name="out_mon1" label="mon"/>
-		<data format="txt" name="out_mccode" label="mccode"/>
+        <collection type="list" name="output_collection" label="debug output">
+            <discover_datasets pattern="__designation_and_ext__" directory="outputs" />
+        </collection>
     </outputs>
     <help><![CDATA[
 A tool to run incident beamline simulations
