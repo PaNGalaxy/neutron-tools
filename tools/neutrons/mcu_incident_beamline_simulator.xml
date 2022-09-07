@@ -28,7 +28,7 @@
                 code.ornl.gov:4567/ndip/tool-containers/mcu/incident_beamline_simulator:$image_tag
                 $fi_str $nproc $n $gpu_str &&
         #end if
-        mv \${_GALAXY_JOB_TMP_DIR}/outputs/*vsource.mcpl.gz $out_mcpl &&
+        ( mv \${_GALAXY_JOB_TMP_DIR}/outputs/*vsource.mcpl.gz $out_mcpl || true ) &&
         mv \${_GALAXY_JOB_TMP_DIR}/outputs .
     ]]></command>
     <inputs>
