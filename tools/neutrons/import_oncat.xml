@@ -2,6 +2,9 @@
     <requirements>
 	<requirement type="package" version="3.6">python</requirement>
     </requirements>
+	    <environment_variables>
+        <environment_variable name="_GALAXY_OIDC_ID_TOKEN" inject="oidc_id_token"/>
+    </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
 	    python $__tool_directory__/import_oncat.py --facility $facility --instrument $instrument
 	    #if $ipts:
@@ -10,7 +13,7 @@
 	        --run $run 
 	      #end if
 	    #end if
-	    > $output
+	    --output $output
     ]]></command>
     <inputs>
 	<param name="facility" type="select" label="Facility Name" optional="false">
