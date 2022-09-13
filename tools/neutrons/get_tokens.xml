@@ -1,0 +1,23 @@
+<tool id="neutrons_get_oidc_tokens" name="get OIDC tokens" version="0.1.0">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        echo "id: \$_GALAXY_OIDC_ID_TOKEN" > '$output1' &&
+        echo "-------------" >> '$output1' &&
+        echo "access: \$_GALAXY_OIDC_ACCESS_TOKEN" >> '$output1' &&
+        echo "-------------" >> '$output1' &&
+        echo "refresh: \$_GALAXY_OIDC_REFRESH_TOKEN" >> '$output1'
+    ]]></command>
+    <environment_variables>
+        <environment_variable name="_GALAXY_OIDC_ACCESS_TOKEN" inject="oidc_access_token"/>
+        <environment_variable name="_GALAXY_OIDC_REFRESH_TOKEN" inject="oidc_refresh_token"/>
+        <environment_variable name="_GALAXY_OIDC_ID_TOKEN" inject="oidc_id_token"/>
+    </environment_variables>
+    <outputs>
+        <data name="output1" format="txt">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
