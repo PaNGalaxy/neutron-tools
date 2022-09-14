@@ -1,11 +1,13 @@
-<tool id="neutrons_import_oncat" name="Import data from ONCat" version="0.1.0" python_template_version="3.5">
+<tool id="neutrons_import_oncat" name="Import neutron experiment data" version="0.2.0" python_template_version="3.5">
     <requirements>
 	<requirement type="package" version="3.6">python</requirement>
     </requirements>
-	    <environment_variables>
+	<environment_variables>
         <environment_variable name="_GALAXY_OIDC_ID_TOKEN" inject="oidc_id_token"/>
+        <environment_variable name="_GALAXY_OIDC_REFRESH_TOKEN" inject="oidc_refresh_token"/>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
+        #import json
 	    python $__tool_directory__/import_oncat.py --facility $facility --instrument $instrument
 	    #if $ipts:
 	      --ipts $ipts 
@@ -13,6 +15,8 @@
 	        --run $run 
 	      #end if
 	    #end if
+	    #set auth_config=json.dumps($__app__.authnz_manager.oidc_backends_config["azure"])
+	    --oidc-config '$auth_config'
 	    --output $output
     ]]></command>
     <inputs>
