@@ -1,0 +1,10 @@
+[project]
+name = "single-peak-fit"
+version = "0.1.0"
+description = "Single Peak Fit Application for ASRP"
+authors = ["Your Name <you@example.com>"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]

@@ -1,0 +1,32 @@
+<tool id="single_peak_fit" name="single_peak_fit" version="0.1.0" python_template_version="3.5">
+    <requirements>
+    </requirements>
+    <command><![CDATA[
+    
+    bash -c 'docker run --name single_peak_fit_container --rm 
+    -v $__tool_directory__/:/portal
+    single_peak_fit
+    \-f "$filename"
+    \-b "$bank_id"
+    \-c "$center"
+    \-l "$xmin"
+    \-r "$xmax"';
+
+    cp $__tool_directory__/enpp.json $output; 
+
+    ]]></command>
+    <inputs>
+        <param name="filename" type="text" format="txt" />
+        <param name="bank_id" type="text" format="txt" />
+        <param name="center" type="text" format="txt" />
+        <param name="xmin" type="text" format="txt" />
+        <param name="xmax" type="text" format="txt" />
+    </inputs>
+    <outputs>
+        <data name="output" format="json" >
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
