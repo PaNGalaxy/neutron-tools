@@ -10,9 +10,9 @@
         #import json
 	    python $__tool_directory__/import_oncat.py --facility $facility --instrument $instrument
 	    #if $ipts:
-	      --ipts $ipts 
+	      --ipts $ipts
 	      #if $run:
-	        --run $run 
+	        --run $run
 	      #end if
 	    #end if
 	    #set auth_config=json.dumps($__app__.authnz_manager.oidc_backends_config["azure"])
@@ -35,11 +35,11 @@
 	<param name="run" type="integer" label="Run Number" optional="true"/>
     </inputs>
     <outputs>
-	<data format="h5" name="output">
+	<data format="h5" name="output" label="$facility-$instrument-$ipts-${run} data">
 		<change_format>
 		    <when input="run" value="" format="tabular" />
 		</change_format>
-    	</data>
+	</data>
     </outputs>
     <help><![CDATA[
         TODO: Fill in help.

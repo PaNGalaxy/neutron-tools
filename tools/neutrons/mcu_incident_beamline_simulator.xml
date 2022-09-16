@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator" version="0.2.1">
+<tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator" version="0.2.0">
   <description></description>
     <requirements>
     </requirements>
@@ -6,7 +6,7 @@
         mkdir \${_GALAXY_JOB_TMP_DIR}/outputs &&
         #set $gpu_str = "gpu" if $gpu else ""
         #set $gpu_cmd_str = "--gpus all" if $gpu else ""
-        #set $image_tag = "0.2.1"
+        #set $image_tag = "0.2"
         #if $input_mode.manual_input:
             docker run
                 --rm
