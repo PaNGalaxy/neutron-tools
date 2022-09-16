@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_mcpltool" name="MCPL Tool" version="0.0.1">
+<tool id="neutrons_mcu_mcpltool" name="MCPL Tool"  profile="22.05" version="0.0.1">
   <description></description>
     <requirements>
     </requirements>

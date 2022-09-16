@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_get_supported_instrument" name="Get instrument" version="0.1.0" python_template_version="3.5">
+<tool id="neutrons_mcu_get_supported_instrument" name="Get instrument"  profile="22.05" version="0.1.0" python_template_version="3.5">
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
