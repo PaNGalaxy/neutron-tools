@@ -1,7 +1,7 @@
 <tool id="ornl_qclimax_ini" name="QClimax Ini File Creator" version="0.0.0">
-  <description>input file creatorl</description>
+  <description>input file creator</description>
   <command>
-	cp $ini_filet $output ;
+	cp $ini_file $output ;
 	</command>
 	<configfiles>
 	    <configfile name="ini_file">
