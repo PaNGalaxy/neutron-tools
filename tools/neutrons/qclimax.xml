@@ -1,4 +1,4 @@
-<tool id="ornl_qclimax" name="QClimax" version="0.0.0"  profile="22.05">
+<tool id="neutrons_qclimax" name="QClimax" version="0.1.0"  profile="22.05">
   <description>analysis tool</description>
   <command>
 	#import re
