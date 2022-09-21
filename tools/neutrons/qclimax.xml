@@ -24,11 +24,13 @@
 	#end for
 	#for $c in $modelFunctions
 		##Rename model functions as python files
-		cp $c.modelFunction ./constraints/$c.modelFunction
+	    #set $name = str($c.modelFunction.element_identifier)
+		cp $c.modelFunction ./functions/$name ;
 	#end for 
 	#for $c in $constraintFunctions
 		##Rename constraint functions as python files
-		cp $c.constraintFunction ./constraints/$c.constraintFunction
+	    #set $name = str($c.constraintFunction.element_identifier)
+		cp $c.constraintFunction ./constraints/$name;
 	#end for 
 	#if $parameterInit.useParamInit == True
 		#for $pif in $parameterInit.parameterInitFiles
