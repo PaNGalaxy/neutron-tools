@@ -1,4 +1,4 @@
-<tool id="asrp_single_peak_fit" name="Single Peak Fitting" profile="22.05" version="0.1.0">
+<tool id="neutrons_asrp_spf" name="Single Peak Fitting" profile="22.05" version="0.1.0">
     <command><![CDATA[
             #set $image_tag = "0.1"
             docker run
@@ -19,9 +19,9 @@
     <inputs>
         <param name="input_data"  type="data" format="txt" optional="false" label="Input data"/>
         <param name="bank_id" type="integer" label="Bank ID" value="0" />
-        <param name="peak_center" type="integer" label="Peak Center" value="0" />
-        <param name="xmin" type="integer" label="Left bound" value="0" />
-        <param name="xmax" type="integer" label="Right bound" value="0" />
+        <param name="peak_center" type="float" label="Peak Center" value="0" />
+        <param name="xmin" type="float" label="Left bound" value="0" />
+        <param name="xmax" type="float" label="Right bound" value="0" />
         <param name="background_type" type="select" label="Background type" optional="false">
                 <option value="Linear" selected="true">Linear</option>
         </param>
