@@ -3,7 +3,7 @@
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "0.2"
+        #set $image_tag = "0.3"
         #if not $template_mode.manual_input:
             #set $instrument = str($template_mode.facility).lower() + '_' + str($template_mode.instrument).lower()
    	        docker run
