@@ -1,0 +1,81 @@
+<tool id="neutrons_asrp_pm" name="Pattern Matching" profile="22.05" version="0.1.0">
+    <command><![CDATA[
+            #set $image_tag = "0.1"
+            docker run
+                --rm
+                --init
+                --mount type=bind,source=$input_data,target=/input.gsa,readonly
+                --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
+                    -f /input.gsa
+                    -b $bank_id
+                    -c $peak_center
+                    -l $xmin
+                    -t $background_type
+                    -u $units
+                    -r $xmax &&
+            mv \${_GALAXY_JOB_TMP_DIR}/enpp.json $output
+
+============================================================================================
+
+            #set $image_tag = "0.1"
+
+            ##Move files to execution directory
+            #set $dataNames = [os.path.basename(str(i["dataFile"])) for i in list($dataFiles)]
+            mkdir input ;
+            touch ./input/filenames.txt
+            #for $i in range(len(list($dataFiles)))
+                #set $dataFile = str(list($dataFiles)[i]["dataFile"])
+                #set $dataName = str(list($dataNames)[$i])
+                cp $dataFile ./input/data"$i".gsa ;
+                cat /input/data"$i".gsa >> ./input/input_filenames.txt
+            #end for
+
+            docker run \
+                --rm
+                --init
+                -v ${PWD}/tests/data:/data \
+                --mount type=bind,source=\$(pwd)/input,target=/input,readonly
+                --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
+                code.ornl.gov:4567/ndip/tool-containers/asrp/pattern_matching:$image_tag
+                -i /input/input_filenames.txt \
+                -d $distance_metric_type \
+                -c $cluster_algorithm_type \
+                -l $xmin \
+                -r $xmax \
+                -u $units 
+
+    ]]></command>
+    <inputs>
+    	<repeat name="dataFiles" title="Data Files">
+	    	<param name="dataFile" type="data" format="txt" label="Data File">
+		    </param>
+	    </repeat>
+        <param name="distance_metric_type" type="select" label="Distance Metric Type" optional="false">
+            <option value="euclidean" selected="false">Euclidean</option>
+            <option value="manhattan" selected="false">Manhattan</option>
+            <option value="pearson" selected="true">Pearson</option>
+            <option value="degelder" selected="false">Degelder</option>
+        </param>
+        <param name="cluster_algorithm_type" type="select" label="Cluster Algorithm Type" optional="false">
+            <option value="dbscan" selected="false">DBSCAN</option>
+            <option value="hdbscan" selected="false">HDBSCAN</option>
+        </param>
+        <param name="xmin" type="float" label="Left bound" value="0" />
+        <param name="xmax" type="float" label="Right bound" value="0" />
+
+        <param name="input_data"  type="data" format="txt" optional="false" label="Input data"/>
+        <param name="background_type" type="select" label="Background type" optional="false">
+                <option value="Linear" selected="true">Linear</option>
+        </param>
+        <param name="units" type="select" label="Units" optional="false">
+                <option value="TOF" selected="true">TOF</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="output" format="json" >
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
