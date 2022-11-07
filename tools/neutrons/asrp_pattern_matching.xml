@@ -1,48 +1,30 @@
 <tool id="neutrons_asrp_pm" name="Pattern Matching" profile="22.05" version="0.1.0">
     <command><![CDATA[
             #set $image_tag = "0.1"
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=$input_data,target=/input.gsa,readonly
-                --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
-                    -f /input.gsa
-                    -b $bank_id
-                    -c $peak_center
-                    -l $xmin
-                    -t $background_type
-                    -u $units
-                    -r $xmax &&
-            mv \${_GALAXY_JOB_TMP_DIR}/enpp.json $output
-
-============================================================================================
-
-            #set $image_tag = "0.1"
-
             ##Move files to execution directory
             #set $dataNames = [os.path.basename(str(i["dataFile"])) for i in list($dataFiles)]
-            mkdir input ;
-            touch ./input/filenames.txt
+            mkdir input &&
+            touch ./input/filenames.txt &&
             #for $i in range(len(list($dataFiles)))
                 #set $dataFile = str(list($dataFiles)[i]["dataFile"])
                 #set $dataName = str(list($dataNames)[$i])
-                cp $dataFile ./input/data"$i".gsa ;
-                cat /input/data"$i".gsa >> ./input/input_filenames.txt
+                cp $dataFile ./input/data"$i".gsa &&
+                echo /input/data"$i".gsa >> ./input/input_filenames.txt &&
             #end for
 
-            docker run \
+            docker run
                 --rm
                 --init
-                -v ${PWD}/tests/data:/data \
                 --mount type=bind,source=\$(pwd)/input,target=/input,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
                 code.ornl.gov:4567/ndip/tool-containers/asrp/pattern_matching:$image_tag
-                -i /input/input_filenames.txt \
-                -d $distance_metric_type \
-                -c $cluster_algorithm_type \
-                -l $xmin \
-                -r $xmax \
-                -u $units 
+                -i /input/input_filenames.txt
+                -d $distance_metric_type
+                -c $cluster_algorithm_type
+                -l $xmin
+                -r $xmax
+                -u $units &&
+            mv \${_GALAXY_JOB_TMP_DIR}/clusters.json $output
 
     ]]></command>
     <inputs>
@@ -63,7 +45,6 @@
         <param name="xmin" type="float" label="Left bound" value="0" />
         <param name="xmax" type="float" label="Right bound" value="0" />
 
-        <param name="input_data"  type="data" format="txt" optional="false" label="Input data"/>
         <param name="background_type" type="select" label="Background type" optional="false">
                 <option value="Linear" selected="true">Linear</option>
         </param>
