@@ -1,0 +1,40 @@
+<tool id="neutrons_dca_sofqo" name="S of Q Omega Simulator"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $image_tag = "07659ee3"
+        #if $input_mode.manual_input:
+            docker run
+                --rm
+                --init
+                --mount type=bind,source=$input,target=/input/input_file.json,readonly
+                --cap-add SYS_NICE
+                code.ornl.gov:4567/ndip/tool-containers/dca/s_of_q_omega:$image_tag
+                mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc /dca/chi_q_omega /input/input_file.json > $output
+        #else
+            echo not implemented yet > $output
+        #end if
+    ]]></command>
+    <inputs>
+        <conditional name="input_mode">
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="true" label="Manual input"
+            help=""/>
+            <when value="false">
+            </when>
+            <when value="true">
+                <param name="input"  type="data" format="json" optional="false" label="Input json file"/>
+            </when>
+        </conditional>
+        <param name="nproc" type="integer" value="2" label="Number of processes"/>
+        <param name="nthreads" type="integer" value="2" label="Number of threads"/>
+            help=""/>
+    </inputs>
+    <outputs>
+		<data format="txt" name="output" label="S of Q Omega Output"/>
+    </outputs>
+    <help><![CDATA[
+        A tool to run s of q omega simulations
+]]></help>
+</tool>
+
