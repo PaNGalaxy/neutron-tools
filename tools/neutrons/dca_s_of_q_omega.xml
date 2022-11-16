@@ -3,35 +3,51 @@
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "07659ee3"
+        #set $image_tag = "latest"
+        #import re
+        #from pathlib import Path
+        mkdir -p ./portal/g4_bins.bp &&
+        #for $el in $input_bins:
+           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+           #if Path($cleaned_name).suffix == '':
+            #set $cleaned_name=$cleaned_name + '.'+$el.ext
+           #end if
+           cp '$el' './portal/g4_bins.bp/${cleaned_name}' &&
+        #end for
+
         #if $input_mode.manual_input:
             docker run
                 --rm
                 --init
+                --mount type=bind,source=\$(pwd)/portal,target=/portal
                 --mount type=bind,source=$input,target=/input/input_file.json,readonly
                 --cap-add SYS_NICE
-                code.ornl.gov:4567/ndip/tool-containers/dca/s_of_q_omega:$image_tag
-                mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc /dca/chi_q_omega /input/input_file.json > $output
+                code.ornl.gov:4567/ndip/tool-sources/dca/dca-main:$image_tag
+                mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc -wd /portal /dca/chi_q_omega /input/input_file.json &> $output
         #else
             echo not implemented yet > $output
         #end if
     ]]></command>
     <inputs>
         <conditional name="input_mode">
-            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="true" label="Manual input"
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" checked="yes" label="Manual input"
             help=""/>
             <when value="false">
             </when>
             <when value="true">
-                <param name="input"  type="data" format="json" optional="false" label="Input json file"/>
+                <param name="input"  type="data" format="json" optional="false" label="Config"/>
             </when>
         </conditional>
+        <param name="input_bins" type="data_collection" optional="true" collection_type="list" label="Bins"/>
         <param name="nproc" type="integer" value="2" label="Number of processes"/>
         <param name="nthreads" type="integer" value="2" label="Number of threads"/>
             help=""/>
     </inputs>
     <outputs>
-		<data format="txt" name="output" label="S of Q Omega Output"/>
+		<data format="txt" name="output" label="sofqomega console output"/>
+        <collection type="list" name="output_collection" label="sofqomega.bp">
+            <discover_datasets pattern="__designation__" directory="portal/sofqomega0.bp" />
+        </collection>
     </outputs>
     <help><![CDATA[
         A tool to run s of q omega simulations
