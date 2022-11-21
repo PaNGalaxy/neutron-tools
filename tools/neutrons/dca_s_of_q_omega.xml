@@ -3,7 +3,7 @@
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "latest"
+        #set $image_tag = "0.1"
         #import re
         #from pathlib import Path
         mkdir -p ./portal/g4_bins.bp &&
