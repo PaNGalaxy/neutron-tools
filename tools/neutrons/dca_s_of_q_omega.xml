@@ -46,7 +46,7 @@
     <outputs>
 		<data format="txt" name="output" label="sofqomega console output"/>
         <collection type="list" name="output_collection" label="sofqomega.bp">
-            <discover_datasets pattern="__designation__" directory="portal/sofqomega0.bp" />
+            <discover_datasets format="data" pattern="__designation__" directory="portal/sofqomega0.bp" />
         </collection>
     </outputs>
     <help><![CDATA[
