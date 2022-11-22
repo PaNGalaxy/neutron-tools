@@ -38,7 +38,7 @@
                 <param name="input"  type="data" format="json" optional="false" label="Config"/>
             </when>
         </conditional>
-        <param name="input_bins" type="data_collection" optional="true" collection_type="list" label="Bins"/>
+        <param name="input_bins" type="data_collection" optional="false" collection_type="list" label="Bins"/>
         <param name="nproc" type="integer" value="2" label="Number of processes"/>
         <param name="nthreads" type="integer" value="2" label="Number of threads"/>
             help=""/>
