@@ -1,0 +1,60 @@
+<tool id="dca_binning" name="DCA Binning Tool"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $image_tag = "0.1"
+        #import re
+        #from pathlib import Path
+        mkdir -p ./portal/ &&
+        #if $input_mode.manual_input:
+            #if $use_dca_image.dca_image:
+                docker run
+                    --rm
+                    --init
+                    --mount type=bind,source=\$(pwd)/portal,target=/portal
+                    --mount type=bind,source=$input,target=/input/input_file.json,readonly
+                    --cap-add SYS_NICE
+    ##                code.ornl.gov:4567/ndip/tool-containers/dca/dca_image:$image_tag
+                    dca
+                    mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc -wd /portal /dca/main_dca /input/input_file.json &> $output
+            #else: 
+                echo not implemented > $output
+            #end if
+        #else
+            echo not implemented yet > $output
+        #end if
+    ]]></command>
+    <inputs>
+        <conditional name="input_mode">
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="true" label="Manual input"
+            help=""/>
+            <when value="false">
+            </when>
+            <when value="true">
+                <param name="input"  type="data" format="json" optional="false" label="Config"/>
+            </when>
+        </conditional>
+        <conditional name="use_dca_image">
+            <param name="dca_image" type="boolean" truevalue="true" falsevalue="false" default="true" label="Use DCA Image"
+            help=""/>
+            <when value="false">
+            </when>
+            <when value="true">
+            </when>
+        </conditional>
+        <param name="nproc" type="integer" value="2" label="Number of processes"/>
+        <param name="nthreads" type="integer" value="2" label="Number of threads"/>
+            help=""/>
+    </inputs>
+    <outputs>
+		<data format="txt" name="output" label="DCA Binning Console Output"/>
+        <collection type="list" name="output_collection" label="DCA Binning ADIOS2 Output">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/dcabinning0.bp" />
+        </collection>
+    </outputs>
+    <help><![CDATA[
+        A tool to run DCA binning.
+]]></help>
+</tool>
+
