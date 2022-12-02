@@ -6,7 +6,7 @@
         #set $image_tag = "0.1"
         #import re
         #from pathlib import Path
-        mkdir -p ./portal/ &&
+        mkdir -p ./portal/configuration &&
         #if $input_mode.manual_input:
             #if $use_dca_image.dca_image:
                 docker run
@@ -17,7 +17,7 @@
                     --cap-add SYS_NICE
     ##                code.ornl.gov:4567/ndip/tool-sources/dca/dca-main:$image_tag
                     dca
-                    mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc -wd /portal /dca/main_dca /input/conv.input &> $output
+                    mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc -wd /portal /dca/main_dca /input/input_file.json &> $output
             #else: 
                 echo not implemented > $output
             #end if
