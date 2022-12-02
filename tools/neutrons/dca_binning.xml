@@ -6,7 +6,14 @@
         #set $image_tag = "0.1"
         #import re
         #from pathlib import Path
-        mkdir -p ./portal/ &&
+        mkdir -p ./portal/g4_bins.bp &&
+        #for $el in $input_bins:
+           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+           #if Path($cleaned_name).suffix == '':
+            #set $cleaned_name=$cleaned_name + '.'+$el.ext
+           #end if
+           cp '$el' './portal/g4_bins.bp/${cleaned_name}' &&
+        #end for
         #if $input_mode.manual_input:
             #if $use_dca_image.dca_image:
                 docker run
@@ -43,6 +50,7 @@
             <when value="true">
             </when>
         </conditional>
+        <param name="input_bins" type="data_collection" optional="false" collection_type="list" label="Bins"/>
         <param name="nproc" type="integer" value="2" label="Number of processes"/>
         <param name="nthreads" type="integer" value="2" label="Number of threads"/>
             help=""/>
