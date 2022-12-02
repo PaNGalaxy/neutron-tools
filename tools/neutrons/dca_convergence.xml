@@ -48,9 +48,9 @@
             help=""/>
     </inputs>
     <outputs>
-		<data format="txt" name="output" label="DCA Convergence Console Output"/>
+        <data format="txt" name="output" label="DCA Convergence Console Output"/>
         <collection type="list" name="output_collection" label="DCA Convergence ADIOS2 Output">
-            <discover_datasets pattern="__designation_and_ext__" directory="portal/dcaconvergence0.bp" />
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/conv.bp" />
         </collection>
     </outputs>
     <help><![CDATA[
