@@ -50,7 +50,7 @@
     <outputs>
         <data format="txt" name="output" label="DCA Convergence Console Output"/>
         <collection type="list" name="output_collection" label="DCA Convergence ADIOS2 Output">
-            <discover_datasets pattern="__designation_and_ext__" directory="portal/conv.bp" />
+            <discover_datasets format="data" pattern="__designation__" directory="portal/conv.bp" />
         </collection>
     </outputs>
     <help><![CDATA[

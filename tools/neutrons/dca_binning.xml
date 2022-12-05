@@ -6,13 +6,13 @@
         #set $image_tag = "0.1"
         #import re
         #from pathlib import Path
-        mkdir -p ./portal/g4_bins.bp &&
-        #for $el in $input_bins:
+        mkdir -p ./portal/conv.bp &&
+        #for $el in $conv_input:
            #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
            #if Path($cleaned_name).suffix == '':
             #set $cleaned_name=$cleaned_name + '.'+$el.ext
            #end if
-           cp '$el' './portal/g4_bins.bp/${cleaned_name}' &&
+           cp '$el' './portal/conv.bp/${cleaned_name}' &&
         #end for
         #if $input_mode.manual_input:
             #if $use_dca_image.dca_image:
@@ -50,15 +50,15 @@
             <when value="true">
             </when>
         </conditional>
-        <param name="input_bins" type="data_collection" optional="false" collection_type="list" label="Bins"/>
+        <param name="conv_input" type="data_collection" optional="false" collection_type="list" label="Convergence Input"/>
         <param name="nproc" type="integer" value="2" label="Number of processes"/>
         <param name="nthreads" type="integer" value="2" label="Number of threads"/>
             help=""/>
     </inputs>
     <outputs>
-		<data format="txt" name="output" label="DCA Binning Console Output"/>
+        <data format="txt" name="output" label="DCA Binning Console Output"/>
         <collection type="list" name="output_collection" label="DCA Binning ADIOS2 Output">
-            <discover_datasets pattern="__designation_and_ext__" directory="portal/dcabinning0.bp" />
+            <discover_datasets format= "data" pattern="__designation__" directory="portal/g4_bins.bp" />
         </collection>
     </outputs>
     <help><![CDATA[
