@@ -15,19 +15,14 @@
            cp '$el' './portal/conv.bp/${cleaned_name}' &&
         #end for
         #if $input_mode.manual_input:
-            #if $use_dca_image.dca_image:
-                docker run
-                    --rm
-                    --init
-                    --mount type=bind,source=\$(pwd)/portal,target=/portal
-                    --mount type=bind,source=$input,target=/input/input_file.json,readonly
-                    --cap-add SYS_NICE
-    ##                code.ornl.gov:4567/ndip/tool-sources/dca/dca-main:$image_tag
-                    dca
-                    mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc -wd /portal /dca/main_dca /input/input_file.json &> $output
-            #else: 
-                echo not implemented > $output
-            #end if
+            docker run
+                --rm
+                --init
+                --mount type=bind,source=\$(pwd)/portal,target=/portal
+                --mount type=bind,source=$input,target=/input/input_file.json,readonly
+                --cap-add SYS_NICE
+                code.ornl.gov:4567/ndip/tool-sources/dca/dca-main:$image_tag
+                mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc -wd /portal /dca/main_dca /input/input_file.json &> $output
         #else
             echo not implemented yet > $output
         #end if
@@ -40,14 +35,6 @@
             </when>
             <when value="true">
                 <param name="input"  type="data" format="json" optional="false" label="Config"/>
-            </when>
-        </conditional>
-        <conditional name="use_dca_image">
-            <param name="dca_image" type="boolean" truevalue="true" falsevalue="false" default="true" label="Use DCA Image"
-            help=""/>
-            <when value="false">
-            </when>
-            <when value="true">
             </when>
         </conditional>
         <param name="conv_input" type="data_collection" optional="false" collection_type="list" label="Convergence Input"/>
