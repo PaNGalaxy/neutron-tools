@@ -30,7 +30,7 @@
     ]]></command>
     <inputs>
         <conditional name="input_mode">
-            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" checked="yes" label="Manual input"
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" checked="yes" label="JSON input"
             help=""/>
             <when value="false">
             </when>

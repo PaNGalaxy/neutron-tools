@@ -1,4 +1,4 @@
-<tool id="dca_binning" name="DCA Binning Tool"  profile="22.05" version="0.1.0">
+<tool id="neutrons_dca_binning" name="DCA Binning Tool"  profile="22.05" version="0.1.0">
   <description></description>
     <requirements>
     </requirements>
@@ -29,7 +29,7 @@
     ]]></command>
     <inputs>
         <conditional name="input_mode">
-            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="true" label="Manual input"
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" checked="yes" label="JSON input"
             help=""/>
             <when value="false">
             </when>
