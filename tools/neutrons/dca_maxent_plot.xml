@@ -1,0 +1,45 @@
+<tool id="neutrons_dca_maxent2plot" name="Plot MaxEnt results"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $image_tag = "0.2"
+        #import re
+        #from pathlib import Path
+        mkdir -p ./portal/input.bp &&
+        #for $el in $input:
+           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+           #if Path($cleaned_name).suffix == '':
+            #set $cleaned_name=$cleaned_name + '.'+$el.ext
+           #end if
+           cp '$el' './portal/input.bp/${cleaned_name}' &&
+        #end for
+        #for $el in $maxent:
+           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+           #if Path($cleaned_name).suffix == '':
+            #set $cleaned_name=$cleaned_name + '.'+$el.ext
+           #end if
+           cp '$el' './portal/${cleaned_name}' &&
+        #end for
+        docker run
+            --rm
+            --mount type=bind,source=\$(pwd)/portal,target=/portal
+            --mount type=bind,source=${normalization},target=/portal/normalization_q.txt
+            --workdir /portal
+            code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:$image_tag
+            python3 /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /portal/input.bp --maxent_file_ext .txt &&
+        mv ./portal/plot.png $plot
+    ]]></command>
+    <inputs>
+        <param name="input" type="data_collection" optional="false" collection_type="list" label="sofqomega.bp"/>
+        <param name="maxent" type="data_collection" optional="false" collection_type="list" label="maxent"/>
+        <param name="normalization" type="data" format="txt" optional="false" label="normalization"/>
+    </inputs>
+    <outputs>
+        <data format="png" name="plot" label="${input.element_identifier}-plot"/>
+    </outputs>
+    <help><![CDATA[
+        A tool to visualize MaxEnt results
+]]></help>
+</tool>
+

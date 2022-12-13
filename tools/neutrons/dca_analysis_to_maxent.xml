@@ -3,7 +3,7 @@
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "0.1"
+        #set $image_tag = "0.2"
         #import re
         #from pathlib import Path
         mkdir -p ./portal/input.bp ./portal/outputs &&
@@ -22,7 +22,7 @@
             --workdir /portal/outputs
             code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:$image_tag
             python3 /dca_mini_apps/analysis_to_maxent.py --file-analysis /portal/input.bp &&
-            mv ./portal/outputs/normalization_q.txt $output
+        mv ./portal/outputs/normalization_q.txt $output
     ]]></command>
     <inputs>
         <param name="input" type="data_collection" optional="false" collection_type="list" label="Input data (ADIOS format)"/>
