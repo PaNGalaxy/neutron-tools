@@ -8,16 +8,13 @@
         #from pathlib import Path
         mkdir -p ./portal/input.bp &&
         #for $el in $input:
-           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
-           #if Path($cleaned_name).suffix == '':
-            #set $cleaned_name=$cleaned_name + '.'+$el.ext
-           #end if
+           #set $cleaned_name = str($el.element_identifier)
            cp '$el' './portal/input.bp/${cleaned_name}' &&
         #end for
         #for $el in $maxent:
-           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
-           #if Path($cleaned_name).suffix == '':
-            #set $cleaned_name=$cleaned_name + '.'+$el.ext
+           #set $cleaned_name = str($el.element_identifier)
+           #if not $cleaned_name.endswith('.txtmaxent.dat'):
+                #set $cleaned_name=$cleaned_name + '.txtmaxent.dat'
            #end if
            cp '$el' './portal/${cleaned_name}' &&
         #end for
@@ -27,7 +24,7 @@
             --mount type=bind,source=${normalization},target=/portal/normalization_q.txt
             --workdir /portal
             code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:$image_tag
-            python3 /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /portal/input.bp --maxent_file_ext .txt &&
+            python3 /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /portal/input.bp &&
         mv ./portal/plot.png $plot
     ]]></command>
     <inputs>
