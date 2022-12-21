@@ -1,6 +1,6 @@
 <tool id="neutrons_asrp_pm" name="Pattern Matching" profile="22.05" version="0.1.0">
     <command><![CDATA[
-            #set $image_tag = "0.1"
+            #set $image_tag = "0.2"
             ##Move files to execution directory
             #set $dataNames = [os.path.basename(str(i["dataFile"])) for i in list($dataFiles)]
             mkdir input &&

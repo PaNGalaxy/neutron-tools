@@ -1,6 +1,6 @@
 <tool id="neutrons_asrp_spf" name="Single Peak Fitting" profile="22.05" version="0.1.0">
     <command><![CDATA[
-            #set $image_tag = "0.1"
+            #set $image_tag = "0.2"
             docker run
                 --rm
                 --init
