@@ -1,0 +1,20 @@
+<tool id="test" name="Test Docker with Pulsar" version="0.1" profile="22.05">
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/calvera/jupyter-notebook:test</container>
+    </requirements>
+    <command><![CDATA[
+        ls -a > $output &&
+        pwd >> $output &&
+        hostname >> $output &&
+        id >> $output
+    ]]>
+    </command>
+    <inputs>
+    </inputs>
+    <outputs>
+        <data name="output" auto_format="true" label="Executed Notebook Output">
+        </data>
+    </outputs>
+    <help>
+    </help>
+</tool>

@@ -1,0 +1,59 @@
+<tool id="neutrons_usans" name="USANS"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $image_tag = "0.1"
+        #import re
+        #from pathlib import Path
+        mkdir -p ./portal/reduce &&
+        #if $input_mode.input_mode_folder == 'true':
+            #set $root = Path(str($input_mode.input_folder)).parents[-2]
+            docker run
+                --init
+                --mount type=bind,source=\$(pwd)/portal,target=/portal
+                --mount type=bind,source=$input_config,target=/portal/input.csv
+                --mount type=bind,source=$root,target=$root
+                usans
+                python /reduction/reduce.py /portal/input.csv $input_mode.input_folder /portal/reduced &> $output
+        #else
+            #for $el in $input_mode.input_collection:
+               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+               #if Path($cleaned_name).suffix != $el.ext:
+                #set $cleaned_name=$cleaned_name + '.'+$el.ext
+               #end if
+                cp $el \$(pwd)/portal/$cleaned_name &&
+                docker run
+                    --rm
+                    --init
+                    --mount type=bind,source=\$(pwd)/portal,target=/portal
+                    --mount type=bind,source=$input_config,target=/portal/input.csv
+                    usans
+                    python /reduction/reduce.py /portal/input.csv > $output
+            #end for
+        #end if
+    ]]></command>
+    <inputs>
+        <conditional name="input_mode">
+            <param name="input_mode_folder" type="boolean" truevalue="true" falsevalue="false" checked="no" label="Use data from an experiment folder" help=""/>
+            <when value="true">
+                <param name="input_folder" type="text" optional="false" label="Experiment folder"/>
+            </when>
+            <when value="false">
+                <param name="input_collection" type="data_collection" optional="false" collection_type="list" label="Input collection"/>
+            </when>
+        </conditional>
+        <param name="input_config" type="data" format="csv,txt" optional="false" label="config file"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection" label="USANS output">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/reduced" />
+        </collection>
+        <data format="txt" name="output" label="USANS console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        USANS data reduction tool
+]]></help>
+</tool>
+
