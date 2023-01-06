@@ -1,36 +1,16 @@
 <tool id="neutrons_usans" name="USANS"  profile="22.05" version="0.1.0">
   <description></description>
     <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/sans-data-reduction/usans-reduction:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "0.1"
-        #import re
-        #from pathlib import Path
-        mkdir -p ./portal/reduce &&
+        mkdir reduced &&
         #if $input_mode.input_mode_folder == 'true':
-            #set $root = Path(str($input_mode.input_folder)).parents[-2]
-            docker run
-                --init
-                --mount type=bind,source=\$(pwd)/portal,target=/portal
-                --mount type=bind,source=$input_config,target=/portal/input.csv
-                --mount type=bind,source=$root,target=$root
-                usans
-                python /reduction/reduce.py /portal/input.csv $input_mode.input_folder /portal/reduced &> $output
+            python /reduction/reduce.py $input_config $input_mode.input_folder reduced >$output 2>&1
         #else
-            #for $el in $input_mode.input_collection:
-               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
-               #if Path($cleaned_name).suffix != $el.ext:
-                #set $cleaned_name=$cleaned_name + '.'+$el.ext
-               #end if
-                cp $el \$(pwd)/portal/$cleaned_name &&
-                docker run
-                    --rm
-                    --init
-                    --mount type=bind,source=\$(pwd)/portal,target=/portal
-                    --mount type=bind,source=$input_config,target=/portal/input.csv
-                    usans
-                    python /reduction/reduce.py /portal/input.csv > $output
-            #end for
+            mkdir input &&
+            unzip $input_archive -d input 2>$output &&
+            python /reduction/reduce.py $input_config input reduced >$output 2>&1
         #end if
     ]]></command>
     <inputs>
@@ -40,14 +20,14 @@
                 <param name="input_folder" type="text" optional="false" label="Experiment folder"/>
             </when>
             <when value="false">
-                <param name="input_collection" type="data_collection" optional="false" collection_type="list" label="Input collection"/>
+                <param name="input_archive" type="data" format="zip" optional="false" label="A zip file with input data"/>
             </when>
         </conditional>
         <param name="input_config" type="data" format="csv,txt" optional="false" label="config file"/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection" label="USANS output">
-            <discover_datasets pattern="__designation_and_ext__" directory="portal/reduced" />
+            <discover_datasets pattern="__designation_and_ext__" directory="reduced" />
         </collection>
         <data format="txt" name="output" label="USANS console output">
         </data>
