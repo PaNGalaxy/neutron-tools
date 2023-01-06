@@ -8,9 +8,9 @@
         #if $input_mode.input_mode_folder == 'true':
             python /reduction/reduce.py $input_config $input_mode.input_folder reduced >$output 2>&1
         #else
-            mkdir $_GALAXY_JOB_TMP_DIR/input &&
-            unzip $input_archive -d $_GALAXY_JOB_TMP_DIR/input 2>$output &&
-            python /reduction/reduce.py $input_config $_GALAXY_JOB_TMP_DIR/input reduced >$output 2>&1 ;
+            mkdir input &&
+            unzip $input_archive -d input 2>$output &&
+            python /reduction/reduce.py $input_config input reduced >$output 2>&1 ;
             rm -rf input
         #end if
     ]]></command>
