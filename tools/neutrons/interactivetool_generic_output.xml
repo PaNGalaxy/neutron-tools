@@ -1,6 +1,6 @@
 <tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook ORNL" version="0.1" profile="22.01">
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/calvera/jupyter-notebook:test</container>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.1.0</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" requires_domain="True">
