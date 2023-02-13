@@ -1,0 +1,14 @@
+name: galaxytools
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.10
+  - msal
+  - paramiko
+  - pip
+  - pyjwt
+  - requests
+  - scp
+  - pip:
+    - https://oncat.ornl.gov/packages/pyoncat-1.5.1-py3-none-any.whl

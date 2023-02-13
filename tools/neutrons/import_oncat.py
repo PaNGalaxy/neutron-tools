@@ -2,7 +2,8 @@ import pyoncat
 import argparse
 import os
 import sys
-import scp, paramiko
+import scp
+import paramiko
 import jwt
 import socket
 import json
