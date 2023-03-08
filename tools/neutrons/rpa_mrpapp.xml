@@ -1,0 +1,31 @@
+<tool id="neutrons_rpa_mrpapp" name="Random-Phase Approximation Simulation"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir \${_GALAXY_JOB_TMP_DIR}/outputs &&
+	docker run
+	    --rm
+	    --init
+	    --mount type=bind,source=$params,target=/input/input.txt,readonly
+	    --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/output
+	    code.ornl.gov:4567/ndip/tool-sources/rpa/mrpapp:$image_tag
+	    -t $tbparams $nproc
+    ]]></command>
+    <inputs>
+	<param name="tbparams"  type="data" format="txt" optional="false" label="TB paramters"/>
+        <param name="params" type="data" format="txt" optional="false" label="Simulation parameters"/>
+        <param name="nproc" type="integer" value="2" label="Number of processes"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection" label="RPA output">
+            <discover_datasets pattern="__designation_and_ext__" directory="\${_GALAXY_JOB_TMP_DIR}/outputs" />
+        </collection>
+    </outputs>
+    <help><![CDATA[
+A tool to run simulations of neutron scattering and superconductivity in correlated electron systems using the MRPA++ code. It uses random-phase approximation (RPA) / Bardeen-Cooper-Schrieffer (BCS) theory to predict the neutron scattering cross section of realistic multi-orbital tight-binding models with Hubbard-like electron-electron interactions for the normal and superconducting states. It can also be used to calculate the pairing interaction in these models using an RPA approximation and to predict the superconducting gap structure.
+
+The MRPA++ code has been developed with resources from the Center of Nanophase M aterials Sciences, which is a DOE Office of Science User Facility, and the NSF u nder DMR-1308603.
+]]></help>
+</tool>
+
