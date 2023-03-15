@@ -3,23 +3,26 @@
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir \${_GALAXY_JOB_TMP_DIR}/outputs &&
+	#set $image_tag = "0.1.0"
+	mkdir results &&
 	docker run
 	    --rm
 	    --init
 	    --mount type=bind,source=$params,target=/input/input.txt,readonly
-	    --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR}/outputs,target=/output
-	    code.ornl.gov:4567/ndip/tool-sources/rpa/mrpapp:$image_tag
-	    -t $tbparams $nproc
+	    --mount type=bind,source=$tbparams,target=/input/tbparams.txt,readonly
+	    --mount type=bind,source=\$(pwd)/results,target=/output
+            code.ornl.gov:4567/ndip/tool-sources/rpa/mrpapp:$image_tag
+	    $nproc &> $output
     ]]></command>
     <inputs>
-	<param name="tbparams"  type="data" format="txt" optional="false" label="TB paramters"/>
         <param name="params" type="data" format="txt" optional="false" label="Simulation parameters"/>
+	<param name="tbparams" type="data" format="txt" optional="false" label="TB paramters"/>
         <param name="nproc" type="integer" value="2" label="Number of processes"/>
     </inputs>
     <outputs>
+	<data format="txt" name="output" label="RPA job output"/>
         <collection type="list" name="output_collection" label="RPA output">
-            <discover_datasets pattern="__designation_and_ext__" directory="\${_GALAXY_JOB_TMP_DIR}/outputs" />
+            <discover_datasets format="txt" pattern="__designation_and_ext__" directory="results" />
         </collection>
     </outputs>
     <help><![CDATA[
