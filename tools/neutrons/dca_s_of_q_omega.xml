@@ -1,11 +1,13 @@
-<tool id="neutrons_dca_sofqo" name="S of Q Omega Simulator"  profile="22.05" version="0.1.0">
+<tool id="neutrons_dca_sofqo" name="S of Q Omega Simulator"  profile="22.05" version="0.2.0">
   <description></description>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "0.1"
         #import re
         #from pathlib import Path
+        #set $sif_name = "dca_cpu_0_1_0.sif"
+        #set $sif_image = "summit-singularity-cpu:0.1.0"
+
         mkdir -p ./portal/g4_bins.bp &&
         #for $el in $input_bins:
            #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
@@ -14,34 +16,22 @@
            #end if
            cp '$el' './portal/g4_bins.bp/${cleaned_name}' &&
         #end for
-
-        #if $input_mode.manual_input:
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=\$(pwd)/portal,target=/portal
-                --mount type=bind,source=$input,target=/input/input_file.json,readonly
-                --cap-add SYS_NICE
-                code.ornl.gov:4567/ndip/tool-sources/dca/dca-main:$image_tag
-                mpiexec --allow-run-as-root --map-by socket:PE=$nthreads -n $nproc -wd /portal /dca/chi_q_omega /input/input_file.json &> $output
-        #else
-            echo not implemented yet > $output
-        #end if
+        module purge &&
+        module load DefApps &&
+        module load  gcc/9.1.0 &&
+        source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
+        ( [ -e \${_GALAXY_JOB_DIR}/../containers/$sif_name ] ||
+          singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
+                      oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca-main/$sif_image ) &&
+        \${GALAXY_COMMAND_PREFIX} singularity exec
+                --bind \$(pwd)/portal:/portal
+                --bind $input:/input/input_file.json
+                --pwd /portal
+                \${_GALAXY_JOB_DIR}/../containers/$sif_name /dca/chi_q_omega /input/input_file.json &> $output
     ]]></command>
     <inputs>
-        <conditional name="input_mode">
-            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" checked="yes" label="JSON input"
-            help=""/>
-            <when value="false">
-            </when>
-            <when value="true">
-                <param name="input"  type="data" format="json" optional="false" label="Config"/>
-            </when>
-        </conditional>
+        <param name="input"  type="data" format="json" optional="false" label="Config"/>
         <param name="input_bins" type="data_collection" optional="false" collection_type="list" label="Bins"/>
-        <param name="nproc" type="integer" value="2" label="Number of processes"/>
-        <param name="nthreads" type="integer" value="2" label="Number of threads"/>
-            help=""/>
     </inputs>
     <outputs>
 		<data format="txt" name="output" label="sofqomega console output"/>

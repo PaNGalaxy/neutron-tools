@@ -1,9 +1,10 @@
-<tool id="neutrons_dca_analysis2maxent" name="Convert to MaxEnt input format"  profile="22.05" version="0.1.0">
+<tool id="neutrons_dca_analysis2maxent" name="Convert to MaxEnt input format"  profile="22.05" version="0.2.0">
   <description></description>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "0.2"
+        #set $sif_name = "dca_miniapp_0_1_0.sif"
+        #set $sif_image = "summit-singularity:0.1.0"
         #import re
         #from pathlib import Path
         mkdir -p ./portal/input.bp ./portal/outputs &&
@@ -14,14 +15,18 @@
            #end if
            cp '$el' './portal/input.bp/${cleaned_name}' &&
         #end for
-        docker run
-            --rm
-            --init
-            --mount type=bind,source=\$(pwd)/portal,target=/portal
-            --cap-add SYS_NICE
-            --workdir /portal/outputs
-            code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:$image_tag
-            python3 /dca_mini_apps/analysis_to_maxent.py --file-analysis /portal/input.bp &&
+        module purge &&
+        module load DefApps &&
+        module load  gcc/9.1.0 &&
+        source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
+        ( [ -e \${_GALAXY_JOB_DIR}/../containers/$sif_name ] ||
+          singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
+                      oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
+        \${GALAXY_COMMAND_PREFIX} singularity exec
+                --bind \$(pwd)/portal:/portal
+                --pwd /portal/outputs
+                \${_GALAXY_JOB_DIR}/../containers/$sif_name
+                 python3 /dca_mini_apps/analysis_to_maxent.py --file-analysis /portal/input.bp &&
         mv ./portal/outputs/normalization_q.txt $output
     ]]></command>
     <inputs>

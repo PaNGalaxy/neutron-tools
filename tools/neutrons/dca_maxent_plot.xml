@@ -18,14 +18,31 @@
            #end if
            cp '$el' './portal/${cleaned_name}' &&
         #end for
-        docker run
-            --rm
-            --mount type=bind,source=\$(pwd)/portal,target=/portal
-            --mount type=bind,source=${normalization},target=/portal/normalization_q.txt
-            --workdir /portal
-            code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:$image_tag
-            python3 /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /portal/input.bp &&
-        mv ./portal/plot.png $plot
+        #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no'
+            docker run
+                --rm
+                --mount type=bind,source=\$(pwd)/portal,target=/portal
+                --mount type=bind,source=${normalization},target=/portal/normalization_q.txt
+                --workdir /portal
+                code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:$image_tag
+        #else
+            #set $sif_name = "dca_miniapp_0_1_0.sif"
+            #set $sif_image = "summit-singularity:0.1.0"
+            module purge &&
+            module load DefApps &&
+            module load  gcc/9.1.0 &&
+            source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
+            ( [ -e \${_GALAXY_JOB_DIR}/../containers/$sif_name ] ||
+              singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
+                          oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
+            \${GALAXY_COMMAND_PREFIX} singularity exec
+                    --bind \$(pwd)/portal:/portal
+                    --bind ${normalization}:/portal/normalization_q.txt
+                    --pwd /portal
+                    \${_GALAXY_JOB_DIR}/../containers/$sif_name
+        #end if
+             python3 /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /portal/input.bp &&
+            mv ./portal/plot.png $plot
     ]]></command>
     <inputs>
         <param name="input" type="data_collection" optional="false" collection_type="list" label="sofqomega.bp"/>
