@@ -1,4 +1,4 @@
-<tool id="neutrons_dca_analysis2maxent" name="Convert to MaxEnt input format"  profile="22.05" version="0.2.0">
+<tool id="neutrons_dca_analysis2maxent" name="Convert to MaxEnt input format"  profile="22.05" version="0.2.1">
   <description></description>
     <requirements>
     </requirements>
@@ -7,14 +7,18 @@
         #set $sif_image = "summit-singularity:0.1.0"
         #import re
         #from pathlib import Path
-        mkdir -p ./portal/input.bp ./portal/outputs &&
-        #for $el in $input:
-           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
-           #if Path($cleaned_name).suffix == '':
-            #set $cleaned_name=$cleaned_name + '.'+$el.ext
-           #end if
-           cp '$el' './portal/input.bp/${cleaned_name}' &&
-        #end for
+        #set $portal = $input_mode.input_folder if $input_mode.input_mode_folder else "$(pwd)/portal"
+        mkdir -p ./portal/outputs &&
+        #if not $input_mode.input_mode_folder:
+            mkdir -p ./portal/sofqomega0.bp &&
+            #for $el in $input_mode.input:
+               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+               #if Path($cleaned_name).suffix == '':
+                #set $cleaned_name=$cleaned_name + '.'+$el.ext
+               #end if
+               cp '$el' './portal/sofqomega0.bp/${cleaned_name}' &&
+            #end for
+        #end if
         module purge &&
         module load DefApps &&
         module load  gcc/9.1.0 &&
@@ -23,15 +27,25 @@
           singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
                       oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
         \${GALAXY_COMMAND_PREFIX} singularity exec
-                --bind \$(pwd)/portal:/portal
+                --bind $portal/sofqomega0.bp:/portal/sofqomega0.bp
+                --bind \$(pwd)/portal/outputs:/portal/outputs
                 --pwd /portal/outputs
                 \${_GALAXY_JOB_DIR}/../containers/$sif_name
-                 python3 /dca_mini_apps/analysis_to_maxent.py --file-analysis /portal/input.bp &&
+                 python3 /dca_mini_apps/analysis_to_maxent.py --file-analysis /portal/sofqomega0.bp &&
         mv ./portal/outputs/normalization_q.txt $output
     ]]></command>
     <inputs>
-        <param name="input" type="data_collection" optional="false" collection_type="list" label="Input data (ADIOS format)"/>
-            help=""/>
+        <conditional name="input_mode">
+            <param name="input_mode_folder" type="boolean" truevalue="true" falsevalue="false" checked="no" label="Use local data folder" help=""/>
+            <when value="true">
+                <param name="input_folder" type="text" optional="false" label="Working folder"/>
+                <param name="connector" type="data" optional="true" label="Connector"
+                       help="A dummy parameter to connect this tool in a workflow" />
+            </when>
+            <when value="false">
+                <param name="input" type="data_collection" optional="false" collection_type="list" label="Input data (ADIOS format)"/>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
 		<data format="txt" name="output" label="normalization"/>

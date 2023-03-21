@@ -1,4 +1,4 @@
-<tool id="neutrons_dca_maxent2plot" name="Plot MaxEnt results"  profile="22.05" version="0.2.0">
+<tool id="neutrons_dca_maxent2plot" name="Plot MaxEnt results"  profile="22.05" version="0.2.1">
   <description></description>
     <requirements>
     </requirements>
@@ -6,22 +6,27 @@
         #set $image_tag = "0.2"
         #import re
         #from pathlib import Path
-        mkdir -p ./portal/input.bp &&
-        #for $el in $input:
-           #set $cleaned_name = str($el.element_identifier)
-           cp '$el' './portal/input.bp/${cleaned_name}' &&
-        #end for
+        #set $data_portal = $input_mode.input_folder if $input_mode.input_mode_folder else "$(pwd)/data_portal"
+        mkdir -p ./working_portal/maxent &&
+        #if not $input_mode.input_mode_folder:
+            mkdir -p ./data_portal/sofqomega0.bp &&
+            #for $el in $input_mode.input:
+               #set $cleaned_name = str($el.element_identifier)
+               cp '$el' './data_portal/sofqomega0.bp/${cleaned_name}' &&
+            #end for
+        #end if
         #for $el in $maxent:
            #set $cleaned_name = str($el.element_identifier)
            #if not $cleaned_name.endswith('.txtmaxent.dat'):
                 #set $cleaned_name=$cleaned_name + '.txtmaxent.dat'
            #end if
-           cp '$el' './portal/${cleaned_name}' &&
+           cp '$el' './working_portal/${cleaned_name}' &&
         #end for
         #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no'
             docker run
                 --rm
-                --mount type=bind,source=\$(pwd)/portal,target=/portal
+                --mount type=bind,source=\$(pwd)/working_portal,target=/portal
+                --mount type=bind,source=$data_portal,target=/data_portal
                 --mount type=bind,source=${normalization},target=/portal/normalization_q.txt
                 --workdir /portal
                 code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:$image_tag
@@ -36,21 +41,30 @@
               singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
                           oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
             \${GALAXY_COMMAND_PREFIX} singularity exec
-                    --bind \$(pwd)/portal:/portal
+                    --bind \$(pwd)/working_portal:/portal
+                    --bind $data_portal:/data_portal
                     --bind ${normalization}:/portal/normalization_q.txt
                     --pwd /portal
                     \${_GALAXY_JOB_DIR}/../containers/$sif_name
         #end if
-             python3 /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /portal/input.bp &&
-            mv ./portal/plot.png $plot
+            python3 /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /data_portal/sofqomega0.bp &&
+            mv ./working_portal/plot.png $plot
     ]]></command>
     <inputs>
-        <param name="input" type="data_collection" optional="false" collection_type="list" label="sofqomega.bp"/>
+        <conditional name="input_mode">
+            <param name="input_mode_folder" type="boolean" truevalue="true" falsevalue="false" checked="no" label="Use local data folder" help=""/>
+            <when value="true">
+                <param name="input_folder" type="text" optional="false" label="Working folder"/>
+            </when>
+            <when value="false">
+                <param name="input" type="data_collection" optional="false" collection_type="list" label="sofqomega.bp"/>
+            </when>
+        </conditional>
         <param name="maxent" type="data_collection" optional="false" collection_type="list" label="maxent"/>
         <param name="normalization" type="data" format="txt" optional="false" label="normalization"/>
     </inputs>
     <outputs>
-        <data format="png" name="plot" label="${input.element_identifier}-plot"/>
+        <data format="png" name="plot" label="maxent-plot"/>
     </outputs>
     <help><![CDATA[
         A tool to visualize MaxEnt results

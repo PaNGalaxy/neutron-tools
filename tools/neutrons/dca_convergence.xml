@@ -1,4 +1,4 @@
-<tool id="neutrons_dca_convergence" name="DCA Convergence Tool"  profile="22.05" version="0.2.0">
+<tool id="neutrons_dca_convergence" name="DCA Convergence Tool"  profile="22.05" version="0.2.1">
   <description></description>
     <requirements>
     </requirements>
@@ -6,29 +6,38 @@
         #set $gpu_str = "--nv" if $gpu else ""
         #set $sif_name = "dca_0_2_0.sif" if $gpu else "dca_cpu_0_1_0.sif"
         #set $sif_image = "summit-singularity:0.2.0" if $gpu else "summit-singularity-cpu:0.1.0"
+        #set $portal = $input_mode.input_folder if $input_mode.input_mode_folder else "$(pwd)/portal"
         module purge &&
         module load DefApps &&
         module load  gcc/9.1.0 &&
-        mkdir ./portal &&
+        mkdir -p $portal &&
         source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
         ( [ -e \${_GALAXY_JOB_DIR}/../containers/$sif_name ] ||
           singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
                       oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca-main/$sif_image ) &&
         \${GALAXY_COMMAND_PREFIX} singularity exec
                 $gpu_str
-                --bind \$(pwd)/portal:/portal
+                --bind $portal:/portal
                 --bind $input:/input/input_file.json
                 --pwd /portal
-                \${_GALAXY_JOB_DIR}/../containers/$sif_name /dca/main_dca /input/input_file.json &> $output
+                \${_GALAXY_JOB_DIR}/../containers/$sif_name /dca/main_dca /input/input_file.json &> $output &&
+        chmod g+rwX -R $portal/conv.bp
     ]]></command>
     <inputs>
         <param name="input"  type="data" format="json" optional="false" label="Config"/>
         <param name="gpu" type="boolean" checked="true" label="Run on GPU"/>
+        <conditional name="input_mode">
+            <param name="input_mode_folder" type="boolean" truevalue="true" falsevalue="false" checked="no" label="Use local data folder" help=""/>
+            <when value="true">
+                <param name="input_folder" type="text" optional="false" label="Working folder"/>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="DCA Convergence Console Output"/>
         <collection type="list" name="output_collection" label="DCA Convergence ADIOS2 Output">
             <discover_datasets format="data" pattern="__designation__" directory="portal/conv.bp" />
+            <filter>input_mode["input_mode_folder"] == False </filter>
         </collection>
     </outputs>
     <help><![CDATA[

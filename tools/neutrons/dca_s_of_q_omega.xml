@@ -1,4 +1,4 @@
-<tool id="neutrons_dca_sofqo" name="S of Q Omega Simulator"  profile="22.05" version="0.2.0">
+<tool id="neutrons_dca_sofqo" name="S of Q Omega Simulator"  profile="22.05" version="0.2.1">
   <description></description>
     <requirements>
     </requirements>
@@ -7,15 +7,17 @@
         #from pathlib import Path
         #set $sif_name = "dca_cpu_0_1_0.sif"
         #set $sif_image = "summit-singularity-cpu:0.1.0"
-
-        mkdir -p ./portal/g4_bins.bp &&
-        #for $el in $input_bins:
-           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
-           #if Path($cleaned_name).suffix == '':
-            #set $cleaned_name=$cleaned_name + '.'+$el.ext
-           #end if
-           cp '$el' './portal/g4_bins.bp/${cleaned_name}' &&
-        #end for
+        #set $portal = $input_mode.input_folder if $input_mode.input_mode_folder else "$(pwd)/portal"
+        #if not $input_mode.input_mode_folder:
+            mkdir -p ./portal/g4_bins.bp &&
+            #for $el in $input_mode.input_bins:
+               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+               #if Path($cleaned_name).suffix == '':
+                #set $cleaned_name=$cleaned_name + '.'+$el.ext
+               #end if
+               cp '$el' './portal/g4_bins.bp/${cleaned_name}' &&
+            #end for
+        #end if
         module purge &&
         module load DefApps &&
         module load  gcc/9.1.0 &&
@@ -24,19 +26,31 @@
           singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
                       oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca-main/$sif_image ) &&
         \${GALAXY_COMMAND_PREFIX} singularity exec
-                --bind \$(pwd)/portal:/portal
+                --bind $portal:/portal
                 --bind $input:/input/input_file.json
                 --pwd /portal
-                \${_GALAXY_JOB_DIR}/../containers/$sif_name /dca/chi_q_omega /input/input_file.json &> $output
+                \${_GALAXY_JOB_DIR}/../containers/$sif_name /dca/chi_q_omega /input/input_file.json &> $output &&
+        chmod g+rwX -R $portal/sofqomega0.bp
     ]]></command>
     <inputs>
         <param name="input"  type="data" format="json" optional="false" label="Config"/>
-        <param name="input_bins" type="data_collection" optional="false" collection_type="list" label="Bins"/>
+        <conditional name="input_mode">
+            <param name="input_mode_folder" type="boolean" truevalue="true" falsevalue="false" checked="no" label="Use local data folder" help=""/>
+            <when value="true">
+                <param name="input_folder" type="text" optional="false" label="Working folder"/>
+                <param name="connector" type="data" optional="true" label="Connector"
+                       help="A dummy parameter to connect this tool in a workflow" />
+            </when>
+            <when value="false">
+                <param name="input_bins" type="data_collection" optional="false" collection_type="list" label="Bins"/>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
 		<data format="txt" name="output" label="sofqomega console output"/>
         <collection type="list" name="output_collection" label="sofqomega.bp">
             <discover_datasets format="data" pattern="__designation__" directory="portal/sofqomega0.bp" />
+            <filter>input_mode["input_mode_folder"] == False </filter>
         </collection>
     </outputs>
     <help><![CDATA[
