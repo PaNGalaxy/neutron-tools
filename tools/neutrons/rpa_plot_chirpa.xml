@@ -1,0 +1,45 @@
+<tool id="neutrons_rpa_plot_chirpa" name="RPA plot chi(q,w)"  profile="22.05" version="0.1.0">
+    <requirements>
+	    <requirement type="package" version="3.10">python</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+	    python $__tool_directory__/Plot_chiRPA_qxqy.py 
+        --file $file
+        #if $interpolation == True
+        --interpolation
+        #end if
+        --column $column
+        --format $format
+	    --output $plot &> $output
+    ]]></command>
+    <inputs>
+        <param name="file" type="data" format="txt" label="Simulation result file"/>
+	    <param name="interpolation" type="boolean" label="Use image interpolation"/>
+        <param name="column" type="integer" value="8" label="Select column from data file"/>
+        <param name="format" type="select" label="Type of image">
+           <option value="png" selected="true">png</option>
+           <option value="pdf" selected="false">pdf</option>
+           <option value="svg" selected="false">svg</option>
+           <option value="eps" selected="false">eps</option>
+        </param>
+    </inputs>
+    <outputs>
+	    <data format="png" name="plot" label="${file.display_name}-plot">
+            <filter>"png" in format</filter>
+        </data>
+	    <data format="pdf" name="plot" label="${file.display_name}-plot">
+            <filter>"pdf" in format</filter>
+        </data>
+        <data format="svg" name="plot" label="${file.display_name}-plot">
+            <filter>"svg" in format</filter>
+        </data>
+        <data format="eps" name="plot" label="${file.display_name}-plot">
+            <filter>"eps" in format</filter>
+        </data>
+        <data format="txt" name="output" label="RPA plot job output"/>
+    </outputs>
+    <help><![CDATA[
+A tool to plot chi(q,w). Use with the RPA tool to plot the result. The MRPA++ code has been developed with resources from the Center of Nanophase M aterials Sciences, which is a DOE Office of Science User Facility, and the NSF u nder DMR-1308603.
+]]></help>
+</tool>
+
