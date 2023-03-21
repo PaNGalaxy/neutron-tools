@@ -17,7 +17,7 @@
                 --init
                 --mount type=bind,source=\$(pwd)/input,target=/input,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
-                code.ornl.gov:4567/ndip/tool-containers/asrp/pattern_matching:$image_tag
+                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/pattern_matching:$image_tag
                 -i /input/input_filenames.txt
                 -d $distance_metric_type
                 -c $cluster_algorithm_type

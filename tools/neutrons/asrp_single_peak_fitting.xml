@@ -6,7 +6,7 @@
                 --init
                 --mount type=bind,source=$input_data,target=/input.gsa,readonly
                 --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
-                code.ornl.gov:4567/ndip/tool-containers/asrp/single_peak_fit:$image_tag
+                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/single_peak_fit:$image_tag
                     -f /input.gsa
                     -b $bank_id
                     -c $peak_center
