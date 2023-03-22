@@ -1,0 +1,48 @@
+<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.1.0">
+    <command><![CDATA[
+            #set $image_tag = "0.1"
+            ##Move files to execution directory
+            mkdir ./input &&
+            cp $cif_file ./input/input.cif &&
+            cp $gsas_file ./input/input.gsa &&
+            cp $prm_file ./input/input.instprm &&
+
+            mkdir portal &&
+            docker run
+                --rm
+                --init
+                --mount type=bind,source=\$(pwd)/input,target=/refinement,readonly
+                --mount type=bind,source=\$(pwd)/portal,target=/portal
+                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_refinement:$image_tag
+                --cif-filename /refinement/input.cif
+                --gsas-filename /refinement/input.gsa
+                --instrument-params-filename /refinement/input.instprm
+                --scatter-type $scatter_type
+                --bank-id $bank_id
+                --xmin $xmin
+                --xmax $xmax
+    ]]></command>
+    <inputs>
+        <param name="cif_file" type="data" format="txt" label="CIF File"/>
+        <param name="gsas_file" type="data" format="txt" label="GSAS File"/>
+        <param name="prm_file" type="data" format="txt" label="Instrument Parameter File"/>
+
+        <param name="scatter_type" type="select" label="Scatter Type" optional="false">
+            <option value="N" selected="false">Neutron</option>
+            <option value="X" selected="false">X-ray</option>
+        </param>
+        <param name="bank_id" type="integer" label="Bank ID" value="0" />
+        <param name="xmin" type="float" label="Left bound" value="0" />
+        <param name="xmax" type="float" label="Right bound" value="0" />
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection1" label="GSAS2 refinement output">
+            <discover_datasets format= "binary" pattern="__designation__" directory="portal" />
+        </collection>
+        <data format="txt" name="output" label="GSAS2 console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
