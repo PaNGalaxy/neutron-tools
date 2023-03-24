@@ -10,7 +10,7 @@
         #end if
         --column $column
         --format $format
-	    --output $plot &> $output
+	    --output $plot
     ]]></command>
     <inputs>
         <param name="file" type="data" format="txt" label="Simulation result file"/>
@@ -24,22 +24,9 @@
         </param>
     </inputs>
     <outputs>
-	    <data format="png" name="plot" label="${file.display_name}-plot">
-            <filter>"png" in format</filter>
-        </data>
-	    <data format="pdf" name="plot" label="${file.display_name}-plot">
-            <filter>"pdf" in format</filter>
-        </data>
-        <data format="svg" name="plot" label="${file.display_name}-plot">
-            <filter>"svg" in format</filter>
-        </data>
-        <data format="eps" name="plot" label="${file.display_name}-plot">
-            <filter>"eps" in format</filter>
-        </data>
-        <data format="txt" name="output" label="RPA plot job output"/>
+	    <data auto_format="true" name="plot" label="${file.display_name}-plot"/>
     </outputs>
     <help><![CDATA[
 A tool to plot chi(q,w). Use with the RPA tool to plot the result. The MRPA++ code has been developed with resources from the Center of Nanophase M aterials Sciences, which is a DOE Office of Science User Facility, and the NSF u nder DMR-1308603.
 ]]></help>
 </tool>
-
