@@ -15,7 +15,7 @@
     ]]></command>
     <inputs>
         <param name="params" type="data" format="txt" optional="false" label="Simulation parameters"/>
-        <param name="tbparams" type="data" format="txt" optional="false" label="TB paramters"/>
+        <param name="tbparams" type="data" format="txt" optional="false" label="TB parameters"/>
         <param name="nproc" type="integer" value="2" label="Number of processes"/>
     </inputs>
     <outputs>
