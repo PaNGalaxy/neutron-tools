@@ -1,6 +1,7 @@
 <tool id="neutrons_rpa_plot_chirpa" name="RPA plot chi(q,w)"  profile="22.05" version="0.1.0">
     <requirements>
 	    <requirement type="package" version="3.10">python</requirement>
+        <requirement type="package" version="3.5.3">matplotlib</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
 	    python $__tool_directory__/Plot_chiRPA_qxqy.py 

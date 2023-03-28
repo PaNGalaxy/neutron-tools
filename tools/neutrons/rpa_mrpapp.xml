@@ -21,7 +21,7 @@
     <outputs>
         <data format="txt" name="output" label="RPA job output"/>
         <data format="txt" name="output_data" label="RPA simulation results">
-            <discover_datasets pattern="chiRPA_demo.txt" directory="results"/>
+            <discover_datasets pattern="chiRPA_demo\.txt" directory="results"/>
         </data>
         <collection type="list" name="output_collection" label="All RPA output">
             <discover_datasets format="txt" pattern="__designation_and_ext__" directory="results" />
