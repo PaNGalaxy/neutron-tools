@@ -1,0 +1,61 @@
+<tool id="neutrons_asrp_diffpy_cmi" name="PDF Refinement" profile="22.05" version="0.1.0">
+    <command><![CDATA[
+            #set $image_tag = "0.1"
+            ##Move files to execution directory
+            mkdir ./input &&
+            cp $cif_file ./input/input.cif &&
+            cp $gsas_file ./input/input.gr &&
+
+            mkdir portal &&
+            docker run
+                --rm
+                --init
+                --mount type=bind,source=\$(pwd)/input,target=/refinement,readonly
+                --mount type=bind,source=\$(pwd)/portal,target=/portal
+                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:$image_tag
+                --cif-filename /refinement/input.cif
+                --pdf-filename /refinement/input.gr
+                --scatter-type $scatter_type
+                --qmin $qmin
+                --qmax $qmax
+                --qdamp $qdamp
+                --qbroad $qbroad
+                --rmin $rmin
+                --rmax $rmax
+                --uiso $uiso
+                --qdamp-qbroad-fit $qdamp-qbroad-fit
+                --output-cif-filename /portal/output.cif
+                --output-stdout-filename /portal/output.txt
+                --output-results-filename /portal/output.json
+    ]]></command>
+    <inputs>
+        <param name="cif_file" type="data" format="txt" label="CIF File"/>
+        <param name="gsas_file" type="data" format="txt" label="PDF File"/>
+
+        <param name="scatter_type" type="select" label="Scatter Type" optional="false">
+            <option value="N" selected="false">Neutron</option>
+            <option value="X" selected="false">X-ray</option>
+        </param>
+        <param name="qmin" type="float" label="Qmin" value="0" />
+        <param name="qmax" type="float" label="Qmax" value="30.0" />
+        <param name="qdamp" type="float" label="Qdamp" value="0.02" />
+        <param name="qbroad" type="float" label="Qbroad" value="0.02" />
+        <param name="rmin" type="float" label="Rmin" value="0" />
+        <param name="rmax" type="float" label="Rmax" value="20.0" />
+        <param name="uiso" type="float" label="Uiso" value="0.003" />
+        <param name="qdamp-qbroad-fit" type="select" label="Qdamp + Qbroad Fitting?" optional="false">
+            <option value="yes" selected="true">yes</option>
+            <option value="" selected="false">no</option>
+        </param>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection1" label="PDF refinement output">
+            <discover_datasets format= "binary" pattern="__designation__" directory="portal" />
+        </collection>
+        <data format="txt" name="output" label="DiffPy-CMI console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
