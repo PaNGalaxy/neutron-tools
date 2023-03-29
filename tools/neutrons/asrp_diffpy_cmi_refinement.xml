@@ -1,32 +1,30 @@
 <tool id="neutrons_asrp_diffpy_cmi" name="PDF Refinement" profile="22.05" version="0.1.0">
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:0.1</container>
+    </requirements>
     <command><![CDATA[
-            #set $image_tag = "0.1"
-            ##Move files to execution directory
-            mkdir ./input &&
-            cp $cif_file ./input/input.cif &&
-            cp $gsas_file ./input/input.gr &&
-
-            mkdir portal &&
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=\$(pwd)/input,target=/refinement,readonly
-                --mount type=bind,source=\$(pwd)/portal,target=/portal
-                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:$image_tag
-                --cif-filename /refinement/input.cif
-                --pdf-filename /refinement/input.gr
-                --scatter-type $scatter_type
-                --qmin $qmin
-                --qmax $qmax
-                --qdamp $qdamp
-                --qbroad $qbroad
-                --rmin $rmin
-                --rmax $rmax
-                --uiso $uiso
-                --qdamp-qbroad-fit $qdamp-qbroad-fit
-                --output-cif-filename /portal/output.cif
-                --output-stdout-filename /portal/output.txt
-                --output-results-filename /portal/output.json
+            whoami &&
+            ls &&
+            pwd &&
+            ls /app &&
+            mkdir output &&
+            ln -s $cif_file ./input.cif &&
+            ln -s $gsas_file ./input.gr &&
+            python /app/src/diffpy_cmi_refinement/diffpy_cmi_refinement.py \
+                --cif-filename ./input.cif \
+                --pdf-filename ./input.gr \
+                --scatter-type $scatter_type \
+                --qmin $qmin \
+                --qmax $qmax \
+                --qdamp $qdamp \
+                --qbroad $qbroad \
+                --rmin $rmin \
+                --rmax $rmax \
+                --uiso $uiso \
+                --qdamp-qbroad-fit $qdamp-qbroad-fit \
+                --output-cif-filename ./output/output.cif \
+                --output-stdout-filename ./output/output.txt \
+                --output-results-filename ./output/output.json > $output 2>&1
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
@@ -50,7 +48,7 @@
     </inputs>
     <outputs>
         <collection type="list" name="output_collection1" label="PDF refinement output">
-            <discover_datasets format= "binary" pattern="__designation__" directory="portal" />
+            <discover_datasets format= "binary" pattern="__designation__" directory="output" />
         </collection>
         <data format="txt" name="output" label="DiffPy-CMI console output">
         </data>
