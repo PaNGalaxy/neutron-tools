@@ -11,7 +11,8 @@
         --mount type=bind,source=$tbparams,target=/input/tbparams.txt,readonly
         --mount type=bind,source=\$(pwd)/results,target=/output
             code.ornl.gov:4567/ndip/tool-sources/rpa/mrpapp:$image_tag
-        $nproc &> $output
+        $nproc &> $output &&
+        cp results/chiRPA_demo.txt $output_data
     ]]></command>
     <inputs>
         <param name="params" type="data" format="txt" optional="false" label="Simulation parameters"/>
@@ -20,9 +21,7 @@
     </inputs>
     <outputs>
         <data format="txt" name="output" label="RPA job output"/>
-        <data format="txt" name="output_data" label="RPA simulation results">
-            <discover_datasets pattern="chiRPA_demo\.txt" directory="results"/>
-        </data>
+        <data format="txt" name="output_data" label="RPA simulation results"/>
         <collection type="list" name="output_collection" label="All RPA output">
             <discover_datasets format="txt" pattern="__designation_and_ext__" directory="results" />
         </collection>
