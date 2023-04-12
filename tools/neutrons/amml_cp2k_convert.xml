@@ -16,7 +16,7 @@
         mv type.raw $type_raw
     ]]></command>
     <inputs>
-        <param name="mof_input" type="data" format="txt" optional="false" label="input file"/>
+        <param name="mof_input" type="data" format="txt" optional="false" label="cp2k input file"/>
         <param  name="mof_force" type="data" format="txt" label="force file"/>
         <param name="mof_pos" type="data" format="txt"  label="position file"/>
     </inputs>
