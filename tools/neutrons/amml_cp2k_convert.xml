@@ -1,0 +1,33 @@
+<tool id="neutrons_amml_cp2k_convert" name="CP2K convert"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/amml/convert-from-cp2k:0.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir input &&
+        ln -s $mof_force input/mof_force.xyz &&
+        ln -s $mof_pos input/mof_pos.xyz &&
+        ln -s $mof_input input/mof.inp &&
+        /app/md2raw.py -cp2k input/*  &&
+        mv box.raw $box_raw &&
+        mv coord.raw $coord_raw &&
+        mv energy.raw $energy_raw &&
+        mv force.raw $force_raw &&
+        mv type.raw $type_raw
+    ]]></command>
+    <inputs>
+        <param name="mof_input" type="data" format="txt" optional="false" label="input file"/>
+        <param  name="mof_force" type="data" format="txt" label="force file"/>
+        <param name="mof_pos" type="data" format="txt"  label="position file"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="box_raw" label="box file"/>
+        <data format="txt" name="coord_raw" label="coord file"/>
+        <data format="txt" name="energy_raw" label="energy file"/>
+        <data format="txt" name="force_raw" label="force file"/>
+        <data format="txt" name="type_raw" label="type file"/>
+    </outputs>
+    <help><![CDATA[
+        AMML CP2K convert tool
+]]></help>
+</tool>
