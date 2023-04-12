@@ -1,0 +1,24 @@
+<tool id="neutrons_amml_cp2k" name="CP2K simulation"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker">cp2k/cp2k:2023.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s $xyz mof.xyz &&
+        cp2k -i $input &&
+        mv mof_force.xyz $mof_force &&
+        mv mof_pos.xyz $mof_pos
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" optional="false" label="input file"/>
+        <param name="xyz" type="data" format="txt" optional="false" label="xyz file"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="mof_force" label="force file"/>
+        <data format="txt" name="mof_pos" label="position file"/>
+    </outputs>
+    <help><![CDATA[
+        AMML CP2K tool
+]]></help>
+</tool>
+
