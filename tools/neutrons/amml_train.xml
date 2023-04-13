@@ -1,0 +1,36 @@
+<tool id="neutrons_amml_train" name="DeepMD Train"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda10.2_gpu</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir input &&
+        ln -s $box_raw input/box.raw  &&
+        ln -s $coord_raw input/coord.raw &&
+        ln -s $energy_raw input/energy.raw  &&
+        ln -s $force_raw input/force.raw  &&
+        ln -s $type_raw input/type.raw &&
+        cd input &&
+        wget https://raw.githubusercontent.com/deepmodeling/deepmd-kit/master/data/raw/raw_to_set.sh &&
+        bash raw_to_set.sh 2000 && cd .. &&
+        ln -s $input input.json &&
+        dp train input.json &&
+        dp freeze -o $graph_db &&
+        mv lcurve.out $lcurve
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" optional="false" label="parameter file"/>
+        <param name="box_raw" type="data" format="txt" optional="false" label="box file"/>
+        <param  name="coord_raw" type="data" format="txt" label="coord file"/>
+        <param name="energy_raw" type="data" format="txt" optional="false" label="energy file"/>
+        <param  name="force_raw" type="data" format="txt" label="force file"/>
+        <param name="type_raw" type="data" format="txt" optional="false" label="type file"/>
+    </inputs>
+    <outputs>
+        <data format="binary" name="graph_db" label="${tool.name} on ${input.name} (graph_db)" />
+        <data format="txt" name="lcurve" label="${tool.name} on ${input.name} (lcurve)"/>
+    </outputs>
+    <help><![CDATA[
+        AMML CP2K convert tool
+]]></help>
+</tool>
