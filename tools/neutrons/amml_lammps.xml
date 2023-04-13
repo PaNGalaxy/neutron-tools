@@ -8,15 +8,15 @@
         ln -s $mof_data mof.data  &&
         lmp -in $input &&
         mv dump.2 $dump &&
-        ls > $output
+        mv log.lammps $log
     ]]></command>
     <inputs>
         <param name="input" type="data" format="txt" optional="false" label="parameter file"/>
-        <param name="graph_pb" type="data" format="binary" optional="false" label="graph_db file"/>
+        <param name="graph_pb" type="data" format="binary" optional="false" label="graph_pb file"/>
         <param name="mof_data" type="data" format="txt" optional="false" label="data file"/>
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="${tool.name} on ${input.name} (output)"/>
+        <data format="txt" name="log" label="${tool.name} on ${input.name} (log)"/>
         <data format="binary" name="dump" label="${tool.name} on ${input.name} (dump.2)"/>
     </outputs>
     <help><![CDATA[
