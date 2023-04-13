@@ -1,0 +1,25 @@
+<tool id="neutrons_amml_lammps" name="LAMMPS Molecular Dynamics Simulator"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda10.2_gpu</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s $graph_pb graph.pb  &&
+        ln -s $mof_data mof.data  &&
+        lmp -in $input &&
+        mv dump.2 $dump &&
+        ls > $output
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" optional="false" label="parameter file"/>
+        <param name="graph_pb" type="data" format="binary" optional="false" label="graph_db file"/>
+        <param name="mof_data" type="data" format="txt" optional="false" label="data file"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="${tool.name} on ${input.name} (output)"/>
+        <data format="binary" name="dump" label="${tool.name} on ${input.name} (dump.2)"/>
+    </outputs>
+    <help><![CDATA[
+        AMML LAMMPS tool
+]]></help>
+</tool>

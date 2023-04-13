@@ -15,7 +15,7 @@
         bash raw_to_set.sh 2000 && cd .. &&
         ln -s $input input.json &&
         dp train input.json &&
-        dp freeze -o $graph_db &&
+        dp freeze -o $graph_pb &&
         mv lcurve.out $lcurve
     ]]></command>
     <inputs>
@@ -27,7 +27,7 @@
         <param name="type_raw" type="data" format="txt" optional="false" label="type file"/>
     </inputs>
     <outputs>
-        <data format="binary" name="graph_db" label="${tool.name} on ${input.name} (graph_db)" />
+        <data format="binary" name="graph_pb" label="${tool.name} on ${input.name} (graph_pb)" />
         <data format="txt" name="lcurve" label="${tool.name} on ${input.name} (lcurve)"/>
     </outputs>
     <help><![CDATA[
