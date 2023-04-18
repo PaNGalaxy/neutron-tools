@@ -1,0 +1,19 @@
+<tool id="neutrons_amml_pclimax" name="PClimax"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/amml/pclimax:0.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        /app/pclimax.py $input &&
+        mv *.png $out
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="csv" optional="false" label="csv file"/>
+    </inputs>
+    <outputs>
+        <data format="png" name="out" label="${tool.name} on ${input.name} (plot)"/>
+    </outputs>
+    <help><![CDATA[
+        AMML PClimax tool
+]]></help>
+</tool>

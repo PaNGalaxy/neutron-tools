@@ -1,0 +1,23 @@
+<tool id="neutrons_amml_oclimax" name="OClimax"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker">ornliceman/oclimax</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s $input default.params &&
+        2climax.py -lt $dump $timestep &&
+        oclimax out.tclimax &&
+        mv *.csv $out
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" optional="false" label="parameter file"/>
+	    <param name="timestep" type="float" value="0.5" label="timestep(fs)"/>
+        <param name="dump" type="data" format="txt" optional="false" label="lammps dump file"/>
+    </inputs>
+    <outputs>
+        <data format="csv" name="out" label="${tool.name} on ${input.name} (out.tclimax)"/>
+    </outputs>
+    <help><![CDATA[
+        AMML OClimax tool
+]]></help>
+</tool>
