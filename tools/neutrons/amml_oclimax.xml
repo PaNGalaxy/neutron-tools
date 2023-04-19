@@ -4,18 +4,20 @@
         <container type="docker">ornliceman/oclimax</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        #if $input:
         ln -s $input default.params &&
+        #end if
         2climax.py -lt $dump $timestep &&
         oclimax out.tclimax &&
         mv *.csv $out
     ]]></command>
     <inputs>
-        <param name="input" type="data" format="txt" optional="false" label="parameter file"/>
+        <param name="input" type="data" format="txt" optional="true" label="parameter file (optional)"/>
 	    <param name="timestep" type="float" value="0.5" label="timestep(fs)"/>
         <param name="dump" type="data" format="txt" optional="false" label="lammps dump file"/>
     </inputs>
     <outputs>
-        <data format="csv" name="out" label="${tool.name} on ${input.name} (out.tclimax)"/>
+        <data format="csv" name="out" label="${tool.name} on ${dump.name} (out.tclimax)"/>
     </outputs>
     <help><![CDATA[
         AMML OClimax tool
