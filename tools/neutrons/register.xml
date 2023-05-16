@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<tool name="Register File" id="neutrons_register" version="0.1.0" profile="22.05">
+  <description>from your computer</description>
+    <requirements>
+        <container type="docker">alpine:3.17</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+      test -r $input || (echo "file $input not found" >&2  && exit 1) &&
+      ln -sf $input $output
+    ]]></command>
+  <inputs>
+    <param name="input" type="text" />
+  </inputs>
+    <outputs>
+        <data name="output" auto_format="true" />
+    </outputs>
+  <help>
+  </help>
+</tool>
