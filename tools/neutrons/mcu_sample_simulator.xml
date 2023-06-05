@@ -1,0 +1,21 @@
+<tool id="neutrons_mcu_ssmple_simulator" name="Sample Simulator"  profile="22.05" version="0.1.0">
+  <description></description>
+<requirements>
+    <container type="docker">code.ornl.gov:4567/ndip/galaxy-tools/sample_sim_tool:latest</container>
+</requirements>
+    <inputs>
+        <param name="instrument" type="text" optional="false" label="Instrument Name"/>
+        <param name="beamline_simulationn" type="data" format="gz,zip" optional="false" label="Simulation code source"/>
+        <param name="sample_description" type="data" format="gz,zip" optional="false" label="Sample description with kernel"/>
+    </inputs>
+    <command detect_errors="exit_code"><![CDATA[
+        #touch \${_GALAXY_JOB_TMP_DIR}/events.nxs.h5
+        mv \${_GALAXY_JOB_TMP_DIR}/outputs .
+    ]]></command>
+    <outputs>
+		<data format="h5" name="events.nxs" label="Simulated events"/>
+    </outputs>
+    <help><![CDATA[
+A tool to run McVine simulations of a Sample
+]]></help>
+</tool>
