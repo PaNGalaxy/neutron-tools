@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<tool name="Export Datasets" id="neutrons_export" version="0.1.0" profile="22.05">
+  <description>to SNS/HFIR storage</description>
+    <requirements>
+        <container type="docker">alpine:3.17</container>
+    </requirements>
+    <command><![CDATA[
+        #from pathlib import Path
+        #if $input_mode.input_mode_collection == 'true':
+            #for $el in $input_mode.input:
+               #set $name = str($el.element_identifier)
+               #if Path($name).suffix == '':
+                #set $name=$name + '.'+$el.ext
+               #end if
+               cp '$el' '$input_mode.export_folder/$name' &&
+               echo '$input_mode.export_folder/$name' >> $output &&
+            #end for
+        #else:
+            #for $i, $s in enumerate($input_mode.series)
+                cp '${s.input}' '${s.export_path}' &&
+                echo '${s.export_path}'>> $output &&
+            #end for
+        #end if
+        :
+    ]]>
+    </command>
+  <inputs>
+       <conditional name="input_mode">
+            <param name="input_mode_collection" type="boolean" truevalue="true" falsevalue="false" label="Export dataset collection"
+            help=""/>
+            <when value="true">
+                <param name="input" type="data_collection" optional="true" collection_type="list" label="Collection"/>
+                <param name="export_folder" type="text" optional="false" default="" label="Export folder"/>
+            </when>
+            <when value="false">
+                 <repeat name="series" title="Datasets">
+                    <param name="input" type="data" label="Dataset"/>
+                    <param name="export_path" type="text" optional="false" default="" label="Export path"/>
+                </repeat>
+            </when>
+        </conditional>
+  </inputs>
+    <outputs>
+        <data name="output" auto_format="true" label="exported files"/>
+    </outputs>
+  <help>
+  </help>
+</tool>
