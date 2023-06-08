@@ -1,10 +1,10 @@
 <tool id="neutrons_fractal" name="fractals" version="0.2.0" python_template_version="3.5">
     <requirements>
-        <container type="docker">https://code.ornl.gov/ndip/tool-sources/playground/fractal/-/jobs/1843067</container>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/playground/fractal:82f871fd</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #import json
-	    python $__tool_directory__/fractal.py --option $option &&
+	    python3 /src/fractal.py --option $option &&
 	    mv data.* $output
     ]]></command>
     <inputs>
