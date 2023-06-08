@@ -1,6 +1,6 @@
 <tool id="neutrons_fractal" name="fractals" version="0.2.0" python_template_version="3.5">
     <requirements>
-	    <requirement type="package" version="3.6">python</requirement>
+        <container type="docker">https://code.ornl.gov/ndip/tool-sources/playground/fractal/-/jobs/1843067</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #import json
