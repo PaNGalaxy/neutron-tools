@@ -5,11 +5,11 @@
         <container type="docker">alpine:3.17</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-      head -n 1 > /dev/null $input || (echo "file $input not found" >&2  && exit 1) &&
+      head -c 1 > /dev/null $input || (echo "file $input not found" >&2  && exit 1) &&
       ln -sf $input $output
     ]]></command>
   <inputs>
-    <param name="input" type="text" />
+    <param name="input" type="text" label="Filesystem path"/>
   </inputs>
     <outputs>
         <data name="output" auto_format="true" label="${input}"/>
