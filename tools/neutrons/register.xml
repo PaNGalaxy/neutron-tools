@@ -4,16 +4,20 @@
     <requirements>
         <container type="docker">alpine:3.17</container>
     </requirements>
+    <action module="galaxy.tools.actions.upload" class="RegisterToolAction"/>
     <command detect_errors="exit_code"><![CDATA[
-      head -c 1 > /dev/null $input || (echo "file $input not found" >&2  && exit 1) &&
-      ln -sf $input $output
+      #for $i, $s in enumerate($series)
+          #set $output = $getVar('output%i' % $i)
+          head -c 1 &> /dev/null '${s.input}' || (echo "file ${s.input} not found" >&2  && exit 1) &&
+          ln -sf '${s.input}' $output &&
+      #end for
+      :
     ]]></command>
   <inputs>
-    <param name="input" type="text" label="Filesystem path"/>
+     <repeat name="series" title="File to register">
+        <param name="input" type="text" label="Filesystem path"/>
+    </repeat>
   </inputs>
-    <outputs>
-        <data name="output" auto_format="true" label="${input}"/>
-    </outputs>
   <help>
   </help>
 </tool>
