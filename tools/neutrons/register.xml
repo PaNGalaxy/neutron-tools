@@ -8,8 +8,9 @@
     <command detect_errors="exit_code"><![CDATA[
       #for $i, $s in enumerate($series)
           #set $output = $getVar('output%i' % $i)
-          head -c 1 &> /dev/null '${s.input}' || (echo "file ${s.input} not found" >&2  && exit 1) &&
-          ln -sf '${s.input}' $output &&
+          #set $fname = $s.input.strip()
+          head -c 1 &> /dev/null '$fname' || (echo "file $fname not found" >&2  && exit 1) &&
+          ln -sf '$fname' $output &&
       #end for
       :
     ]]></command>
