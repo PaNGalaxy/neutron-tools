@@ -1,0 +1,32 @@
+<tool name="AddingNumbers" id="adding_numbers" version="0.01">
+     <description>Adds two numbers</description>
+    <command><![CDATA[
+     expr $number1 + $number2 > $adding_output]]>
+     </command>
+    <inputs>
+        <param label="First number to add" help="" value="" type="integer" name="number1" argument="first number"/>
+        <param label="Second number to add" help="" value="" type="integer" name="number2" argument="second number"/>
+    </inputs>
+    <outputs>
+        <data name="adding_output" format="txt" label="adding_output" hidden="false"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="number1" value="2" />
+            <param name="number2" value="3" />
+            <assert>True</assert>
+        </test>
+    </tests>
+    <help><![CDATA[
+**What it Does**
+
+Adds two numbers
+
+------
+
+Script::
+
+    expr $1 + $2
+
+]]></help>
+</tool>

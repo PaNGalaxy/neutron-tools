@@ -19,4 +19,31 @@
 	<data auto_format="true" name="output" label="$option">
 	</data>
     </outputs>
+    <tests>
+        <!-- Test case 1: Mandelbrot Set -->
+      <test>
+        <param name="option" value="markus"/>
+          <output name="output" file="output.png">
+                <assert_contents>
+                    <has_size value="1589411"/>
+                </assert_contents>
+          </output>
+      </test>
+        <test>
+        <param name="option" value="markus"/>
+          <output name="output" file="expected_markus.png"/>
+      </test>
+        <!-- Test case 3: Random Walk -->
+      <test>
+        <param name="option" value="random"/>
+        <asserts>
+          <assert type="dataset" name="output_file_created" status="okay">
+            <metadata>
+              <output_file name="output"/>
+            </metadata>
+          </assert>
+        </asserts>
+      </test>
+
+  </tests>
 </tool>

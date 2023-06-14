@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
 
 variables:
   GIT_STRATEGY: clone
@@ -17,6 +18,7 @@ after_script:
   - source rse-bash-modules.sh
   - func_rse_docker_cleanup
   - sudo chown -R gitlab-runner .
+  - sudo rm -rf /galaxy
 
 service-build:
   stage: build
@@ -29,7 +31,21 @@ service-build:
     - docker tag galaxy_tools $CONTAINER_URL/$CI_COMMIT_REF_NAME:latest
     - docker push $CONTAINER_URL/$CI_COMMIT_REF_NAME:latest
     - docker push $CONTAINER_URL/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+  when: manual
   tags:
     - rse-multi-builder
-  except:
-      - docker-base
+
+
+testing:
+  stage: test
+  script:
+    - sudo mkdir /galaxy
+    - >  
+      docker run -it -v /var/run/docker.sock:/var/run/docker.sock
+      -v `pwd`/tools:/galaxy-tools/tools 
+      -v `pwd`/tool_data:/galaxy-tools/tool_data 
+      --workdir /galaxy-tools/tools/neutrons 
+      -v /tmp:/tmp 
+      dummy-image planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp
+  tags:
+    - rse-multi-builder
