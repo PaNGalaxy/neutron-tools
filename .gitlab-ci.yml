@@ -27,10 +27,10 @@ service-build:
       docker build
       -f dockerfiles/Dockerfile 
       -t galaxy_tools .
-    - docker tag galaxy_tools $CONTAINER_URL/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
-    - docker tag galaxy_tools $CONTAINER_URL/$CI_COMMIT_REF_NAME:latest
-    - docker push $CONTAINER_URL/$CI_COMMIT_REF_NAME:latest
-    - docker push $CONTAINER_URL/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+    - docker tag galaxy_tools $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
+    - docker tag galaxy_tools $CONTAINER_URL:latest
+    - docker push $CONTAINER_URL:latest
+    - docker push $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
   when: manual
   tags:
     - rse-multi-builder
