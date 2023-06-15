@@ -31,7 +31,9 @@
       </test>
         <test>
         <param name="option" value="markus"/>
-          <output name="output" file="expected_markus.png"/>
+          <output name="output" file="output.png">
+            <assert_contents file="expected_markus.png"/>
+          </output>
       </test>
         <!-- Test case 3: Random Walk -->
       <test>
