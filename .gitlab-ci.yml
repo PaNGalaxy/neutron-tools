@@ -47,5 +47,6 @@ testing:
       --workdir `pwd`/tools/neutrons 
       -v /tmp:/tmp 
       code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp
+      cat tool_test_output.json
   tags:
     - rse-multi-builder
