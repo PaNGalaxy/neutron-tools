@@ -46,6 +46,6 @@ testing:
       -v `pwd`/tool_data:`pwd`/tool_data
       --workdir `pwd`/tools/neutrons 
       -v /tmp:/tmp 
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp --no_cleanup --update_test_data
+      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp --no_cleanup --test_output_junit ./junit_output.xml --update_test_data
   tags:
     - rse-multi-builder
