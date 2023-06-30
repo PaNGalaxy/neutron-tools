@@ -1,17 +1,35 @@
-<tool id="neutrons_remote_command" name="remote command"  profile="22.05" version="0.2.0" python_template_version="3.5">
+<tool id="neutrons_remote_command" name="remote command"  profile="22.05" version="0.3.0" python_template_version="3.5">
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         echo -n 'hostname: ' > '$output1' &&
         hostname >> '$output1' &&
-        \${GALAXY_COMMAND_PREFIX} $command >> '$output1'
+        #if $command_mode.command == "copy":
+            cat '$command_mode.input' >> '$output1'
+        #else if $command_mode.command == "head":
+            head -c $command_mode.nsymbols '$command_mode.input' >> '$output1'
+        #else:
+            \${GALAXY_COMMAND_PREFIX} $command_mode.command >> '$output1'
+        #end if
     ]]></command>
     <inputs>
-        <param name="command" type="select" display="radio" label="Select Remote Command" help="a command to be executed on remote worker node">
-            <option value="uptime" selected="true">uptime</option>
-            <option value="lscpu">lscpu</option>
-            <option value="hostname">hostname</option>
-        </param>
+        <conditional name="command_mode">
+            <param name="command" type="select" display="radio" label="Select Remote Command" help="a command to be executed on remote worker node">
+                <option value="uptime" selected="true">uptime</option>
+                <option value="lscpu">lscpu</option>
+                <option value="hostname">hostname</option>
+                <option value="copy">copy</option>
+                <option value="head">head</option>
+            </param>
+            <when value="copy">
+                <param name="input" type="data" optional="false" label="Input dataset"/>
+            </when>
+            <when value="head">
+                <param name="input" type="data" optional="false" label="Input dataset"/>
+                <param name="nsymbols" type="integer" optional="true" value="100" label="Number of Symbols"/>
+            </when>
+        </conditional>
+
     </inputs>
     <outputs>
         <data name="output1" format="txt" />
