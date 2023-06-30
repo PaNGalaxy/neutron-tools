@@ -9,8 +9,7 @@
       #for $i, $s in enumerate($series)
           #set $output = $getVar('output%i' % $i)
           #set $fname = $s.input.strip()
-          head -c 1 &> /dev/null '$fname' || (echo "file $fname not found" >&2  && exit 1) &&
-          ln -sf '$fname' $output &&
+              ln -sf '$fname' $output &&
       #end for
       :
     ]]></command>
