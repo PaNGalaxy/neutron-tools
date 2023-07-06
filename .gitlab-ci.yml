@@ -39,7 +39,7 @@ service-build:
 testing:
   stage: test
   script:
-    - sudo mkdir /galaxy
+    - sudo mkdir -p /galaxy
     - >  
       docker run -v /var/run/docker.sock:/var/run/docker.sock
       -v `pwd`/tools:/`pwd`/tools
