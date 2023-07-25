@@ -1,45 +1,47 @@
-<tool id="neutrons_import_oncat" name="Import neutron experiment data" version="0.2.0" python_template_version="3.5">
+<tool id="neutrons_import_oncat" name="Import neutron experiment data" version="0.3.0" profile="22.05">
     <requirements>
-	<requirement type="package" version="3.6">python</requirement>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/oncat:0.1</container>
     </requirements>
-	<environment_variables>
-        <environment_variable name="_GALAXY_OIDC_ID_TOKEN" inject="oidc_id_token_azure"/>
-        <environment_variable name="_GALAXY_OIDC_REFRESH_TOKEN" inject="oidc_refresh_token_azure"/>
-    </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        #import json
-	    python $__tool_directory__/import_oncat.py --facility $facility --instrument $instrument
-	    #if $ipts:
-	      --ipts $ipts
-	      #if $run:
-	        --run $run
-	      #end if
-	    #end if
-	    #set auth_config=json.dumps($__app__.authnz_manager.oidc_backends_config["azure"])
-	    --oidc-config '$auth_config'
-	    --output $output
+        #if $params.usefilepath == 'true':
+            ln -sf '$params.filepath' $output
+        #else:
+            python3 /app/import_oncat.py
+            --facility $params.facility
+            --instrument $params.instrument
+            --ipts $params.ipts
+            --run $params.run
+            --oncat-url https://oncat.ornl.gov
+            --output $output
+        #end if
     ]]></command>
     <inputs>
-	<param name="facility" type="select" label="Facility Name" optional="false">
-		<option value="SNS" selected="true">SNS</option>
-		<option value="HFIR">HFIR</option>
-	</param>
-	<param name="instrument" type="select" label="Instrument Name" optional="false">
-		<options from_data_table="instruments">
-			<column name="name" index="3"/>
-			<column name="value" index="2"/>
-			<filter type="param_value" ref="facility" column="0"/>
-		</options>
-	</param>
-	<param name="ipts" type="text" label="IPTS Number" optional="true"/>
-	<param name="run" type="integer" label="Run Number" optional="true"/>
+        <conditional name="params">
+            <param name="usefilepath" type="boolean" truevalue="true" falsevalue="false" checked="no"
+                   label="Use filepath" help=""/>
+            <when value="true">
+        		<param name="filepath" type="text" label="Filesystem path" optional="false"/>
+            </when>
+            <when value="false">
+                <param name="facility" type="select" label="Facility Name" optional="false">
+                    <option value="SNS" selected="true">SNS</option>
+                    <option value="HFIR">HFIR</option>
+                </param>
+                <param name="instrument" type="select" label="Instrument Name" optional="false">
+                    <options from_data_table="instruments">
+                        <column name="name" index="3"/>
+                        <column name="value" index="2"/>
+                        <filter type="param_value" ref="facility" column="0"/>
+                    </options>
+                </param>
+                <param name="ipts" type="text" label="IPTS Number" value="0" optional="false"/>
+                <param name="run" type="integer" label="Run Number" value="0" optional="false"/>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
-	<data format="h5" name="output" label="$facility-$instrument-$ipts-${run} data">
-		<change_format>
-		    <when input="run" value="" format="tabular" />
-		</change_format>
-	</data>
+        <data format="h5" name="output" label="#if $params.usefilepath then $params.filepath else str($params.facility)+'-'+str($params.instrument)+'-'+str($params.ipts)+'-'+str($params.run)+' data' #">
+        </data>
     </outputs>
     <help><![CDATA[
         TODO: Fill in help.
