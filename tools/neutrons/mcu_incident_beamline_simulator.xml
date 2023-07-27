@@ -14,7 +14,7 @@
             #set $fi_str = str($input_mode.facility).lower()+'_'+str($input_mode.instrument).lower()
             /run_from_instrument.sh $fi_str $nproc $n $gpu_str &&
         #end if
-        ( mv /outputs/*vsource.mcpl.gz $out_mcpl || true ) &&
+        ( mv /outputs/*.mcpl.gz $out_mcpl || true ) &&
         mv /outputs/* outputs
     ]]></command>
     <inputs>
