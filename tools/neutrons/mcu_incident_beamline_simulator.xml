@@ -41,7 +41,7 @@
         </conditional>
         <param name="input" type="data" format="txt" optional="false" label="Simulation input"/>
         <param name="n" type="text" value="1e9" label="Number of particles"/>
-        <param name="nproc" type="integer" value="2" label="Number of processes"/>
+        <param name="nproc" type="integer" value="1" label="Number of processes"/>
         <param name="gpu" type="boolean" checked="true" label="Use GPU"/>
         <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" default="false" label="Output debug files"
             help=""/>
