@@ -1,44 +1,44 @@
-<tool id="neutrons_dca_convergence" name="DCA Convergence Tool"  profile="22.05" version="0.2.1">
+<tool id="neutrons_dca_convergence" name="DCA Convergence Tool"  profile="22.05" version="0.3.0">
   <description></description>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        #import os
         #set $gpu_str = "--nv" if $gpu else ""
         #set $sif_name = "dca_0_2_0.sif" if $gpu else "dca_cpu_0_1_0.sif"
         #set $sif_image = "summit-singularity:0.2.0" if $gpu else "summit-singularity-cpu:0.1.0"
-        #set $portal = $input_mode.input_folder if $input_mode.input_mode_folder else "$(pwd)/portal"
         module purge &&
         module load DefApps &&
         module load  gcc/9.1.0 &&
-        mkdir -p $portal &&
+        mkdir -p $experiment_name &&
+        mkdir portal/conv.bp &&
         source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
-        ( [ -e \${_GALAXY_JOB_DIR}/../containers/$sif_name ] ||
-          singularity pull --disable-cache --dir \${_GALAXY_JOB_DIR}/../containers $sif_name
+        ( [ -e \${GALAXY_CONTAINERS_DIR}/$sif_name ] ||
+          singularity pull --disable-cache --dir \${GALAXY_CONTAINERS_DIR} $sif_name
                       oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca-main/$sif_image ) &&
+        cp $input portal/input_file.json &&
         \${GALAXY_COMMAND_PREFIX} singularity exec
                 $gpu_str
-                --bind $portal:/portal
-                --bind $input:/input/input_file.json
+                --bind \$(pwd)/portal:/portal
                 --pwd /portal
-                \${_GALAXY_JOB_DIR}/../containers/$sif_name /dca/main_dca /input/input_file.json &> $output &&
-        chmod g+rwX -R $portal/conv.bp
+                \${GALAXY_CONTAINERS_DIR}/$sif_name /dca/main_dca /portal/input_file.json
+                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        #set $storage_folder=os.path.join(str($experiment_name),str($output.history_id)+"_"+str($output.hid)+"_conv.bp")
+        STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
+        mkdir -p \$STORAGE_FOLDER &&
+        mv portal/conv.bp/* \$STORAGE_FOLDER &&
+        ln -s \$STORAGE_FOLDER/* portal/conv.bp
     ]]></command>
     <inputs>
         <param name="input"  type="data" format="json" optional="false" label="Config"/>
         <param name="gpu" type="boolean" checked="true" label="Run on GPU"/>
-        <conditional name="input_mode">
-            <param name="input_mode_folder" type="boolean" truevalue="true" falsevalue="false" checked="no" label="Use local data folder" help=""/>
-            <when value="true">
-                <param name="input_folder" type="text" optional="false" label="Working folder"/>
-            </when>
-        </conditional>
+        <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="DCA Convergence Console Output"/>
-        <collection type="list" name="output_collection" label="DCA Convergence ADIOS2 Output">
+        <collection type="list" name="output_collection" label="DCA Convergence on ${input.name}">
             <discover_datasets format="data" pattern="__designation__" directory="portal/conv.bp" />
-            <filter>input_mode["input_mode_folder"] == False </filter>
         </collection>
+        <data format="txt" name="output" label="DCA Convergence on ${input.name} - console output"/>
     </outputs>
     <help><![CDATA[
         A tool to run DCA convergence.
