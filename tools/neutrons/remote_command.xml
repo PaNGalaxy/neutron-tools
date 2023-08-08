@@ -8,6 +8,8 @@
             cat '$command_mode.input' >> '$output1'
         #else if $command_mode.command == "head":
             head -c $command_mode.nsymbols '$command_mode.input' >> '$output1'
+        #else if $command_mode.command == "fail":
+            echo error >&2 && echo error && rm $output1 && exit 1
         #else:
             \${GALAXY_COMMAND_PREFIX} $command_mode.command >> '$output1'
         #end if
@@ -20,6 +22,7 @@
                 <option value="hostname">hostname</option>
                 <option value="copy">copy</option>
                 <option value="head">head</option>
+                <option value="fail">fail</option>
             </param>
             <when value="copy">
                 <param name="input" type="data" optional="false" label="Input dataset"/>
