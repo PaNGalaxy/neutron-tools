@@ -27,10 +27,11 @@
         \${GALAXY_COMMAND_PREFIX} singularity exec
                 $gpu_str
                 --bind \$(pwd)/portal:/portal
+                --bind \$PERSISTENT_STORAGE_DIR:\$PERSISTENT_STORAGE_DIR
                 --pwd /portal
                 \${GALAXY_CONTAINERS_DIR}/$sif_name /dca/main_dca /portal/input_file.json
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        #set $storage_folder=os.path.join(str($experiment_name),str($output.history_id)+"_"+str($output.hid)+"_g4_bins.bp")
+        #set $storage_folder=os.path.join(str($experiment_name),str($output.hid)+"_"+str($output.history_id)+"_g4_bins.bp")
         STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
         mkdir -p \$STORAGE_FOLDER &&
         mv portal/g4_bins.bp/* \$STORAGE_FOLDER &&
@@ -43,10 +44,10 @@
         <param name="gpu" type="boolean" checked="true" label="Run on GPU"/>
     </inputs>
     <outputs>
-        <collection type="list" name="output_collection" label="DCA Binning on ${input.name}">
+        <collection type="list" name="output_collection" label="DCA Binning">
             <discover_datasets format= "data" pattern="__designation__" directory="portal/g4_bins.bp" />
         </collection>
-        <data format="txt" name="output" label="DCA Binning on ${input.name} - console output"/>
+        <data format="txt" name="output" label="DCA Binning - console output"/>
     </outputs>
     <help><![CDATA[
         A tool to run DCA binning.

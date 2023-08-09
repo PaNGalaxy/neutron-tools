@@ -1,72 +1,35 @@
 <tool id="neutrons_dca_maxent" name="MaxEnt"  profile="22.05" version="0.1.0">
   <description></description>
     <requirements>
+        <container type="docker" shell="/bin/bash" >code.ornl.gov:4567/ndip/tool-sources/dca/maxent:0.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $image_tag = "0.1"
         #import re
         #from pathlib import Path
-        mkdir -p ./portal/ &&
-        #if $input_mode.input_mode_single == 'true':
-            #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($input_mode.input.element_identifier))
-            #if Path($cleaned_name).suffix != $input_mode.input.ext:
-                #set $cleaned_name=$cleaned_name + '.'+$input_mode.input.ext
-            #end if
-            cp $input_mode.input \$(pwd)/portal/$cleaned_name &&
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=\$(pwd)/portal,target=/portal
-                --cap-add SYS_NICE
-                code.ornl.gov:4567/ndip/tool-sources/dca/maxent:$image_tag
-                python3 /maxent/Maxent.py
-                    --file /portal/$cleaned_name --beta $beta
-                    --kernel $kernel
-                    --gaussianSigma $gaussianSigma --alphamin $alphamin
-                    --alphamax $alphamax --wmin $wmin
-                    --wmax $wmax --tolerance $tolerance &&
-                cp ./portal/${cleaned_name}.p $dotp &&
-                cp ./portal/${cleaned_name}Palpha.dat $palpha &&
-                cp ./portal/${cleaned_name}maxent.dat $maxent
-        #else
-            mkdir -p ./portal/palphas &&
-            mkdir -p ./portal/maxents &&
-            mkdir -p ./portal/dotps &&
-            #for $el in $input_mode.input_collection:
-               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
-               #if Path($cleaned_name).suffix != $el.ext:
-                #set $cleaned_name=$cleaned_name + '.'+$el.ext
-               #end if
-                cp $el \$(pwd)/portal/$cleaned_name &&
-                docker run
-                    --rm
-                    --init
-                    --mount type=bind,source=\$(pwd)/portal,target=/portal
-                    --cap-add SYS_NICE
-                    code.ornl.gov:4567/ndip/tool-sources/dca/maxent:$image_tag
-                    python3 /maxent/Maxent.py
-                        --file /portal/$cleaned_name --beta $beta
-                        --kernel $kernel
-                        --gaussianSigma $gaussianSigma --alphamin $alphamin
-                        --alphamax $alphamax --wmin $wmin
-                        --wmax $wmax --tolerance $tolerance  >> $output &&
-                    mv ./portal/${cleaned_name}.p ./portal/dotps &&
-                    mv ./portal/${cleaned_name}Palpha.dat ./portal/palphas &&
-                    mv ./portal/${cleaned_name}maxent.dat ./portal/maxents &&
-            #end for
-            echo done >> $output
-        #end if
+        mkdir -p portal/palphas &&
+        mkdir -p portal/maxents &&
+        mkdir -p portal/dotps &&
+        #for $el in $input:
+           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+           #if Path($cleaned_name).suffix == '':
+            #set $cleaned_name=$cleaned_name + '.'+$el.ext
+           #end if
+           cp -P $el portal/$cleaned_name &&
+           python3 -u /maxent/Maxent.py
+                --file portal/$cleaned_name --beta $beta
+                --kernel $kernel
+                --gaussianSigma $gaussianSigma --alphamin $alphamin
+                --alphamax $alphamax --wmin $wmin
+                --wmax $wmax --tolerance $tolerance
+                > >(tee -a $output) 2> >(tee -a $output >&2) &&
+           mv portal/${cleaned_name}.p portal/dotps &&
+           mv portal/${cleaned_name}Palpha.dat portal/palphas &&
+           mv portal/${cleaned_name}maxent.dat portal/maxents &&
+        #end for
+        echo done >> $output
     ]]></command>
     <inputs>
-        <conditional name="input_mode">
-            <param name="input_mode_single" type="boolean" truevalue="true" falsevalue="false" checked="yes" label="One file per job" help=""/>
-            <when value="true">
-                <param name="input" type="data" optional="false" label="Input data"/>
-            </when>
-            <when value="false">
-                <param name="input_collection" type="data_collection" optional="false" collection_type="list" label="Input collection"/>
-            </when>
-        </conditional>
+        <param name="input" type="data" multiple="true" optional="false" label="Maxent Input"/>
         <param name="beta" type="float" value="0.5" label="beta" help=""/>
         <param name="kernel" type="select" label="kernel" multiple="false">
             <option value="bosonic_frequency_noImagPart">bosonic frequency noImagPart</option>
@@ -79,29 +42,16 @@
         <param name="tolerance" type="float" value="1E-5" label="tolerance" help=""/>
     </inputs>
     <outputs>
-        <data format="txt" name="palpha" label="${input_mode.input.element_identifier} -  Palpha">
-            <filter>input_mode['input_mode_single'] == True</filter>
-        </data>
-        <data format="txt" name="maxent" label="${input_mode.input.element_identifier} - maxent">
-            <filter>input_mode['input_mode_single'] == True</filter>
-        </data>
-        <data format="binary" name="dotp" label="${input_mode.input.element_identifier} - .p">
-            <filter>input_mode['input_mode_single'] == True</filter>
-        </data>
-        <collection type="list" name="palphas" label="${input_mode.input_collection.element_identifier} -  Palpha">
-            <discover_datasets pattern="__designation__" format="txt" directory="portal/palphas" />
-            <filter>input_mode['input_mode_single'] == False</filter>
-        </collection>
-        <data format="txt" name="output" label="${input_mode.input_collection.element_identifier} -  output">
-            <filter>input_mode['input_mode_single'] == False</filter>
-        </data>
-        <collection type="list" name="maxents" label="${input_mode.input_collection.element_identifier} -  maxent">
+        <collection type="list" name="maxents" label="Maxent">
             <discover_datasets pattern="__designation__" format="txt" directory="portal/maxents" />
-            <filter>input_mode['input_mode_single'] == False</filter>
         </collection>
-        <collection type="list" name="dotps" label="${input_mode.input_collection.element_identifier} -  .p">
+        <data format="txt" name="output" label="Maxent - console output">
+        </data>
+        <collection type="list" name="palphas" label="Maxent Palpha">
+            <discover_datasets pattern="__designation__" format="txt" directory="portal/palphas" />
+        </collection>
+        <collection type="list" name="dotps" label="Maxent .p">
             <discover_datasets pattern="__designation__" format="binary" directory="portal/dotps" />
-            <filter>input_mode['input_mode_single'] == False </filter>
         </collection>
     </outputs>
     <help><![CDATA[

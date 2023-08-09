@@ -10,8 +10,7 @@
         module purge &&
         module load DefApps &&
         module load  gcc/9.1.0 &&
-        mkdir -p $experiment_name &&
-        mkdir portal/conv.bp &&
+        mkdir -p portal/conv.bp &&
         source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
         ( [ -e \${GALAXY_CONTAINERS_DIR}/$sif_name ] ||
           singularity pull --disable-cache --dir \${GALAXY_CONTAINERS_DIR} $sif_name
@@ -23,7 +22,7 @@
                 --pwd /portal
                 \${GALAXY_CONTAINERS_DIR}/$sif_name /dca/main_dca /portal/input_file.json
                  > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        #set $storage_folder=os.path.join(str($experiment_name),str($output.history_id)+"_"+str($output.hid)+"_conv.bp")
+        #set $storage_folder=os.path.join(str($experiment_name),str($output.hid)+"_"+str($output.history_id)+"_conv.bp")
         STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
         mkdir -p \$STORAGE_FOLDER &&
         mv portal/conv.bp/* \$STORAGE_FOLDER &&
@@ -35,10 +34,10 @@
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
-        <collection type="list" name="output_collection" label="DCA Convergence on ${input.name}">
+        <collection type="list" name="output_collection" label="DCA Convergence">
             <discover_datasets format="data" pattern="__designation__" directory="portal/conv.bp" />
         </collection>
-        <data format="txt" name="output" label="DCA Convergence on ${input.name} - console output"/>
+        <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
         A tool to run DCA convergence.
