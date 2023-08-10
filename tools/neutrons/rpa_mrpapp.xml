@@ -1,17 +1,13 @@
-<tool id="neutrons_rpa_mrpapp" name="RPA simulation"  profile="22.05" version="0.1.0">
+<tool id="neutrons_rpa_mrpapp" name="RPA simulation"  profile="22.05" version="0.2.0">
     <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/rpa/mrpapp:0.2.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-    #set $image_tag = "0.1.0"
-    mkdir results &&
-    docker run
-        --rm
-        --init
-        --mount type=bind,source=$params,target=/input/input.txt,readonly
-        --mount type=bind,source=$tbparams,target=/input/tbparams.txt,readonly
-        --mount type=bind,source=\$(pwd)/results,target=/output
-            code.ornl.gov:4567/ndip/tool-sources/rpa/mrpapp:$image_tag
-        $nproc &&
+        mkdir input results &&
+        cp $params input/input.txt &&
+        cp $tbparams input/tbparams.txt &&
+        touch $output_data &&
+        /run.sh -i input -o results $nproc &&
         cp results/chiRPA_demo.txt $output_data
     ]]></command>
     <inputs>
