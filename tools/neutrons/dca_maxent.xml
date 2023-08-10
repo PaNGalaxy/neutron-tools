@@ -1,4 +1,4 @@
-<tool id="neutrons_dca_maxent" name="MaxEnt"  profile="22.05" version="0.1.0">
+<tool id="neutrons_dca_maxent" name="DCA MaxEnt"  profile="22.05" version="0.1.0">
   <description></description>
     <requirements>
         <container type="docker" shell="/bin/bash" >code.ornl.gov:4567/ndip/tool-sources/dca/maxent:0.1</container>
@@ -42,15 +42,15 @@
         <param name="tolerance" type="float" value="1E-5" label="tolerance" help=""/>
     </inputs>
     <outputs>
-        <collection type="list" name="maxents" label="Maxent">
+        <collection type="list" name="maxents" label="DCA Maxent">
             <discover_datasets pattern="__designation__" format="txt" directory="portal/maxents" />
         </collection>
-        <data format="txt" name="output" label="Maxent - console output">
+        <data format="txt" name="output" label="DCA Maxent - console output">
         </data>
-        <collection type="list" name="palphas" label="Maxent Palpha">
+        <collection type="list" name="palphas" label="DCA Maxent Palpha">
             <discover_datasets pattern="__designation__" format="txt" directory="portal/palphas" />
         </collection>
-        <collection type="list" name="dotps" label="Maxent .p">
+        <collection type="list" name="dotps" label="DCA Maxent .p">
             <discover_datasets pattern="__designation__" format="binary" directory="portal/dotps" />
         </collection>
     </outputs>
