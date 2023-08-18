@@ -1,4 +1,4 @@
-<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook ORNL" version="0.2.0" profile="22.05">
+<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook ORNL" version="0.2.1" profile="22.05">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.2.0</container>
     </requirements>
@@ -59,9 +59,7 @@
         #end if
         cp './${noteboook_name}.ipynb' '$jupyter_notebook' &&
         #if $output_option == '1':
-            cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single'
-        #else:
-            :
+            cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || echo "Notebook produced no output" > $output_single
         #end if
     ]]>
     </command>
