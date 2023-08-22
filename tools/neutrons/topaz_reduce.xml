@@ -1,0 +1,25 @@
+<tool id="neutrons_topaz_reduce" name="Topaz Reduce"  profile="22.05" version="0.1.0">
+    <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/topaz/topaz-reduction:0.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir reduced &&
+        python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced &&
+        python -u /app/topaz_reduction.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" optional="false" label="Config file"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection" label="Topaz reduction output">
+            <discover_datasets format= "txt" pattern="__designation__" directory="reduced" />
+        </collection>
+        <data format="txt" name="output" label="Topaz reduction console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TOPAZ data reduction tool
+]]></help>
+</tool>
+
