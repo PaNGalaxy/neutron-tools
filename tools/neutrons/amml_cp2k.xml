@@ -4,7 +4,14 @@
         <container type="docker">cp2k/cp2k:2023.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        #import multiprocessing
         ln -s $xyz mof.xyz &&
+        #set nproc=multiprocessing.cpu_count()
+        #if $threads and $threads>0
+          export OMP_NUM_THREADS=$threads &&
+        #else if $nproc>64 #64 threads seems to be a limit for cp2k
+          export OMP_NUM_THREADS=64 &&
+        #end if
         cp2k -i $input &&
         mv mof_force.xyz $mof_force &&
         mv mof_pos.xyz $mof_pos
@@ -12,6 +19,7 @@
     <inputs>
         <param name="input" type="data" format="txt" optional="false" label="input file"/>
         <param name="xyz" type="data" format="txt" optional="false" label="xyz file"/>
+        <param name="threads" type="integer" optional="true" label="Number of Threads" help=""/>
     </inputs>
     <outputs>
         <data format="txt" name="mof_force" label="force file"/>
