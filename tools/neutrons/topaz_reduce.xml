@@ -5,11 +5,12 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir reduced &&
-        python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced &&
+        python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced max_processes=$tasks &&
         python -u /app/topaz_reduction.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="input" type="data" optional="false" label="Config file"/>
+        <param name="tasks" type="integer" value="8" optional="false" label="Number of Max Parallel Tasks" help=""/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection" label="Topaz reduction output">
