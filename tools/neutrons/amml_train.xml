@@ -14,8 +14,8 @@
         wget https://raw.githubusercontent.com/deepmodeling/deepmd-kit/master/data/raw/raw_to_set.sh &&
         bash raw_to_set.sh 2000 && cd .. &&
         ln -s $input input.json &&
-        dp train input.json &&
-        dp freeze -o $graph_pb &&
+        dp train input.json 2>&1 &&
+        dp freeze -o $graph_pb 2>&1 &&
         mv lcurve.out $lcurve
     ]]></command>
     <inputs>
