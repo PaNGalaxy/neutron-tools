@@ -1,4 +1,4 @@
-<tool id="neutrons_amml_cp2k" name="CP2K simulation"  profile="22.05" version="0.1.0">
+<tool id="neutrons_amml_cp2k" name="CP2K simulation"  profile="22.05" version="0.2.0">
   <description></description>
     <requirements>
         <container type="docker">cp2k/cp2k:2023.1</container>
@@ -7,9 +7,9 @@
         #import multiprocessing
         ln -s $xyz mof.xyz &&
         #set nproc=multiprocessing.cpu_count()
-        #if $threads and $threads>0
-          export OMP_NUM_THREADS=$threads &&
-        #else if $nproc>64 #64 threads seems to be a limit for cp2k
+        #if $expert.threads and $expert.threads >0
+          export OMP_NUM_THREADS=$expert.threads &&
+        #else if $nproc>64
           export OMP_NUM_THREADS=64 &&
         #end if
         cp2k -i $input &&
@@ -17,16 +17,22 @@
         mv mof_pos.xyz $mof_pos
     ]]></command>
     <inputs>
-        <param name="input" type="data" format="txt" optional="false" label="input file"/>
-        <param name="xyz" type="data" format="txt" optional="false" label="xyz file"/>
-        <param name="threads" type="integer" optional="true" label="Number of Threads" help=""/>
+        <param name="input" type="data" format="txt" optional="false" label="*.inp file"
+               help="Must have 'TRAJECTORY ON' and 'FORCES ON' for subsequent DeePMD training"/>
+        <param name="xyz" type="data" format="txt" optional="false" label="*.xyz file"/>
+            <help>
+            Run  DFT molecular dynamics (MD) with CP2K. Must have "TRAJECTORY ON" and "FORCES ON" for subsequent DeePMD training. Atomic coordinates and forces along the MD trajectory should be saved in xyz format.
+        </help>
+        <section name="expert" title="Expert Parameters">
+        <param name="threads" type="integer" optional="true" max="64" label="Number of Threads" help="By default will use all threads available"/>
+        </section>
     </inputs>
     <outputs>
         <data format="txt" name="mof_force" label="force file"/>
         <data format="txt" name="mof_pos" label="position file"/>
     </outputs>
-    <help><![CDATA[
-        AMML CP2K tool
-]]></help>
+    <help>
+        Runs  DFT molecular dynamics (MD) with CP2K. Returns atomic coordinates and forces along the MD trajectory saved in xyz format.
+    </help>
 </tool>
 
