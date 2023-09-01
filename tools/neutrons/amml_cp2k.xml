@@ -1,16 +1,17 @@
 <tool id="neutrons_amml_cp2k" name="CP2K simulation"  profile="22.05" version="0.2.0">
   <description></description>
     <requirements>
-        <container type="docker">cp2k/cp2k:2023.1</container>
+        <container shell="/bin/bash" type="docker">cp2k/cp2k:2023.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #import multiprocessing
         ln -s $xyz mof.xyz &&
-        #set nproc=multiprocessing.cpu_count()
-        #if $expert.threads and $expert.threads >0
-          export OMP_NUM_THREADS=$expert.threads &&
-        #else if $nproc>64
-          export OMP_NUM_THREADS=64 &&
+        #set $nthreads = int($expert.threads or 0)
+        #if $nthreads >0
+          export OMP_NUM_THREADS=$nthreads &&
+        #else
+          NPROC=`nproc --all` &&
+          NPROC=\$(( NPROC < 64 ? NPROC : 64 )) &&
+          export OMP_NUM_THREADS=\$NPROC &&
         #end if
         cp2k -i $input &&
         mv mof_force.xyz $mof_force &&
