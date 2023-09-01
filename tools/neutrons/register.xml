@@ -9,7 +9,7 @@
       #for $i, $s in enumerate($series)
           #set $output = $getVar('output%i' % $i)
           #set $fname = $s.input.strip()
-              ln -sf '$fname' $output &&
+          stat $fname && ln -sf '$fname' $output &&
       #end for
       :
     ]]></command>

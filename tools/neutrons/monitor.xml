@@ -1,0 +1,40 @@
+<tool id="neutrons_monitor" name="Monitor IPTS folder"  profile="22.05" version="0.1.0">
+    <requirements>
+        <container shell="/bin/bash" type="docker">ingress</container>
+    </requirements>
+    <environment_variables>
+        <environment_variable name="API_KEY" inject="api_key" />
+    </environment_variables>
+    <command><![CDATA[
+            #set $monitor_folder="/"+str($facility)+"/"+str($instrument)+"/IPTS-"+str($ipts).strip()+"/nexus"
+			python3 -u /app/main.py
+			  --ipts-number $ipts
+			  --monitor-enabled true
+			  --monitor-proxy-uri http://10.64.193.124:9001/v0.1/ingress
+			  --monitor-folder $monitor_folder
+			  --monitor-frequency 1
+			  --ingress-enabled false
+            > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+	<param name="facility" type="select" label="Facility Name" optional="false">
+		<option value="SNS" selected="false">SNS</option>
+		<option value="HFIR">HFIR</option>
+	</param>
+	<param name="instrument" type="select" label="Instrument Name" optional="false">
+		<options from_data_table="instruments">
+			<column name="name" index="3"/>
+			<column name="value" index="2"/>
+			<filter type="param_value" ref="facility" column="0"/>
+		</options>
+	</param>
+        <param name="ipts" type="text" label="IPTS Number" value="0" optional="false"/>
+    </inputs>
+    <outputs>
+	<data format="txt" name="output" label="Monitoring IPTS ${ipts}">
+    	</data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
