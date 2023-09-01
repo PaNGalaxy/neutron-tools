@@ -1,0 +1,27 @@
+<tool id="neutrons_thinlinc" tool_type="interactive" name="thinlinc" version="0.1.0" profile="22.05">
+    <requirements>
+            <container type="docker">thinlinc-web</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Thinlinc Tool" requires_domain="True">
+            <port>300</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="API_KEY" inject="api_key" />
+    </environment_variables>
+    <command><![CDATA[
+        touch tmp.log && tail -f tmp.log
+    ]]>
+    </command>
+    <outputs>
+        <data name="output_single" auto_format="true" label="Thinlinc Output. Stop to kill thinlinc.">
+            <filter>output_option == "1"</filter>
+        </data>
+    </outputs>
+    <help>
+    </help>
+</tool>
