@@ -1,6 +1,6 @@
 <tool id="neutrons_thinlinc" tool_type="interactive" name="thinlinc" version="0.1.0" profile="22.05">
     <requirements>
-            <container type="docker">thinlinc-web</container>
+            <container type="docker">code.ornl.gov:4567/ndip/galaxy-tools/thinlinc-web</container>
     </requirements>
     <entry_points>
         <entry_point name="Thinlinc Tool" requires_domain="True">
