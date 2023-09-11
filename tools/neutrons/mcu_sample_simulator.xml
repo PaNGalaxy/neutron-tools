@@ -1,19 +1,27 @@
 <tool id="neutrons_mcu_sample_simulator" name="Sample Simulator"  profile="22.05" version="0.1.0">
   <description></description>
 <requirements>
-    <container type="docker">code.ornl.gov:4567/ndip/galaxy-tools/sample_sim_tool:latest</container>
+    <container type="docker">code.ornl.gov:4567/ndip/tool-sources/mcu/sample-simulator/release/sample-simulator-mcvine:latest</container>
 </requirements>
     <inputs>
         <param name="instrument" type="text" optional="false" label="Instrument Name"/>
-        <param name="beamline_simulationn" type="data" format="gz,zip" optional="false" label="Simulation code source"/>
-        <param name="sample_description" type="data" format="gz,zip" optional="false" label="Sample description with kernel"/>
+        <param name="ARCS_json" type="data" format="text" optional="false" label="ARCS json config"/>
+        <param name="ARCS_mcpl" type="data" optional="false" label="ARCS vsource mcpl"/>
+        <param name="sample_assembly" type="data" format="gz,zip" optional="false" label="Sample assembly to be used in simulation"/>
     </inputs>
     <command detect_errors="exit_code"><![CDATA[
-        #touch \${_GALAXY_JOB_TMP_DIR}/events.nxs.h5
-        mv \${_GALAXY_JOB_TMP_DIR}/outputs .
+        ln -s /opt/mcvine mcvine &&
+        cd mcvine/test &&
+        python test_mcvine.py &&
+        cd ../ARCS_sim &&
+        ls .. &&
+        unzip $sample_assembly -d sampleassembly &&
+        mcvine neutronstorage from_mcpl $ARCS_mcpl --out m2sout/neutrons &&
+        python beam2bpp.py $ARCS_json &&
+        make sim.nxs
     ]]></command>
     <outputs>
-		<data format="h5" name="events.nxs" label="Simulated events"/>
+		  <data format="h5" name="sim.nxs" label="Simulated events"/>
     </outputs>
     <help><![CDATA[
 A tool to run McVine simulations of a Sample
