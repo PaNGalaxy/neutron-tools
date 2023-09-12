@@ -1,6 +1,6 @@
 <tool id="neutrons_ingress" name="Initiate data ingress"  profile="22.05" version="0.1.0">
     <requirements>
-        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:21b2a64d</container>
+        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:0.1</container>
     </requirements>
     <environment_variables>
         <environment_variable name="API_KEY" inject="api_key" />
@@ -11,7 +11,7 @@
 			python3 -u /app/main.py
 			  --monitor-enabled false
 			  --ingress-enabled true
-			  --ipts-number $ipts
+			  --ipts $ipts
 			  --pulsar-topic-prefix ""
 			  --pulsar-url pulsar://10.64.193.124:6650
 			  --pulsar-start-from $start_from
@@ -34,13 +34,13 @@
 			<filter type="param_value" ref="facility" column="0"/>
 		</options>
 	</param>
-        <param name="ipts" type="text" label="IPTS Number" value="0" optional="false"/>
+        <param name="ipts" type="text" label="IPTS" value="IPTS-" optional="false"/>
 		<param name="history" type="text" label="History Name" value="" optional="true" help="empty value will create history with IPTS number like IPTS-XXX"/>
 		<param name="previous" type="boolean" checked="true" label="Ingest previous files for new subscription"/>
         <param name="batch_size" type="integer" label="Maximum batch size" value="1" optional="true"/>
     </inputs>
     <outputs>
-	<data format="txt" name="output" label="Ingress IPTS $ipts to history ${str($history) if str($history)!='' else 'IPTS-'+str($ipts)}">
+	<data format="txt" name="output" label="Ingress IPTS $ipts to history ${str($history) if str($history)!='' else str($ipts)}">
     	</data>
     </outputs>
     <help><![CDATA[
