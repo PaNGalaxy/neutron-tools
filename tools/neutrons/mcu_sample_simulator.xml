@@ -10,18 +10,18 @@
         <param name="sample_assembly" type="data" format="gz,zip" optional="false" label="Sample assembly to be used in simulation"/>
     </inputs>
     <command detect_errors="exit_code"><![CDATA[
-        ln -s /opt/mcvine mcvine &&
+        cp -r /opt/mcvine mcvine &&
         cd mcvine/test &&
         python test_mcvine.py &&
         cd ../ARCS_sim &&
-        ls .. &&
         unzip $sample_assembly -d sampleassembly &&
         mcvine neutronstorage from_mcpl $ARCS_mcpl --out m2sout/neutrons &&
         python beam2bpp.py $ARCS_json &&
-        make sim.nxs
+        make sim.nxs &&
+        mv sim.nxs $sim
     ]]></command>
     <outputs>
-		  <data format="h5" name="sim.nxs" label="Simulated events"/>
+                  <data format="h5" name="sim" label="Simulated events"/>
     </outputs>
     <help><![CDATA[
 A tool to run McVine simulations of a Sample
