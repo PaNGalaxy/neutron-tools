@@ -33,6 +33,7 @@
         #set $storage_folder=os.path.join(str($experiment_name),str($output.hid)+"_"+str($output.history_id)+"_sofqomega0.bp")
         STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
         mkdir -p \$STORAGE_FOLDER &&
+        chmod g+rwX -R $portal/sofqomega0.bp &&
         mv portal/sofqomega0.bp/* \$STORAGE_FOLDER &&
         ln -s \$STORAGE_FOLDER/* portal/sofqomega0.bp
     ]]></command>

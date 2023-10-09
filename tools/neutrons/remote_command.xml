@@ -44,7 +44,7 @@
         <data name="output1" format="txt" />
         <collection type="list" name="output_collection" label="Logs output">
             <discover_datasets format="txt" pattern="__designation_and_ext__" directory="results" />
-            <filter>command_mode.command == "fail_o"</filter>
+            <filter>command_mode["command"] == "fail_o"</filter>
         </collection>
     </outputs>
     <help><![CDATA[
