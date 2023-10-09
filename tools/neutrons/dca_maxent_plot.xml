@@ -37,7 +37,7 @@
         #set $storage_folder=os.path.join(str($experiment_name),str($plot.hid)+"_"+str($plot.history_id)+"plot")
         STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
         mkdir -p \$STORAGE_FOLDER &&
-        chmod g+rwX -R $portal/maxent &&
+        chmod g+rwX -R portal/maxent &&
         mv portal/maxent/plot.png \$STORAGE_FOLDER &&
         ln -sf \$STORAGE_FOLDER/plot.png $plot
     ]]></command>
