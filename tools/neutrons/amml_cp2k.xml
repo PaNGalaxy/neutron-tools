@@ -14,8 +14,8 @@
           export OMP_NUM_THREADS=\$NPROC &&
         #end if
         sed  's/\(COORD_FILE_NAME\)\(.*\)/\1 coord.xyz/' $input > cp2k.inp &&
-        sed  's#=\${BASE_NAME}_force.xyz#$force#' cp2k.inp > tmp_inp &&
-        sed  's#=\${BASE_NAME}_pos.xyz#$pos#' tmp_inp > cp2k.inp &&
+        sed  's#\${BASE_NAME}_force.xyz#$force#' cp2k.inp > tmp_inp &&
+        sed  's#\${BASE_NAME}_pos.xyz#$pos#' tmp_inp > cp2k.inp &&
         cp2k -i cp2k.inp
     ]]></command>
     <inputs>
