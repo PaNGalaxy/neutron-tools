@@ -1,20 +1,19 @@
-<tool id="neutrons_asrp_spf" name="Single Peak Fitting" profile="22.05" version="0.2.0">
-    <command><![CDATA[
-            #set $image_tag = "0.2"
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=$input_data,target=/input.gsa,readonly
-                --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
-                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/single_peak_fit:$image_tag
-                    -f /input.gsa
-                    -b $bank_id
-                    -c $peak_center
-                    -l $xmin
-                    -t $background_type
-                    -u $units
-                    -r $xmax &&
-            mv \${_GALAXY_JOB_TMP_DIR}/enpp.json $output
+<tool id="neutrons_asrp_spf" name="Single Peak Fitting" profile="22.05" version="0.3.0">
+  <description></description>
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/single_peak_fit:0.3</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        touch $output &&
+        python /app/src/single_peak_fit/single_peak_fit.py
+            -f $input_data
+            -b $bank_id
+            -c $peak_center
+            -l $xmin
+            -t $background_type
+            -u $units
+            -r $xmax &&
+        mv /portal/enpp.json $output
     ]]></command>
     <inputs>
         <param name="input_data"  type="data" format="txt" optional="false" label="Input data"/>
@@ -30,10 +29,9 @@
         </param>
     </inputs>
     <outputs>
-        <data name="output" format="json" >
-        </data>
+        <data name="output" format="json" ></data>
     </outputs>
-    <help><![CDATA[
-        TODO: Fill in help.
-    ]]></help>
+    <help>
+A tool to fit a single peak in a pattern.
+    </help>
 </tool>
