@@ -15,6 +15,10 @@
         <environment_variable name="API_KEY" inject="api_key" />
     </environment_variables>
     <command><![CDATA[
+        echo "job was interrupted" > $jupyter_notebook &&
+        #if $output_option == '1':
+            echo "Notebook produced no output" > $output_single &&
+        #end if
         #import re
         #from pathlib import Path
         export GALAXY_WORKING_DIR=`pwd` &&
@@ -57,9 +61,9 @@
         #else:
             jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
         #end if
-        cp './${noteboook_name}.ipynb' '$jupyter_notebook' &&
+        cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
-            cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || echo "Notebook produced no output" > $output_single
+            && cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || :
         #end if
     ]]>
     </command>
