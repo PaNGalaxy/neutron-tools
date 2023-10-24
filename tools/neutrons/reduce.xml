@@ -1,0 +1,18 @@
+<tool id="neutrons_reduce" name="dummy reduce"  profile="22.05" version="0.1.0">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        echo processed $input.element_identifier > '$output' &&
+        echo using config file $config.element_identifier >> '$output'
+    ]]></command>
+    <inputs>
+            <param name="input" type="data" optional="false" label="Input dataset"/>
+            <param name="config" type="data" optional="false" label="Config file"/>
+    </inputs>
+    <outputs>
+        <data name="output" format="txt" />
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
