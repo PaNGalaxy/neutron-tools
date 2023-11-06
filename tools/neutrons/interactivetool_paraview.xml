@@ -1,6 +1,6 @@
 <tool id="interactive_tool_paraview" tool_type="interactive" name="Paraview Visualizer" version="0.1.0" profile="22.05">
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/paraview/cpu:0.1</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/paraview/gpu:0.1</container>
     </requirements>
     <entry_points>
         <entry_point name="Paraview Visualizer" requires_domain="True">
