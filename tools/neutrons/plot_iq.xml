@@ -1,4 +1,4 @@
-<tool id="neutrons_plotiq" name="Test"  profile="22.05" version="0.1.0-dev">
+<tool id="neutrons_plotiq" name="Plot IQ"  profile="22.05" version="0.1.0-dev">
   <description></description>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/test1:0.1</container>
