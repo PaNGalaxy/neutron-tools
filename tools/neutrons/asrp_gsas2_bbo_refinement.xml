@@ -6,7 +6,7 @@
     <command detect_errors="exit_code"><![CDATA[
         touch $output &&
         mkdir ./portal &&
-        python -m gsas2_bbo_refinement.bbo
+        python -m gsas2_bbo_refinement.main
                 $cif_file
                 $gsas_file
                 $prm_file
