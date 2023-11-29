@@ -1,0 +1,41 @@
+<tool id="neutrons_asrp_gsas2_bbo" name="GSAS2 BBO Refinement" profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_bbo_refinement:0.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        touch $output &&
+        mkdir ./portal &&
+        python -m gsas2_bbo_refinement.bbo
+                $cif_file
+                $gsas_file
+                $prm_file
+                --xmin $xmin
+                --xmax $xmax
+                --output-directory ./portal
+        > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+        <param name="cif_file" type="data" format="txt" label="CIF File"/>
+        <param name="gsas_file" type="data" format="txt" label="GSAS File"/>
+        <param name="prm_file" type="data" format="txt" label="Instrument Parameter File"/>
+
+        <param name="xmin" type="float" label="Left bound" value="0" />
+        <param name="xmax" type="float" label="Right bound" value="0" />
+
+        <param name="use_iso" type="boolean" checked="false" label="Use Uiso in BBO refinement parameters"/>
+        <param name="random_seed" type="integer" value="0" optional="true" label="Random seed"/>
+        <param name="number_of_startup_trials" type="integer" value="0" optional="true" label="Number of startup trials for BBO"/>
+        <param name="number_of_trials" type="integer" value="0" optional="true" label="Number of trials for BBO"/>
+        <param name="number_of_jobs" type="integer" value="0" optional="true" label="Number of parallel jobs for BBO"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection1" label="GSAS2 refinement output">
+            <discover_datasets format= "binary" pattern="__designation__" directory="portal" />
+        </collection>
+        <data format="txt" name="output" label="GSAS2 console output"></data>
+    </outputs>
+    <help>
+A tool to run a black box optimized (BBO) GSAS2 Rietveld refinement.
+    </help>
+</tool>
