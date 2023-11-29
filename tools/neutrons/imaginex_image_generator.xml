@@ -14,7 +14,7 @@
 	        #set $timeOption = ""
 	    #end if
 	    
-	    bash -c 'docker run --rm --init -v \$(pwd)/data:/data code.ornl.gov:4567/dnp-computational-project/instrument/brave-image-generator --input_file /data/input.nxs.h5 --output_dir /data/out $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin' ;
+	    bash -c 'docker run --rm --init -v \$(pwd)/data:/data code.ornl.gov:4567/dnp-computational-project/instrument/brave-image-generator:test --input_file /data/input.nxs.h5 --output_dir /data/out $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin' ;
     ]]></command>
     <inputs>
     
