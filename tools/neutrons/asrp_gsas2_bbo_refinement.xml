@@ -5,14 +5,27 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         cd /app &&
+        ln -s $cif_file tmp.cif &&
+        ln -s $prm_file tmp.prm &&
         touch $output &&
         mkdir ./portal &&
         python -m gsas2_bbo_refinement.main
-                --cif-filename $cif_file
+                --cif-filename tmp.cif
                 --gsas-filename $gsas_file
-                --instrument-params-filename $prm_file
+                --instrument-params-filename tmp.prm
                 --xmin $xmin
                 --xmax $xmax
+        #if $bankIDs:
+                --banks
+                #for $bank in $bankIDs:
+                    #set $bankID = str($bank["bank"])
+                    $bankID
+                #end for
+        #end if
+                --random-seed $random_seed
+                --number-of-startup-trials $number_of_startup_trials
+                --number-of-trials $number_of_trials
+                --number-of-jobs $number_of_jobs
                 --output-directory ./portal
         > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
@@ -20,6 +33,11 @@
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
         <param name="gsas_file" type="data" format="txt" label="GSAS File"/>
         <param name="prm_file" type="data" format="txt" label="Instrument Parameter File"/>
+
+        <repeat name="bankIDs" title="Bank IDs">
+            <param name="bank" type="integer" label="Bank ID" optional="true">
+            </param>
+        </repeat>
 
         <param name="xmin" type="float" label="Left bound" value="0" />
         <param name="xmax" type="float" label="Right bound" value="0" />
