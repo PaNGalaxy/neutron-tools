@@ -7,7 +7,7 @@
         cd /app &&
         touch $output &&
         mkdir ./portal &&
-        python -m gsas2_refinement.gsas2_refinement
+        python -m diffpy_cmi_refinement.diffpy_cmi_refinement
                 --cif-filename $cif_file
                 --pdf-filename $pdf_file
                 --scatter-type $scatter_type
