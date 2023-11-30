@@ -16,7 +16,35 @@
 	    
 	    ## bash -c 'docker run -#-rm -#-init -v \$(pwd)/data:/data imaginex-image-generator -#-input_file /data/input.nxs.h5 -#-output_dir /data/out $timeOption -#-wavelength_max $wavelengthMax -#-wavelength_min $wavelengthMin' ;
         cd / ;
-        find . -name "image_counts.py" ;
+        find . -prune /HFIR -prune /SNS -name "image_counts.py" ;
+        bin
+boot
+ceph_test
+coreit
+data
+db_backups
+dev
+etc
+home
+lib
+lib32
+lib64
+libx32
+lost+found
+media
+mnt
+opt
+out
+proc
+root
+run
+sbin
+snap
+srv
+sys
+tmp
+usr
+var
         python /image_counts.py --input_file /data/input.nxs.h5 --output_dir /data/out $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
 
     ]]></command>
