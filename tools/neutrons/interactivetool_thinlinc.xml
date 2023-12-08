@@ -1,19 +1,21 @@
 <tool id="neutrons_thinlinc" tool_type="interactive" name="thinlinc" version="0.1.0" profile="22.05">
     <requirements>
-            <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/galaxy-tools/thinlinc-web</container>
+            <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/amira/thinlinc-server/thinlinc-web:latest</container>
     </requirements>
     <entry_points>
-        <entry_point name="Thinlinc Tool" requires_domain="True">
-            <port>300</port>
+        <entry_point name="Thinlinc Tool" requires_domain="True" protocol="https:">
+            <port>443</port>
         </entry_point>
     </entry_points>
     <environment_variables>
+        <environment_variable name="TOOL_URL_PREFIX">$__tool_url_prefix__</environment_variable>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key" />
     </environment_variables>
     <command><![CDATA[
+        tlcfg set-hostname $__tool_url_prefix__ &&
         exec /sbin/init &&
         touch tmp.log && tail -f tmp.log
     ]]>
@@ -23,6 +25,7 @@
             <filter>output_option == "1"</filter>
         </data>
     </outputs>
-    <help>
-    </help>
+  <help>
+    This tool runs a thinlinc client as an interactive tool. After running the tool, a link to to this and all other Interactive Tools can be fround from the User menu. The thinlinc server can be stopped by stopping the tool from your event history.
+  </help>
 </tool>
