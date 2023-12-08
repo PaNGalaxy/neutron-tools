@@ -1,0 +1,33 @@
+<tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.1.0" profile="22.05">
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.1</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Jana2020 Visualizer" requires_domain="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <command><![CDATA[
+        mkdir input &&
+        #for $i, $s in enumerate($datasets)
+            #if $s.alias == '':
+                #set $name = str($s.input.element_identifier)
+            #else:
+                #set $name = $s.alias
+            #end if
+            ln -sf '${s.input}' 'input/${name}' &&
+        #end for
+    ]]>
+    </command>
+    <inputs>
+         <repeat name="datasets" title="Datasets">
+            <param name="input" type="data" label="Dataset"/>
+            <param name="alias" type="text" optional="true" default="" label="Filename in visualizer"/>
+        </repeat>
+    </inputs>
+    <outputs>
+        <data name="output" format="txt" label="Visualizer Output"></data>
+    </outputs>
+    <help>
+    </help>
+</tool>
