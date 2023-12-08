@@ -1,4 +1,4 @@
-<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook ORNL" version="0.2.1" profile="22.05">
+<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook" version="0.2.1" profile="22.05">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.2.0</container>
     </requirements>
