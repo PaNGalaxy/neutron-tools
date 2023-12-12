@@ -10,8 +10,7 @@
 	    ## Run the docker container
 	    
 	    #if $parameterTime.useTime == True
-	    	#set $time = $parameterTime.time
-	    	#set $timeOption = "--time $time"
+	    	#set $timeOption = "--time $parameterTime.time"
 	    #else
 	        #set $timeOption = ""
 	    #end if
