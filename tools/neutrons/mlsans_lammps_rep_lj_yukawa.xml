@@ -1,9 +1,9 @@
 <tool id="neutrons_mlsans_lammps_rep_lj_yukawa" name="LAMMPS simulation - LJ+Yukawa"  profile="22.05" version="0.1" python_template_version="3.5">
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow:latest</container>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow:0.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        cd / && 
+        pwd && cd /app && ls && 
         mpirun -np 1 --allow-run-as-root /lammps/lmp -in in.prod -v N $N -v K $K -v A $A && 
         mpirun -np 1 --allow-run-as-root /soq/soq_mpi_fftv3 < in.temp &&
         cp soq.txt temp.txt &&
