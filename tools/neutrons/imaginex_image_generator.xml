@@ -31,7 +31,7 @@
 		    <param name="useTime" type="boolean" checked="false" label="Use Time" help="Whether to use a time value."> 
 		    </param>
 		    <when value="true">
-		        <param name="timeValue" type="text" value="90.0" label="Time"> 
+		        <param name="timeValue" type="float" value="90.0" label="Time"> 
 		        </param>
 	    	</when>
     	</conditional>
@@ -41,6 +41,9 @@
 	<collection name="output_files" type="list" label="Output Images">
 	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="output" />
 	</collection>
+	<data format="h5" name="output" label="test">
+    </data>
+
     </outputs>
     <help><![CDATA[
         Iage generation for IMAGINE-X beamline data reduction.
