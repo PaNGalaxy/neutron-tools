@@ -10,14 +10,13 @@
 	    ## Run the docker container
 	    
 	    #if $parameterTime.useTime == True
-	    	#set $time = $parameterTime.time
-	    	#set $timeOption = "--time $time"
+	    	#set $timeOption = "--time $parameterTime.timeValue"
 	    #else
 	        #set $timeOption = ""
 	    #end if
 	    
 	    ## bash -c 'docker run -#-rm -#-init -v \$(pwd)/data:/data imaginex-image-generator -#-input_file /data/input.nxs.h5 -#-output_dir /data/out $timeOption -#-wavelength_max $wavelengthMax -#-wavelength_min $wavelengthMin' ;
-
+		ls ;
         python /opt/image_counts.py --input_file $input --output_dir output $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
 
     ]]></command>
@@ -33,7 +32,7 @@
 		    <param name="useTime" type="boolean" checked="false" label="Use Time" help="Whether to use a time value."> 
 		    </param>
 		    <when value="true">
-		        <param name="time" type="float" value="90.0" label="Time"> 
+		        <param name="timeValue" type="float" value="90.0" label="Time"> 
 		        </param>
 	    	</when>
     	</conditional>
@@ -41,7 +40,7 @@
     </inputs>
     <outputs>
 	<collection name="output_files" type="list" label="Output Images">
-	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="data/out" />
+	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="output" />
 	</collection>
     </outputs>
     <help><![CDATA[
