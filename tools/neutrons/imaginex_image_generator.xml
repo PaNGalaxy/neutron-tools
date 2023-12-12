@@ -4,8 +4,8 @@
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
         echo "$input" ;
-        mkdir $PWD/data ;
-        # cp $input ./data/input.nxs.h5
+        mkdir data ;
+        ## cp $input ./data/input.nxs.h5
         
 	    ## Run the docker container
 	    
@@ -17,7 +17,7 @@
 	    
 	    ## bash -c 'docker run -#-rm -#-init -v \$(pwd)/data:/data imaginex-image-generator -#-input_file /data/input.nxs.h5 -#-output_dir /data/out $timeOption -#-wavelength_max $wavelengthMax -#-wavelength_min $wavelengthMin' ;
 
-        python /opt/image_counts.py --input_file $input --output_dir $PWD/data $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
+        python /opt/image_counts.py --input_file $input --output_dir /data/out $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
 
     ]]></command>
     <inputs>
