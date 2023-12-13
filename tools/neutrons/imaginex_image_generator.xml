@@ -3,7 +3,11 @@
     <container type="docker">code.ornl.gov:4567/dnp-computational-project/instrument/brave-image-generator:test3</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        echo "$input" ;
         mkdir output ;
+        ## cp $input ./data/input.nxs.h5
+        
+	    ## Run the docker container
 	    
 	    #if $parameterTime.useTime == True
 	    	#set $timeOption = "--time " + str($parameterTime.timeValue.value)
@@ -11,7 +15,8 @@
 	        #set $timeOption = ""
 	    #end if
 	    
-	    python /opt/image_counts.py --input_file $input --output_dir output $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
+	    ## bash -c 'docker run -#-rm -#-init -v \$(pwd)/data:/data imaginex-image-generator -#-input_file /data/input.nxs.h5 -#-output_dir /data/out $timeOption -#-wavelength_max $wavelengthMax -#-wavelength_min $wavelengthMin' ;
+        python /opt/image_counts.py --input_file $input --output_dir output $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
 
     ]]></command>
     <inputs>
@@ -36,6 +41,9 @@
 	<collection name="output_files" type="list" label="Output Images">
 	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="output" />
 	</collection>
+	<data format="h5" name="output" label="test">
+    </data>
+
     </outputs>
     <help><![CDATA[
         Iage generation for IMAGINE-X beamline data reduction.
