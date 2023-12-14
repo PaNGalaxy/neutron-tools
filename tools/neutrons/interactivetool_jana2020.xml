@@ -1,6 +1,6 @@
 <tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.1.0" profile="22.05">
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.2</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.3</container>
     </requirements>
     <entry_points>
         <entry_point name="Jana2020 Visualizer" requires_domain="True">
@@ -17,7 +17,7 @@
             #end if
             ln -sf '${s.input}' 'input/${name}' &&
         #end for
-	/usr/bin/supervisord
+        /usr/bin/supervisord
     ]]>
     </command>
     <inputs>
