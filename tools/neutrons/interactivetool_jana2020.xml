@@ -15,8 +15,9 @@
             #else:
                 #set $name = $s.alias
             #end if
-            ln -sf '${s.input}' 'input/${name}'
+            ln -sf '${s.input}' 'input/${name}' &&
         #end for
+	/usr/bin/supervisord
     ]]>
     </command>
     <inputs>
