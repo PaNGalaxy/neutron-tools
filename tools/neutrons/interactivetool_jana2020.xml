@@ -17,6 +17,7 @@
             #end if
             ln -sf '${s.input}' 'input/${name}' &&
         #end for
+	/usr/bin/supervisord
     ]]>
     </command>
     <inputs>
