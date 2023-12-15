@@ -26,6 +26,8 @@
         <collection type="list" name="output" label="Jana2020 Output Files">
             <discover_datasets pattern="__designation_and_ext__" directory="outputs" />
         </collection>
+        <data name="output_single" auto_format="true" label="Jana2020 Output">
+        </data>
     </outputs>
     <help>
     </help>
