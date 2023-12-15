@@ -1,21 +1,14 @@
-<tool id="neutrons_dca_sofqo" name="DCA S of Q Omega Simulator"  profile="22.05" version="0.3.0">
+<tool id="neutrons_dca_sofqo" name="DCA S of Q Omega Simulator"  profile="22.05" version="0.4.0">
   <description></description>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #import re
         #from pathlib import Path
-        #set $sif_name = "dca_cpu_0_1_0.sif"
-        #set $sif_image = "summit-singularity-cpu:0.1.0"
-        mkdir -p portal/g4_bins.bp portal/sofqomega0.bp &&
+        #set $sif_name = "dca_0_3_0.sif"
+        #set $sif_image = "summit-singularity:0.3.0"
         cp $input portal/input_file.json &&
-        #for $el in $input_bins:
-           #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
-           #if Path($cleaned_name).suffix == '':
-            #set $cleaned_name=$cleaned_name + '.'+$el.ext
-           #end if
-           cp -P '$el' 'portal/g4_bins.bp/${cleaned_name}' &&
-        #end for
+        ln -s $input_data portal/g4_bins.hdf5 &&
         module purge &&
         module load DefApps &&
         module load  gcc/9.1.0 &&
@@ -25,6 +18,7 @@
                       oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca-main/$sif_image ) &&
         cp $input portal/input_file.json &&
         \${GALAXY_COMMAND_PREFIX} singularity exec
+                --nv
                 --bind \$(pwd)/portal:/portal
                 --bind \$PERSISTENT_STORAGE_DIR:\$PERSISTENT_STORAGE_DIR
                 --pwd /portal
@@ -33,13 +27,14 @@
         #set $storage_folder=os.path.join(str($experiment_name),str($output.hid)+"_"+str($output.history_id)+"_sofqomega0.bp")
         STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
         mkdir -p \$STORAGE_FOLDER &&
+        mv portal/sofqomega0.hdf5 portal/sofqomega0.bp &&
         chmod g+rwX -R portal/sofqomega0.bp &&
         mv portal/sofqomega0.bp/* \$STORAGE_FOLDER &&
         ln -s \$STORAGE_FOLDER/* portal/sofqomega0.bp
     ]]></command>
     <inputs>
         <param name="input"  type="data" format="json" optional="false" label="Config"/>
-        <param name="input_bins" type="data_collection" optional="false" collection_type="list" label="Bins"/>
+        <param name="input_data" type="data" format="hdf5" optional="false" label="Binning Data"/>
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
