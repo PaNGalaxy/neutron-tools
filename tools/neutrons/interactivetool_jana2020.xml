@@ -1,6 +1,6 @@
 <tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.1.0" profile="22.05">
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.3</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.4</container>
     </requirements>
     <entry_points>
         <entry_point name="Jana2020 Visualizer" requires_domain="True">
@@ -8,26 +8,24 @@
         </entry_point>
     </entry_points>
     <command><![CDATA[
-        mkdir input &&
+        mkdir -p inputs &&
+        mkdir -p outputs &&
         #for $i, $s in enumerate($datasets)
-            #if $s.alias == '':
-                #set $name = str($s.input.element_identifier)
-            #else:
-                #set $name = $s.alias
-            #end if
-            ln -sf '${s.input}' 'input/${name}' &&
+            #set $name = str($s.input.element_identifier)
+            ln -sf '${s.input}' 'inputs/${name}' &&
         #end for
         /usr/bin/supervisord
-    ]]>
+        ]]>
     </command>
     <inputs>
          <repeat name="datasets" title="Datasets">
             <param name="input" type="data" label="Dataset"/>
-            <param name="alias" type="text" optional="true" default="" label="Filename in visualizer"/>
         </repeat>
     </inputs>
     <outputs>
-        <data name="output" format="txt" label="Visualizer Output"></data>
+        <collection type="list" name="output" label="Jana2020 Output Files">
+            <discover_datasets pattern="__designation_and_ext__" directory="outputs" />
+        </collection>
     </outputs>
     <help>
     </help>
