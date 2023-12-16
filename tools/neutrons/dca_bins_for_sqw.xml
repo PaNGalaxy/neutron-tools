@@ -21,13 +21,15 @@
                 --pwd /portal
                 \${GALAXY_CONTAINERS_DIR}/$sif_name
                  python3 -u /dca_mini_apps/generateBinsForSqw.py
-                    --file-dca /portal/g4_bins.hdf5
+                    --file-dca g4_bins.hdf5
                     --nBins $nbins
                     --nQ $nq &&
         mv portal/ChiDataC_* $output_data
     ]]></command>
     <inputs>
-        <param name="input_data" type="data" format="h5" optional="false" label="Binning Data"/>
+        <param name="input_data" type="data" format="h5" value="false" label="Binning Data"/>
+        <param name="nbins" type="integer" value="1" label="Number of Bins"/>
+        <param name="nq" type="integer" value="10" label="Grid size"/>
     </inputs>
     <outputs>
 		<data format="txt" name="output_data" label="DCA ChiDataC"/>
