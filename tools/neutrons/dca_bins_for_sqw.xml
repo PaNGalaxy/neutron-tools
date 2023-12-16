@@ -1,0 +1,39 @@
+<tool id="neutrons_dca_bins4sqw" name="DCA Bins for S of Q Omega"  profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $sif_name = "dca_miniapp_0_2_0.sif"
+        #set $sif_image = "summit-singularity:0.2.0"
+        #import re
+        #from pathlib import Path
+        mkdir -p portal &&
+        ln -s $input_data portal/g4_bins.hdf5 &&
+        module purge &&
+        module load DefApps &&
+        module load  gcc/9.1.0 &&
+        source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
+        ( [ -e \${GALAXY_CONTAINERS_DIR}/$sif_name ] ||
+          singularity pull --disable-cache --dir \${GALAXY_CONTAINERS_DIR} $sif_name
+                      oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
+        \${GALAXY_COMMAND_PREFIX} singularity exec
+                --bind \$(pwd)/portal:/portal
+                --pwd /portal
+                \${GALAXY_CONTAINERS_DIR}/$sif_name
+                 python3 -u /dca_mini_apps/generateBinsForSqw.py
+                    --file-dca /portal/g4_bins.hdf5
+                    --nBins $nbins
+                    --nQ $nq &&
+        mv portal/ChiDataC_* $output_data
+    ]]></command>
+    <inputs>
+        <param name="input_data" type="data" format="h5" optional="false" label="Binning Data"/>
+    </inputs>
+    <outputs>
+		<data format="txt" name="output_data" label="DCA ChiDataC"/>
+    </outputs>
+    <help><![CDATA[
+        A tool to extract Q values from DCA++ results
+]]></help>
+</tool>
+

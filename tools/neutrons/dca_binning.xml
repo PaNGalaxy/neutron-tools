@@ -34,12 +34,12 @@
     ]]></command>
     <inputs>
         <param name="input"  type="data" format="json" optional="false" label="Config"/>
-        <param name="input_data" type="data" format="hdf5" optional="false" label="Convergence Data"/>
+        <param name="input_data" type="data" format="h5" optional="false" label="Convergence Data"/>
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
         <param name="gpu" type="boolean" checked="true" label="Run on GPU"/>
     </inputs>
     <outputs>
-        <data format="hdf5" name="data_output" label="DCA Binning"/>
+        <data format="h5" name="data_output" label="DCA Binning"/>
         <data format="txt" name="output" label="DCA Binning - console output"/>
     </outputs>
     <help><![CDATA[

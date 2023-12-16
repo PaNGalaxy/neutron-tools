@@ -35,7 +35,7 @@
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
-        <data format="hdf5" name="data_output" label="DCA Convergence"/>
+        <data format="h5" name="data_output" label="DCA Convergence"/>
         <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
