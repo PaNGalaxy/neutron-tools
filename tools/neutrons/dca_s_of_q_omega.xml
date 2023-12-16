@@ -7,6 +7,7 @@
         #from pathlib import Path
         #set $sif_name = "dca_0_3_0.sif"
         #set $sif_image = "summit-singularity:0.3.0"
+        mkdir portal &&
         cp $input portal/input_file.json &&
         ln -s $input_data portal/g4_bins.hdf5 &&
         module purge &&
@@ -34,7 +35,7 @@
     ]]></command>
     <inputs>
         <param name="input"  type="data" format="json" optional="false" label="Config"/>
-        <param name="input_data" type="data" format="hdf5" optional="false" label="Binning Data"/>
+        <param name="input_data" type="data" format="h5" optional="false" label="Binning Data"/>
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
