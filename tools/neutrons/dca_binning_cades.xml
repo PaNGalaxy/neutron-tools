@@ -1,0 +1,23 @@
+<tool id="neutrons_dca_binning_cades" name="DCA Binning Tool"  profile="22.05" version="0.4.0">
+  <description></description>
+  <requirements>
+    <container type="docker">code.ornl.gov:4567/ndip/tool-sources/dca/dca-main:0.2</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s $input_data conv.hdf5 &&
+        unset TMP &&
+        mpiexec -n 64 /dca/main_dca $input &&
+        mv g4_bins.hdf5  $data_output
+    ]]></command>
+    <inputs>
+        <param name="input"  type="data" format="json" optional="false" label="Config"/>
+        <param name="input_data" type="data" format="h5" optional="false" label="Convergence Data"/>
+    </inputs>
+    <outputs>
+        <data format="h5" name="data_output" label="DCA Binning"/>
+    </outputs>
+    <help><![CDATA[
+        A tool to run DCA binning.
+]]></help>
+</tool>
+
