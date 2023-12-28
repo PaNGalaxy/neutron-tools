@@ -51,6 +51,39 @@
         </data>
     </outputs>
     <help>
-A tool to run a PDF Rietveld refinement using DiffPy-CMI.
+        A tool to run a PDF Rietveld refinement using DiffPy-CMI.
     </help>
+    <tests>
+        <test>
+            <param name="cif_file" value="si.cif"/>
+            <param name="gsas_file" value="NOM_9999_Si_d_new_NewCapA_ftfrgr.gr"/>
+            <param name="scatter_type" value="N"/>
+            <param name="qmin" value="0"/>
+            <param name="qmax" value="31.4"/>
+            <param name="qdamp" value="0.02"/>
+            <param name="qbroad" value="0.02"/>
+            <param name="rmin" value="0"/>
+            <param name="rmax" value="20"/>
+            <param name="uiso" value="0.003"/>
+            <param name="qdamp-qbroad-fit" value="yes"/>
+            <!-- <output_collection name="output_collection1">
+                <element name="output_cif">
+                    <assert_contents>
+                        <has_text text="output.cif"/>
+                    </assert_contents>
+                </element>
+                <element name="output_txt">
+                    <assert_contents>
+                        <has_text text="output.txt"/>
+                    </assert_contents>
+                </element>
+                <element name="output_json">
+                    <assert_contents>
+                        <has_text text="output.json"/>
+                    </assert_contents>
+                </element>
+            </output_collection> -->
+            <!-- <output name="output" file="diffpy_cmi_console_output.txt" ftype="txt"/> -->
+        </test>
+    </tests>
 </tool>

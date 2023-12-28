@@ -37,6 +37,26 @@
         <data format="txt" name="output" label="GSAS2 console output"></data>
     </outputs>
     <help>
-A tool to run a GSAS2 Rietveld refinement.
+        A tool to run a GSAS2 Rietveld refinement.
     </help>
+    <tests>
+        <test>
+            <param name="cif_file" value="Si.cif"/>
+            <param name="gsas_file" value="NOMAD_Si.gsa"/>
+            <param name="prm_file" value="NOMAD_2021A_sixbanks_Shifter_Si_640e.instprm"/>
+            <param name="scatter_type" value="N"/>
+            <param name="bank_id" value="5"/>
+            <param name="xmin" value="5000"/>
+            <param name="xmax" value="15000"/>
+            <!-- <output_collection name="output_collection1">
+                <discover_datasets pattern="(?P&lt;designation&gt;.*)" directory="portal"/>
+            </output_collection>
+            <output name="output" ftype="txt">
+                <assert_contents>
+                    <has_text text="GSAS2 console output" />
+                </assert_contents>
+            </output> -->
+        </test>
+    </tests>
+
 </tool>
