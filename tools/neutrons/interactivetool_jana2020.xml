@@ -8,13 +8,13 @@
         </entry_point>
     </entry_points>
     <command><![CDATA[
-        mkdir -p inputs &&
-        mkdir -p outputs &&
+        mkdir -p /home/jana/inputs &&
+        mkdir -p /home/jana/outputs &&
         #for $i, $s in enumerate($datasets)
             #set $name = str($s.input.element_identifier)
-            ln -sf '${s.input}' 'inputs/${name}' &&
+            ln -sf '${s.input}' '/home/jana/inputs/${name}' &&
         #end for
-        /start.sh
+        /start.sh \$GALAXY_TOOL_USER
         ]]>
     </command>
     <inputs>
@@ -24,7 +24,7 @@
     </inputs>
     <outputs>
         <collection type="list" name="output" label="Jana2020 Output Files">
-            <discover_datasets pattern="__designation_and_ext__" directory="outputs" />
+            <discover_datasets pattern="__name_and_ext__" directory="outputs" />
         </collection>
         <data name="output_single" auto_format="true" label="Jana2020 Console Output">
         </data>
