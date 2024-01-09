@@ -48,7 +48,5 @@ testing:
     when: always
     paths:
       - tools/neutrons/junit_output.xml
-  reports:
-    junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
