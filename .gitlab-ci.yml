@@ -40,7 +40,7 @@ testing:
   script:
     - >
       planemo test
-      --galaxy_root ../../../galaxy
+      --galaxy_root /galaxy
       --docker
       --no_conda_auto_init
       tools/neutrons/rpa_mrpapp.xml
