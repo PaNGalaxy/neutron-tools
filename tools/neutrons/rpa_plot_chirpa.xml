@@ -26,6 +26,15 @@
     <outputs>
 	    <data auto_format="true" name="plot" label="${file.display_name}-plot"/>
     </outputs>
+    <tests>
+        <test>
+            <param name="file" value="expected_rpa_results.txt" ftype="txt"/>
+            <param name="interpolation" value="false"/>
+            <param name="column" value="8"/>
+            <param name="format" value="png"/>
+            <output name="plot" file="expected_rpa_result_plot.png" ftype="png"/>
+        </test>
+    </tests>
     <help><![CDATA[
 A tool to plot chi(q,w). Use with the RPA tool to plot the result. The MRPA++ code has been developed with resources from the Center of Nanophase M aterials Sciences, which is a DOE Office of Science User Facility, and the NSF u nder DMR-1308603.
 ]]></help>
