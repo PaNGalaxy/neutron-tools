@@ -39,11 +39,20 @@ service-build:
 testing:
   stage: test
   script:
-    - >
-      planemo test
-      --galaxy_root /galaxy
-      --docker
-      --no_conda_auto_init
-      tools/neutrons/rpa_mrpapp.xml
+    - sudo mkdir -p /galaxy
+    - >  
+      docker run -v /var/run/docker.sock:/var/run/docker.sock
+      -v `pwd`/tools:/`pwd`/tools
+      -v `pwd`/tool_data:`pwd`/tool_data
+      --workdir `pwd`/tools/neutrons 
+      -v /tmp:/tmp 
+      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init rpa_mrpapp.xml
+  artifacts:
+    when: always
+    paths:
+      - tools/neutrons/junit_output.xml
+    reports:
+      junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
+
