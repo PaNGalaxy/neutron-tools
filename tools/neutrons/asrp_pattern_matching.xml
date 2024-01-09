@@ -62,7 +62,7 @@
             <param name="xmax" value="10.0"/>
             <param name="background_type" value="Linear"/>
             <param name="units" value="TOF"/>
-            <!-- <output name="output" file="clusters.json" compare="diff" lines_diff="3" /> -->
+            <output name="output" file="expected_clusters.json" compare="diff" lines_diff="3" />
         </test>
     </tests>
 </tool>

@@ -48,14 +48,7 @@
             <param name="bank_id" value="5"/>
             <param name="xmin" value="5000"/>
             <param name="xmax" value="15000"/>
-            <!-- <output_collection name="output_collection1">
-                <discover_datasets pattern="(?P&lt;designation&gt;.*)" directory="portal"/>
-            </output_collection>
-            <output name="output" ftype="txt">
-                <assert_contents>
-                    <has_text text="GSAS2 console output" />
-                </assert_contents>
-            </output> -->
+            <output name="output" file="expected_gsas2_output.txt" ftype="txt"/>
         </test>
     </tests>
 

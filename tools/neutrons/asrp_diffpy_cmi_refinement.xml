@@ -55,7 +55,7 @@
     </help>
     <tests>
         <test>
-            <param name="cif_file" value="si.cif"/>
+            <param name="cif_file" value="si-2.cif"/>
             <param name="gsas_file" value="NOM_9999_Si_d_new_NewCapA_ftfrgr.gr"/>
             <param name="scatter_type" value="N"/>
             <param name="qmin" value="0"/>
@@ -66,24 +66,7 @@
             <param name="rmax" value="20"/>
             <param name="uiso" value="0.003"/>
             <param name="qdamp-qbroad-fit" value="yes"/>
-            <!-- <output_collection name="output_collection1">
-                <element name="output_cif">
-                    <assert_contents>
-                        <has_text text="output.cif"/>
-                    </assert_contents>
-                </element>
-                <element name="output_txt">
-                    <assert_contents>
-                        <has_text text="output.txt"/>
-                    </assert_contents>
-                </element>
-                <element name="output_json">
-                    <assert_contents>
-                        <has_text text="output.json"/>
-                    </assert_contents>
-                </element>
-            </output_collection> -->
-            <!-- <output name="output" file="diffpy_cmi_console_output.txt" ftype="txt"/> -->
+            <output name="output" file="expected_diffpy_cmi_console_output.txt" ftype="txt"/>
         </test>
     </tests>
 </tool>
