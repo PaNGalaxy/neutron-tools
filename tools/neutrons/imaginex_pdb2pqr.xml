@@ -5,12 +5,8 @@
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir output ;
-		
-		pwd ;
-		
-		ls / ;
 
-		/pdb2pqr.sh $input ;
+		/pdb2pqr/pdb2pqr.sh $input ;
 
     ]]></command>
     <inputs>
