@@ -36,22 +36,22 @@ service-build:
     - rse-multi-builder
 
 
-#testing:
-#  stage: test
-#  script:
-#    - sudo mkdir -p /galaxy
-#    - >
-#      docker run -v /var/run/docker.sock:/var/run/docker.sock
-#      -v `pwd`/tools:/`pwd`/tools
-#      -v `pwd`/tool_data:`pwd`/tool_data
-#      --workdir `pwd`/tools/neutrons
-#      -v /tmp:/tmp
-#      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp --no_cleanup --test_output_junit junit_output.xml --update_test_data
-#  artifacts:
-#    when: always
-#    paths:
-#      - tools/neutrons/junit_output.xml
-#    reports:
-#      junit: tools/neutrons/junit_output.xml
-#  tags:
-#    - rse-multi-builder
+testing:
+  stage: test
+  script:
+    - sudo mkdir -p /galaxy
+    - >  
+      docker run -v /var/run/docker.sock:/var/run/docker.sock
+      -v `pwd`/tools:/`pwd`/tools
+      -v `pwd`/tool_data:`pwd`/tool_data
+      --workdir `pwd`/tools/neutrons 
+      -v /tmp:/tmp 
+      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp --no_cleanup --test_output_junit junit_output.xml --update_test_data
+  artifacts:
+    when: always
+    paths:
+      - tools/neutrons/junit_output.xml
+    reports:
+      junit: tools/neutrons/junit_output.xml
+  tags:
+    - rse-multi-builder
