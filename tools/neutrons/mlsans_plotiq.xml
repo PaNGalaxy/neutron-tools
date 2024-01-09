@@ -1,0 +1,27 @@
+<tool id="neutrons_mlsans_plotiq" name="Plot_Iq"  profile="22.05" version="0.1.1">
+  <description></description>
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/plot_iq:0.12.multi.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+      
+        python3 /src/plotiq.py $input1 $input2 $input3 $input4 $input5 &&
+        mv output.png $output
+    ]]></command>
+    <inputs>
+        <param name="input1" type="data" optional="false" label="ASCII data"/>
+        <param name="input2" type="data" optional="true" label="ASCII data"/>
+        <param name="input3" type="data" optional="true" label="ASCII data"/>
+        <param name="input4" type="data" optional="true" label="ASCII data"/>
+        <param name="input5" type="data" optional="true" label="ASCII data"/>
+               
+    </inputs>
+    <outputs>
+        <data name="output" format="png" label="LogLog Plot">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        Generate LogLog plot of the input ascii file
+]]></help>
+</tool>
+

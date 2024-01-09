@@ -1,0 +1,21 @@
+<tool id="neutrons_dca_convergence_cades" name="DCA Convergence"  profile="22.05" version="0.4.0">
+  <description></description>
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        unset TMP &&
+        mpiexec -n 64 /dca/main_dca $input &&
+        mv conv.hdf5  $data_output
+    ]]></command>
+    <inputs>
+        <param name="input"  type="data" format="json" optional="false" label="Config"/>
+    </inputs>
+    <outputs>
+        <data format="h5" name="data_output" label="DCA Convergence"/>
+        <data format="txt" name="output" label="DCA Convergence - console output"/>
+    </outputs>
+    <help><![CDATA[
+        A tool to run DCA convergence.
+]]></help>
+</tool>
+

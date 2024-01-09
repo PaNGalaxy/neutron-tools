@@ -1,16 +1,16 @@
-<tool id="neutrons_dca_convergence" name="DCA Convergence"  profile="22.05" version="0.3.0">
+<tool id="neutrons_dca_convergence" name="DCA Convergence"  profile="22.05" version="0.4.0">
   <description></description>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #import os
         #set $gpu_str = "--nv" if $gpu else ""
-        #set $sif_name = "dca_0_2_0.sif" if $gpu else "dca_cpu_0_1_0.sif"
-        #set $sif_image = "summit-singularity:0.2.0" if $gpu else "summit-singularity-cpu:0.1.0"
+        #set $sif_name = "dca_0_3_0.sif" if $gpu else "dca_cpu_0_1_0.sif"
+        #set $sif_image = "summit-singularity:0.3.0" if $gpu else "summit-singularity-cpu:0.1.0"
         module purge &&
         module load DefApps &&
         module load  gcc/9.1.0 &&
-        mkdir -p portal/conv.bp &&
+        mkdir portal &&
         source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
         ( [ -e \${GALAXY_CONTAINERS_DIR}/$sif_name ] ||
           singularity pull --disable-cache --dir \${GALAXY_CONTAINERS_DIR} $sif_name
@@ -25,9 +25,9 @@
         #set $storage_folder=os.path.join(str($experiment_name),str($output.hid)+"_"+str($output.history_id)+"_conv.bp")
         STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
         mkdir -p \$STORAGE_FOLDER &&
-        chmod g+rwX -R portal/conv.bp/* &&
-        mv portal/conv.bp/* \$STORAGE_FOLDER &&
-        ln -s \$STORAGE_FOLDER/* portal/conv.bp
+        chmod 644 -R portal/conv.hdf5 &&
+        mv portal/conv.hdf5 \$STORAGE_FOLDER &&
+        ln -s \$STORAGE_FOLDER/conv.hdf5 $data_output
     ]]></command>
     <inputs>
         <param name="input"  type="data" format="json" optional="false" label="Config"/>
@@ -35,9 +35,7 @@
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
-        <collection type="list" name="output_collection" label="DCA Convergence">
-            <discover_datasets format="data" pattern="__designation__" directory="portal/conv.bp" />
-        </collection>
+        <data format="h5" name="data_output" label="DCA Convergence"/>
         <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
