@@ -55,6 +55,3 @@ testing:
       junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
-  rules:
-    - changes:
-        - tools/neutrons/**/*
