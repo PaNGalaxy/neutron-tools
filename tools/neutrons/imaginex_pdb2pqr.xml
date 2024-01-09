@@ -8,7 +8,7 @@
 		
 		pwd ;
 		
-		ls ;
+		ls / ;
 
 		/pdb2pqr.sh $input ;
 
