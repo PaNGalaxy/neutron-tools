@@ -44,9 +44,5 @@ testing:
       --docker
       --no_conda_auto_init
       tools/neutrons/rpa_mrpapp.xml
-  artifacts:
-    when: always
-    paths:
-      - tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
