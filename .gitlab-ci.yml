@@ -39,13 +39,16 @@ testing:
   stage: test
   script:
     - sudo mkdir -p /galaxy
-    - >  
-      docker run -v /var/run/docker.sock:/var/run/docker.sock
-      -v `pwd`/tools:/`pwd`/tools
-      -v `pwd`/tool_data:`pwd`/tool_data
-      --workdir `pwd`/tools/neutrons 
-      -v /tmp:/tmp 
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output junit_output.xml rpa_mrpapp.xml
+    - >
+      for xmlfile in `find tools -name "*.xml"`; do
+        echo "Running tests for $xmlfile"
+        docker run -v /var/run/docker.sock:/var/run/docker.sock
+        -v `pwd`/$xmlfile:/tool.xml
+        -v `pwd`/tool_data:`pwd`/tool_data
+        --workdir `pwd`/tools/neutrons
+        -v /tmp:/tmp
+        code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init /tool.xml
+      done
   artifacts:
     when: always
     paths:
@@ -54,4 +57,7 @@ testing:
       junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
+  only:
+    changes:
+      - tools/**/*.xml
 
