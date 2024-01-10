@@ -5,6 +5,10 @@
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir output ;
+		
+		ls / ;
+		
+		ls /occupancy ;
 		 
 	    #if $xray == True
 	    	#set $xrayOption = "--xray "
