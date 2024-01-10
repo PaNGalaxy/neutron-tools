@@ -27,7 +27,7 @@
 	    <data auto_format="true" name="plot" label="${file.display_name}-plot"/>
     </outputs>
     <tests>
-        <test>
+        <test> 
             <param name="file" value="expected_rpa_results.txt" ftype="txt"/>
             <param name="interpolation" value="false"/>
             <param name="column" value="8"/>
