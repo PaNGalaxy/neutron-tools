@@ -39,7 +39,4 @@ def test_incident_beamline_simulator(galaxy_instance, history_id):
     galaxy_instance.datasets.wait_for_dataset(output_dataset_id)
     output_dataset = galaxy_instance.datasets.show_dataset(output_dataset_id)
 
-    # Here, perform your validations/assertions based on the expected output characteristics
     assert output_dataset['file_ext'] == 'gz', 'Output file format is incorrect'
-
-# Additional tests can be written to cover different parameters and edge cases.
