@@ -42,6 +42,7 @@
 
 		echo $input ;
 		echo "$input" ;
+		echo '$input' ;
 
     ]]></command>
     <inputs>
