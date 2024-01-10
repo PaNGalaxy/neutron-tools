@@ -31,12 +31,12 @@
 	    #end if
 
 		#if $typeCond.type == "reflections"
-			#set $secondFile = "--reflections " + $typeCond.reflectionsFile + " --miller_array " + $typeCond.miller
+			#set $secondFile = "--reflections " + str($typeCond.reflectionsFile) + " --miller_array " + $typeCond.miller
 		#else
-			#set $secondFile = "--ref_pdb " + $typeCond.referenceFile + " --d_min  " + str($typeCond.dMin)
+			#set $secondFile = "--ref_pdb " + str($typeCond.referenceFile) + " --d_min  " + str($typeCond.dMin)
 		#end if
 
-		python /occupancy/occupancy $input output/output.pdb $xrayOption $fullOption $biomtOption $occFreeOption $secondFile ;
+		python /occupancy/occupancy str($input) output/output.pdb $xrayOption $fullOption $biomtOption $occFreeOption $secondFile ;
 
     ]]></command>
     <inputs>
