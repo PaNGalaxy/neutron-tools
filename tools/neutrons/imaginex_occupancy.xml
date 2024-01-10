@@ -41,7 +41,7 @@
 		#end if
 
 		echo $input ;
-
+		echo "$input" ;
 
     ]]></command>
     <inputs>
