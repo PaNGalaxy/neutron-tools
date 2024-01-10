@@ -56,7 +56,7 @@
 				<option value="reflections">Reflections file</option>
 				<option value="reference">Reference protons file</option>
 			</param>
-			<when value="refelctions">
+			<when value="reflections">
 		        <param name="reflectionsFile" type="data" format="cif" label="Reflections File">
 			    </param>
 			    <param name="miller" type="text" value="" label="Miller Array Column Name" help="Must be a column from the Reflections File above."> 
