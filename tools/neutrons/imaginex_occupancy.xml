@@ -53,8 +53,8 @@
 		</param>
 		<conditional name="typeCond">
 			<param name="type" type="select" optional="false" value="reflections" label="Type" help="Which type of secondary file to use.">
-				<option value="Reflections file">reflections</option>
-				<option value="Reference protons file">reference</option>
+				<option value="reflections">Reflections file</option>
+				<option value="reference">Reference protons file</option>
 			</param>
 			<when value="refelctions">
 		        <param name="reflectionsFile" type="data" format="cif" label="Reflections File">
