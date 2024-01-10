@@ -23,7 +23,7 @@
     </outputs>
     <tests>
         <test>
-            <param name="params" value="rpa_input.txt"/>
+            <param name="params" value="rpa_input.txt"/> 
             <param name="tbparams" value="HDFT_FeSn_2Dkz0_corr.txt"/>
             <param name="nproc" value="2"/>
             <output name="output_data" file="expected_rpa_results.txt"/>
