@@ -45,7 +45,7 @@ testing:
       -v `pwd`/tool_data:`pwd`/tool_data
       --workdir `pwd`/tools/neutrons 
       -v /tmp:/tmp 
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output junit_output.xml rpa_mrpapp.xml
+      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output junit_output.xml rpa_mrpapp.xml rpa_plot_chirpa.xml fractal.xml
   artifacts:
     when: always
     paths:
