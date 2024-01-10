@@ -31,7 +31,7 @@
 	    #end if
 
 		#if $typeCond.type == "reflections"
-			#set $secondFile = "--reflections " + str($typeCond.reflectionsFile) + " --miller_array " + $typeCond.miller
+			#set $secondFile = "--reflections " + str($typeCond.reflectionsFile) + " --miller_array " + str($typeCond.miller)
 		#else
 			#set $secondFile = "--ref_pdb " + str($typeCond.referenceFile) + " --d_min  " + str($typeCond.dMin)
 		#end if
