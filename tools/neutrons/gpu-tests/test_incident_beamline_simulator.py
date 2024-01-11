@@ -1,4 +1,5 @@
 import os
+import time
 import pytest
 from bioblend import galaxy
 
@@ -7,7 +8,7 @@ def galaxy_instance():
     galaxy_url = os.getenv("GALAXY_URL")
     galaxy_user_api_key = os.getenv("GALAXY_API_KEY")
     instance = galaxy.GalaxyInstance(url=galaxy_url, key=galaxy_user_api_key)
-    return instance
+    yield instance
 
 @pytest.fixture(scope='session')
 def history_id(galaxy_instance):
@@ -21,10 +22,12 @@ def test_incident_beamline_simulator(galaxy_instance, history_id):
 
     # Define the tool inputs
     tool_inputs = {
-        'input_mode|manual_input': 'false',
-        'input_mode|facility': 'SNS',
-        'input_mode|instrument': 'SEQUOIA',
-        'input': uploaded_file['id'],
+        'input_mode': {
+            'manual_input': 'false',
+            'facility': 'SNS',
+            'instrument': 'SEQUOIA',
+        },
+        'input': {'src': 'hda', 'id': uploaded_file['id']},
         'n': '1e4',
         'nproc': '1',
         'gpu': 'true',
@@ -32,7 +35,7 @@ def test_incident_beamline_simulator(galaxy_instance, history_id):
     }
 
     # Run the tool
-    run_tool_response = galaxy_instance.tools.run_tool(history_id, 'neutrons_mcu_ibs', tool_inputs)
+    run_tool_response = galaxy_instance.tools.run_tool(history_id=history_id, input_format='21.01', tool_id='neutrons_mcu_ibs', tool_inputs=tool_inputs)
 
     # Retrieve and validate output
     output_dataset_id = run_tool_response['outputs'][0]['id']
