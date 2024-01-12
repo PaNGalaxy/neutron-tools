@@ -39,13 +39,12 @@ testing:
   stage: test
   script:
     - sudo mkdir -p /galaxy
-    - >  
-      docker run -v /var/run/docker.sock:/var/run/docker.sock
-      -v `pwd`/tools:/`pwd`/tools
-      -v `pwd`/tool_data:`pwd`/tool_data
-      --workdir `pwd`/tools/neutrons 
-      -v /tmp:/tmp 
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output junit_output.xml rpa_mrpapp.xml rpa_plot_chirpa.xml
+    - |
+      docker run -v /var/run/docker.sock:/var/run/docker.sock \
+      -v `pwd`:/workspace \
+      --workdir /workspace/tools/neutrons \
+      -v /tmp:/tmp \
+      code.ornl.gov:4567/ndip/galaxy-tools /bin/bash -c "git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/.*\.xml$' | xargs -r planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output /workspace/tools/neutrons/junit_output.xml"
   artifacts:
     when: always
     paths:
@@ -57,4 +56,3 @@ testing:
   only:
     changes:
       - tools/**/*.xml
-
