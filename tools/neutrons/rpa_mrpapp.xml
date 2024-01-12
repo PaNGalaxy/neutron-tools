@@ -20,7 +20,7 @@
         <collection type="list" name="output_collection" label="All RPA output">
             <discover_datasets format="txt" pattern="__designation_and_ext__" directory="results" />
         </collection>
-    </outputs>
+    </outputs> 
     <tests>
         <test>
             <param name="params" value="rpa_input.txt"/>
