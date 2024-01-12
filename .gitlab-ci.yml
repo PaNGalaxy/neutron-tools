@@ -1,57 +1,33 @@
-stages:
-  - build
-  - test
-
-variables:
-  GIT_STRATEGY: clone
-  CONTAINER_URL: "${CI_REGISTRY_IMAGE}"
-
-# This import is for the func_rse_docker_* functions
-before_script:
-  - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - source rse-bash-modules.sh
-  - func_rse_docker_cleanup
-
-after_script:
-  - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
-  - source rse-bash-modules.sh
-  - func_rse_docker_cleanup
-  - sudo chown -R gitlab-runner .
-  - sudo rm -rf /galaxy
-
-service-build:
-  stage: build
-  script:
-    - >    
-      docker build
-      -f dockerfiles/Dockerfile 
-      -t galaxy_tools .
-    - docker tag galaxy_tools $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
-    - docker tag galaxy_tools $CONTAINER_URL:latest
-    - docker push $CONTAINER_URL:latest
-    - docker push $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
-  when: manual
-  tags:
-    - rse-multi-builder
-
 testing:
   stage: test
   script:
     - sudo mkdir -p /galaxy
-    - >  
-      docker run -v /var/run/docker.sock:/var/run/docker.sock
-      -v `pwd`/tools:/`pwd`/tools
-      -v `pwd`/tool_data:`pwd`/tool_data
-      --workdir `pwd`/tools/neutrons 
-      -v /tmp:/tmp 
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output junit_output.xml rpa_mrpapp.xml
+    - |
+      docker run -v /var/run/docker.sock:/var/run/docker.sock \
+                 -v `pwd`:`pwd` \
+                 --workdir `pwd`/tools/neutrons \
+                 -v /tmp:/tmp \
+                 code.ornl.gov:4567/ndip/galaxy-tools /bin/bash -c "
+        git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/.*\.xml$' > changed_tools.txt
+        if [ -s changed_tools.txt ]; then
+          while IFS= read -r tool; do
+            tool_path=`pwd`/tools/neutrons/\$tool
+            if [ -f \$tool_path ]; then
+              planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output junit_output.xml \$tool_path
+            else
+              echo \"Tool definition file \$tool_path does not exist.\"
+            fi
+          done < changed_tools.txt
+        else
+          echo 'No tool definition changes detected.'
+        fi
+      "
   artifacts:
     when: always
     paths:
       - tools/neutrons/junit_output.xml
-    reports:
-      junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
-
+  only:
+    changes:
+      - tools/neutrons/**/*.xml
