@@ -40,11 +40,11 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - >
-      docker run -v /var/run/docker.sock:/var/run/docker.sock
-      -v `pwd`:`pwd`  # Mount the entire current working directory
-      --workdir `pwd`  # Set the workdir to the current directory
-      -v /tmp:/tmp
-      code.ornl.gov:4567/ndip/galaxy-tools /bin/bash -c "
+      docker run -v /var/run/docker.sock:/var/run/docker.sock \
+                 -v `pwd`:`pwd` \
+                 --workdir `pwd` \
+                 -v /tmp:/tmp \
+                 code.ornl.gov:4567/ndip/galaxy-tools /bin/bash -c "
         git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/.*\.xml$' > changed_tools.txt
         if [ -s changed_tools.txt ]; then
           while IFS= read -r tool; do
@@ -52,7 +52,8 @@ testing:
           done < changed_tools.txt
         else
           echo 'No tool changes detected.'
-        fi"
+        fi
+      "
   artifacts:
     when: always
     paths:
@@ -64,4 +65,3 @@ testing:
   only:
     changes:
       - tools/**/*.xml
-
