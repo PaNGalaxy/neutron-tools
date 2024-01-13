@@ -66,6 +66,8 @@ testing:
           <testcase classname="none" name="no tests"/>
         </testsuite>' > junit_output.xml
       fi
+    - ls -la
+    - cat junit_output.xml
   artifacts:
     when: always
     paths:
