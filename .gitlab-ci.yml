@@ -56,6 +56,13 @@ testing:
           fi
         done
       fi
+      - |
+      if [ "$TESTS_RUN" = false ]; then
+        echo '<?xml version="1.0" encoding="UTF-8"?>
+        <testsuite tests="0" failures="0" name="no_tests_run">
+          <testcase classname="none" name="no tests"/>
+        </testsuite>' > junit_output.xml
+      fi
   artifacts:
     when: always
     paths:
