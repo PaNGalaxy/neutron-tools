@@ -40,40 +40,19 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
-    - TESTS_RUN=false
-    - if [ ! -z "$CHANGED_FILES" ]; then
-        for FILE in $CHANGED_FILES; do
-          TEST_FILE="test_"$(basename $FILE)
-          if [[ -f "tools/neutrons/$TEST_FILE" ]]; then
-            echo "Running test for $TEST_FILE"
-            docker run -v /var/run/docker.sock:/var/run/docker.sock
-            -v `pwd`/tools:/`pwd`/tools
-            -v `pwd`/tool_data:`pwd`/tool_data
-            --workdir `pwd`/tools/neutrons 
-            -v /tmp:/tmp 
-            -v `pwd`:/output
-            code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output /output/junit_output.xml "tools/neutrons/$TEST_FILE"
-            TESTS_RUN=true
-          else
-            echo "No test file found for $FILE"
-          fi
-        done
-      fi
-    - |
-      if [ "$TESTS_RUN" = false ]; then
-        echo '<?xml version="1.0" encoding="UTF-8"?>
-        <testsuite tests="0" failures="0" name="no_tests_run">
-          <testcase classname="none" name="no tests"/>
-        </testsuite>' > junit_output.xml
-      fi
-    - ls -la
-    - cat junit_output.xml
+    - echo "changed files - $CHANGED_FILES"
+    - >  
+      docker run -v /var/run/docker.sock:/var/run/docker.sock
+      -v `pwd`/tools:/`pwd`/tools
+      -v `pwd`/tool_data:`pwd`/tool_data
+      --workdir `pwd`/tools/neutrons 
+      -v /tmp:/tmp 
+      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output junit_output.xml rpa_mrpapp.xml
   artifacts:
     when: always
     paths:
-      - junit_output.xml
+      - tools/neutrons/junit_output.xml
     reports:
-      junit: junit_output.xml
+      junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
-
