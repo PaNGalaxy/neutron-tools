@@ -51,21 +51,24 @@ testing:
         echo '</testsuite>' >> tools/neutrons/junit_output.xml
       else
         echo "Changed files detected, proceeding with tests."
+        TEST_FILES=""
         for FILE_PATH in $CHANGED_FILES; do
           FILE_NAME=$(basename $FILE_PATH)
           if [[ "$FILE_NAME" == *.xml ]]; then
-            echo "Running test for $FILE"
-            docker run -v /var/run/docker.sock:/var/run/docker.sock \
-            -v `pwd`/tools:/`pwd`/tools \
-            -v `pwd`/tool_data:`pwd`/tool_data \
-            --workdir `pwd`/tools/neutrons \
-            -v /tmp:/tmp \
-            code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
-            --test_output `pwd`/tools/neutrons/junit_output.xml "$FILE_NAME"
-          else
-            echo "Skipping non-XML file $FILE_PATH"
+            TEST_FILES="$TEST_FILES /tools/neutrons/$FILE_NAME"
           fi
         done
+        if [ -n "$TEST_FILES" ]; then
+          docker run -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $(pwd)/tools:/tools \
+          -v $(pwd)/tool_data:/tool_data \
+          --workdir /tools/neutrons \
+          -v /tmp:/tmp \
+          code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
+          --test_output $(pwd)/tools/neutrons/junit_output.xml $TEST_FILES
+        else
+          echo "No XML files to test."
+        fi
       fi
     - cat tools/neutrons/junit_output.xml
   artifacts:
