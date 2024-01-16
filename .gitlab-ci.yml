@@ -39,24 +39,25 @@ testing:
   stage: test
   script:
     - sudo mkdir -p /galaxy
-    - sudo mkdir -p tools/neutrons
+    - mkdir -p tools/neutrons
     - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
     - echo "changed files - $CHANGED_FILES"
-    - |  
-      docker run -v /var/run/docker.sock:/var/run/docker.sock \
-      -v `pwd`/tools:/`pwd`/tools \
-      -v `pwd`/tool_data:`pwd`/tool_data \
-      --workdir `pwd`/tools/neutrons \
-      -v /tmp:/tmp \
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
-      --test_output `pwd`/tools/neutrons/junit_output.xml rpa_mrpapp.xml
-    - | # Check and create junit_output.xml if it doesn't exist
-      if [ ! -f tools/neutrons/junit_output.xml ]; then
-        echo "No test results found, creating a default junit_output.xml"
+    - |
+      if [ -z "$CHANGED_FILES" ]; then
+        echo "No files have changed in the tools/neutrons/ directory, creating a default JUnit report."
         echo '<?xml version="1.0" encoding="UTF-8"?>' > tools/neutrons/junit_output.xml
-        echo '<testsuite tests="0" failures="0" errors="0" skipped="0" name="default">' >> tools/neutrons/junit_output.xml
-        echo '  <testcase classname="default" name="No tests executed"/>' >> tools/neutrons/junit_output.xml
+        echo '<testsuite tests="0" failures="0" errors="0" skipped="0" name="no_tests_run">' >> tools/neutrons/junit_output.xml
+        echo '  <testcase classname="none" name="no tests"/>' >> tools/neutrons/junit_output.xml
         echo '</testsuite>' >> tools/neutrons/junit_output.xml
+      else
+        echo "Changed files detected, proceeding with tests."
+        docker run -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $(pwd)/tools:/tools \
+        -v $(pwd)/tool_data:/tool_data \
+        --workdir /tools/neutrons \
+        -v $(pwd)/tools/neutrons:/output \
+        code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
+        --test_output /output/junit_output.xml rpa_mrpapp.xml
       fi
     - cat tools/neutrons/junit_output.xml
   artifacts:
