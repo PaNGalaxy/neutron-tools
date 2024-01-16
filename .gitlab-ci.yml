@@ -39,7 +39,7 @@ testing:
   stage: test
   script:
     - sudo mkdir -p /galaxy
-    - mkdir -p tools/neutrons
+    - sudo mkdir -p tools/neutrons
     - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
     - echo "changed files - $CHANGED_FILES"
     - |
@@ -52,12 +52,12 @@ testing:
       else
         echo "Changed files detected, proceeding with tests."
         docker run -v /var/run/docker.sock:/var/run/docker.sock \
-        -v $(pwd)/tools:/tools \
-        -v $(pwd)/tool_data:/tool_data \
-        --workdir /tools/neutrons \
-        -v $(pwd)/tools/neutrons:/output \
+        -v `pwd`/tools:/`pwd`/tools \
+        -v `pwd`/tool_data:`pwd`/tool_data \
+        --workdir `pwd`/tools/neutrons \
+        -v /tmp:/tmp \
         code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
-        --test_output /output/junit_output.xml rpa_mrpapp.xml
+        --test_output `pwd`/tools/neutrons/junit_output.xml rpa_mrpapp.xml
       fi
     - cat tools/neutrons/junit_output.xml
   artifacts:
