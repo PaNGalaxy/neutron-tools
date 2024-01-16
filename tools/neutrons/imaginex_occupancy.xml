@@ -44,7 +44,6 @@
 		echo "$input" ;
 		echo '$input' ;
 
-		python /occupancy/occupancy.py $input output/output.pdb $xrayOption $fullOption $biomtOption $occFreeOption $secondFile ;
 
     ]]></command>
     <inputs>
