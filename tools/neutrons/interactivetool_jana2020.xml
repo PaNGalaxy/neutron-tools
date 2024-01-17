@@ -3,11 +3,15 @@
         <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.9</container>
     </requirements>
     <entry_points>
-        <entry_point name="Jana2020 Visualizer" requires_domain="True">
+        <entry_point name="Jana2020 Visualizer" requires_domain="True" requires_path_in_url="True">
             <port>8080</port>
         </entry_point>
     </entry_points>
+    <environment_variables>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">jana</environment_variable>
+    </environment_variables>
     <command><![CDATA[
+        export PROXY_PREFIX=\${EP_PATH%/jana2020*} &&
         mkdir -p /home/jana/inputs &&
         mkdir -p /home/jana/outputs &&
         #for $i, $s in enumerate($datasets)

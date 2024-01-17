@@ -3,7 +3,7 @@
             <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/galaxy-tools/thinlinc-web</container>
     </requirements>
     <entry_points>
-        <entry_point name="Thinlinc Tool" requires_domain="True">
+        <entry_point name="Thinlinc Tool" requires_domain="True" requires_path_in_url="True">
             <port>300</port>
         </entry_point>
     </entry_points>
@@ -12,8 +12,10 @@
         <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key" />
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">thinlinc</environment_variable>
     </environment_variables>
     <command><![CDATA[
+        export PROXY_PREFIX=\${EP_PATH%/thinlinc*} &&
         exec /sbin/init &&
         touch tmp.log && tail -f tmp.log
     ]]>
