@@ -60,8 +60,12 @@ testing:
             -v `pwd`/tool_data:`pwd`/tool_data \
             --workdir `pwd`/tools/neutrons \
             -v /tmp:/tmp \
-            code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
-            --test_output `pwd`/tools/neutrons/junit_output.xml "$FILE_NAME"
+            code.ornl.gov:4567/ndip/galaxy-tools \
+            planemo test \
+            --galaxy_url https://calvera-test.ornl.gov \
+            --galaxy_user_key e2ec9c2e2c04475385ec0f2c720b98c9 \
+            --tool_data_path test-data \
+            "$FILE_NAME"
           else
             echo "Skipping non-XML file $FILE_PATH"
           fi
