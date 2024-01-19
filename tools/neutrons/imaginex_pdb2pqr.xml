@@ -1,0 +1,25 @@
+<tool id="imaginex_pdb2pqr" name="PDB to PQR Converter"  profile="22.05" version="1.1.0" python_template_version="3.5">
+  <requirements>
+    <container type="docker">code.ornl.gov:4567/dnp-computational-project/instrument/pdb2pqr:1.1.0</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+
+		mkdir output ;
+
+		/pdb2pqr/pdb2pqr.sh $input ;
+
+    ]]></command>
+    <inputs>
+    
+        <param name="input" type="data" format="pdb" label="Input File">
+	    </param>
+
+    </inputs>
+    <outputs>
+		<data format="pqr" name="output" from_work_dir="output/output.pqr" />
+		<data format="pdb" name="protonated" from_work_dir="output/protonated.pdb" />
+    </outputs>
+    <help><![CDATA[
+        Convert .pdb files to .pqr, fully adding all protons to all sites.
+    ]]></help>
+</tool>
