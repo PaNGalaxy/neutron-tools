@@ -42,13 +42,6 @@ testing:
       sudo mkdir -p /galaxy
       sudo mkdir -p tools/neutrons
       CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
-      echo "changed files - $CHANGED_FILES"
-      BASENAMES=""
-      for FULL_PATH in $CHANGED_FILES; do
-          BASENAME=$(basename "$FULL_PATH")
-          BASENAMES="$BASENAMES $BASENAME"
-      done
-      CHANGED_FILES="$BASENAMES"
 
     - |
       if [ -z "$CHANGED_FILES" ]; then
