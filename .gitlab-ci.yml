@@ -66,6 +66,5 @@ testing:
           echo "No XML files to test."
         fi
       fi
-      - |
   tags:
     - rse-multi-builder
