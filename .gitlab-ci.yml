@@ -40,37 +40,16 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
-    - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
-    - echo "changed files - $CHANGED_FILES"
     - |
-      if [ -z "$CHANGED_FILES" ]; then
-        echo "No files have changed in the tools/neutrons/ directory, creating a default JUnit report."
-        echo '<?xml version="1.0" encoding="UTF-8"?>' > tools/neutrons/junit_output.xml
-        echo '<testsuite tests="0" failures="0" errors="0" skipped="0" name="no_tests_run">' >> tools/neutrons/junit_output.xml
-        echo '  <testcase classname="none" name="no tests"/>' >> tools/neutrons/junit_output.xml
-        echo '</testsuite>' >> tools/neutrons/junit_output.xml
-      else
-        echo "Changed files detected, proceeding with tests."
-        for FILE_PATH in $CHANGED_FILES; do
-          FILE_NAME=$(basename $FILE_PATH)
-          if [[ "$FILE_NAME" == *.xml ]]; then
-            echo "Running test for $FILE"
-            docker run -v /var/run/docker.sock:/var/run/docker.sock \
-            -v `pwd`/tools:/`pwd`/tools \
-            -v `pwd`/tool_data:`pwd`/tool_data \
-            --workdir `pwd`/tools/neutrons \
-            -v /tmp:/tmp \
-            code.ornl.gov:4567/ndip/galaxy-tools \
-            planemo test \
-            --galaxy_url https://calvera-test.ornl.gov \
-            --galaxy_user_key e2ec9c2e2c04475385ec0f2c720b98c9 \
-            --tool_data_path test-data \
-            "$FILE_NAME"
-          else
-            echo "Skipping non-XML file $FILE_PATH"
-          fi
-        done
-      fi
+      echo "Running Planemo tests on all files in tools/neutrons/ directory."
+      docker run -v /var/run/docker.sock:/var/run/docker.sock \
+      -v $(pwd)/tools:/tools \
+      -v $(pwd)/tool_data:/tool_data \
+      --workdir /tools/neutrons \
+      -v /tmp:/tmp \
+      code.ornl.gov:4567/ndip/galaxy-tools planemo test \
+      --galaxy_root /galaxy --docker --no_conda_auto_init \
+      --test_output $(pwd)/tools/neutrons/junit_output.xml /tools/neutrons/*
     - cat tools/neutrons/junit_output.xml
   artifacts:
     when: always
