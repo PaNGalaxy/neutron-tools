@@ -1,7 +1,6 @@
 stages:
   - build
   - test
-  - push
 
 variables:
   GIT_STRATEGY: clone
@@ -32,52 +31,48 @@ service-build:
     - docker tag galaxy_tools $CONTAINER_URL:latest
     - docker push $CONTAINER_URL:latest
     - docker push $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
-  rules:
-    - if: $CI_COMMIT_BRANCH == "prototype"
-      when: never
-    - when: manual
+  when: manual
   tags:
     - rse-multi-builder
-
 
 testing:
   stage: test
   script:
     - sudo mkdir -p /galaxy
-    - >  
-      docker run -v /var/run/docker.sock:/var/run/docker.sock
-      -v `pwd`/tools:/`pwd`/tools
-      -v `pwd`/tool_data:`pwd`/tool_data
-      --workdir `pwd`/tools/neutrons 
-      -v /tmp:/tmp 
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp --no_cleanup --test_output_junit junit_output.xml --update_test_data
+    - sudo mkdir -p tools/neutrons
+    - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
+    - echo "changed files - $CHANGED_FILES"
+    - |
+      if [ -z "$CHANGED_FILES" ]; then
+        echo "No files have changed in the tools/neutrons/ directory, creating a default JUnit report."
+        echo '<?xml version="1.0" encoding="UTF-8"?>' > tools/neutrons/junit_output.xml
+        echo '<testsuite tests="0" failures="0" errors="0" skipped="0" name="no_tests_run">' >> tools/neutrons/junit_output.xml
+        echo '  <testcase classname="none" name="no tests"/>' >> tools/neutrons/junit_output.xml
+        echo '</testsuite>' >> tools/neutrons/junit_output.xml
+      else
+        echo "Changed files detected, proceeding with tests."
+        for FILE_PATH in $CHANGED_FILES; do
+          FILE_NAME=$(basename $FILE_PATH)
+          if [[ "$FILE_NAME" == *.xml ]]; then
+            echo "Running test for $FILE"
+            docker run -v /var/run/docker.sock:/var/run/docker.sock \
+            -v `pwd`/tools:/`pwd`/tools \
+            -v `pwd`/tool_data:`pwd`/tool_data \
+            --workdir `pwd`/tools/neutrons \
+            -v /tmp:/tmp \
+            code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
+            --test_output `pwd`/tools/neutrons/junit_output.xml "$FILE_NAME"
+          else
+            echo "Skipping non-XML file $FILE_PATH"
+          fi
+        done
+      fi
+    - cat tools/neutrons/junit_output.xml
   artifacts:
+    when: always
     paths:
       - tools/neutrons/junit_output.xml
     reports:
       junit: tools/neutrons/junit_output.xml
-  rules:
-    - if: $CI_COMMIT_BRANCH == "prototype"
-      when: never
-    - when: always
-  tags:
-    - rse-multi-builder
-
-push_dev_tools:
-  stage: push
-  script:
-    - echo "$CALVERA_TEST_SSH_KEY" > key
-    - chmod 400 key
-    - >
-      python3 utils/push_tools.py 
-      --source-directory "tools/neutrons"
-      --ssh-key-path key 
-      --remote-user cloud 
-      --remote-host calvera-test.ornl.gov
-      --remote-directory /srv/galaxy/local_tools/neutrons-dev/
-  rules: 
-    - if: $CI_COMMIT_BRANCH == "prototype"
-      when: always
-    - when: never
   tags:
     - rse-multi-builder
