@@ -65,7 +65,7 @@ testing:
         --workdir `pwd`/tools/neutrons \
         -v /tmp:/tmp \
         code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
-        --test_output `pwd`/tools/neutrons/junit_output.xml "$CHANDED_FILES"
+        --test_output `pwd`/tools/neutrons/junit_output.xml "$CHANGED_FILES"
       fi
     - cat tools/neutrons/junit_output.xml
   artifacts:
