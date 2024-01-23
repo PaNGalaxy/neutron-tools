@@ -3,7 +3,7 @@
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.2.0</container>
     </requirements>
     <entry_points>
-        <entry_point name="Jupyter Interactive Tool" requires_domain="True" requires_path_in_url="True">
+        <entry_point name="Jupyter Interactive Tool" requires_domain="False" requires_path_in_url="True">
             <port>8888</port>
             <url>ipython/lab</url>
         </entry_point>
