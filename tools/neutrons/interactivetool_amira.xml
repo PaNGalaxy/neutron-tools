@@ -1,0 +1,34 @@
+<tool id="interactive_tool_amira" tool_type="interactive" name="Amira Visualizer" version="0.1.0" profile="22.05">
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/amira/amira-novnc</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Amira" requires_domain="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <command><![CDATA[
+        mkdir -p /home/amira/inputs &&
+        mkdir -p /home/amira/outputs &&
+        #for $i, $s in enumerate($datasets)
+            #set $name = str($s.input.element_identifier)
+            ln -sf '${s.input}' '/home/amira/inputs/${name}' &&
+        #end for
+        /start.sh \$GALAXY_TOOL_USER
+        ]]>
+    </command>
+    <inputs>
+         <repeat name="datasets" title="Datasets">
+            <param name="input" type="data" label="Dataset"/>
+        </repeat>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output" label="Amira Output Files">
+            <discover_datasets pattern="__name_and_ext__" directory="outputs" />
+        </collection>
+        <data name="output_single" auto_format="true" label="Amira Console Output">
+        </data>
+    </outputs>
+    <help>
+    </help>
+</tool>
