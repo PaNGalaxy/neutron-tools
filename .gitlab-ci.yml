@@ -68,7 +68,7 @@ testing:
             code.ornl.gov:4567/ndip/galaxy-tools \
             planemo test \
             --galaxy_url https://calvera-test.ornl.gov \
-            --galaxy_user_key e2ec9c2e2c04475385ec0f2c720b98c9 \
+            --galaxy_user_key $CALVERA_TEST_API_KEY \
             --tool_data_path test-data \
             "$FILE_NAME"
           else
