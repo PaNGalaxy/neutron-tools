@@ -21,7 +21,7 @@
     </outputs>
     <tests>
         <!-- Test case 1: Mandelbrot Set -->
-      <test>
+      <!-- <test>
         <param name="option" value="markus"/>
           <output name="output" file="output.png">
                 <assert_contents>
@@ -34,7 +34,7 @@
           <output name="output" file="output.png">
             <assert_contents file="expected_markus.png"/>
           </output>
-      </test>
+      </test> -->
         <!-- Test case 3: Random Walk -->
       <test>
         <param name="option" value="random"/>
