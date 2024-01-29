@@ -1,54 +1,28 @@
-<tool id="neutrons_dca_maxent2plot_cades" name="DCA Plot MaxEnt results"  profile="22.05" version="0.3.0">
+<tool id="neutrons_dca_maxent2plot_cades" name="DCA Plot MaxEnt results"  profile="22.05" version="0.5.0">
   <description></description>
-    <requirements>
-    </requirements>
+  <requirements>
+    <container type="docker">code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:0.4</container>
+  </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $sif_name = "dca_miniapp_0_1_0.sif"
-        #set $sif_image = "summit-singularity:0.1.0"
-        #import re
-        #from pathlib import Path
-        mkdir -p portal/maxent portal/sofqomega0.bp &&
-        #for $el in $input:
-           #set $cleaned_name = str($el.element_identifier)
-           cp -P '$el' 'portal/sofqomega0.bp/${cleaned_name}' &&
-        #end for
         #for $el in $maxent:
            #set $cleaned_name = str($el.element_identifier)
            #if not $cleaned_name.endswith('.txtmaxent.dat'):
                 #set $cleaned_name=$cleaned_name + '.txtmaxent.dat'
            #end if
-           cp -P '$el' 'portal/maxent/${cleaned_name}' &&
+           cp -P '$el' '${cleaned_name}' &&
         #end for
-        cp -P '$normalization' 'portal/maxent/normalization_q.txt' &&
         touch $plot &&
-        module purge &&
-        module load DefApps &&
-        module load  gcc/9.1.0 &&
-        source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
-        ( [ -e \${GALAXY_CONTAINERS_DIR}/$sif_name ] ||
-          singularity pull --disable-cache --dir \${GALAXY_CONTAINERS_DIR} $sif_name
-                      oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
-        \${GALAXY_COMMAND_PREFIX} singularity exec
-                --bind \$PERSISTENT_STORAGE_DIR:\$PERSISTENT_STORAGE_DIR
-                --bind \$(pwd)/portal:/portal
-                --pwd /portal/maxent
-                \${GALAXY_CONTAINERS_DIR}/$sif_name
-        python3 -u /dca_mini_apps/assembleSqwAndPlot.py --file-analysis /portal/sofqomega0.bp &&
-        #set $storage_folder=os.path.join(str($experiment_name),str($plot.hid)+"_"+str($plot.history_id)+"plot")
-        STORAGE_FOLDER=\$PERSISTENT_STORAGE_DIR/$storage_folder &&
-        mkdir -p \$STORAGE_FOLDER &&
-        chmod g+rwX -R portal/maxent &&
-        mv portal/maxent/plot.png \$STORAGE_FOLDER &&
-        ln -sf \$STORAGE_FOLDER/plot.png $plot
+        touch $heatmap &&
+        python3 -u /dca_mini_apps/assembleSqwAndPlot.py &&
+        mv plot.png $plot &&
+        mv heatmap.png $heatmap
     ]]></command>
     <inputs>
         <param name="maxent" type="data_collection" optional="false" collection_type="list" label="Maxent"/>
-        <param name="input" type="data" format="h5" optional="false" collection_type="list" label="SofQOmega Input"/>
-        <param name="normalization" type="data" format="txt" optional="false" label="normalization"/>
-        <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
-        <data format="png" name="plot" label="DCA Maxent Plot"/>
+        <data format="png" name="plot" label="DCA Maxent XY Plot"/>
+        <data format="png" name="heatmap" label="DCA Maxent Heatmap"/>
     </outputs>
     <help><![CDATA[
         A tool to visualize MaxEnt results
