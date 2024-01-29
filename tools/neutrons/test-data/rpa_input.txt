@@ -1,0 +1,83 @@
+options           =   calcSus
+
+fileID            =   demo
+
+Case              =   Kagome
+dimension         =   2
+temperature       =   0.02
+numberOfOrbitals  =   15
+chemicalPotential =   7.8905
+nSitesPerUnitCell =   3
+nOrbAtom          =   5,5,5
+explicitSpin      =   0
+adjustChemicalPotential = 0
+targetFilling     =   3
+
+# General TB parameters
+tbParametersFile  =   ./HDFT_FeSn_2Dkz0_corr.txt
+complexHopping    =   1
+sublattice        =   1
+
+a1x               =   5.297
+a1y               =   0.0
+a1z               =   0.0
+
+a2x               =   -2.6485
+a2y               =   4.5873365
+a2z               =   0.0
+
+a3x               =   0.0
+a3y               =   0.0
+a3z               =   4.481
+
+kTrafo            =   0
+
+# Interaction parameters
+Coulomb1U         =   0.5
+Coulomb2Up        =   0.0
+Coulomb3J         =   0.0
+Coulomb4Jp        =   0.0
+
+Lambda_SO         =   0
+k_SOC             =   0
+
+# Parameters for k-space integrations
+nkIntegration     =   32
+nkzIntegration    =   1
+
+# Parameters for band calculation
+nkBands           =   16
+momentumPath      =   triangular2
+
+# Parameters for pairing calculation
+FSforPairingFile  =   FSforPairing.dat
+nkPerSheet        =   40
+FSnkz             =   1
+staticUFactor     =   1.0
+interpolateChi    =   0
+storeChi          =   0
+readChi           =   0
+ChiForPairingFile =   none
+calcLambdaZ       =   0
+
+# Parameters for susceptibility calculation
+qGridType         =    
+nqx               =    2
+nqy               =    2
+nqz               =    1
+
+qxmin             =    -0.5
+qymin             =    -0.5
+qzmin             =    0.0
+
+qxmax             =    0.5
+qymax             =    0.5
+qzmax             =    0.0
+
+nw                =    1
+wmin              =    0.2
+wmax              =    0.2
+
+damp              =    1E-2
+cacheBands        =    0
+writeFullChi0     =    0
