@@ -50,3 +50,5 @@ testing:
       junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
+  only:
+    - dev
