@@ -40,16 +40,14 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
-    - |
-      echo "Running Planemo tests on all files in tools/neutrons/ directory."
-      docker run -v /var/run/docker.sock:/var/run/docker.sock \
-      -v $(pwd)/tools:/tools \
-      -v $(pwd)/tool_data:/tool_data \
-      --workdir /tools/neutrons \
+    - echo "Running tests for all tools."
+    - docker run -v /var/run/docker.sock:/var/run/docker.sock \
+      -v `pwd`/tools:/`pwd`/tools \
+      -v `pwd`/tool_data:`pwd`/tool_data \
+      --workdir `pwd`/tools/neutrons \
       -v /tmp:/tmp \
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test \
-      --galaxy_root /galaxy --docker --no_conda_auto_init \
-      --test_output $(pwd)/tools/neutrons/junit_output.xml /tools/neutrons/*
+      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
+      --test_output `pwd`/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key e2ec9c2e2c04475385ec0f2c720b98c9
     - cat tools/neutrons/junit_output.xml
   artifacts:
     when: always
