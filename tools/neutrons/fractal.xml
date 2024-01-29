@@ -35,7 +35,7 @@
             <assert_contents file="expected_markus.png"/>
           </output>
       </test>
-        <!-- Test case 3: Random Walk -->
+        <!-- Test case 3: Random Walk --> <!-- test -->
       <test>
         <param name="option" value="random"/>
         <asserts>
