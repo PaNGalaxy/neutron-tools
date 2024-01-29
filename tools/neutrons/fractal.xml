@@ -20,7 +20,7 @@
 	</data>
   </outputs>
   <tests>
-      <test>
+      <test> <!-- basic test -->
           <param name="option" value="markus"/>
           <output name="output" file="expected_markus.png"/>
       </test>
