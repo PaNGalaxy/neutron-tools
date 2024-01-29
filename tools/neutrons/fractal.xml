@@ -28,24 +28,23 @@
                     <has_size value="1589411"/>
                 </assert_contents>
           </output>
-      </test>
-        <test>
+      </test> -->
+        <!-- <test>
         <param name="option" value="markus"/>
           <output name="output" file="output.png">
             <assert_contents file="expected_markus.png"/>
           </output>
       </test> -->
         <!-- Test case 3: Random Walk -->
-      <!-- <test>
+      <test>
         <param name="option" value="random"/>
         <asserts>
           <assert type="dataset" name="output_file_created" status="okay">
-            <metadata>
+            <!-- <metadata>
               <output_file name="output"/>
-            </metadata>
+            </metadata> -->
           </assert>
         </asserts>
-      </test> --> <!-- test -->
-
+      </test>
   </tests>
 </tool>
