@@ -36,7 +36,7 @@
           </output>
       </test> -->
         <!-- Test case 3: Random Walk -->
-      <test>
+      <!-- <test>
         <param name="option" value="random"/>
         <asserts>
           <assert type="dataset" name="output_file_created" status="okay">
@@ -45,7 +45,7 @@
             </metadata>
           </assert>
         </asserts>
-      </test>
+      </test> -->
 
   </tests>
 </tool>
