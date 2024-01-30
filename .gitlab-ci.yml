@@ -40,6 +40,7 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
+    - sudo mkdir -p tools/neutrons/test-data
     - echo "Running tests for all tools."
     - docker run -v /var/run/docker.sock:/var/run/docker.sock -v "$(pwd)/tools:$(pwd)/tools" -v "$(pwd)/tool_data:$(pwd)/tool_data" -v "$(pwd)/tools/neutrons/test-data:$(pwd)/tools/neutrons/test-data" --workdir "$(pwd)/tools/neutrons" -v /tmp:/tmp code.ornl.gov:4567/ndip/galaxy-tools /bin/bash -c "ls -la $(pwd)/tools/neutrons/test-data && planemo test --test_output $(pwd)/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data $(pwd)/tools/neutrons/test-data"
   artifacts:
