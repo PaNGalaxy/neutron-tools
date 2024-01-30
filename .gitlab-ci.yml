@@ -47,6 +47,7 @@ testing:
     - pwd
     - ls -la tools/neutrons/test-data
     - echo "Running tests for all tools."
+    - planemo test --test_output $(pwd)/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data tools/neutrons/test-data
   artifacts:
     when: always
     paths:
