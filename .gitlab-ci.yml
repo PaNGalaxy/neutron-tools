@@ -8,6 +8,9 @@ variables:
 
 # This import is for the func_rse_docker_* functions
 before_script:
+  - sudo apt-get update && sudo apt-get install -y python3 python3-pip
+  - sudo pip3 install planemo
+  - planemo --version
   - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   - source rse-bash-modules.sh
@@ -40,8 +43,11 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
+    - sudo mkdir -p tools/neutrons/test-data
+    - pwd
+    - ls -la tools/neutrons/test-data
     - echo "Running tests for all tools."
-    - docker run -v /var/run/docker.sock:/var/run/docker.sock -v `pwd`/tools:/`pwd`/tools -v `pwd`/tool_data:`pwd`/tool_data --workdir `pwd`/tools/neutrons -v /tmp:/tmp code.ornl.gov:4567/ndip/galaxy-tools planemo test --test_output `pwd`/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data `pwd`/tools/neutrons/test-data/
+    - planemo test --test_output $(pwd)/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data tools/neutrons/test-data tools/neutrons/fractal.xml
   artifacts:
     when: always
     paths:
@@ -50,5 +56,3 @@ testing:
       junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
-  only:
-    - dev
