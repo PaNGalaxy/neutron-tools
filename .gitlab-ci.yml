@@ -8,6 +8,9 @@ variables:
 
 # This import is for the func_rse_docker_* functions
 before_script:
+  - pip3 install --user planemo
+  - export PATH=$PATH:~/.local/bin
+  - planemo --version
   - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   - source rse-bash-modules.sh
