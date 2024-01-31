@@ -64,7 +64,6 @@ testing:
           fi
         done
       fi
-    - cat tools/neutrons/junit_output.xml
   artifacts:
     when: always
     paths:
