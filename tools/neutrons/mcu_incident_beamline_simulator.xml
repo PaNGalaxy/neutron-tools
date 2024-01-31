@@ -46,7 +46,7 @@
         <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" default="false" label="Output debug files"
             help=""/>
     </inputs>
-    <outputs>
+    <outputs> <!-- test -->
 		<data format="gz" name="out_mcpl" label="mcpl"/>
         <collection type="list" name="output_collection" label="debug output">
             <discover_datasets pattern="__designation__" format="txt" directory="outputs" />
