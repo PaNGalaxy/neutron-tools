@@ -43,11 +43,11 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
+    - touch $(pwd)/tools/neutrons/junit_output.xml
     - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
     - |
       if [ -z "$CHANGED_FILES" ]; then
         echo "No files have changed in the tools/neutrons/ directory, so no tests were run."
-        touch $(pwd)/tools/neutrons/junit_output.xml
       else
         echo "Changed files detected, proceeding with tests."
         for FILE_PATH in $CHANGED_FILES; do
