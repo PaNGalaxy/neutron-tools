@@ -44,7 +44,6 @@ testing:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
     - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
-    - echo "changed files - $CHANGED_FILES"
     - |
       if [ -z "$CHANGED_FILES" ]; then
         echo "No files have changed in the tools/neutrons/ directory, creating a default JUnit report."
@@ -65,7 +64,6 @@ testing:
         done
       fi
   artifacts:
-    when: always
     paths:
       - tools/neutrons/junit_output.xml
     reports:
