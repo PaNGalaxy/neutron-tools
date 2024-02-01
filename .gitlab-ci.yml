@@ -43,15 +43,11 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
+    - touch $(pwd)/tools/neutrons/junit_output.xml
     - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
-    - echo "changed files - $CHANGED_FILES"
     - |
       if [ -z "$CHANGED_FILES" ]; then
-        echo "No files have changed in the tools/neutrons/ directory, creating a default JUnit report."
-        echo '<?xml version="1.0" encoding="UTF-8"?>' > tools/neutrons/junit_output.xml
-        echo '<testsuite tests="0" failures="0" errors="0" skipped="0" name="no_tests_run">' >> tools/neutrons/junit_output.xml
-        echo '  <testcase classname="none" name="no tests"/>' >> tools/neutrons/junit_output.xml
-        echo '</testsuite>' >> tools/neutrons/junit_output.xml
+        echo "No files have changed in the tools/neutrons/ directory, so no tests were run."
       else
         echo "Changed files detected, proceeding with tests."
         for FILE_PATH in $CHANGED_FILES; do
@@ -64,13 +60,12 @@ testing:
           fi
         done
       fi
-    - cat tools/neutrons/junit_output.xml
   artifacts:
-    when: always
     paths:
       - tools/neutrons/junit_output.xml
     reports:
       junit: tools/neutrons/junit_output.xml
+    when: on_success
   tags:
     - rse-multi-builder
 
