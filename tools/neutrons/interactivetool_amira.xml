@@ -8,10 +8,11 @@
         </entry_point>
     </entry_points>
     <command><![CDATA[
+        echo "Notebook produced no output" > $output_single &&
         mkdir -p /home/amira/inputs &&
         mkdir -p /home/amira/outputs &&
         #for $i, $s in enumerate($datasets)
-            #set $name = str($s.input.element_identifier)
+            #set $name = os.path.basename(str($s.input.element_identifier))
             ln -sf '${s.input}' '/home/amira/inputs/${name}' &&
         #end for
         /start.sh \$GALAXY_TOOL_USER
