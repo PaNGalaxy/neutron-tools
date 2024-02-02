@@ -43,7 +43,7 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
-    - touch $(pwd)/tools/neutrons/junit_output.xml
+    - touch $(pwd)/tools/neutrons/junit_output.html
     - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
     - |
       if [ -z "$CHANGED_FILES" ]; then
@@ -54,7 +54,7 @@ testing:
           FILE_NAME=$(basename $FILE_PATH)
           if [[ "$FILE_NAME" == *.xml ]]; then
             echo "Running test for $FILE"
-            planemo test --test_output $(pwd)/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data tools/neutrons/test-data tools/neutrons/"$FILE_NAME"
+            planemo test --test_output $(pwd)/tools/neutrons/junit_output.html --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data tools/neutrons/test-data tools/neutrons/"$FILE_NAME"
           else
             echo "Skipping non-XML file $FILE_PATH"
           fi
@@ -62,9 +62,9 @@ testing:
       fi
   artifacts:
     paths:
-      - tools/neutrons/junit_output.xml
+      - tools/neutrons/junit_output.html
     reports:
-      junit: tools/neutrons/junit_output.xml
+      junit: tools/neutrons/junit_output.html
     when: on_success
   tags:
     - rse-multi-builder
