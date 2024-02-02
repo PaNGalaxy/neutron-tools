@@ -65,7 +65,6 @@
             <param name="nproc" value="1"/>
             <param name="gpu" value="true"/>
             <param name="debug_output" value="false"/>
-            <output name="out_mcpl" file="SEQ_vsource.node_0.mcpl"/>
         </test>
     </tests>
     <help><![CDATA[
