@@ -20,7 +20,7 @@
 	</data>
     </outputs>
     <tests>
-        <!--  Test case 1: Mandelbrot Set  -->
+        <!-- Test case 1: Mandelbrot Set  -->
       <test>
         <param name="option" value="markus"/>
           <output name="output" file="output.png">
