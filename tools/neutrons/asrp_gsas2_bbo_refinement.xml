@@ -1,14 +1,13 @@
-<tool id="neutrons_asrp_gsas2_bbo" name="GSAS2 BBO Refinement" profile="22.05" version="0.1.0">
+<tool id="neutrons_asrp_gsas2_bbo" name="GSAS2 BBO Refinement" profile="22.05" version="0.2.0">
   <description></description>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_bbo_refinement:0.1</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_bbo_refinement:0.2</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         cd /app &&
         ln -s $cif_file tmp.cif &&
         ln -s $prm_file tmp.prm &&
         touch $output &&
-        mkdir ./portal &&
         python -m gsas2_bbo_refinement.main
                 --cif-filename tmp.cif
                 --gsas-filename $gsas_file

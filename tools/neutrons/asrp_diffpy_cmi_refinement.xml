@@ -1,12 +1,11 @@
-<tool id="neutrons_asrp_diffpy_cmi" name="PDF DiffPy-CMI Refinement" profile="22.05" version="0.2.0">
+<tool id="neutrons_asrp_diffpy_cmi" name="PDF DiffPy-CMI Refinement" profile="22.05" version="0.3.0">
   <description></description>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:0.2</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:0.3</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         cd /app &&
         touch $output &&
-        mkdir ./portal &&
         python -m diffpy_cmi_refinement.diffpy_cmi_refinement
                 --cif-filename $cif_file
                 --pdf-filename $pdf_file
