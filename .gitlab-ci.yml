@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - push
 
 variables:
   GIT_STRATEGY: clone
@@ -66,6 +67,25 @@ testing:
     reports:
       junit: tools/neutrons/junit_output.html
     when: on_success
+  tags:
+    - rse-multi-builder
+
+push_dev_tools:
+  stage: push
+  script:
+    - echo "$CALVERA_TEST_SSH_KEY" > key
+    - chmod 400 key
+    - >
+      python3 utils/push_tools.py 
+      --source-directory "tools/neutrons"
+      --ssh-key-path key 
+      --remote-user cloud 
+      --remote-host calvera-test.ornl.gov
+      --remote-directory /srv/galaxy/local_tools/neutrons-dev/
+  rules: 
+    - if: $CI_COMMIT_BRANCH == "prototype"
+      when: always
+    - when: never
   tags:
     - rse-multi-builder
 
