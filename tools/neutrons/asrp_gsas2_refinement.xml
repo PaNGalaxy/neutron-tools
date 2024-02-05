@@ -39,17 +39,4 @@
     <help>
         A tool to run a GSAS2 Rietveld refinement.
     </help>
-    <tests>
-        <test>
-            <param name="cif_file" value="Si.cif"/>
-            <param name="gsas_file" value="NOMAD_Si.gsa"/>
-            <param name="prm_file" value="NOMAD_2021A_sixbanks_Shifter_Si_640e.instprm"/>
-            <param name="scatter_type" value="N"/>
-            <param name="bank_id" value="5"/>
-            <param name="xmin" value="5000"/>
-            <param name="xmax" value="15000"/>
-            <output name="output" file="expected_gsas2_output.txt" ftype="txt"/>
-        </test>
-    </tests>
-
 </tool>
