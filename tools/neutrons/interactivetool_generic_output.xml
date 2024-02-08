@@ -108,14 +108,6 @@
             <filter>output_option == "1"</filter>
         </data>
     </outputs>
-    <!-- <tests>
-        <test expect_num_outputs="1">
-            <param name="mode" value="previous" />
-            <param name="ipynb" value="test.ipynb" />
-            <param name="run_it" value="true" />
-            <output name="jupyter_notebook" file="test.ipynb" ftype="ipynb"/>
-        </test>
-    </tests> -->
     <tests>
         <test>
             <conditional name="mode">
