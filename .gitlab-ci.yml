@@ -54,7 +54,7 @@ testing:
         for FILE_PATH in $CHANGED_FILES; do
           FILE_NAME=$(basename $FILE_PATH)
           if [[ "$FILE_NAME" == *.xml ]]; then
-            echo "Running test for $FILE"
+            echo "Running test for $FILE_NAME"
             planemo test --test_output $(pwd)/tools/neutrons/junit_output.html --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data tools/neutrons/test-data tools/neutrons/"$FILE_NAME"
           else
             echo "Skipping non-XML file $FILE_PATH"
