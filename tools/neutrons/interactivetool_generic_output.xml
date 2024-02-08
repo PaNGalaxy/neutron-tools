@@ -109,7 +109,7 @@
         </data>
     </outputs>
     <tests>
-        <test>
+        <test> <!-- Basic empty notebook test -->
             <conditional name="mode">
                 <param name="mode_select" value="scratch"/>
             </conditional>
