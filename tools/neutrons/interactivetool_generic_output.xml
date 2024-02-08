@@ -109,11 +109,17 @@
         </data>
     </outputs>
     <tests>
-        <test expect_num_outputs="1">
-            <param name="mode" value="previous" />
-            <param name="ipynb" value="test.ipynb" />
-            <param name="run_it" value="true" />
-            <output name="jupyter_notebook" file="test.ipynb" ftype="ipynb"/>
+        <test>
+            <conditional name="mode">
+                <param name="mode_select" value="scratch"/>
+            </conditional>
+            <param name="run_it" value="true"/>
+            <conditional name="input_mode">
+                <param name="input_mode_collection" value="false"/>
+            </conditional>
+            <param name="output_option" value="1"/>
+            <output name="jupyter_notebook" file="expected_generic_jupyter_notebook.ipynb"/>
+            <output name="output_single" file="expected_generic_jupyter_output.txt"/>
         </test>
     </tests>
     <help>
