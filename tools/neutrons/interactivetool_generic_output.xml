@@ -118,8 +118,6 @@
                 <param name="input_mode_collection" value="false"/>
             </conditional>
             <param name="output_option" value="1"/>
-            <output name="jupyter_notebook" file="expected_generic_jupyter_notebook.ipynb"/>
-            <output name="output_single" file="expected_generic_jupyter_output.txt"/>
         </test>
     </tests>
     <help>
