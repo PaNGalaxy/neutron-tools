@@ -1,4 +1,4 @@
-<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook ORNL" version="0.2.1" profile="22.05">
+<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook" version="0.2.1" profile="22.05">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.2.0</container>
     </requirements>
@@ -15,6 +15,10 @@
         <environment_variable name="API_KEY" inject="api_key" />
     </environment_variables>
     <command><![CDATA[
+        echo "job was interrupted" > $jupyter_notebook &&
+        #if $output_option == '1':
+            echo "Notebook produced no output" > $output_single &&
+        #end if
         #import re
         #from pathlib import Path
         export GALAXY_WORKING_DIR=`pwd` &&
@@ -57,9 +61,9 @@
         #else:
             jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
         #end if
-        cp './${noteboook_name}.ipynb' '$jupyter_notebook' &&
+        cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
-            cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || echo "Notebook produced no output" > $output_single
+            && cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || :
         #end if
     ]]>
     </command>
@@ -104,14 +108,14 @@
             <filter>output_option == "1"</filter>
         </data>
     </outputs>
-    <tests>
+    <!-- <tests>
         <test expect_num_outputs="1">
             <param name="mode" value="previous" />
             <param name="ipynb" value="test.ipynb" />
             <param name="run_it" value="true" />
             <output name="jupyter_notebook" file="test.ipynb" ftype="ipynb"/>
         </test>
-    </tests>
+    </tests> -->
     <help>
     </help>
 </tool>

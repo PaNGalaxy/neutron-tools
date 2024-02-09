@@ -1,30 +1,24 @@
-<tool id="neutrons_asrp_pm" name="Pattern Matching" profile="22.05" version="0.2.0">
-    <command><![CDATA[
-            #set $image_tag = "0.2"
-            ##Move files to execution directory
-            #set $dataNames = [os.path.basename(str(i["dataFile"])) for i in list($dataFiles)]
-            mkdir input &&
-            touch ./input/filenames.txt &&
-            #for $i in range(len(list($dataFiles)))
-                #set $dataFile = str(list($dataFiles)[i]["dataFile"])
-                #set $dataName = str(list($dataNames)[$i])
-                cp $dataFile ./input/data"$i".gsa &&
-                echo /input/data"$i".gsa >> ./input/input_filenames.txt &&
-            #end for
+<tool id="neutrons_asrp_pm" name="Pattern Matching" profile="22.05" version="0.3.0">
+  <description></description>
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/pattern_matching:0.3</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ##Move files to execution directory
+        #for $data in $dataFiles
+            #set $dataFile = str($data["dataFile"])
+            echo $dataFile >> ./input_filenames.txt &&
+        #end for
 
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=\$(pwd)/input,target=/input,readonly
-                --mount type=bind,source=\${_GALAXY_JOB_TMP_DIR},target=/portal
-                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/pattern_matching:$image_tag
-                -i /input/input_filenames.txt
-                -d $distance_metric_type
-                -c $cluster_algorithm_type
-                -l $xmin
-                -r $xmax
-                -u $units &&
-            mv \${_GALAXY_JOB_TMP_DIR}/clusters.json $output
+        touch $output &&
+        python /app/src/pattern_matching/pattern_matching.py
+            -i ./input_filenames.txt
+            -d $distance_metric_type
+            -c $cluster_algorithm_type
+            -l $xmin
+            -r $xmax
+            -u $units &&
+        mv /portal/clusters.json $output
 
     ]]></command>
     <inputs>
@@ -53,10 +47,22 @@
         </param>
     </inputs>
     <outputs>
-        <data name="output" format="json" >
-        </data>
+        <data name="output" format="json" ></data>
     </outputs>
-    <help><![CDATA[
-        TODO: Fill in help.
-    ]]></help>
+    <help>
+        A tool to pattern match a group of patterns using clustering algorithms.
+    </help>
+    <tests>
+        <test>
+            <param name="dataFiles_0|dataFile" value="NOM_Li2ODCl_at_280K.gsa" />
+            <param name="dataFiles_1|dataFile" value="NOM_Li2ODCl_at_300K.gsa" />
+            <param name="distance_metric_type" value="pearson"/>
+            <param name="cluster_algorithm_type" value="dbscan"/>
+            <param name="xmin" value="1.0"/>
+            <param name="xmax" value="10.0"/>
+            <param name="background_type" value="Linear"/>
+            <param name="units" value="TOF"/>
+            <output name="output" file="expected_clusters.json" compare="diff" lines_diff="3" />
+        </test>
+    </tests>
 </tool>

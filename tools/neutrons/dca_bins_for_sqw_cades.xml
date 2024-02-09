@@ -1,0 +1,39 @@
+<tool id="neutrons_dca_bins4sqw_cades" name="DCA Bins for S of Q Omega"  profile="22.05" version="0.1.0">
+  <description></description>
+  <requirements>
+    <container type="docker">code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:0.3</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir output_l output_w &&
+        ln -s $input_data g4_bins.hdf5 &&
+         python3 -u /dca_mini_apps/generateBinsForSqw.py
+            --calcLattice
+            --material square
+            --file-dca g4_bins.hdf5
+            --nBins $nbins
+            --nQ $nq
+            --nProc $nproc &&
+        mv ChiDataC_* $output_data &&
+        mv ChiDataL_* output_l &&
+        mv ChiLW0_* output_w
+    ]]></command>
+    <inputs>
+        <param name="input_data" type="data" format="h5" value="false" label="Binning Data"/>
+        <param name="nbins" type="integer" value="1" label="Number of Bins"/>
+        <param name="nq" type="integer" value="10" label="Grid size"/>
+        <param name="nproc" type="integer" value="4" label="Number of processes"/>
+    </inputs>
+    <outputs>
+		<data format="txt" name="output_data" label="Q_C"/>
+        <collection type="list" name="output_collection_l" label="Q_L">
+            <discover_datasets format="txt" pattern="__designation__" directory="output_l" />
+        </collection>
+        <collection type="list" name="output_collection_w" label="Q_LW0">
+            <discover_datasets format="txt" pattern="__designation__" directory="output_w" />
+        </collection>
+    </outputs>
+    <help><![CDATA[
+        A tool to extract Q values from DCA++ results
+]]></help>
+</tool>
+

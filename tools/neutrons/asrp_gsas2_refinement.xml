@@ -1,26 +1,21 @@
-<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.1.0">
-    <command><![CDATA[
-            #set $image_tag = "0.1"
-            ##Move files to execution directory
-            mkdir ./input &&
-            cp $cif_file ./input/input.cif &&
-            cp $gsas_file ./input/input.gsa &&
-            cp $prm_file ./input/input.instprm &&
-
-            mkdir portal &&
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=\$(pwd)/input,target=/refinement,readonly
-                --mount type=bind,source=\$(pwd)/portal,target=/portal
-                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_refinement:$image_tag
-                --cif-filename /refinement/input.cif
-                --gsas-filename /refinement/input.gsa
-                --instrument-params-filename /refinement/input.instprm
+<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.4.0">
+  <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_refinement:0.4</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        cd /app &&
+        touch $output &&
+        python -m gsas2_refinement.gsas2_refinement
+                --cif-filename $cif_file
+                --gsas-filename $gsas_file
+                --instrument-params-filename $prm_file
                 --scatter-type $scatter_type
                 --bank-id $bank_id
                 --xmin $xmin
                 --xmax $xmax
+                --output-directory ./portal
+        > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
@@ -39,10 +34,9 @@
         <collection type="list" name="output_collection1" label="GSAS2 refinement output">
             <discover_datasets format= "binary" pattern="__designation__" directory="portal" />
         </collection>
-        <data format="txt" name="output" label="GSAS2 console output">
-        </data>
+        <data format="txt" name="output" label="GSAS2 console output"></data>
     </outputs>
-    <help><![CDATA[
-        TODO: Fill in help.
-    ]]></help>
+    <help>
+        A tool to run a GSAS2 Rietveld refinement.
+    </help>
 </tool>

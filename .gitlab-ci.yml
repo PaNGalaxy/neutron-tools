@@ -8,6 +8,9 @@ variables:
 
 # This import is for the func_rse_docker_* functions
 before_script:
+  - sudo apt-get update && sudo apt-get install -y python3 python3-pip
+  - sudo pip3 install planemo
+  - planemo --version
   - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   - source rse-bash-modules.sh
@@ -35,23 +38,25 @@ service-build:
   tags:
     - rse-multi-builder
 
-
 testing:
   stage: test
   script:
     - sudo mkdir -p /galaxy
-    - >  
-      docker run -v /var/run/docker.sock:/var/run/docker.sock
-      -v `pwd`/tools:/`pwd`/tools
-      -v `pwd`/tool_data:`pwd`/tool_data
-      --workdir `pwd`/tools/neutrons 
-      -v /tmp:/tmp 
-      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --tool_data_path /tmp --no_cleanup --test_output_junit junit_output.xml --update_test_data
+    - sudo mkdir -p tools/neutrons
+    - sudo mkdir -p tools/neutrons/test-data
+    - pwd
+    - ls -la tools/neutrons/test-data
+    - echo "Running tests for all tools."
+    - planemo test --test_output_junit $(pwd)/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY tools/neutrons/*.xml
   artifacts:
     when: always
-    paths:
-      - tools/neutrons/junit_output.xml
     reports:
       junit: tools/neutrons/junit_output.xml
   tags:
     - rse-multi-builder
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+      when: manual
+    - if: $CI_COMMIT_BRANCH == 'dev'
+      when: always
+    - when: never

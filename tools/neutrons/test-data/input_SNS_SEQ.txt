@@ -1,0 +1,1 @@
+s2l=18.0 s2r=18.0 s2b=6.0 s2t=13.0 choppos=3 FC1id=SEQ_700-3.5_AST FC2id=SEQ_100-2.0_AST T0_nu=60.0 FC1nu=120.0 FC2nu=300.0 Edes=28.0

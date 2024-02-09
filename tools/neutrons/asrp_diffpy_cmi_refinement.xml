@@ -1,20 +1,14 @@
-<tool id="neutrons_asrp_diffpy_cmi" name="PDF Refinement" profile="22.05" version="0.1.0">
-    <command><![CDATA[
-            #set $image_tag = "0.1"
-            ##Move files to execution directory
-            mkdir ./input &&
-            cp $cif_file ./input/input.cif &&
-            cp $gsas_file ./input/input.gr &&
-
-            mkdir portal &&
-            docker run
-                --rm
-                --init
-                --mount type=bind,source=\$(pwd)/input,target=/refinement,readonly
-                --mount type=bind,source=\$(pwd)/portal,target=/portal
-                code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:$image_tag
-                --cif-filename /refinement/input.cif
-                --pdf-filename /refinement/input.gr
+<tool id="neutrons_asrp_diffpy_cmi" name="PDF DiffPy-CMI Refinement" profile="22.05" version="0.3.0">
+  <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:0.3</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        cd /app &&
+        touch $output &&
+        python -m diffpy_cmi_refinement.diffpy_cmi_refinement
+                --cif-filename $cif_file
+                --pdf-filename $pdf_file
                 --scatter-type $scatter_type
                 --qmin $qmin
                 --qmax $qmax
@@ -24,13 +18,14 @@
                 --rmax $rmax
                 --uiso $uiso
                 --qdamp-qbroad-fit $qdamp-qbroad-fit
-                --output-cif-filename /portal/output.cif
-                --output-stdout-filename /portal/output.txt
-                --output-results-filename /portal/output.json
+                --output-cif-filename ./portal/output.cif
+                --output-stdout-filename ./portal/output.txt
+                --output-results-filename ./portal/output.json
+        > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
-        <param name="gsas_file" type="data" format="txt" label="PDF File"/>
+        <param name="pdf_file" type="data" format="txt" label="PDF File"/>
 
         <param name="scatter_type" type="select" label="Scatter Type" optional="false">
             <option value="N" selected="false">Neutron</option>
@@ -55,7 +50,7 @@
         <data format="txt" name="output" label="DiffPy-CMI console output">
         </data>
     </outputs>
-    <help><![CDATA[
-        TODO: Fill in help.
-    ]]></help>
+    <help>
+        A tool to run a PDF Rietveld refinement using DiffPy-CMI.
+    </help>
 </tool>

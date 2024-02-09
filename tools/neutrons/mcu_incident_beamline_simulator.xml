@@ -53,8 +53,22 @@
             <filter>debug_output</filter>
         </collection>
     </outputs>
+    <tests>
+        <test>
+            <conditional name="input_mode">
+                <param name="manual_input" value="false"/>
+                <param name="facility" value="SNS"/>
+                <param name="instrument" value="SEQUOIA"/>
+            </conditional>
+            <param name="input" ftype="txt" value="input_SNS_SEQ.txt"/>
+            <param name="n" value="1e4"/>
+            <param name="nproc" value="1"/>
+            <param name="gpu" value="true"/>
+            <param name="debug_output" value="false"/>
+        </test>
+    </tests>
     <help><![CDATA[
-A tool to run incident beamline simulations
-]]></help>
+        A tool to run incident beamline simulations
+    ]]></help>
 </tool>
 
