@@ -32,6 +32,18 @@
         <data name="output" format="json" ></data>
     </outputs>
     <help>
-A tool to fit a single peak in a pattern.
+        A tool to fit a single peak in a pattern.
     </help>
+    <tests>
+        <test>
+            <param name="input_data" value="NOM_Fe2O3_ramp_to_500K_at_temperature_95.05_K.gsa"/>
+            <param name="bank_id" value="2"/>
+            <param name="peak_center" value="11900"/>
+            <param name="xmin" value="11141"/>
+            <param name="xmax" value="12660"/>
+            <param name="background_type" value="Linear"/>
+            <param name="units" value="TOF"/>
+            <output name="output" file="expected_spf_output.json" compare="diff"/>
+        </test>
+    </tests>
 </tool>

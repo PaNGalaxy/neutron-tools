@@ -51,6 +51,6 @@
         </data>
     </outputs>
     <help>
-A tool to run a PDF Rietveld refinement using DiffPy-CMI.
+        A tool to run a PDF Rietveld refinement using DiffPy-CMI.
     </help>
 </tool>

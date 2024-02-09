@@ -50,6 +50,19 @@
         <data name="output" format="json" ></data>
     </outputs>
     <help>
-A tool to pattern match a group of patterns using clustering algorithms.
+        A tool to pattern match a group of patterns using clustering algorithms.
     </help>
+    <tests>
+        <test>
+            <param name="dataFiles_0|dataFile" value="NOM_Li2ODCl_at_280K.gsa" />
+            <param name="dataFiles_1|dataFile" value="NOM_Li2ODCl_at_300K.gsa" />
+            <param name="distance_metric_type" value="pearson"/>
+            <param name="cluster_algorithm_type" value="dbscan"/>
+            <param name="xmin" value="1.0"/>
+            <param name="xmax" value="10.0"/>
+            <param name="background_type" value="Linear"/>
+            <param name="units" value="TOF"/>
+            <output name="output" file="expected_clusters.json" compare="diff" lines_diff="3" />
+        </test>
+    </tests>
 </tool>
