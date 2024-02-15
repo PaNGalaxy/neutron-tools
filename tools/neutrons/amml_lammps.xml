@@ -1,7 +1,7 @@
-<tool id="neutrons_amml_lammps" name="LAMMPS simulation"  profile="22.05" version="0.2.0">
+<tool id="neutrons_amml_lammps" name="LAMMPS simulation"  profile="22.05" version="0.2.1">
   <description></description>
     <requirements>
-        <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda10.2_gpu</container>
+        <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda11.6_gpu</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         ln -s $graph_pb graph.pb  &&
