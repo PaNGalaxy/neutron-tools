@@ -44,7 +44,7 @@ testing:
     - pwd
     - ls -la tools/neutrons/test-data
     - echo "Running tests for all tools."
-    - docker run -v /var/run/docker.sock:/var/run/docker.sock -v "$(pwd)"/tools:"$(pwd)"/tools -v "$(pwd)"/tool_data:"$(pwd)"/tool_data --workdir "$(pwd)"/tools/neutrons -v /tmp:/tmp -e GALAXY_URL=https://calvera-test.ornl.gov -e GALAXY_USER_KEY=$CALVERA_TEST_API_KEY -e GALAXY_ADMIN_KEY=$CALVERA_TEST_ADMIN_KEY code.ornl.gov:4567/ndip/galaxy-tools planemo test --no_cleanup --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY --test_output_junit "$(pwd)"/tools/neutrons/junit_output.xml /tools/neutrons/*.xml
+    - docker run -v /var/run/docker.sock:/var/run/docker.sock -v "$(pwd)"/tools:"$(pwd)"/tools -v "$(pwd)"/tool_data:"$(pwd)"/tool_data --workdir "$(pwd)"/tools/neutrons -v /tmp:/tmp -e GALAXY_URL=https://calvera-test.ornl.gov -e GALAXY_USER_KEY=$CALVERA_TEST_API_KEY -e GALAXY_ADMIN_KEY=$CALVERA_TEST_ADMIN_KEY code.ornl.gov:4567/ndip/galaxy-tools planemo test --no_cleanup --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY --test_output_junit "$(pwd)"/tools/neutrons/junit_output.xml tools/neutrons/*.xml
   artifacts:
     when: always
     reports:
