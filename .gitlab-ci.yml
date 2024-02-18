@@ -40,14 +40,8 @@ testing:
   script:
     - sudo mkdir -p /galaxy
     - sudo mkdir -p tools/neutrons
-    - sudo mkdir -p tools/neutrons/test-data
-    - pwd
-    - ls -la tools/neutrons/test-data
-    - ls -la tools/neutrons/
     - echo "Running tests for all tools."
-    - >
-      docker run -v /var/run/docker.sock:/var/run/docker.sock -v "$(pwd)":/workspace -w /workspace --rm -e GALAXY_URL=https://calvera-test.ornl.gov -e GALAXY_USER_KEY=$CALVERA_TEST_API_KEY -e GALAXY_ADMIN_KEY=$CALVERA_TEST_ADMIN_KEY code.ornl.gov:4567/ndip/galaxy-tools /bin/bash -c "for file in tools/neutrons/*.xml; do if [[ -f \$file ]]; then planemo test --no_cleanup --galaxy_url $GALAXY_URL --galaxy_user_key $GALAXY_USER_KEY --galaxy_admin_key $GALAXY_ADMIN_KEY --test_output_junit tools/neutrons/junit_output.xml \$file; else echo \"Skipped: \$file (does not exist)\"; fi; done"
-
+    - docker run -v /var/run/docker.sock:/var/run/docker.sock -v `pwd`/tools:/`pwd`/tools -v `pwd`/tool_data:`pwd`/tool_data --workdir `pwd`/tools/neutrons -v /tmp:/tmp code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output `pwd`/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY 
   artifacts:
     when: always
     reports:
