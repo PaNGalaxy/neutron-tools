@@ -43,6 +43,7 @@
             <param name="xmax" value="12660"/>
             <param name="background_type" value="Linear"/>
             <param name="units" value="TOF"/>
+            <output name="output" file="expected_spf_output.json"/>
         </test>
     </tests>
 </tool>
