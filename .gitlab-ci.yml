@@ -53,4 +53,4 @@ testing:
       when: always
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual
-    - when: manual
+    - when: never
