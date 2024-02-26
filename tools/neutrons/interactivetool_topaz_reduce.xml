@@ -18,7 +18,7 @@
         #if $config:
             --config $config
         #end if
-        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0
+        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server
         > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>

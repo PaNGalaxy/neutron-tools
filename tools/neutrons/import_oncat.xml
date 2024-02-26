@@ -1,4 +1,5 @@
-<tool id="neutrons_import_oncat" name="Import neutron experiment data" version="0.3.0" profile="22.05">
+<tool id="neutrons_import_oncat" name="Register Neutron Data" version="0.3.0" profile="22.05">
+    <description>from SNS/HFIR storage in Galaxy </description>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/oncat:0.1</container>
     </requirements>
