@@ -5,17 +5,22 @@
         <container type="docker">python:3.10-bullseye</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+      if [ ! -d $folder -o ! -x $folder ]; then
+        echo $folder does not exist or cannot be accessed > $output
+        exit 1;
+      fi &&
       mkdir output &&
       python -c "import glob; [print(f) for f in glob.glob('$folder/' + ('$filter' or '**'), recursive=True)]" |
       while IFS= read -r file; do
         if [ -f \$file ]; then
-         relative_path="\${file#$folder}";
-         relative_path="\${relative_path#/}";
-         parent=\${relative_path%/*};
+         relative_path="\${file#$folder}" &&
+         relative_path="\${relative_path#/}" &&
+         parent=\${relative_path%/*} &&
          if [ "\$parent" != "\$relative_path" ]; then
            mkdir -p "output/\$parent";
-         fi;
-         ln -s "\$file" "output/\$relative_path";
+         fi &&
+         ln -s "\$file" "output/\$relative_path" &&
+         echo registered file "\$file" >> $output;
         fi;
       done
     ]]></command>
@@ -27,11 +32,17 @@
         empty string (or **) - all files in the folder and all subfolders.
         "/>
         <param name="collection_name" type="text" label="New collection name" value="" optional="true"/>
+        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" default="false" label="Output log file"
+            help=""/>
+
     </inputs>
     <outputs>
         <collection type="list" name="output_collection" label="#if $collection_name then $collection_name else $folder">
             <discover_datasets format="binary" match_relative_path="True" pattern="__designation__" recurse="true" directory="output"/>
         </collection>
+        <data format="txt" name="output" label="$folder ingress output">
+            <filter>debug_output</filter>
+        </data>
     </outputs>
     <help>
     </help>
