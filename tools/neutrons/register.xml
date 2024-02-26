@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tool name="Register File" id="neutrons_register" version="0.2.0" profile="22.05">
-  <description>in SNS/HFIR storage</description>
+  <description>from SNS/HFIR storage in Galaxy</description>
     <requirements>
         <container type="docker">alpine:3.17</container>
     </requirements>
