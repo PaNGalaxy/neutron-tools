@@ -28,7 +28,7 @@
         mkdir -p ./jupyter/data &&
         #if $input_mode.input_mode_collection == 'true':
             #for $el in $input_mode.input:
-               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+               #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
                #if Path($cleaned_name).suffix == '':
                 #set $cleaned_name=$cleaned_name + '.'+$el.ext
                #end if
