@@ -5,11 +5,11 @@
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir output ;
-		
+
 		ls / ;
-		
+
 		ls /occupancy ;
-		 
+
 	    #if $xray == True
 	    	#set $xrayOption = "--xray "
 	    #else
@@ -21,13 +21,13 @@
 	    #else
 	        #set $fullOption = ""
 	    #end if
-	    
+
 	    #if $biomt == True
 	    	#set $biomtOption = "--biomt "
 	    #else
 	        #set $biomtOption = ""
 	    #end if
-	    
+
 	    #if $occFree == True
 	    	#set $occFreeOption = "--occ_free "
 	    #else
@@ -44,16 +44,16 @@
 
     ]]></command>
     <inputs>
-    
+
         <param name="input" type="data" format="pdb" label="Input File">
 	    </param>
-	    <param name="xray" type="boolean" checked="false" label="Use x-ray structure factors"> 
+	    <param name="xray" type="boolean" checked="false" label="Use x-ray structure factors">
 		</param>
-	    <param name="full" type="boolean" checked="false" label="Full occupancy refinement (heavy atoms + H + D)"> 
+	    <param name="full" type="boolean" checked="false" label="Full occupancy refinement (heavy atoms + H + D)">
 		</param>
-	    <param name="biomt" type="boolean" checked="false" label="Expand BIOMT records"> 
+	    <param name="biomt" type="boolean" checked="false" label="Expand BIOMT records">
 		</param>
-	    <param name="occFree" type="boolean" checked="false" label="Do NOT constrain occupancy between [0,1]"> 
+	    <param name="occFree" type="boolean" checked="false" label="Do NOT constrain occupancy between [0,1]">
 		</param>
 		<conditional name="typeCond">
 			<param name="type" type="select" optional="false" value="reflections" label="Type" help="Which type of secondary file to use.">
@@ -63,13 +63,13 @@
 			<when value="reflections">
 		        <param name="reflectionsFile" type="data" format="cif" label="Reflections File">
 			    </param>
-			    <param name="miller" type="text" value="" label="Miller Array Column Name" help="Must be a column from the Reflections File above."> 
+			    <param name="miller" type="text" value="" label="Miller Array Column Name" help="Must be a column from the Reflections File above.">
 				</param>
 			</when>
 			<when value="reference">
 		        <param name="referenceFile" type="data" format="pdb" label="Reference Protons File">
 			    </param>
-				<param name="dMin" type="float" value="2" label="d min" help="Resolution [Å]"> 
+				<param name="dMin" type="float" value="2" label="d min" help="Resolution [Å]">
 				</param>
 			</when>
 		</conditional>
@@ -82,3 +82,4 @@
         Fit occupancies to neutron data.
     ]]></help>
 </tool>
+

@@ -10,9 +10,6 @@ variables:
 
 # This import is for the func_rse_docker_* functions
 before_script:
-  - sudo apt-get update && sudo apt-get install -y python3 python3-pip
-  - sudo pip3 install planemo
-  - planemo --version
   - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   - source rse-bash-modules.sh
@@ -23,7 +20,6 @@ after_script:
   - source rse-bash-modules.sh
   - func_rse_docker_cleanup
   - sudo chown -R gitlab-runner .
-  - sudo rm -rf /galaxy
 
 service-build:
   stage: build
@@ -62,32 +58,28 @@ push_dev_tools:
 testing:
   stage: test
   script:
-    - sudo mkdir -p /galaxy
-    - sudo mkdir -p tools/neutrons
-    - touch $(pwd)/tools/neutrons/junit_output.html
-    - CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'tools/neutrons/')
+    - CHANGED_FILES=$(git diff --diff-filter=AM --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- "tools/neutrons/*.xml" | tr '\n' ' ')
+    - files_with_test=""
     - |
-      if [ -z "$CHANGED_FILES" ]; then
-        echo "No files have changed in the tools/neutrons/ directory, so no tests were run."
-      else
-        echo "Changed files detected, proceeding with tests."
-        for FILE_PATH in $CHANGED_FILES; do
-          FILE_NAME=$(basename $FILE_PATH)
-          if [[ "$FILE_NAME" == *.xml ]]; then
-            echo "Running test for $FILE_NAME"
-            TEST_DATA="$(pwd)/tools/neutrons/test-data"
-            ls "$TEST_DATA"
-            planemo test --test_output $(pwd)/tools/neutrons/junit_output.html --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --test_data "$TEST_DATA" tools/neutrons/"$FILE_NAME"
-          else
-            echo "Skipping non-XML file $FILE_PATH"
+      for file in $CHANGED_FILES; do
+          # Check if the file has tests
+          if grep -q "<test>" "$file"; then
+              files_with_test="$files_with_test $file"
           fi
-        done
+      done
+    - |
+      if [ -z "$files_with_test" ]; then
+        echo "No tools with tests have changed, so no tests will run."
+        touch $(pwd)/junit_output.xml      
+      else
+          docker run -v `pwd`:/`pwd` \
+                     -u `id -u`:`id -g` \
+                     --workdir `pwd` \
+                      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY $files_with_test
       fi
   artifacts:
-    paths:
-      - tools/neutrons/junit_output.html
     reports:
-      junit: tools/neutrons/junit_output.html
+      junit: junit_output.xml
     when: on_success
   tags:
     - rse-multi-builder
