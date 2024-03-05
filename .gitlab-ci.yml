@@ -18,7 +18,6 @@ after_script:
   - source rse-bash-modules.sh
   - func_rse_docker_cleanup
   - sudo chown -R gitlab-runner .
-  - sudo rm -rf /galaxy
 
 service-build:
   stage: build
@@ -38,10 +37,8 @@ service-build:
 testing:
   stage: test
   script:
-    - sudo mkdir -p /galaxy
-    - sudo mkdir -p tools/neutrons
     - echo "Running tests for all tools."
-    - docker run -v /var/run/docker.sock:/var/run/docker.sock -v `pwd`/tools:/`pwd`/tools -v `pwd`/tool_data:`pwd`/tool_data --workdir `pwd`/tools/neutrons -v /tmp:/tmp code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output `pwd`/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY 
+    - docker run -v `pwd`:`pwd` --workdir `pwd`/tools/neutrons code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY
   artifacts:
     when: always
     reports:
