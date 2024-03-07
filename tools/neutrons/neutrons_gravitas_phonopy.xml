@@ -1,4 +1,4 @@
-<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev2" profile="22.05">
+<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev3" profile="22.05">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.2.0</container>
     </requirements>
@@ -109,7 +109,7 @@
             <filter>output_option == "1"</filter>
         </data>
     </outputs>
-    <!-- <tests>
+    <tests>
         <test>
             <conditional name="mode">
                 <param name="mode_select" value="scratch"/>
@@ -120,7 +120,7 @@
             </conditional>
             <param name="output_option" value="1"/>
         </test>
-    </tests> -->
+    </tests>
     <help>
     </help>
 </tool>
