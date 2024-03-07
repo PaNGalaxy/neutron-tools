@@ -1,6 +1,6 @@
 <tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev" profile="22.05">
     <requirements>
-        <container type="docker">code.ornl.gov:4567/gravitas/containers/phonopy:0.1.0</container>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.2.0</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" requires_domain="True">
@@ -109,8 +109,12 @@
         </data>
     </outputs>
     <tests>
+<<<<<<< HEAD
       <!--
         <test>
+=======
+        <test> <!-- Basic empty notebook test  -->
+>>>>>>> 5b404f44d6227e10b9fc57d7bf3805245fc8f20b
             <conditional name="mode">
                 <param name="mode_select" value="scratch"/>
             </conditional>
@@ -119,11 +123,19 @@
                 <param name="input_mode_collection" value="false"/>
             </conditional>
             <param name="output_option" value="1"/>
+<<<<<<< HEAD
             <output name="jupyter_notebook" file="expected_generic_jupyter_notebook.ipynb"/>
             <output name="output_single" file="expected_generic_jupyter_output.txt"/>
         </test>
       -->
+=======
+        </test>
+>>>>>>> 5b404f44d6227e10b9fc57d7bf3805245fc8f20b
     </tests>
     <help>
     </help>
 </tool>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5b404f44d6227e10b9fc57d7bf3805245fc8f20b
