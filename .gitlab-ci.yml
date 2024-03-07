@@ -47,7 +47,7 @@ push_dev_tools:
       --ssh-key-path key 
       --remote-user cloud 
       --remote-host calvera-test.ornl.gov
-      --remote-directory /srv/galaxy/local_tools/neutrons/
+      --remote-directory /srv/galaxy/local_tools/neutrons-dev/
   rules: 
     - if: $CI_COMMIT_BRANCH == "prototype"
       when: always
