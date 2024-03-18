@@ -1,9 +1,9 @@
-<tool id="interactive_tool_paraview" tool_type="interactive" name="Paraview Visualizer" version="0.1.0" profile="22.05">
+<tool id="interactive_tool_paraview" tool_type="interactive" name="Paraview Server" version="0.1.0" profile="22.05">
     <requirements>
         <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/paraview/cpu:0.1</container>
     </requirements>
     <entry_points>
-        <entry_point name="Paraview Visualizer" requires_domain="True">
+        <entry_point name="Paraview Server" requires_domain="True">
             <port>8081</port>
             <url>index.html</url>
         </entry_point>
@@ -35,9 +35,8 @@
                cp -P $el "$folder/$name" &&
             #end for
         #end for
-        /usr/local/paraview/bin/pvpython -m paraview.apps.trame
-            --venv /usr/local/paraview/bin/.venv --server --trame-app pv_visualizer.app -i 0.0.0.0
-            -p 8081 --data \$(pwd)/input > >(tee -a $output) 2> >(tee -a $output >&2)
+        /usr/local/paraview/bin/pvserver -p 8081
+                > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]>
     </command>
     <inputs>
