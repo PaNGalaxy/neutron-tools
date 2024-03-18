@@ -1,10 +1,10 @@
-<tool id="neutrons_ctr" name="Computed Tomography Reconstruction" tool_type="interactive" version="1.0.0">
+<tool id="neutrons_ctr" name="Computed Tomography Reconstruction" tool_type="interactive" version="2.0.0">
   <description>runs a full CT reconstruction</description>
   <requirements>
     <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ct-reconstruction/jupyter-notebook:0.1</container>
   </requirements>
   <entry_points>
-      <entry_point name="CTR Notebook" requires_domain="True">
+      <entry_point name="CTR Notebook" label="ctr" requires_domain="False" requires_path_in_url="True">
            <port>8888</port>
           <url>ipython</url>
       </entry_point>
@@ -16,9 +16,11 @@
       <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
       <environment_variable name="DISABLE_AUTH">true</environment_variable>
       <environment_variable name="API_KEY" inject="api_key" />
+      <environment_variable name="EP_PATH" inject="entry_point_path_for_label">ctr</environment_variable>
   </environment_variables>
   <command><![CDATA[
     export GALAXY_WORKING_DIR=`pwd` &&
+    export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
     mkdir -p ./jupyter/outputs/ &&
     mkdir -p ./jupyter/data &&
     cd ./jupyter &&

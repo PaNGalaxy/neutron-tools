@@ -1,9 +1,9 @@
-<tool id="neutrons_reduce120" tool_type="interactive" name="Reduce120" version="0.1.0" profile="22.05">
+<tool id="neutrons_reduce120" tool_type="interactive" name="Reduce120" version="0.2.0" profile="22.05">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.1.0</container>
     </requirements>
     <entry_points>
-        <entry_point name="Jupyter Interactive Tool" requires_domain="True">
+        <entry_point name="Jupyter Interactive Tool" label="reduce120" requires_domain="False" requires_path_in_url="True">
             <port>8888</port>
             <url>ipython/lab</url>
         </entry_point>
@@ -13,12 +13,14 @@
         <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key" />
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">reduce120</environment_variable>
     </environment_variables>
     <command><![CDATA[
         #import re
         export GALAXY_WORKING_DIR=`pwd` &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
+        export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
 
         ln -sf '$data' './jupyter/data/data.h5' &&
         ln -sf '$monitor' './jupyter/data/mon.h5' &&
