@@ -26,7 +26,7 @@
         export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
-        ln -s /import/examples ./jupyter/examples &&
+        cp -r /import/examples ./jupyter &&
         #if $input_mode.input_mode_collection == 'true':
             #for $el in $input_mode.input:
                #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
