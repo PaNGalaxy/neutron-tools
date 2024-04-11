@@ -1,4 +1,4 @@
-<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev5" profile="22.05">
+<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev6" profile="22.05">
     <requirements>
         <container type="docker">code.ornl.gov:4567/gravitas/containers/phonopy:0.2.0-dev3</container>
     </requirements>
@@ -26,6 +26,7 @@
         export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
+        ln -s /import/examples ./jupyter/examples &&
         #if $input_mode.input_mode_collection == 'true':
             #for $el in $input_mode.input:
                #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
