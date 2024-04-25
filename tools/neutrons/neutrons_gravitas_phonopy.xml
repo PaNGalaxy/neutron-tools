@@ -57,7 +57,7 @@
         #else:
             #cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
         #end if
-        #jupyter trust './${noteboook_name}.ipynb' &&
+        jupyter trust './${noteboook_name}.ipynb' &&
         #if $run_it:
             #jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
