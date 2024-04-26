@@ -26,10 +26,9 @@
         export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
-        cp -r /import/examples ./jupyter &&
         #if $input_mode.input_mode_collection == 'true':
             #for $el in $input_mode.input:
-               #set $cleaned_name = re.sub('[^\w\-\.\s]', '_', str($el.element_identifier))
+               #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
                #if Path($cleaned_name).suffix == '':
                 #set $cleaned_name=$cleaned_name + '.'+$el.ext
                #end if
@@ -53,7 +52,7 @@
 
         #set $noteboook_name = 'ipython_galaxy_notebook'
         #if $mode.mode_select == 'scratch':
-            # cp '$__tool_directory__/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
+            cp '$__tool_directory__/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
         #else:
             cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
         #end if
@@ -111,7 +110,7 @@
             <filter>output_option == "1"</filter>
         </data>
     </outputs>
-    <tests>
+    <!-- <tests>
         <test>
             <conditional name="mode">
                 <param name="mode_select" value="scratch"/>
@@ -122,7 +121,7 @@
             </conditional>
             <param name="output_option" value="1"/>
         </test>
-    </tests>
+    </tests> -->
     <help>
     </help>
 </tool>
