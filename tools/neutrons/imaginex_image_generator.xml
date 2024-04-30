@@ -11,7 +11,7 @@
 	        #set $timeOption = ""
 	    #end if
 	    
-	    python /opt/image_counts.py --input_file $input --output_dir output $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
+	    python /image_counts.py --input_file $input --output_dir output $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
 
     ]]></command>
     <inputs>
