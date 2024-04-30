@@ -8,12 +8,16 @@
 		    mv $input /out
 		#end for
 
-		python convert.py --input /in --output /out
+		python /convert.py --input /in --output /out --type $type
 
     ]]></command>
     <inputs>
     
 		<param format="dat" multiple="true" name="inputs" type="data" label="Anger camera input files" />
+		<param name="type" type="select" optional="false" value="TIFF" label="Output Format" help="Image file format for output files.">
+			<option value="TIFF">TIFF</option>
+			<option value="PNG">PNG</option>
+		</param>
 
     </inputs>
     <outputs>
