@@ -6,7 +6,7 @@
     <command detect_errors="exit_code"><![CDATA[
         ##Move files to execution directory
         #for $data in $dataFiles
-            #set $dataFile = str($data["dataFile"])
+            #set $dataFile  = str($data.element_identifier)
             echo $dataFile >> ./input_filenames.txt &&
         #end for
 
