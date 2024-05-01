@@ -1,0 +1,58 @@
+<tool id="imaginex_peak_finding" name="Peak Finding" profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/dnp-computational-project/data-reduction-ndip-tools/peak-finding/v0.1.0</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ##Move files to execution directory
+        #for $data in $dataFiles
+            #set $dataFile = str($data["dataFile"])
+            echo $dataFile >> ./input_filenames.txt &&
+        #end for
+
+        touch $output &&
+        peak_finding 
+            --input-file ./input_filenames.txt
+            --scan-average $scan_average
+            --file-type $file_type
+            --peak-threshold $peak_threshold
+            --save-directory /portal &&
+        mv /portal/peak_list.npy $output
+
+    ]]></command>
+    <inputs>
+    	<repeat name="dataFiles" title="Data Files">
+	    	<param name="dataFile" type="data" format="txt" label="Data File">
+		    </param>
+	    </repeat>
+        <param name="instrument" type="select" label="Select instrument name:" optional="false">
+            <option value="DEMAND" selected="true">DEMAND</option>
+        </param>
+        <param name="scan_average" type="select" label="Use average images within each scan to remove powder lines?" optional="false">
+            <option value="yes" selected="true">yes</option>
+            <option value="" selected="false">no</option>
+        </param>
+        <param name="file_type" type="select" label="File type / extension" optional="false">
+            <option value="jpg" selected="true">JPG</option>
+        </param>
+        <param name="peak_threshold" type="float" label="Peak detection threshold" value="0.0035" />
+    </inputs>
+    <outputs>
+        <data name="output" format="binary" ></data>
+    </outputs>
+    <help>
+        A tool to find peaks in single crystal diffraction.
+    </help>
+    <tests>
+        <test>
+            <param name="dataFiles_0|dataFile" value="HB3A_exp770_scan0008_0001.jpg" />
+            <param name="dataFiles_1|dataFile" value="HB3A_exp770_scan0008_0002.jpg" />
+            <param name="dataFiles_2|dataFile" value="HB3A_exp770_scan0009_0001.jpg" />
+            <param name="dataFiles_3|dataFile" value="HB3A_exp770_scan0009_0002.jpg" />
+            <param name="scan_average" value="yes"/>
+            <param name="file_type" value="jpg"/>
+            <param name="peak_threshold" value="0.0035"/>
+            <output name="output" file="expected_peak_list.npy"/>
+        </test>
+    </tests>
+</tool>
