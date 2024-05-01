@@ -1,7 +1,7 @@
-<tool id="neutrons_gpsans" name="GPSANS"  profile="22.05" version="0.1.1">
+<tool id="neutrons_gpsans" name="GPSANS"  profile="22.05" version="0.1.2">
   <description></description>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.1.0</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir reduced &&
@@ -10,7 +10,9 @@
         echo ipts_number = None > /app/staff_input.py &&
         echo output_directory = None >> /app/staff_input.py &&
         cat $staff_input >> /app/staff_input.py &&
-        python /app/gpsans.py -i $ipts_number -o reduced >$output 2>&1 ;
+        python /app/gpsans.py -i $ipts_number -o reduced
+        > >(tee -a $output) 2> >(tee -a $output >&2)
+
     ]]></command>
     <inputs>
         <param name="ipts_number" type="integer" optional="false" value="0" label="IPTS Number"/>
