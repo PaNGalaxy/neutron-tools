@@ -8,7 +8,7 @@
 		mkdir out ; 
 
 		#for $input in $inputs
-		    mv $input in ;
+		    mv $input in/$input.element_identifier ;
 		#end for
 
 		python /convert.py --input in --output out --type $type ;
