@@ -5,12 +5,13 @@
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir in ;
+		mkdir out ; 
 
 		#for $input in $inputs
 		    mv $input in ;
 		#end for
 
-		python /convert.py --input in --type $type ;
+		python /convert.py --input in --output out --type $type ;
 
     ]]></command>
     <inputs>
