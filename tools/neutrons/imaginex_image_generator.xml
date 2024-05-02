@@ -33,8 +33,11 @@
 
     </inputs>
     <outputs>
-	<collection name="output_files" type="list" label="Output Images">
-	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="output" />
+	<collection name="output_imaages" type="list" label="Output Images">
+	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="output/images" />
+	</collection>
+	<collection name="output_data" type="list" label="Output Data">
+	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="output/data" />
 	</collection>
     </outputs>
     <help><![CDATA[
