@@ -34,8 +34,7 @@
 	                </action>
 	            </when>
 	            <when value="TIFF">
-	                <action type="format">
-	                    <option type="tiff"  param_attribute="ext" />
+	                <action type="format" default="png">
 	                </action>
 	            </when>
 	        </conditional>
