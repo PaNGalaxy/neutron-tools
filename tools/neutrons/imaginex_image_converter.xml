@@ -39,7 +39,6 @@
 	                </action>
 	            </when>
 	        </conditional>
-	        <expand macro="dbKeyActions" />
         </actions>
 	</collection>
     </outputs>
