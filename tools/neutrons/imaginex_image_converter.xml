@@ -24,8 +24,13 @@
 
     </inputs>
     <outputs>
-	<collection name="output_files" type="list" label="Output Images">
-	    <discover_datasets pattern="(?P&lt;designation&gt;)(?P.*/.&lt;ext&gt;)" directory="out" />
+	<collection name="output_pngs" type="list" label="Output PNG Images">
+	    <discover_datasets pattern="__designation__" format="png" directory="out" />
+	    <filter>options[type] == 'PNG'</filter>
+	</collection>
+	<collection name="output_tiffs" type="list" label="Output TIFF Images">
+	    <discover_datasets pattern="__designation__" format="tiff" directory="out" />
+	    <filter>options[type] == 'TIFF'</filter>
 	</collection>
     </outputs>
     <help><![CDATA[
