@@ -24,13 +24,23 @@
 
     </inputs>
     <outputs>
-	<collection name="output_pngs" type="list" label="Output PNG Images">
-	    <discover_datasets pattern="__designation__" format="png" directory="out" />
-	    <filter>options[type] == 'PNG'</filter>
-	</collection>
-	<collection name="output_tiffs" type="list" label="Output TIFF Images">
-	    <discover_datasets pattern="__designation__" format="tiff" directory="out" />
-	    <filter>options[type] == 'TIFF'</filter>
+	<collection name="output_files" type="list" label="Output Images">
+	    <discover_datasets pattern="__designation__" directory="out" />
+        <actions>
+	        <conditional name="options.type">
+	            <when value="PNG">
+	                <action type="format">
+	                    <option type="png" param_attribute="ext" />
+	                </action>
+	            </when>
+	            <when value="TIFF">
+	                <action type="format">
+	                    <option type="tiff"  param_attribute="ext" />
+	                </action>
+	            </when>
+	        </conditional>
+	        <expand macro="dbKeyActions" />
+        </actions>
 	</collection>
     </outputs>
     <help><![CDATA[
