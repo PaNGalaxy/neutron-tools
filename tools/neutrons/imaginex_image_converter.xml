@@ -25,11 +25,7 @@
     </inputs>
     <outputs>
 	<collection name="output_files" type="list" label="Output Images">
-	    <discover_datasets pattern="__designation__" directory="out" />
-        <change_format>
-            <when input="type" value="TIFF" format="tiff" />
-            <when input="type" value="PNG" format="png" />
-        </change_format>
+	    <discover_datasets pattern="__designation__" format="auto" directory="out" />
 	</collection>
     </outputs>
     <help><![CDATA[
