@@ -18,14 +18,18 @@
     
 		<param format="dat" multiple="true" name="inputs" type="data" label="Anger camera input files" />
 		<param name="type" type="select" optional="false" value="TIFF" label="Output Format" help="Image file format for output files.">
-			<option value="TIFF">TIFF</option>
 			<option value="PNG">PNG</option>
+			<option value="TIFF">TIFF</option>
 		</param>
 
     </inputs>
     <outputs>
 	<collection name="output_files" type="list" label="Output Images">
-	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" directory="out" />
+	    <discover_datasets pattern="(?P&lt;designation&gt;)" directory="out" />
+        <change_format>
+            <when input="type" value="TIFF" format="tiff" />
+            <when input="type" value="PNG" format="png" />
+        </change_format>
 	</collection>
     </outputs>
     <help><![CDATA[
