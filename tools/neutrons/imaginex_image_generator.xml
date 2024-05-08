@@ -34,10 +34,10 @@
     </inputs>
     <outputs>
 	<collection name="output_imaages" type="list" label="Output Images">
-	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" ext="png" directory="output/images" />
+	    <discover_datasets pattern="__designation__" ext="png" directory="output/images" />
 	</collection>
 	<collection name="output_data" type="list" label="Output Data">
-	    <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;[^\._]+)$" ext="dat" directory="output/data" />
+	    <discover_datasets pattern="__designation__" ext="dat" directory="output/data" />
 	</collection>
     </outputs>
     <help><![CDATA[
