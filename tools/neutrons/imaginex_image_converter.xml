@@ -25,20 +25,12 @@
     </inputs>
     <outputs>
 	<collection name="output_files" type="list" label="Output Images">
-	    <discover_datasets pattern="__designation__" directory="out" />
-        <actions>
-	        <conditional name="options.type">
-	            <when value="PNG">
-	                <action type="format">
-	                    <option type="png" param_attribute="ext" />
-	                </action>
-	            </when>
-	            <when value="TIFF">
-	                <action type="format" default="png">
-	                </action>
-	            </when>
-	        </conditional>
-        </actions>
+	    <discover_datasets pattern="__designation__" directory="out">
+	      <change_format>
+	          <when input="type" value="TIFF" format="tiff" />
+	          <when input="type" value="PNG" format="png" />
+	      </change_format>
+	    </discover_datasets>
 	</collection>
     </outputs>
     <help><![CDATA[
