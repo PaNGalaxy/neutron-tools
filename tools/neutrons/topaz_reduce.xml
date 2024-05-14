@@ -1,15 +1,30 @@
-<tool id="neutrons_topaz_reduce" name="Topaz Reduce"  profile="22.05" version="0.1.0">
+<tool id="neutrons_topaz_reduce" name="Topaz Reduce"  profile="22.05" version="0.2.0">
     <description></description>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/topaz/topaz-reduction:0.1</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/topaz/topaz-reduction:0.2</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        #import re
+        #from pathlib import Path
         mkdir reduced &&
-        python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced max_processes=$tasks &&
+        mkdir data &&
+        #for $el in $input:
+           #set $filename = Path(str($el.element_identifier)).name
+           #if Path($filename).suffix == '':
+            #set $filename=$filename + '.'+$el.ext
+           #end if
+           ln -s $el data/$filename &&
+        #end for
+        python /app/update_config.py $config params.config
+               data_directory=\$(pwd)/data
+               run_nums=data_directory
+               output_directory=\$(pwd)/reduced
+               max_processes=$tasks &&
         python -u /app/topaz_reduction.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="input" type="data" optional="false" label="Config file"/>
+        <param name="input" type="data" format="h5" multiple="true" optional="false" label="Run files or collection"/>
+        <param name="config" type="data" optional="false" label="Config file"/>
         <param name="tasks" type="integer" value="8" optional="false" label="Number of Max Parallel Tasks" help=""/>
     </inputs>
     <outputs>

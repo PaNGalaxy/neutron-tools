@@ -1,6 +1,6 @@
-<tool id="imaginex_image_generator" name="IMAGINE-X image generator"  profile="22.05" version="1.0.0" python_template_version="3.5">
+<tool id="imaginex_image_generator" name="IMAGINE-X image generator"  profile="22.05" version="0.1.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">code.ornl.gov:4567/dnp-computational-project/instrument/brave-image-generator:latest</container>
+    <container type="docker">code.ornl.gov:4567/dnp-computational-project/data-reduction-ndip-tools/imagine-image-generator/production/main:0.0.3</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir output ;
@@ -11,14 +11,14 @@
 	        #set $timeOption = ""
 	    #end if
 	    
-	    python /opt/image_counts.py --input_file $input --output_dir output $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
+	    python /image_counts.py --input_file $input --output_dir output $timeOption --wavelength_max $wavelengthMax --wavelength_min $wavelengthMin ;
 
     ]]></command>
     <inputs>
     
         <param name="input" type="data" format="h5" label="Input File">
 	    </param>
-	    <param name="wavelengthMin" type="float" value="1.0" label="Max Wavelength"> 
+	    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength"> 
 		</param>
 		<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength"> 
 		</param>
@@ -38,6 +38,6 @@
 	</collection>
     </outputs>
     <help><![CDATA[
-        Iage generation for IMAGINE-X beamline data reduction.
+        Image generation for IMAGINE-X beamline data reduction.
     ]]></help>
 </tool>

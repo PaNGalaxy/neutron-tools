@@ -3,14 +3,21 @@
         <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/amira/amira-novnc</container>
     </requirements>
     <entry_points>
-        <entry_point name="Amira" requires_domain="True">
+        <entry_point name="Amira" label="amiratool" requires_domain="False" requries_path_in_url="True">
             <port>8080</port>
         </entry_point>
     </entry_points>
+        <environment_variables>
+        <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
+        <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">amiratool</environment_variable>
+    </environment_variables>
     <command><![CDATA[
         echo "Notebook produced no output" > $output_single &&
+        export GALAXY_WORKING_DIR=`pwd` &&
         mkdir -p /home/amira/inputs &&
-        mkdir -p /home/amira/outputs &&
+        mkdir -p ./outputs &&
+        ln -s \${GALAXY_WORKING_DIR}/outputs /home/amira/outputs &&
         #for $i, $s in enumerate($datasets)
             #set $name = os.path.basename(str($s.input.element_identifier))
             ln -sf '${s.input}' '/home/amira/inputs/${name}' &&
@@ -19,13 +26,15 @@
         ]]>
     </command>
     <inputs>
+         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
+         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
          <repeat name="datasets" title="Datasets">
             <param name="input" type="data" label="Dataset"/>
         </repeat>
     </inputs>
     <outputs>
         <collection type="list" name="output" label="Amira Output Files">
-            <discover_datasets pattern="__name_and_ext__" directory="outputs" />
+            <discover_datasets pattern="__designation__" directory="outputs" />
         </collection>
         <data name="output_single" auto_format="true" label="Amira Console Output">
         </data>
