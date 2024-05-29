@@ -20,7 +20,7 @@
         #if $config:
             --config $config
         #end if
-        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server
+        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server timeout=0
         > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
