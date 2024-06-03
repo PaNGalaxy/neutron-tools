@@ -17,7 +17,7 @@
         #end for
         python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced &&
         python -u /app/topaz_reduction_combinefiles.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        cp $input reduced/config.txt
+        cp $input reduced/config.txt &&
         cd reduced && rm ${input_list}
     ]]></command>
     <inputs>
