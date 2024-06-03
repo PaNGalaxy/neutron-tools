@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tool name="Export Datasets" id="neutrons_export" version="0.1.0" profile="22.05">
+<tool name="Export Datasets" id="neutrons_export" version="0.2.0" profile="22.05">
   <description>to SNS/HFIR storage</description>
     <requirements>
         <container type="docker">alpine:3.17</container>
@@ -7,6 +7,7 @@
     <command><![CDATA[
         #from pathlib import Path
         #if $input_mode.input_mode_collection == 'true':
+            mkdir -p $input_mode.export_folder &&
             #for $el in $input_mode.input:
                #set $name = str($el.element_identifier)
                #if Path($name).suffix == '':
