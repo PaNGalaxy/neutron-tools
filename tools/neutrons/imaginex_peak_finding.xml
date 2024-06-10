@@ -43,10 +43,7 @@
     </help>
     <tests>
         <test>
-            <param name="data_files_0|dataFile" value="HB3A_exp770_scan0008_0001.jpg" />
-            <param name="data_files_1|dataFile" value="HB3A_exp770_scan0008_0002.jpg" />
-            <param name="data_files_2|dataFile" value="HB3A_exp770_scan0009_0001.jpg" />
-            <param name="data_files_3|dataFile" value="HB3A_exp770_scan0009_0002.jpg" />
+            <param name="data_files" value="HB3A_exp770_scan0008_0001.jpg,HB3A_exp770_scan0008_0002.jpg,HB3A_exp770_scan0009_0001.jpg,HB3A_exp770_scan0009_0002.jpg" />
             <param name="scan_average" value="yes"/>
             <param name="file_type" value="jpg"/>
             <param name="peak_threshold" value="0.0035"/>
