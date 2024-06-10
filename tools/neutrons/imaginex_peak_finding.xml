@@ -9,7 +9,7 @@
 
         ##Move files to execution directory
         #for $data in $data_files
-            cp $data.data_file.file_name in/$data.data_file.element_identifier &&
+            cp $data in/$data.element_identifier &&
         #end for
 
         peak_finding 
@@ -22,10 +22,7 @@
 
     ]]></command>
     <inputs>
-        <repeat name="data_files" title="Data Files">
-            <param name="data_file" type="data" format="txt" label="Data File">
-            </param>
-	    </repeat>
+        <param format="txt" multiple="true" name="data_files" type="data" label="Data Files" />
         <param name="instrument" type="select" label="Select instrument name:" optional="false">
             <option value="DEMAND" selected="true">DEMAND</option>
         </param>
@@ -46,10 +43,10 @@
     </help>
     <tests>
         <test>
-            <param name="dataFiles_0|dataFile" value="HB3A_exp770_scan0008_0001.jpg" />
-            <param name="dataFiles_1|dataFile" value="HB3A_exp770_scan0008_0002.jpg" />
-            <param name="dataFiles_2|dataFile" value="HB3A_exp770_scan0009_0001.jpg" />
-            <param name="dataFiles_3|dataFile" value="HB3A_exp770_scan0009_0002.jpg" />
+            <param name="data_files_0|dataFile" value="HB3A_exp770_scan0008_0001.jpg" />
+            <param name="data_files_1|dataFile" value="HB3A_exp770_scan0008_0002.jpg" />
+            <param name="data_files_2|dataFile" value="HB3A_exp770_scan0009_0001.jpg" />
+            <param name="data_files_3|dataFile" value="HB3A_exp770_scan0009_0002.jpg" />
             <param name="scan_average" value="yes"/>
             <param name="file_type" value="jpg"/>
             <param name="peak_threshold" value="0.0035"/>
