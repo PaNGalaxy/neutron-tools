@@ -4,27 +4,25 @@
         <container type="docker">code.ornl.gov:4567/dnp-computational-project/data-reduction-ndip-tools/peak-finding/v0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        mkdir in &&
+        mkdir out &&
+
         ##Move files to execution directory
-        #for $data in $dataFiles
-            #set $dataFile = str($data["dataFile"])
-            echo $dataFile >> ./input_filenames.txt &&
+        #for $data in $data_files
+            cp $data in/$data.element_identifier &&
         #end for
 
-        touch $output &&
         peak_finding 
-            --input-file ./input_filenames.txt
+            --data-directory in/
             --scan-average $scan_average
             --file-type $file_type
             --peak-threshold $peak_threshold
-            --save-directory /portal &&
-        mv /portal/peak_list.npy $output
+            --save-directory out/ &&
+        mv out/peak_list.npy $output
 
     ]]></command>
     <inputs>
-    	<repeat name="dataFiles" title="Data Files">
-	    	<param name="dataFile" type="data" format="txt" label="Data File">
-		    </param>
-	    </repeat>
+        <param format="txt" multiple="true" name="data_files" type="data" label="Data Files" />
         <param name="instrument" type="select" label="Select instrument name:" optional="false">
             <option value="DEMAND" selected="true">DEMAND</option>
         </param>
@@ -45,10 +43,7 @@
     </help>
     <tests>
         <test>
-            <param name="dataFiles_0|dataFile" value="HB3A_exp770_scan0008_0001.jpg" />
-            <param name="dataFiles_1|dataFile" value="HB3A_exp770_scan0008_0002.jpg" />
-            <param name="dataFiles_2|dataFile" value="HB3A_exp770_scan0009_0001.jpg" />
-            <param name="dataFiles_3|dataFile" value="HB3A_exp770_scan0009_0002.jpg" />
+            <param name="data_files" value="HB3A_exp770_scan0008_0001.jpg,HB3A_exp770_scan0008_0002.jpg,HB3A_exp770_scan0009_0001.jpg,HB3A_exp770_scan0009_0002.jpg" />
             <param name="scan_average" value="yes"/>
             <param name="file_type" value="jpg"/>
             <param name="peak_threshold" value="0.0035"/>
