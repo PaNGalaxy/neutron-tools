@@ -1,0 +1,44 @@
+<tool id="neutrons_reflectometry_refl1d" tool_type="interactive" name="1-D Reflectometry " profile="22.05" version="0.1.0-dev">
+  <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/reflectometry/refl1d:0.1</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Refl1D" label="refl1d" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir -p /data/inputs &&
+        mkdir -p /data/outputs &&
+        #for $i, $s in enumerate($datasets)
+            #set $name = os.path.basename(str($s.input.element_identifier))
+            ln -sf '${s.input}' '/data/inputs/${name}' &&
+        #end for
+
+        python -m refl1d.webview.server --port 8080 --external --path /data
+        > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+         <repeat name="datasets" title="Datasets">
+            <param name="input" type="data" label="Dataset"/>
+        </repeat>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output" label="Ref1D Output Files">
+            <discover_datasets pattern="__designation__" directory="outputs" />
+        </collection>
+        <data name="output_single" auto_format="true" label="Ref1D Console Output">
+        </data>
+    </outputs>
+    <help>
+        1-D reflectometry allows material scientists to understand the structure of thin films, providing composition and 
+        density information as a function of depth. With polarized neutron measurements, scientists can study the sub-surface 
+        structure of magnetic samples. The Refl1D modeling program supports a mixture of slabs, freeform and specialized layer 
+        types such as models for the density distribution of polymer brushes. More information on Refl1D can be found at
+        https://refl1d.readthedocs.io/en/latest/index.html
+
+        Any tool input files will be made available in the /data/inputs directory. Any files placed in the /data/outputs
+        directory will be returned to the history in a dataset collection when the tool finishes.
+    </help>
+</tool>
