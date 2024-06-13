@@ -5,7 +5,7 @@
     </requirements>
     <entry_points>
         <entry_point name="Refl1D" label="refl1d" requires_domain="False" requires_path_in_url="True">
-            <port>8080</port>
+            <port>8081</port>
         </entry_point>
     </entry_points>
     <environment_variables>
