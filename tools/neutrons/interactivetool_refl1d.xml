@@ -17,7 +17,7 @@
         #end for
 
         python -m refl1d.webview.server --port 8080 --external --path /data
-        > >(tee -a $output) 2> >(tee -a $output >&2)
+        > >(tee -a $output_console) 2> >(tee -a $output_console >&2)
     ]]></command>
     <inputs>
          <repeat name="datasets" title="Datasets">
@@ -28,7 +28,7 @@
         <collection type="list" name="output" label="Ref1D Output Files">
             <discover_datasets pattern="__designation__" directory="outputs" />
         </collection>
-        <data name="output_single" auto_format="true" label="Ref1D Console Output">
+        <data name="output_console" auto_format="true" label="Ref1D Console Output">
         </data>
     </outputs>
     <help>
