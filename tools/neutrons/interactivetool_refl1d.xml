@@ -19,9 +19,9 @@
             #set $name = os.path.basename(str($s.input.element_identifier))
             ln -sf '${s.input}' '/data/inputs/${name}' &&
         #end for
-
         python -m refl1d.webview.server --port 8080 --external --path /data
-        > >(tee -a $output_console) 2>&1
+        > >(tee -a $output_console) 2>&1 &&
+        exit 0 # force 0 exit status
     ]]>
     </command>
     <inputs>
