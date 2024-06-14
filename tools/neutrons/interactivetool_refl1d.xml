@@ -11,7 +11,7 @@
     <environment_variables>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">refl1d</environment_variable>
     </environment_variables>
-    <command detect_errors="exit_code"><![CDATA[
+    <command><![CDATA[
         bash /prepare_nginx.sh &&
         mkdir -p /data/inputs &&
         mkdir -p /data/outputs &&
