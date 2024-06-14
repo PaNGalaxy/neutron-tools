@@ -15,6 +15,7 @@
         bash /prepare_nginx.sh &&
         mkdir -p /data/inputs &&
         mkdir -p /data/outputs &&
+        ln -s \${GALAXY_WORKING_DIR}/outputs /data/outputs &&
         #for $i, $s in enumerate($datasets)
             #set $name = os.path.basename(str($s.input.element_identifier))
             ln -sf '${s.input}' '/data/inputs/${name}' &&
@@ -30,9 +31,9 @@
         </repeat>
     </inputs>
     <outputs>
-        <!-- <data name="output" auto_format="true">
+        <data name="output" auto_format="true">
             <discover_datasets pattern="__designation_and_ext__" directory="outputs" visible="true"/>
-        </data> -->
+        </data>
         <data name="output_console" auto_format="true" label="Ref1D Console Output"/>
     </outputs>
     <help>
