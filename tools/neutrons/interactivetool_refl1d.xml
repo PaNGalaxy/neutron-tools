@@ -15,7 +15,7 @@
         bash /prepare_nginx.sh &&
         mkdir -p /data/inputs &&
         mkdir -p /data/outputs &&
-        ln -s \${GALAXY_WORKING_DIR}/outputs /data/outputs &&
+        ln -s /data/outputs \${GALAXY_WORKING_DIR}/outputs &&
         #for $i, $s in enumerate($datasets)
             #set $name = os.path.basename(str($s.input.element_identifier))
             ln -sf '${s.input}' '/data/inputs/${name}' &&
