@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tool name="Register Data Folder" id="neutrons_ingress_folder" version="0.1.0" profile="22.05">
+<tool name="Register Data Folder" id="neutrons_ingress_folder" version="0.1.1" profile="22.05">
     <description>in Galaxy </description>
     <requirements>
         <container type="docker">python:3.10-bullseye</container>
@@ -10,7 +10,7 @@
         exit 1;
       fi &&
       mkdir output &&
-      python -c "import glob; [print(f) for f in glob.glob('$folder/' + ('$filter' or '**'), recursive=True)]" |
+      python -c "import glob; [print(f) for f in glob.glob('$folder/' + ('$filter' or '**'), recursive=$recursive)]" |
       while IFS= read -r file; do
         if [ -f \$file ]; then
          relative_path="\${file#$folder}" &&
@@ -25,14 +25,15 @@
       done
     ]]></command>
     <inputs>
-        <param name="folder" type="text" label="Folder to Ingress" value="" optional="false"/>
+        <param name="folder" type="text" label="Folder to ingress" value="" optional="false"/>
+        <param name="recursive" type="boolean" truevalue="True" falsevalue="False" checked="true" label="Recursive ingress"/>
         <param name="filter" type="text" label="Filter Files" value="" optional="true" help="Wildcard to filter ingressed data.
         E.g. *.dat (all .dat files in the folder, no recursion); subfolder/*.dat (.dat files in subfolder);
         **/*.dat - all .dat files in the folder and subfolders;
         empty string (or **) - all files in the folder and all subfolders.
         "/>
         <param name="collection_name" type="text" label="New collection name" value="" optional="true"/>
-        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" default="false" label="Output log file"
+        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Output log file"
             help=""/>
 
     </inputs>
