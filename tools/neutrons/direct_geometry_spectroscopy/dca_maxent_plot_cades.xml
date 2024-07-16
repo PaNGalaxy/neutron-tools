@@ -1,0 +1,31 @@
+<tool id="neutrons_dca_maxent2plot_cades" name="DCA Plot MaxEnt Results"  profile="22.05" version="0.5.0">
+  <description></description>
+  <requirements>
+    <container type="docker">code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:0.4</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #for $el in $maxent:
+           #set $cleaned_name = str($el.element_identifier)
+           #if not $cleaned_name.endswith('.txtmaxent.dat'):
+                #set $cleaned_name=$cleaned_name + '.txtmaxent.dat'
+           #end if
+           cp -P '$el' '${cleaned_name}' &&
+        #end for
+        touch $plot &&
+        touch $heatmap &&
+        python3 -u /dca_mini_apps/assembleSqwAndPlot.py &&
+        mv plot.png $plot &&
+        mv heatmap.png $heatmap
+    ]]></command>
+    <inputs>
+        <param name="maxent" type="data_collection" optional="false" collection_type="list" label="Maxent"/>
+    </inputs>
+    <outputs>
+        <data format="png" name="plot" label="DCA Maxent XY Plot"/>
+        <data format="png" name="heatmap" label="DCA Maxent Heatmap"/>
+    </outputs>
+    <help><![CDATA[
+        A tool to visualize MaxEnt results
+]]></help>
+</tool>
+

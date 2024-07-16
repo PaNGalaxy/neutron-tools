@@ -1,0 +1,124 @@
+<tool id="interactive_tool_generic_output" tool_type="interactive" name="Interactive Jupyter Notebook" version="0.2.1" profile="22.05">
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.2.0</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Jupyter Interactive Tool" label="jupytool" requires_domain="False" requires_path_in_url="True">
+            <port>8888</port>
+            <url>ipython/lab</url>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="API_KEY" inject="api_key" />
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">jupytool</environment_variable>
+    </environment_variables>
+    <command><![CDATA[
+        echo "job was interrupted" > $jupyter_notebook &&
+        #if $output_option == '1':
+            echo "Notebook produced no output" > $output_single &&
+        #end if
+        #import re
+        #from pathlib import Path
+        export GALAXY_WORKING_DIR=`pwd` &&
+        export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
+        mkdir -p ./jupyter/outputs/ &&
+        mkdir -p ./jupyter/data &&
+        #if $input_mode.input_mode_collection == 'true':
+            #for $el in $input_mode.input:
+               #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
+               #if Path($cleaned_name).suffix == '':
+                #set $cleaned_name=$cleaned_name + '.'+$el.ext
+               #end if
+               ln -sf '$el' './jupyter/data/${cleaned_name}' &&
+            #end for
+        #else:
+            #for $i, $s in enumerate($input_mode.series)
+                #if $s.alias == '':
+                    #set $name_in_notebook = 'dataset_' + str($i + 1) + '.' + str($s.input.ext)
+                #else:
+                    #set $name_in_notebook = $s.alias
+                #end if
+                ln -sf '${s.input}' './jupyter/data/${name_in_notebook}' &&
+            #end for
+        #end if
+
+        ## change into the directory where the notebooks are located
+        cd ./jupyter/ &&
+        export HOME=/home/jovyan/ &&
+        export PATH=/home/jovyan/.local/bin:\$PATH &&
+
+        #set $noteboook_name = 'ipython_galaxy_notebook'
+        #if $mode.mode_select == 'scratch':
+            cp '$__tool_directory__/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
+        #else:
+            cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
+        #end if
+        jupyter trust './${noteboook_name}.ipynb' &&
+        #if $run_it:
+            jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
+            #set $noteboook_name = 'ipython_galaxy_notebook_converted'
+        #else:
+            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+        #end if
+        cp './${noteboook_name}.ipynb' '$jupyter_notebook'
+        #if $output_option == '1':
+            && cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || :
+        #end if
+    ]]>
+    </command>
+    <inputs>
+        <conditional name="mode">
+            <param name="mode_select" type="select" label="Jupyter notebook" help="Select 'Start with a fresh notebook' to use a default one.">
+                <option value="scratch">Start with a fresh notebook</option>
+                <option value="previous">Load a previous notebook</option>
+            </param>
+            <when value="scratch"/>
+            <when value="previous">
+                <param name="ipynb" type="data" format="ipynb" label="IPython Notebook"/>
+            </when>
+        </conditional>
+        <param name="run_it" type="boolean" truevalue="true" falsevalue="false" label="Execute notebook noninteractively"
+                    help="This option is useful in workflows when you just want to execute a notebook and not dive into the webfrontend."/>
+        <conditional name="input_mode">
+            <param name="input_mode_collection" type="boolean" truevalue="true" falsevalue="false" label="Use dataset collection for input"
+            help=""/>
+            <when value="true">
+                <param name="input" type="data_collection" optional="true" collection_type="list" label="Collection"/>
+            </when>
+            <when value="false">
+                 <repeat name="series" title="Datasets">
+                    <param name="input" type="data" label="Dataset"/>
+                    <param name="alias" type="text" optional="true" default="" label="Filename in Notebook"/>
+                </repeat>
+            </when>
+        </conditional>
+       <param name="output_option" type="select" label="Type of output">
+           <option value="1">Single Dataset</option>
+           <option value="2">Dataset Collection</option>
+       </param>
+    </inputs>
+    <outputs>
+        <data name="jupyter_notebook" format="ipynb" label="Executed Notebook"></data>
+        <collection type="list" name="output_collection" label="Executed Notebook Output">
+            <discover_datasets pattern="__designation_and_ext__" directory="jupyter/outputs" />
+            <filter>output_option == "2"</filter>
+        </collection>
+        <data name="output_single" auto_format="true" label="Executed Notebook Output">
+            <filter>output_option == "1"</filter>
+        </data>
+    </outputs>
+    <!-- <tests>
+        <test expect_num_outputs="1">
+            <param name="mode" value="previous" />
+            <param name="ipynb" value="test.ipynb" />
+            <param name="run_it" value="true" />
+            <output name="jupyter_notebook" file="test.ipynb" ftype="ipynb"/>
+        </test>
+    </tests> -->
+    <help>
+        Runs a Jupyter interactive notebook
+    </help>
+</tool>
