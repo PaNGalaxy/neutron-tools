@@ -1,0 +1,91 @@
+<tool id="neutrons_import_oncat" name="Register Neutron Data" version="0.3.0" profile="22.05">
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/oncat:0.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #if $params.ingest_mode == 'file':
+            ln -sf '$params.filepath' $output
+        #elif $params.ingest_mode == 'oncat':
+            python3 /app/import_oncat.py
+            --facility $params.facility
+            --instrument $params.instrument
+            --ipts $params.ipts
+            --run $params.run
+            --oncat-url https://oncat.ornl.gov
+            --output $output
+        #elif $params.ingest_mode == 'folder':
+            if [ ! -d $params.folder -o ! -x $params.folder ]; then
+                echo $params.folder does not exist or cannot be accessed > $output
+                exit 1;
+            fi &&
+            mkdir output &&
+            python -c "import glob; [print(f) for f in glob.glob('$params.folder/' + ('$params.filter' or '**'), recursive=$params.recursive)]" |
+            while IFS= read -r file; do
+              if [ -f \$file ]; then
+               relative_path="\${file#$params.folder}" &&
+               relative_path="\${relative_path#/}" &&
+               parent=\${relative_path%/*} &&
+               if [ "\$parent" != "\$relative_path" ]; then
+                 mkdir -p "output/\$parent";
+               fi &&
+               ln -s "\$file" "output/\$relative_path" &&
+               echo registered file "\$file" >> $params.folder_debug_output;
+              fi;
+            done
+        #end if
+    ]]></command>
+    <inputs>
+        <conditional name="params">
+            <param name="ingest_mode" type="select" display="radio" label="Data Source" help="">
+                <option value="file">A file on SNS/HFIR storage</option>
+                <option value="oncat">A file on SNS/HFIR storage by IPTS and run number</option>
+                <option value="folder">A folder on SNS/HFIR storage</option>
+            </param>>
+            <when value="file">
+        		<param name="filepath" type="text" label="Filesystem path" optional="false"/>
+            </when>
+            <when value="oncat">
+                <param name="facility" type="select" label="Facility Name" default="SNS" refresh_on_change="true" optional="false">
+                    <option value="SNS">SNS</option>
+                    <option value="HFIR">HFIR</option>
+                </param>
+                <param name="instrument" type="select" label="Instrument Name" optional="false">
+                    <options from_data_table="instruments">
+                        <column name="name" index="3"/>
+                        <column name="value" index="2"/>
+                        <filter type="param_value" ref="facility" column="0"/>
+                    </options>
+                </param>
+                <param name="ipts" type="text" label="IPTS Number" value="0" optional="false"/>
+                <param name="run" type="integer" label="Run Number" value="0" optional="false"/>
+            </when>
+            <when value="folder">
+                    <param name="folder" type="text" label="Folder to ingress" optional="false"/>
+                    <param name="recursive" type="boolean" truevalue="True" falsevalue="False" checked="true" label="Recursive ingress"/>
+                    <param name="filter" type="text" label="Filter Files" value="" optional="true" help="Wildcard to filter ingressed data.
+                    E.g. *.dat (all .dat files in the folder, no recursion); subfolder/*.dat (.dat files in subfolder);
+                    **/*.dat - all .dat files in the folder and subfolders;
+                    empty string (or **) - all files in the folder and all subfolders.
+                    "/>
+                    <param name="collection_name" type="text" label="New collection name" value="" optional="true"/>
+                    <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Output log file"/>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data format="h5" name="output" label="#if $params.usefilepath then $params.filepath else str($params.facility)+'-'+str($params.instrument)+'-'+str($params.ipts)+'-'+str($params.run)+' data' #">
+            <filter>params["ingest_mode"] == "file" or params["ingest_mode"] == "oncat"</filter>
+        </data>
+        <collection type="list" name="output_collection" label="#if $params.collection_name then $params.collection_name else $params.folder">
+            <discover_datasets format="binary" match_relative_path="True" pattern="__designation__" recurse="true" directory="output"/>
+            <filter>params["ingest_mode"] == "folder"</filter>
+        </collection>
+        <data format="txt" name="folder_debug_output" label="$folder ingress output">
+            <filter>params["debug_output"]</filter>
+            <filter>params["ingest_mode"] == "folder"</filter>
+        </data>
+    </outputs>
+    <help><![CDATA[
+        Register file or folder on SNS/HFIR storage in Galaxy
+    ]]></help>
+</tool>

@@ -1,0 +1,29 @@
+<tool id="neutrons_amml_lammps" name="LAMMPS Simulation"  profile="22.05" version="0.2.1">
+  <description></description>
+    <requirements>
+        <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda11.6_gpu</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s $graph_pb graph.pb  &&
+        ln -s $mof_data mof.data  &&
+        lmp -in $input &&
+        mv dump.2 $dump &&
+        mv log.lammps $log
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" optional="false" label="input script file (e.g., in.lammps)"/>
+        <param name="graph_pb" type="data" format="binary" optional="false" label="machine learning force field file (e.g., graph.pb from DeePMD)"/>
+        <param name="mof_data" type="data" format="txt" optional="false" label="starting structure file (e.g., data.in)"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="log" label="${tool.name} on ${input.name} (log)"/>
+        <data format="txt" name="dump" label="${tool.name} on ${input.name} (dump.2)"/>
+    </outputs>
+    <help>
+        To use the MD trajectory for subsequent INS simulations, the following format is required (where A B C are the element symbols):
+        &#xA;
+        dump 1 all custom 1 lammps.dump id element x y z
+        &#xA;
+        dump_modify 1 element A B C
+    </help>
+</tool>

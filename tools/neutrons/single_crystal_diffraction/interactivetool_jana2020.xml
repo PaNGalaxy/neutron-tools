@@ -1,0 +1,47 @@
+<tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.1.0" profile="22.05">
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:latest</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requries_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
+        <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">janatool</environment_variable>
+    </environment_variables>
+
+    <command><![CDATA[
+        /setup.sh \$GALAXY_TOOL_USER &&
+        echo "Notebook produced no output" > $output_single &&
+        export GALAXY_WORKING_DIR=`pwd` &&
+        mkdir -p /home/novnc_user/inputs &&
+        mkdir -p ./outputs &&
+        ln -s \${GALAXY_WORKING_DIR}/outputs /home/novnc_user/outputs &&
+        #for $i, $s in enumerate($datasets)
+            #set $name = os.path.basename(str($s.input.element_identifier))
+            ln -sf '${s.input}' '/home/novnc_user/inputs/${name}' &&
+        #end for
+        /start.sh
+        ]]>
+    </command>
+    <inputs>
+         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
+         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
+         <repeat name="datasets" title="Datasets">
+            <param name="input" type="data" label="Dataset"/>
+        </repeat>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output" label="Jana2020 Output Files">
+                <discover_datasets pattern="__designation__" directory="outputs" />
+        </collection>
+        <data name="output_single" auto_format="true" label="Jana2020 Console Output">
+        </data>
+    </outputs>
+    <help>
+        Runs the Jana2020 Crystallographic Computing System for Standard and Modulated Structures Software
+    </help>
+</tool>

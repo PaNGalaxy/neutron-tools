@@ -1,0 +1,18 @@
+<tool id="neutrons_file_head" name="File Head" profile="22.05" version="0.1.0">
+    <requirements>
+        <container type="docker">ubuntu</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        head -n $nlines $input > $output
+    ]]></command>
+    <inputs>
+        <param name="nlines" type="integer" optional="true" value="5" label="Number of Lines"/>
+        <param name="input" type="data" optional="false" label="Input File"/>
+    </inputs>
+    <outputs>
+        <data name="output" format="txt" />
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>

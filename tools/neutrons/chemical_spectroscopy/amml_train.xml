@@ -1,0 +1,48 @@
+<tool id="neutrons_amml_train" name="DeePMD Training"  profile="22.05" version="0.2.0">
+  <description></description>
+    <requirements>
+        <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda10.2_gpu</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir input &&
+        #if $size!="":
+            raw_to_set=$size &&
+        #else:
+            raw_to_set=`cat $box_raw | wc -l` &&
+        #end if
+        ln -s $box_raw input/box.raw  &&
+        ln -s $coord_raw input/coord.raw &&
+        ln -s $energy_raw input/energy.raw  &&
+        ln -s $force_raw input/force.raw  &&
+        ln -s $type_raw input/type.raw &&
+        cd input &&
+        wget https://raw.githubusercontent.com/deepmodeling/deepmd-kit/master/data/raw/raw_to_set.sh &&
+        bash raw_to_set.sh \$raw_to_set && cd .. &&
+        python -c "import json;
+         infile= open('$input');
+         data = json.load(infile);
+         data['training']['systems']='input';
+         outfile = open('input.json', 'w');
+         json.dump(data, outfile, indent=2)
+         " &&
+        dp train input.json 2>&1 &&
+        dp freeze -o $graph_pb 2>&1 &&
+        mv lcurve.out $lcurve
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="json" optional="false" label="training parameters (*.json file)"/>
+        <param name="box_raw" type="data" format="txt" optional="false" label="box.raw file"/>
+        <param  name="coord_raw" type="data" format="txt" label="coord.raw file"/>
+        <param name="energy_raw" type="data" format="txt" optional="false" label="energy.raw file"/>
+        <param  name="force_raw" type="data" format="txt" label="force.raw file"/>
+        <param name="type_raw" type="data" format="txt" optional="false" label="type.raw     file"/>
+        <param name="size" type="integer" value="" optional="true" label="size"/>
+    </inputs>
+    <outputs>
+        <data format="binary" name="graph_pb" label="${tool.name} on ${input.name} (graph_pb)" />
+        <data format="txt" name="lcurve" label="${tool.name} on ${input.name} (lcurve)"/>
+    </outputs>
+    <help><![CDATA[
+    Trains DeePMD model with INS data
+]]></help>
+</tool>

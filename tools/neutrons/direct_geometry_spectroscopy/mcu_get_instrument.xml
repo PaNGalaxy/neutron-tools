@@ -1,0 +1,30 @@
+<tool id="neutrons_mcu_get_supported_instrument" name="Get Instrument"  profile="22.05" version="0.1.0" python_template_version="3.5">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+	    echo $facility > $output_facility &&
+	    echo $instrument > $output_instrument
+    ]]></command>
+    <inputs>
+	<param name="facility" type="select" label="Facility Name" optional="false">
+		<option value="SNS" selected="false">SNS</option>
+		<option value="HFIR">HFIR</option>
+	</param>
+	<param name="instrument" type="select" label="Instrument Name" optional="false">
+		<options from_data_table="mcu_supported_instruments">
+			<column name="name" index="3"/>
+			<column name="value" index="2"/>
+			<filter type="param_value" ref="facility" column="0"/>
+		</options>
+	</param>
+    </inputs>
+    <outputs>
+	<data format="txt" name="output_facility">
+    	</data>
+	<data format="txt" name="output_instrument">
+    	</data>
+    </outputs>
+    <help><![CDATA[
+        A helper tool to create facility/instrument for MCU workflow inputs
+    ]]></help>
+</tool>
