@@ -73,7 +73,7 @@
         </conditional>
     </inputs>
     <outputs>
-        <data format="h5" name="output" label="#if $params.usefilepath then $params.filepath else str($params.facility)+'-'+str($params.instrument)+'-'+str($params.ipts)+'-'+str($params.run)+' data' #">
+        <data format="h5" name="output" label="#if $params.ingest_mode == 'file' then $params.filepath else str($params.facility)+'-'+str($params.instrument)+'-'+str($params.ipts)+'-'+str($params.run)+' data' #">
             <filter>params["ingest_mode"] == "file" or params["ingest_mode"] == "oncat"</filter>
         </data>
         <collection type="list" name="output_collection" label="#if $params.collection_name then $params.collection_name else $params.folder">
