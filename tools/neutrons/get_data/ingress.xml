@@ -29,7 +29,7 @@
                  mkdir -p "output/\$parent";
                fi &&
                ln -s "\$file" "output/\$relative_path" &&
-               echo registered file "\$file" >> $params.folder_debug_output;
+               echo registered file "\$file" >> $folder_debug_output;
               fi;
             done
         #end if
