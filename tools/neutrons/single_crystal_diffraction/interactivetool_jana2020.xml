@@ -1,6 +1,6 @@
 <tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.1.0" profile="22.05">
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:latest</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.10</container>
     </requirements>
     <entry_points>
         <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requries_path_in_url="True">
@@ -22,9 +22,9 @@
         ln -s \${GALAXY_WORKING_DIR}/outputs /home/novnc_user/outputs &&
         #for $i, $s in enumerate($datasets)
             #set $name = os.path.basename(str($s.input.element_identifier))
-            ln -sf '${s.input}' '/home/novnc_user/inputs/${name}' &&
+            cp '${s.input}' '/home/novnc_user/inputs/${name}' &&
         #end for
-        /start.sh
+        /start.sh \$GALAXY_TOOL_USER
         ]]>
     </command>
     <inputs>
