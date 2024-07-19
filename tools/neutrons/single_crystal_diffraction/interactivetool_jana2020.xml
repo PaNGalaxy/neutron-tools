@@ -14,15 +14,15 @@
     </environment_variables>
 
     <command><![CDATA[
-        /setup.sh \$GALAXY_TOOL_USER &&
         echo "Notebook produced no output" > $output_single &&
         export GALAXY_WORKING_DIR=`pwd` &&
         mkdir -p /home/novnc_user/inputs &&
         mkdir -p ./outputs &&
+        /setup.sh \$GALAXY_TOOL_USER &&
         ln -s \${GALAXY_WORKING_DIR}/outputs /home/novnc_user/outputs &&
         #for $i, $s in enumerate($datasets)
             #set $name = os.path.basename(str($s.input.element_identifier))
-            cp '${s.input}' '/home/novnc_user/inputs/${name}' &&
+            su novnc_user -c "cp '${s.input}' '/home/novnc_user/inputs/${name}'" &&
         #end for
         /start.sh \$GALAXY_TOOL_USER
         ]]>
