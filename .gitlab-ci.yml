@@ -38,11 +38,18 @@ testing:
   stage: test
   script:
     - echo "Running tests for all tools."
-    - docker run -v `pwd`:`pwd` --workdir `pwd`/tools/neutrons code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/tools/neutrons/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY
+    - cd `pwd`/tools/neutrons
+    - TEST_FOLDERS=`find . -type f -name "*.xml" -exec grep -l "<test>" {} + | awk -F/ 'BEGIN { OFS="/"; } { $NF=""; sub(/\/$/, ""); print }' | sort -u | sed 's/^\.\///'`
+    - echo testing in $TEST_FOLDERS
+    - |
+      for FOLDER in $TEST_FOLDERS
+      do
+        docker run -v `pwd`:`pwd` --workdir `pwd`/$FOLDER code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output_${FOLDER}.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY      
+      done
   artifacts:
     when: always
     reports:
-      junit: tools/neutrons/junit_output.xml
+      junit: tools/neutrons/junit_output*.xml
   tags:
     - rse-multi-builder
   rules:
