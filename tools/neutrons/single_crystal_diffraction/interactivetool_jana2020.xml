@@ -20,6 +20,7 @@
         mkdir -p ./outputs &&
         /setup.sh \$GALAXY_TOOL_USER &&
         ln -s \${GALAXY_WORKING_DIR}/outputs /home/novnc_user/outputs &&
+        ln -s /home/novnc_user/outputs /home/novnc_user/Downloads &&
         #for $i, $s in enumerate($datasets)
             #set $name = os.path.basename(str($s.input.element_identifier))
             su novnc_user -c "cp '${s.input}' '/home/novnc_user/inputs/${name}'" &&
