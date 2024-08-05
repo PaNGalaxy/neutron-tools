@@ -1,0 +1,30 @@
+<tool id="neutrons_trame_garnet" tool_type="interactive" name="Garnet" profile="22.05" version="0.1.0">
+  <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/trame-apps/garnet:0.1</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Trame Garnet" label="garnet" requires_domain="False" requires_path_in_url="True">
+            <port>8081</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key" />
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">garnet</environment_variable>
+    </environment_variables>
+    <command detect_errors="exit_code"><![CDATA[
+        bash /prepare_nginx.sh &&
+        python -m garnet.app
+        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server timeout=0
+        > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output">
+        </data>
+    </outputs>
+    <help>
+        Single Crystal Grapical Advanced Reduction Neutron Event Toolkit
+    </help>
+</tool>

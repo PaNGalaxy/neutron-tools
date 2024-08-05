@@ -1,0 +1,25 @@
+<tool id="neutrons_amml_oclimax" name="INS Simulation with OCLIMAX"  profile="22.05" version="0.2.0">
+  <description></description>
+    <requirements>
+        <container type="docker">ornliceman/oclimax</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #if $input:
+        ln -s $input default.params &&
+        #end if
+        2climax.py -lt $dump $timestep &&
+        oclimax out.tclimax &&
+        mv *.csv $out
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" optional="true" label="OCLIMAX *.params file"/>
+	    <param name="timestep" type="float" value="0.5" label="timestep(fs)"/>
+        <param name="dump" type="data" format="txt" optional="false" label="LAMMPS dump file"/>
+    </inputs>
+    <outputs>
+        <data format="csv" name="out" label="${tool.name} on ${dump.name} (out.tclimax)"/>
+    </outputs>
+    <help><![CDATA[
+        Simulation of INS spectra from LAMMPS MD trajectory. The \*.params file defines how the INS simulation will be performed. By default, if no params file is provided, the simulation will be done for VISION.
+]]></help>
+</tool>

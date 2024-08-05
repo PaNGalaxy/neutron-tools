@@ -1,0 +1,53 @@
+<tool id="neutrons_mlsans_lammps_rep_lj_2yukawa" name="LAMMPS Simulation - LJ+2Yukawa"  profile="22.05" version="0.1" python_template_version="3.5">
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow_2yukawa:0.1.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        pwd && cd /app && ls &&
+	cat in.temp && 
+        echo "variable N equal $N" > in.parm &&
+        echo "variable K equal $K" >> in.parm &&
+        echo "variable A equal $A" >> in.parm && 
+        echo "variable A1 equal $A1" >> in.parm &&
+        mpirun -np 1 --allow-run-as-root /lammps/lmp -in in.prod && 
+        mpirun -np 1 --allow-run-as-root /soq/soq_mpi_fftv3 < in.temp &&
+        cp soq.txt temp.txt &&
+        cp soq.txt $output_data &&
+        python3 plot.py &&
+        mv sq.png $output_image && ls
+    ]]>
+    </command>
+    <inputs>
+        <param name="N" type="float" optional="false" value="0.315" min="0.030" max="0.450" label="Volume fraction, phi, [0.030 - 0.450]"/>
+        <param name="K" type="float" optional="false" value="0.200" min="0.100" max="0.500" label="(kappa D)^-1 (kappa^-1 is debye screening length), [0.100 - 0.500]"/>
+        <param name="A" type="float" optional="false" value="1.0" min="1.0" max="10.0" label="Coupling parameter, A, [1.000 - 10.00]"/>
+        <param name="A1" type="float" optional="false" value="0.4" min="0.2" max="6.00" label="Coupling parameter, A1, [0.200 - 6.000]"/>
+    </inputs>
+    <outputs>
+        <data format="png" name="output_image" />
+        <data format="txt" name="output_data" />
+    </outputs>
+    <help><![CDATA[
+
+**What it does**
+
+A tool that would run a LAMMPS[1] simulation of a colloidal suspension and then calculate the scattering spectra using FFTW[2,3]. The interaction among charged colloidal particles is described by an excluded volume, represented by a repulsive Lennard-Jones potential, and double Yukawa potential [4]. The tool will output two files: the raw text file and a PNG image file of the scattering spectra.
+
+**References**
+
+* [1] https://www.lammps.org/
+* [2] https://www.fftw.org/
+* [3] Carrillo, J. M. Y., & Dobrynin, A. V. (2011). Polyelectrolytes in salt solutions: Molecular dynamics simulations. Macromolecules, 44(14), 5798-5816. https://doi.org/10.1021/ma2007943
+* [4] Wu, Jianlan, et al. "Structural arrest transitions in fluids described by two Yukawa potentials." Physical Review E 70.5 (2004): 050401. https://doi.org/10.1103/PhysRevE.70.050401
+
+    ]]></help>   
+    
+<citations>
+   <!-- Example of annotating a citation using a DOI. -->
+   <citation type="doi">10.1016/j.cpc.2021.108171</citation>
+   <citation type="doi">10.1109/ICASSP.1998.681704</citation>
+   <citation type="doi">10.1021/ma2007943</citation>
+   <citation type="doi">10.1103/PhysRevE.70.050401</citation>
+
+ </citations>
+</tool>

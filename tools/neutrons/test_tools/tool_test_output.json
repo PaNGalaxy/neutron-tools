@@ -1,0 +1,67 @@
+{
+    "summary": {
+        "num_errors": 0,
+        "num_failures": 0,
+        "num_skips": 0,
+        "num_tests": 1
+    },
+    "tests": [
+        {
+            "data": {
+                "inputs": {
+                    "option": "markus"
+                },
+                "job": {
+                    "command_line": "python3 /src/fractal.py --option markus && mv data.* /data/staging_test/31911/outputs/dataset_2d479c34-396c-47af-93f9-30aac9a9cf5e.dat",
+                    "command_version": null,
+                    "copied_from_job_id": null,
+                    "create_time": "2024-07-24T14:11:08.511378",
+                    "dependencies": [],
+                    "exit_code": 0,
+                    "external_id": "31911",
+                    "galaxy_version": "24.1",
+                    "handler": null,
+                    "history_id": "8b5f60fa8f3561f3",
+                    "id": "7a6da3537dae7efe",
+                    "inputs": {},
+                    "job_messages": [],
+                    "job_metrics": [],
+                    "job_runner_name": null,
+                    "job_stderr": "",
+                    "job_stdout": "",
+                    "model_class": "Job",
+                    "output_collections": {},
+                    "outputs": {
+                        "output": {
+                            "id": "890fa4cbc51e2220",
+                            "src": "hda",
+                            "uuid": "2d479c34-396c-47af-93f9-30aac9a9cf5e"
+                        }
+                    },
+                    "params": {
+                        "__input_ext": "\"data\"",
+                        "chromInfo": "\"/srv/galaxy/var/tool_data/shared/ucsc/chrom/?.len\"",
+                        "dbkey": "\"?\"",
+                        "option": "\"markus\""
+                    },
+                    "state": "ok",
+                    "stderr": "Matplotlib created a temporary config/cache directory at /tmp/matplotlib-bqa8h0rv because the default path (/home/pulsar/.config/matplotlib) is not a writable directory; it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.\n",
+                    "stdout": "",
+                    "tool_id": "neutrons_fractal",
+                    "tool_stderr": "Matplotlib created a temporary config/cache directory at /tmp/matplotlib-bqa8h0rv because the default path (/home/pulsar/.config/matplotlib) is not a writable directory; it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.\n",
+                    "tool_stdout": "",
+                    "update_time": "2024-07-24T14:11:51.869260",
+                    "user_email": "35y@ornl.gov"
+                },
+                "status": "success",
+                "test_index": 0,
+                "time_seconds": 44.40727615356445,
+                "tool_id": "neutrons_fractal",
+                "tool_version": "0.2.0"
+            },
+            "has_data": true,
+            "id": "neutrons_fractal-0"
+        }
+    ],
+    "version": "0.1"
+}

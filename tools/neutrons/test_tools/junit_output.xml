@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="Results (powered by Planemo)"
+              tests="1"
+              errors="0"
+              failures="0"
+              skipped="0">
+        
+        <testcase classname="neutrons_fractal (Test #1)" name="0" time="44.40727615356445">
+            
+                
+            
+        </testcase>
+        
+   </testsuite>
+</testsuites>

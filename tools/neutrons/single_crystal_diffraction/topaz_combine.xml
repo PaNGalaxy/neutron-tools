@@ -1,0 +1,38 @@
+<tool id="neutrons_topaz_combine" name="Topaz Combine"  profile="22.05" version="0.3.0">
+    <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/topaz/topaz-reduction:0.3</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #from pathlib import Path
+        mkdir reduced &&
+        #set $input_list=""
+        #for $el in $reduction_input:
+           #set $name = str($el.element_identifier)
+           #if Path($name).suffix == '':
+            #set $name=$name + '.'+$el.ext
+           #end if
+           #set $input_list = $input_list + " " + $name
+           cp -P '$el' 'reduced/${name}' &&
+        #end for
+        python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced &&
+        python -u /app/topaz_reduction_combinefiles.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        cp $input reduced/config.txt &&
+        cd reduced && rm ${input_list}
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" optional="false" label="Config file"/>
+        <param name="reduction_input" type="data_collection" optional="false" collection_type="list" label="Reduced Files"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection" label="Topaz combine output">
+            <discover_datasets format= "txt" pattern="__designation__" directory="reduced" />
+        </collection>
+        <data format="txt" name="output" label="Topaz combine console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TOPAZ data combine tool
+]]></help>
+</tool>
+
