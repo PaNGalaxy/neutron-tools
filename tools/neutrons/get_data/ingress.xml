@@ -1,4 +1,4 @@
-<tool id="neutrons_import_oncat" name="Register Neutron Data" version="0.3.0" profile="22.05">
+<tool id="neutrons_import_oncat" name="Load Neutron Data" version="0.3.0" profile="22.05">
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/oncat:0.1</container>
     </requirements>
@@ -86,6 +86,6 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Register file or folder on SNS/HFIR storage in Galaxy
+        Load file or folder on SNS/HFIR storage to Galaxy
     ]]></help>
 </tool>
