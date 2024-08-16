@@ -1,6 +1,6 @@
-<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev1" profile="22.05">
+<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev3" profile="22.05">
     <requirements>
-        <container type="docker">code.ornl.gov:4567/gravitas/containers/sunny:0.1.0-dev2</container>
+        <container type="docker">code.ornl.gov:4567/gravitas/containers/sunny:0.1.0-dev3</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="gravitas" requires_domain="False" requires_path_in_url="True">
