@@ -21,19 +21,17 @@
         /setup.sh \$GALAXY_TOOL_USER &&
         ln -s \${GALAXY_WORKING_DIR}/outputs /home/novnc_user/outputs &&
         ln -s /home/novnc_user/outputs /home/novnc_user/Downloads &&
-        #for $i, $s in enumerate($datasets)
-            #set $name = os.path.basename(str($s.input.element_identifier))
-            su novnc_user -c "cp '${s.input}' '/home/novnc_user/inputs/${name}'" &&
+        #for $el in $input:
+            #set $name = os.path.basename(str($el.element_identifier))
+            su novnc_user -c "cp '${el}' '/home/novnc_user/inputs/${name}'" &&
         #end for
         /start.sh \$GALAXY_TOOL_USER
         ]]>
     </command>
     <inputs>
-         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
-         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
-         <repeat name="datasets" title="Datasets">
-            <param name="input" type="data" label="Dataset"/>
-        </repeat>
+        <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
+        <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
+        <param name="input" type="data" multiple="true" label="Dataset"/>
     </inputs>
     <outputs>
         <collection type="list" name="output" label="Jana2020 Output Files">
