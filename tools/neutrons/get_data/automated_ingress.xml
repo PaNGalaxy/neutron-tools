@@ -1,6 +1,6 @@
-<tool id="neutrons_ingress" name="Live Neutron Data Monitor"  profile="22.05" version="0.2.0">
+<tool id="neutrons_ingress" name="Live Neutron Data Monitor"  profile="22.05" version="0.3.0">
     <requirements>
-        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:0.4.0</container>
+        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:0.5.0</container>
     </requirements>
     <environment_variables>
         <environment_variable name="API_KEY" inject="api_key" />
@@ -8,7 +8,8 @@
     <command><![CDATA[
             #set $filter = $data_type.filter if $data_type.mode == "reduced" else "**"
             python3 -u /app/main.py
-              --ingress-enabled $live_monitor
+              --live-monitoring $live_monitor
+              --ingress-previous-data $previous_data
               --facility $facility
               --instrument $instrument
               --ipts $ipts
@@ -16,7 +17,6 @@
               --data-type $data_type.mode
               --file-from-disk-filter "$filter"
               --pulsar-url pulsar://10.64.193.124:6650
-              --pulsar-start-from "earliest"
               --galaxy-url $__galaxy_url__
               --galaxy-user-api-key \$API_KEY
               --galaxy-history-name "$history"
@@ -44,6 +44,7 @@
         </param>
         <param name="ipts" type="text" label="IPTS" value="IPTS-" optional="false"/>
         <param name="live_monitor" type="boolean" checked="true" label="Live monitor and ingress new files"/>
+        <param name="previous_data" type="boolean" checked="false" label="Ingress old files"/>
         <conditional name="data_type">
             <param name="mode" type="select" label="Data Type" value="raw" optional="false">
                         <option value="raw">Raw Data</option>
