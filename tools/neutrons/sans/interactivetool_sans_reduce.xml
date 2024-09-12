@@ -1,7 +1,7 @@
-<tool id="neutrons_trame_sans" tool_type="interactive" name="SANS Data Reduction" profile="22.05" version="0.7.0">
+<tool id="neutrons_trame_sans" tool_type="interactive" name="SANS Data Reduction" profile="22.05" version="0.7.1">
   <description></description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.7</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.7.1</container>
     </requirements>
     <entry_points>
         <entry_point name="Trame SANS" label="sans" requires_domain="False" requires_path_in_url="True">
