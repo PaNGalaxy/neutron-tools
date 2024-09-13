@@ -1,5 +1,9 @@
 <tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.4.0">
   <description></description>
+    <creator>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_refinement:0.4</container>
     </requirements>

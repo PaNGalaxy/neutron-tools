@@ -1,4 +1,8 @@
 <tool id="neutrons_remote_command" name="Remote Command"  profile="22.05" version="0.3.0" python_template_version="3.5">
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

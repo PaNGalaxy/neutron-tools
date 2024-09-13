@@ -1,5 +1,9 @@
 <tool id="neutrons_asrp_spf" name="Single Peak Fitting" profile="22.05" version="0.3.0">
   <description></description>
+    <creator>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/single_peak_fit:0.3</container>
     </requirements>

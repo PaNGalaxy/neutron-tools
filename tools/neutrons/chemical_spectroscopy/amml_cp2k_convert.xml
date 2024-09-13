@@ -1,5 +1,9 @@
 <tool id="neutrons_amml_cp2k_convert" name="CP2K Output Parsing"  profile="22.05" version="0.2.0">
   <description></description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/amml/convert-from-cp2k:0.1</container>
     </requirements>

@@ -1,5 +1,9 @@
 <tool id="imaginex_peak_finding" name="Peak Finding" profile="22.05" version="0.1.0">
   <description></description>
+    <creator>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/dnp-computational-project/data-reduction-ndip-tools/peak-finding/v0.1.0</container>
     </requirements>

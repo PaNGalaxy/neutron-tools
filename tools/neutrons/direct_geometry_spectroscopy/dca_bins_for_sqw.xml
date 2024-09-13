@@ -1,5 +1,9 @@
-<tool id="neutrons_dca_bins4sqw" name="DCA Bins for S of Q Omega"  profile="22.05" version="0.1.0">
+<tool id="neutrons_dca_bins4sqw" name="DCA Bins for S of Q Omega (HPC)"  profile="22.05" version="0.1.0">
   <description></description>
+    <creator>
+        <person name="Thomas Maier"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

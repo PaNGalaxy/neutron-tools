@@ -1,5 +1,9 @@
 <tool id="neutrons_amml_cp2k" name="CP2K Simulation"  profile="22.05" version="0.2.1">
   <description></description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container shell="/bin/bash" type="docker">cp2k/cp2k:2023.1</container>
     </requirements>

@@ -1,4 +1,8 @@
 <tool id="neutrons_mlsans_lammps_rep_lj_2yukawa" name="LAMMPS Simulation - LJ+2Yukawa"  profile="22.05" version="0.1" python_template_version="3.5">
+    <creator>
+        <person name="Changwoo Do"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow_2yukawa:0.1.1</container>
     </requirements>

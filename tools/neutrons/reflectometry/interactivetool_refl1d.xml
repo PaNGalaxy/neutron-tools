@@ -1,5 +1,9 @@
 <tool id="neutrons_reflectometry_refl1d" tool_type="interactive" name="Refl1D" profile="22.05" version="0.1.1">
   <description></description>
+    <creator>
+        <person name="Mathieu Doucet"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/reflectometry/refl1d:0.2.9</container>
     </requirements>

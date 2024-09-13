@@ -1,5 +1,9 @@
 <tool id="neutrons_trame_sans" tool_type="interactive" name="SANS Data Reduction" profile="22.05" version="0.7.1">
   <description></description>
+    <creator>
+        <person name="Yingrui Shang"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.7.1</container>
     </requirements>

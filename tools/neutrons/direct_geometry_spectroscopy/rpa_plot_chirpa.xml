@@ -1,4 +1,8 @@
 <tool id="neutrons_rpa_plot_chirpa" name="RPA Plot Chi(q,w)"  profile="22.05" version="0.1.0">
+    <creator>
+        <person name="Thomas Maier"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/rpa/mrpapp/plot:0.1.0</container>
     </requirements>

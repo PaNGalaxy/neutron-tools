@@ -1,5 +1,9 @@
 <tool id="neutrons_mlsans_desmear" name="Desmear_Iq"  profile="22.05" version="0.1.1">
   <description></description>
+    <creator>
+        <person name="Changwoo Do"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/desmear:0.1</container>
     </requirements>
