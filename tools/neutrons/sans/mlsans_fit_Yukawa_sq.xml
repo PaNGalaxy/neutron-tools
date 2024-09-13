@@ -1,0 +1,30 @@
+<tool id="mlsans_fit_Yukawa_sq" name="fit_IQ"  profile="22.04" version="0.1.3">
+  <description></description>
+    <requirements>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq:ac6aa7b6</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python3 /src/curvefit.py -i $input $C $I_inc $sigma $d_sigma $phi $kappa $A || echo python finished && mv output.png $output && cp /src/output.txt $output2
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" optional="false" label="ASCII data"/>
+        <param name="C" type="text" value="4000 3500 4500" label="C" optional="false" help="Contrast"/>
+        <param name="I_inc" type="text" value="0.5 0.1 2" label="I_inc" optional="false" help="Incoherent background"/>
+        <param name="sigma" type="text" value="1 0.9 1.1" label="σ" optional="false" help="Particle diameter"/>
+        <param name="d_sigma" type="text" value="0.07 0.02 0.1" label="d_σ" optional="false" help="Particle size polydispersity"/>
+        <param name="phi" type="text" value="0.1 0.05 0.25" label="Φ" optional="false" help="Volume fraction"/>
+        <param name="kappa" type="text" value="0.2 0.1 0.3" label="1/κD" optional="false" help="Screening constant"/>
+        <param name="A" type="text" value="10 1 20" label="βA" optional="false" help="Repulsion strength"/>
+    </inputs>
+	
+    <outputs>
+        <data name="output" format="png" label="fitting results plot">
+        </data>
+        <data name="output2" format="txt" label="fitting results">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        Fit the input I(Q) curve. Initial guess, lower bound and upper bound are separated using spaces.
+]]></help>
+</tool>
+
