@@ -1,4 +1,4 @@
-<tool id="neutrons_mlsans_fit_lamellar" name="fit_IQ"  profile="20.04" version="0.0.1-dev">
+<tool id="neutrons_mlsans_fit_lamellar" name="fit_lamellar_IQ"  profile="20.04" version="0.0.1-dev">
   <description></description>
     <requirements>
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit-lamellar@sha256:a54deb9036fe63c441dfb62d8e6ad504c102528609609f5c7f6f874ffe59cf47</container>
