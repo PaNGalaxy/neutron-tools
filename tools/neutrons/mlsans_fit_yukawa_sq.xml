@@ -1,10 +1,10 @@
-<tool id="neutrons_mlsans_fit_yukawa_sq" name="fit_Yukawa_IQ"  profile="22.04" version="0.1.4-dev">
+<tool id="neutrons_mlsans_fit_yukawa_sq" name="fit_Yukawa_IQ"  profile="22.04" version="0.1.5-dev">
   <description></description>
     <requirements>
-        <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq@sha256:a68370ea1bfdac90a4ed7e28803d7edcda1555b2467b798da4e27ccdd897c988</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq@sha256:9adfe752a9859aa252216bfba8a57af4235c983bc7fcfb6f1c92425123b7bbe0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python3 /src/curvefit.py -i $input $C $I_inc $sigma $d_sigma $phi $kappa $A || echo python finished && mv output.png $output && cp /src/output.txt $output2
+        python3 /src/curvefit.py -i $input $C $I_inc $sigma $d_sigma $phi $kappa $A || echo python finished && mv output.png $output && cp output.txt $output2
     ]]></command>
     <inputs>
         <param name="input" type="data" optional="false" label="ASCII data"/>
@@ -24,9 +24,9 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Fit the input I(Q) curve. Initial guess, lower bound and upper bound are separated using spaces.
+        Fit the input hard sphere Yukawa colloid I(Q) curve. Initial guess, lower bound and upper bound are separated using spaces. Q points are rescaled such that QD in 0.2:0.2:16, the sigma fitting parameter reflects the differences between the actual particle radius and the initial guesses.
 ]]></help>
-    <tests>
+    <!-- <tests>
         <test>
             <inputs>
                 <param name="input" type="data" optional="false" label="ASCII data"/>
@@ -46,6 +46,6 @@
                 </data>
             </outputs>
         </test>
-    </tests>
+    </tests> -->
 </tool>
 

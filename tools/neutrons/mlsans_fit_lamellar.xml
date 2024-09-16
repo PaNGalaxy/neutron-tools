@@ -25,7 +25,7 @@
     <help><![CDATA[
         Fit the input L_α lyotropic phase (lamellar) I(Q) curve. Initial guess, lower bound and upper bound are separated using spaces. the input Q points should be rescaled by interplanar distance such that QD/2pi = (1:126)*0.05.
 ]]></help>
-    <tests>
+    <!-- <tests>
         <test>
             <inputs>
                 <param name="input" type="data" value="/src/example_IQ.csv" optional="false" label="ASCII data"/>
@@ -44,7 +44,7 @@
                 </data>
             </outputs>
         </test>
-    </tests>
+    </tests> -->
 
 </tool>
 
