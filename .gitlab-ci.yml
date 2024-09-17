@@ -63,7 +63,7 @@ testing:
     - |
       for file in $CHANGED_FILES; do
           # Check if the file has tests
-          if xmllint --xpath "//*[local-name()='test'] "$file" | grep -q "<test>" ; then
+          if xmllint --xpath "//*[local-name()='test']" "$file" | grep -q "<test>" ; then
               files_with_test="$files_with_test $file"
           fi
       done
