@@ -1,7 +1,7 @@
-<tool id="neutrons_mlsans_fit_lamellar" name="fit_lamellar_IQ"  profile="20.04" version="0.1.4-dev">
+<tool id="neutrons_mlsans_fit_lamellar" name="fit_lamellar_IQ"  profile="20.04" version="0.1.5-dev">
   <description></description>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit-lamellar:0c13ee7c</container>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit-lamellar:6b7081cd</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python3 /src/curvefit.py -i $input $sigma_k $kappa $alpha $y_scale $x_scale $bg || echo python finished && mv output.png $output && cp output.txt $output2 && mv output3.png $output3
