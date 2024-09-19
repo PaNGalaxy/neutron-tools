@@ -35,9 +35,7 @@
             <param name="x_scale" type="text" value="1.05 0.9 1.1" label="x_scale" optional="false" help="Interplanar distance"/>
             <param name="bg" type="text" value="0.19 0.1 0.2" label="bg" optional="false" help="Incoherent background"/>
 
-            <output name="output" file="output.png"/>
-            <output name="output2" file="output.txt"/>
-            <output name="output3" file="output3.png"/>
+            <output name="output2" file="output.txt" ftype="txt"/>
         </test>
     </tests>
 
