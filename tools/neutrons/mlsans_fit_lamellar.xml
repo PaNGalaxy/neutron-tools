@@ -35,7 +35,7 @@
             <param name="x_scale" value="1.05 0.9 1.1"/>
             <param name="bg" value="0.19 0.1 0.2"/>
 
-            <output name="output2" file="output.txt" ftype="txt"/>
+            <output name="output2" file="output.txt"/>
         </test>
     </tests>
 
