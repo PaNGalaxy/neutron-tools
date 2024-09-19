@@ -26,10 +26,10 @@
     <help><![CDATA[
         Fit the input hard sphere Yukawa colloid I(Q) curve. Initial guess, lower bound and upper bound are separated using spaces. Q points are rescaled such that QD in 0.2:0.2:16, the sigma fitting parameter reflects the differences between the actual particle radius and the initial guesses.
 ]]></help>
-    <!-- <tests> 
+    <tests>
         <test>
             <inputs>
-                <param name="input" type="data" optional="false" label="ASCII data"/>
+                <param name="input" type="data" value="example_IQ_Yukawa.csv" optional="false" label="ASCII data"/>
                 <param name="C" type="text" value="4000 3500 4500" label="C" optional="false" help="Contrast"/>
                 <param name="I_inc" type="text" value="0.5 0.1 2" label="I_inc" optional="false" help="Incoherent background"/>
                 <param name="sigma" type="text" value="1 0.9 1.1" label="σ" optional="false" help="Particle diameter"/>
@@ -46,6 +46,6 @@
                 </data>
             </outputs>
         </test>
-    </tests> -->
+    </tests>
 </tool>
 
