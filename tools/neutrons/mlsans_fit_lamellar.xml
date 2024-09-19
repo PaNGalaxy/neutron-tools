@@ -27,7 +27,7 @@
 
     <tests>
         <test>
-            <param name="input" value="./test-data/example_IQ_lamellar.csv"/>
+            <param name="input" value="example_IQ_lamellar.csv"/>
             <param name="sigma_k" value="0.72 0.5 1.0"/>
             <param name="kappa" value="5 4 12"/>
             <param name="alpha" value="0.7 0.5 1.0"/>
