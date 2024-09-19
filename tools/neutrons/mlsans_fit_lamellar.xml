@@ -1,7 +1,7 @@
 <tool id="neutrons_mlsans_fit_lamellar" name="fit_lamellar_IQ"  profile="20.04" version="0.1.6-dev">
   <description></description>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit-lamellar:5e17944a</container>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit-lamellar:0.1.6-dev</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python3 /src/curvefit.py -i $input $sigma_k $kappa $alpha $y_scale $x_scale $bg || echo python finished && mv output.png $output && cp output.txt $output2 && mv output3.png $output3
@@ -27,10 +27,10 @@
     <help><![CDATA[
         Fit the input L_α lyotropic phase (lamellar) I(Q) curve. Initial guess, lower bound and upper bound are separated using spaces. the input Q points should be rescaled by interplanar distance such that QD/2pi = (1:126)*0.05.
 ]]></help>
-    <!-- <tests>
+    <tests>
         <test>
             <inputs>
-                <param name="input" type="data" value="/src/example_IQ.csv" optional="false" label="ASCII data"/>
+                <param name="input" type="data" value="example_IQ_lamellar.csv" optional="false" label="ASCII data"/>
                 <param name="sigma_k" type="text" value="0.72 0.5 1.0" label="σ_k" optional="false" help="Dispersion of wave vector magnityde"/>
                 <param name="kappa" type="text" value="5 4 12" label="Γ" optional="false" help="Anisotropy"/>
                 <param name="alpha" type="text" value="0.7 0.5 1.0" label="α" optional="false" help="Clipping level"/>
@@ -44,9 +44,11 @@
                 </data>
                 <data name="output2" format="txt" label="fitting results">
                 </data>
+                <data name="output3" format="png" label="real space structure">
+                </data>
             </outputs>
         </test>
-    </tests> -->
+    </tests>
 
 </tool>
 
