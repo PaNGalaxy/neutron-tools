@@ -33,7 +33,7 @@
             <param name="alpha" value="0.7 0.5 1.0"/>
             <param name="y_scale" value="6.3e5 1e5 1e6"/>
             <param name="x_scale" value="1.05 0.9 1.1"/>
-            <param name="bg" type="text" value="0.19 0.1 0.2"/>
+            <param name="bg" value="0.19 0.1 0.2"/>
 
             <output name="output2" file="output.txt" ftype="txt"/>
         </test>
