@@ -70,6 +70,19 @@ def file_to_remote(args, source_file):
     subprocess.run(scp_command, check=True)
     print(f'File {source_file} successfully copied to {args.remote_host}:{args.remote_directory}')
 
+def dir_to_remote(args, source_dir):
+    scp_command = [
+        'rsync',
+        '-e', f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  -i {args.ssh_key_path}",  # Ignore new host warning
+        '--rsync-path','sudo rsync',
+        source_dir,
+        f'{args.remote_user}@{args.remote_host}:{args.remote_directory}'
+    ]
+
+    # Run the SCP command
+    subprocess.run(scp_command, check=True)
+    print(f'File {source_dir} successfully copied to {args.remote_host}:{args.remote_directory}')
+
 
 if __name__ == "__main__":
     args = parse_arguments()
@@ -77,3 +90,4 @@ if __name__ == "__main__":
         path = os.path.join(args.source_directory,fname)
         if "dev" in get_version(path):
             file_to_remote(args, path)
+    dir_to_remote(args, os.path.join(args.source_directory,"test-data"))
