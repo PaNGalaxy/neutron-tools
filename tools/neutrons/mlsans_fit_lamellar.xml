@@ -1,4 +1,4 @@
-<tool id="neutrons_mlsans_fit_lamellar" name="fit_lamellar_IQ"  profile="20.04" version="0.1.6-dev3">
+<tool id="neutrons_mlsans_fit_lamellar" name="fit_lamellar_IQ"  profile="20.04" version="0.1.6-dev4">
   <description></description>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit-lamellar:0.1.6-dev</container>
@@ -27,7 +27,7 @@
 
     <tests>
         <test>
-            <param name="input" value="example_IQ_lamellar.csv"/>
+            <param name="input" value="./test-data/example_IQ_lamellar.csv"/>
             <param name="sigma_k" value="0.72 0.5 1.0"/>
             <param name="kappa" value="5 4 12"/>
             <param name="alpha" value="0.7 0.5 1.0"/>
