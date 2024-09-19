@@ -58,6 +58,7 @@ push_dev_tools:
 testing:
   stage: test
   script:
+    - sudo apt-get install -y libxml2-utils
     - CHANGED_FILES=$(git diff --diff-filter=AM --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- "tools/neutrons/*.xml" | tr '\n' ' ')
     - files_with_test=""
     - |
