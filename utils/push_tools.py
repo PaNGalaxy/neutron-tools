@@ -74,14 +74,14 @@ def dir_to_remote(args, source_dir):
     scp_command = [
         'rsync',
         '-e', f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  -i {args.ssh_key_path}",  # Ignore new host warning
-        '--rsync-path','sudo rsync',
+        '--rsync-path','sudo rsync', '-rv',
         source_dir,
         f'{args.remote_user}@{args.remote_host}:{args.remote_directory}'
     ]
 
     # Run the SCP command
     subprocess.run(scp_command, check=True)
-    print(f'File {source_dir} successfully copied to {args.remote_host}:{args.remote_directory}')
+    print(f'Folder {source_dir} successfully copied to {args.remote_host}:{args.remote_directory}')
 
 
 if __name__ == "__main__":
