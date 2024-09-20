@@ -1,4 +1,4 @@
- <tool id="neutrons_mlsans_fit_yukawa_sq" name="fit_Yukawa_IQ"  profile="22.04" version="0.1.5-dev2">
+ <tool id="neutrons_mlsans_fit_yukawa_sq" name="fit_Yukawa_IQ"  profile="22.04" version="0.1.5-dev3">
   <description></description>
     <requirements>
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq@sha256:9adfe752a9859aa252216bfba8a57af4235c983bc7fcfb6f1c92425123b7bbe0</container>
@@ -39,16 +39,14 @@
     </citations>
     <tests>
         <test>
-            <inputs>
-                <param name="input" ftype="txt" value="example_IQ_Yukawa.csv" />
-                <param name="C"  value="4000 3500 4500" />
-                <param name="I_inc"  value="0.5 0.1 2" />
-                <param name="sigma"  value="1 0.9 1.1" />
-                <param name="d_sigma"  value="0.07 0.02 0.1" />
-                <param name="phi"  value="0.1 0.05 0.25" />
-                <param name="kappa"  value="0.2 0.1 0.3" />
-                <param name="A" value="10 1 20" />
-            </inputs>
+            <param name="input" value="example_IQ_Yukawa.csv" />
+            <param name="C"  value="4000 3500 4500" />
+            <param name="I_inc"  value="0.5 0.1 2" />
+            <param name="sigma"  value="1 0.9 1.1" />
+            <param name="d_sigma"  value="0.07 0.02 0.1" />
+            <param name="phi"  value="0.1 0.05 0.25" />
+            <param name="kappa"  value="0.2 0.1 0.3" />
+            <param name="A" value="10 1 20" />
         </test>
     </tests>
 </tool>
