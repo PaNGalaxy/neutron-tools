@@ -40,7 +40,7 @@
     <tests>
         <test>
             <inputs>
-                <param name="input" ftype="csv" value="example_IQ_Yukawa.csv" />
+                <param name="input" ftype="text" value="example_IQ_Yukawa.csv" />
                 <param name="C"  value="4000 3500 4500" />
                 <param name="I_inc"  value="0.5 0.1 2" />
                 <param name="sigma"  value="1 0.9 1.1" />
