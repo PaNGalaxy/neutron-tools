@@ -1,5 +1,9 @@
  <tool id="neutrons_mlsans_fit_yukawa_sq" name="fit_Yukawa_IQ"  profile="22.04" version="0.1.5-dev3">
   <description></description>
+    <creator>
+        <person name="ML-SANS Tools"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq@sha256:9adfe752a9859aa252216bfba8a57af4235c983bc7fcfb6f1c92425123b7bbe0</container>
     </requirements>
@@ -30,6 +34,9 @@
         **Usage**
         Initial guess, lower bound and upper bound are separated using spaces. 
         Q points are rescaled such that QD in 0.2:0.2:16, the sigma fitting parameter reflects the differences between the actual particle radius and the initial guesses.
+
+        **Acknowledgement**
+        This research was sponsored by the Laboratory Directed Research and Development Program of Oak Ridge National Laboratory, managed by UT-Battelle, LLC, for the U. S. Department of Energy.
 ]]></help>
     <citations>
     <!-- Example of annotating a citation using a DOI. -->

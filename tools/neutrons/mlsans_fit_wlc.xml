@@ -1,5 +1,9 @@
 <tool id="neutrons_mlsans_fit_wlc" name="fit_wlc"  profile="22.04" version="0.0.1-dev">
   <description></description>
+    <creator>
+        <person name="ML-SANS Tools"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_wlc:0.1</container>
     </requirements>
@@ -19,8 +23,19 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Fit the worm-like chain scattering curve. Initial guess, lower bound and upper bound are separated using spaces. 
+        **What it does**
+        Fit the worm-like chain scattering curve. 
+        
+        **Usage**
+        Initial guess, lower bound and upper bound are separated using spaces. 
+
+        **Acknowledgement**
+        This research was sponsored by the Laboratory Directed Research and Development Program of Oak Ridge National Laboratory, managed by UT-Battelle, LLC, for the U. S. Department of Energy.
 ]]></help>
+    <citations>
+    <!-- Example of annotating a citation using a DOI. -->
+        <citation type="doi">https://doi.org/10.1021/ma9607630</citation>
+    </citations>
     <!-- <tests>
         <test>
             <inputs>

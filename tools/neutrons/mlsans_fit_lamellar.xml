@@ -1,5 +1,9 @@
 <tool id="neutrons_mlsans_fit_lamellar" name="fit_lamellar_IQ"  profile="20.04" version="0.1.6-dev5">
   <description></description>
+    <creator>
+        <person name="ML-SANS Tools"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/fit-lamellar:0.1.6-dev</container>
     </requirements>
@@ -44,6 +48,9 @@
         **Usage**
         Initial guess, lower bound and upper bound are separated using spaces. 
         The input Q points should be rescaled by interplanar distance such that QD/2pi = (1:126)*0.05.
+
+        **Acknowledgement**
+        This research was sponsored by the Laboratory Directed Research and Development Program of Oak Ridge National Laboratory, managed by UT-Battelle, LLC, for the U. S. Department of Energy.
 ]]></help>
     <citations>
     <!-- Example of annotating a citation using a DOI. -->
