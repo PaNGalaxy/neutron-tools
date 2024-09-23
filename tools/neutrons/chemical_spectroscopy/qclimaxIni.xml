@@ -1,7 +1,7 @@
 <tool id="neutrons_qclimax_ini" name="QClimax Ini File Creator" profile="22.05" version="0.1.0">
     <description>input file creator</description>
     <creator>
-        <person name="Yongqiang Cheng"/>
+        <person name="Robert Smith"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <command>
