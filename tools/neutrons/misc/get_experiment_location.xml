@@ -1,4 +1,8 @@
 <tool id="neutrons_get_experiment_location" name="Get Experiment Location" version="0.1.0"  profile="22.05" python_template_version="3.5">
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

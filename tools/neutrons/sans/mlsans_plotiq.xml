@@ -1,5 +1,9 @@
 <tool id="neutrons_mlsans_plotiq" name="Plot_Iq"  profile="22.05" version="0.1.1">
   <description></description>
+    <creator>
+        <person name="Changwoo Do"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/plot_iq:0.12.multi.1</container>
     </requirements>

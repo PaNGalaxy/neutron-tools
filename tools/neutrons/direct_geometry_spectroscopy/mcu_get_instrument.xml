@@ -1,4 +1,8 @@
 <tool id="neutrons_mcu_get_supported_instrument" name="Get Instrument"  profile="22.05" version="0.1.0" python_template_version="3.5">
+    <creator>
+        <person name="Garrett Granroth"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

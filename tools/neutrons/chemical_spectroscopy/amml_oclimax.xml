@@ -1,5 +1,9 @@
 <tool id="neutrons_amml_oclimax" name="INS Simulation with OCLIMAX"  profile="22.05" version="0.2.0">
   <description></description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">ornliceman/oclimax</container>
     </requirements>

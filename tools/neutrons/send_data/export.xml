@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <tool name="Export Datasets" id="neutrons_export" version="0.3.1" profile="22.05">
   <description>to SNS/HFIR storage</description>
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">alpine:3.17</container>
     </requirements>

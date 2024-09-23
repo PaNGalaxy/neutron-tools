@@ -1,5 +1,9 @@
 <tool id="neutrons_mcu_ibc" name="Incident Beamline Configurator"  profile="22.05" version="0.2.0">
   <description></description>
+    <creator>
+        <person name="Garrett Granroth"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/mcu/incident-beamline-configurator:0.2.0</container>
     </requirements>

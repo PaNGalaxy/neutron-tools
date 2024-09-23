@@ -1,5 +1,9 @@
 <tool id="neutrons_usans" name="USANS"  profile="22.05" version="0.1.0">
   <description></description>
+    <creator>
+        <person name="Yingrui Shang"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/sans-data-reduction/usans-reduction:0.1.0</container>
     </requirements>

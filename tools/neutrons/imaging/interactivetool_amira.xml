@@ -1,4 +1,8 @@
 <tool id="interactive_tool_amira" tool_type="interactive" name="Amira Visualizer" version="0.1.0" profile="22.05">
+    <creator>
+        <person name="Jean Belheux"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/amira/amira-novnc</container>
     </requirements>

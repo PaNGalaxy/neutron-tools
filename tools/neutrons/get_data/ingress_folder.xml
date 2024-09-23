@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <tool name="Register Data Folder" id="neutrons_ingress_folder" version="0.1.1" profile="22.05">
     <description>in Galaxy </description>
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">python:3.10-bullseye</container>
     </requirements>

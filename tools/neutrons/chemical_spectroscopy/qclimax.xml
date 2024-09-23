@@ -1,6 +1,10 @@
 <tool id="neutrons_qclimax" name="QClimax" version="0.1.0"  profile="22.05">
   <description>analysis tool</description>
-  <command>
+	<creator>
+		<person name="Robert Smith"/>
+		<organization url="https://www.ornl.gov/" name="ORNL"/>
+	</creator>
+	<command>
 	#import re
 	#set $dataDir = str($resolutionFile)[0:str($resolutionFile).rfind("/") + 1]
 	#set $resolutionName = os.path.basename(str($resolutionFile))
