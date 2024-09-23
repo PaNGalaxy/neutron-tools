@@ -1,5 +1,9 @@
 <tool id="neutrons_amml_lammps" name="LAMMPS Simulation"  profile="22.05" version="0.2.1">
   <description></description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda11.6_gpu</container>
     </requirements>

@@ -1,5 +1,9 @@
 <tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator"  profile="22.05" version="0.2.0">
   <description></description>
+    <creator>
+        <person name="Garrett Granroth"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/mcu/incident-beamline-simulator:0.2.0</container>
     </requirements>

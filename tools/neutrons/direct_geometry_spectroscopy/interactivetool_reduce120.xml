@@ -1,4 +1,8 @@
 <tool id="neutrons_reduce120" tool_type="interactive" name="Reduce120" version="0.2.0" profile="22.05">
+    <creator>
+        <person name="Garrett Granroth"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.1.0</container>
     </requirements>

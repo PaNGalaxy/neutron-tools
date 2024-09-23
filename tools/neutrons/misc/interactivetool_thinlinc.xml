@@ -1,4 +1,8 @@
 <tool id="neutrons_thinlinc" tool_type="interactive" name="Thinlinc" version="0.1.0" profile="22.05">
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
             <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/galaxy-tools/thinlinc-web</container>
     </requirements>

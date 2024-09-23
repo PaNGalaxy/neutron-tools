@@ -1,5 +1,9 @@
 <tool id="neutrons_asrp_pm" name="Pattern Matching" profile="22.05" version="0.3.0">
   <description></description>
+    <creator>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/pattern_matching:0.3</container>
     </requirements>

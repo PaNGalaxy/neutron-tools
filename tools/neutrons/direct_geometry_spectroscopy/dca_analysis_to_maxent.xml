@@ -1,5 +1,9 @@
 <tool id="neutrons_dca_analysis2maxent" name="DCA Convert to MaxEnt Input Format"  profile="22.05" version="0.3.0">
   <description></description>
+    <creator>
+        <person name="Thomas Maier"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

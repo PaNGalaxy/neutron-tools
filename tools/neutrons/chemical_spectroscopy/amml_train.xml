@@ -1,5 +1,9 @@
 <tool id="neutrons_amml_train" name="DeePMD Training"  profile="22.05" version="0.2.0">
   <description></description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda10.2_gpu</container>
     </requirements>

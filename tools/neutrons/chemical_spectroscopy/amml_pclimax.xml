@@ -1,5 +1,9 @@
 <tool id="neutrons_amml_pclimax" name="PClimax"  profile="22.05" version="0.1.0">
   <description></description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/amml/pclimax:0.1</container>
     </requirements>

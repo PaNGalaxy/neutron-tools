@@ -1,5 +1,9 @@
 <tool id="neutrons_airsans_demo" tool_type="interactive" name="Air-SANS Demo" profile="22.05" version="0.2.0">
   <description></description>
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/playground/air-sans:0.2</container>
     </requirements>

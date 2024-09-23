@@ -1,4 +1,8 @@
 <tool id="neutrons_file_head" name="File Head" profile="22.05" version="0.1.0">
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker">ubuntu</container>
     </requirements>

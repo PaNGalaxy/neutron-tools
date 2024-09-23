@@ -1,4 +1,8 @@
 <tool id="neutrons_get_oidc_tokens" name="Get OIDC Tokens" version="0.1.0">
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
