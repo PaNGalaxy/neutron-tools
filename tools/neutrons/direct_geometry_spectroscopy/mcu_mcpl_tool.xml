@@ -20,19 +20,24 @@
     <outputs>
         <data format="txt" name="output" label="mcpl header"/>
     </outputs>
-    <help>
+    <help><![CDATA[
         Extracts a header from a mcpl file.
-        -----
 
         **Dump options**
+
         By default include the info in the FILE header plus the first ten contained
         particles. Modify with the following options:
 
         -j, --justhead : Dump just header info and no particle info.
+
         -n, --nohead : Dump just particle info and no header info.
+
         -lN : Dump up to N particles from the file (default 10). You can specify -l0 to disable this limit.
+
         -sN : Skip past the first N particles in the file (default 0).
+
         -bKEY : Dump binary blob stored under KEY to standard output.
-    </help>
+        
+    ]]></help>
 </tool>
 
