@@ -19,7 +19,7 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Desmear data and remove the instrument-resolution effect.
+        Desmears data and removes the instrument-resolution effect.
     ]]></help>
 </tool>
 
