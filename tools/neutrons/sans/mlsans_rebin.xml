@@ -1,11 +1,12 @@
-<tool id="neutrons_mlsans_rebin" name="Rebin_Iq"  profile="22.05" version="0.1">
-  <description></description>
+<tool id="neutrons_mlsans_rebin" name="Rebin_Iq" profile="22.05" version="0.1">
+    <description></description>
     <creator>
         <person name="Changwoo Do"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/rebin:latest</container>
+        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/rebin:latest
+        </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python3 /src/rebin.py $input $input_ref rebin_output.txt &&

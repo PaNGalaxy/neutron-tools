@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tool name="Register File" id="neutrons_register" version="0.2.0" profile="22.05">
-  <description>from SNS/HFIR storage in Galaxy</description>
+    <description>from SNS/HFIR storage in Galaxy</description>
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -17,11 +17,11 @@
       #end for
       :
     ]]></command>
-  <inputs>
-     <repeat name="series" title="File to register">
-        <param name="input" type="text" label="Filesystem path"/>
-    </repeat>
-  </inputs>
+    <inputs>
+        <repeat name="series" title="File to register">
+            <param name="input" type="text" label="Filesystem path"/>
+        </repeat>
+    </inputs>
     <help><![CDATA[
         Registers file in Galaxy (internal tool, not exposed to users).
     ]]></help>

@@ -1,5 +1,5 @@
-<tool id="neutrons_amml_oclimax" name="INS Simulation with OCLIMAX"  profile="22.05" version="0.2.0">
-  <description></description>
+<tool id="neutrons_amml_oclimax" name="INS Simulation with OCLIMAX" profile="22.05" version="0.2.0">
+    <description></description>
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -17,7 +17,7 @@
     ]]></command>
     <inputs>
         <param name="input" type="data" format="txt" optional="true" label="OCLIMAX *.params file"/>
-	    <param name="timestep" type="float" value="0.5" label="timestep(fs)"/>
+        <param name="timestep" type="float" value="0.5" label="timestep(fs)"/>
         <param name="dump" type="data" format="txt" optional="false" label="LAMMPS dump file"/>
     </inputs>
     <outputs>

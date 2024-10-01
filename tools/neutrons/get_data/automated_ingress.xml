@@ -1,13 +1,14 @@
-<tool id="neutrons_ingress" name="Live Neutron Data Monitor"  profile="22.05" version="0.3.0">
+<tool id="neutrons_ingress" name="Live Neutron Data Monitor" profile="22.05" version="0.3.0">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:0.5.0</container>
+        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:0.5.0
+        </container>
     </requirements>
     <environment_variables>
-        <environment_variable name="API_KEY" inject="api_key" />
+        <environment_variable name="API_KEY" inject="api_key"/>
     </environment_variables>
     <command><![CDATA[
             #set $filter = $data_type.filter if $data_type.mode == "reduced" else "**"
@@ -51,8 +52,8 @@
         <param name="previous_data" type="boolean" checked="false" label="Ingress old files"/>
         <conditional name="data_type">
             <param name="mode" type="select" label="Data Type" value="raw" optional="false">
-                        <option value="raw">Raw Data</option>
-                        <option value="reduced">Reduced Data</option>
+                <option value="raw">Raw Data</option>
+                <option value="reduced">Reduced Data</option>
             </param>
             <when value="reduced">
                 <param name="filter" type="text" label="Filter Files" value="" optional="true" help="Wildcard to filter reduced data.
@@ -60,24 +61,29 @@
                 **/*.dat - all .dat files in autoreduce and subfolders;
                 empty string (or **) - all files in autoreduce and all subfolders.
                 "/>
-            </when>>
+            </when>
+            >
         </conditional>
         <conditional name="workflow">
             <param name="execute" type="boolean" checked="false" label="Execute workflow after ingress"/>
 
             <when value="true">
                 <param name="name" type="text" label="Workflow Name" value="" optional="false"/>
-                <param name="ingress_label" type="text" label="Input parameter name for ingress" value="" optional="false"/>
+                <param name="ingress_label" type="text" label="Input parameter name for ingress" value=""
+                       optional="false"/>
                 <repeat name="extra_inputs" title="Workflow Extra Inputs">
                     <param name="name" type="text" label="Input parameter name" optional="false"/>
                     <param name="file" type="data" label="Data file"/>
                 </repeat>
-            </when>>
+            </when>
+            >
         </conditional>
-        <param name="history" type="text" label="History Name" value="" optional="true" help="empty value will create history with IPTS number like IPTS-XXX"/>
+        <param name="history" type="text" label="History Name" value="" optional="true"
+               help="empty value will create history with IPTS number like IPTS-XXX"/>
     </inputs>
     <outputs>
-    <data format="txt" name="output" label="Ingress $ipts data ($data_type.mode) to history ${str($history) if str($history)!='' else str($ipts)}">
+        <data format="txt" name="output"
+              label="Ingress $ipts data ($data_type.mode) to history ${str($history) if str($history)!='' else str($ipts)}">
         </data>
     </outputs>
     <help><![CDATA[

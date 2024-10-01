@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tool name="Export Datasets" id="neutrons_export" version="0.3.1" profile="22.05">
-  <description>to SNS/HFIR storage</description>
+    <description>to SNS/HFIR storage</description>
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -30,22 +30,24 @@
         cat $output
     ]]>
     </command>
-  <inputs>
-      <repeat name="series" title="Data">
-       <conditional name="input_mode">
-            <param name="input_mode_collection" type="boolean" truevalue="true" falsevalue="false" label="Export dataset collection"
-            help=""/>
-            <when value="true">
-                <param name="input" type="data_collection" optional="true" collection_type="list" label="Collection"/>
-                <param name="export_folder" type="text" optional="false" default="" label="Export folder"/>
-            </when>
-            <when value="false">
+    <inputs>
+        <repeat name="series" title="Data">
+            <conditional name="input_mode">
+                <param name="input_mode_collection" type="boolean" truevalue="true" falsevalue="false"
+                       label="Export dataset collection"
+                       help=""/>
+                <when value="true">
+                    <param name="input" type="data_collection" optional="true" collection_type="list"
+                           label="Collection"/>
+                    <param name="export_folder" type="text" optional="false" default="" label="Export folder"/>
+                </when>
+                <when value="false">
                     <param name="input" type="data" label="Dataset"/>
                     <param name="export_path" type="text" optional="false" default="" label="Export path"/>
-            </when>
-        </conditional>
-       </repeat>
-  </inputs>
+                </when>
+            </conditional>
+        </repeat>
+    </inputs>
     <outputs>
         <data name="output" auto_format="true" label="exported files"/>
     </outputs>

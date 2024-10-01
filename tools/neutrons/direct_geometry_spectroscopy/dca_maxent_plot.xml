@@ -1,5 +1,5 @@
-<tool id="neutrons_dca_maxent2plot" name="DCA Plot MaxEnt Results (HPC)"  profile="22.05" version="0.3.0">
-  <description></description>
+<tool id="neutrons_dca_maxent2plot" name="DCA Plot MaxEnt Results (HPC)" profile="22.05" version="0.3.0">
+    <description></description>
     <creator>
         <person name="Thomas Maier"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>

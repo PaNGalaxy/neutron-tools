@@ -1,5 +1,5 @@
 <tool id="neutrons_trame_garnet" tool_type="interactive" name="Garnet" profile="22.05" version="0.1.0">
-  <description></description>
+    <description></description>
     <creator>
         <person name="Zachary Morgan"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -14,7 +14,7 @@
     </entry_points>
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
-        <environment_variable name="GALAXY_API_KEY" inject="api_key" />
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">garnet</environment_variable>
     </environment_variables>

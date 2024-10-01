@@ -86,7 +86,7 @@
         <data format="pdb" name="output" from_work_dir="output/output.pdb"/>
     </outputs>
     <help><![CDATA[
-        Fit occupancies to neutron data.
+        Fits occupancies to neutron data.
     ]]></help>
 </tool>
 

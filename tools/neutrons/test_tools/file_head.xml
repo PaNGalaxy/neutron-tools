@@ -14,7 +14,7 @@
         <param name="input" type="data" optional="false" label="Input File"/>
     </inputs>
     <outputs>
-        <data name="output" format="txt" />
+        <data name="output" format="txt"/>
     </outputs>
     <help><![CDATA[
         Gets head of the file.

@@ -1,5 +1,5 @@
-<tool id="neutrons_dca_bins4sqw" name="DCA Bins for S of Q Omega (HPC)"  profile="22.05" version="0.1.0">
-  <description></description>
+<tool id="neutrons_dca_bins4sqw" name="DCA Bins for S of Q Omega (HPC)" profile="22.05" version="0.1.0">
+    <description></description>
     <creator>
         <person name="Thomas Maier"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -36,7 +36,7 @@
         <param name="nq" type="integer" value="10" label="Grid size"/>
     </inputs>
     <outputs>
-		<data format="txt" name="output_data" label="DCA ChiDataC"/>
+        <data format="txt" name="output_data" label="DCA ChiDataC"/>
     </outputs>
     <help><![CDATA[
         Extract Q values from DCA++ results, runs on HPC.

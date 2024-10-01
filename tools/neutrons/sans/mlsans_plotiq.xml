@@ -1,11 +1,13 @@
-<tool id="neutrons_mlsans_plotiq" name="Plot_Iq"  profile="22.05" version="0.1.1">
-  <description></description>
+<tool id="neutrons_mlsans_plotiq" name="Plot_Iq" profile="22.05" version="0.1.1">
+    <description></description>
     <creator>
         <person name="Changwoo Do"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/plot_iq:0.12.multi.1</container>
+        <container type="docker">
+            code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/plot_iq:0.12.multi.1
+        </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
       
@@ -18,7 +20,7 @@
         <param name="input3" type="data" optional="true" label="ASCII data"/>
         <param name="input4" type="data" optional="true" label="ASCII data"/>
         <param name="input5" type="data" optional="true" label="ASCII data"/>
-               
+
     </inputs>
     <outputs>
         <data name="output" format="png" label="LogLog Plot">

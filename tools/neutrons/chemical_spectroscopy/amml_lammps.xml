@@ -1,5 +1,5 @@
-<tool id="neutrons_amml_lammps" name="LAMMPS Simulation"  profile="22.05" version="0.2.1">
-  <description></description>
+<tool id="neutrons_amml_lammps" name="LAMMPS Simulation" profile="22.05" version="0.2.1">
+    <description></description>
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -16,8 +16,10 @@
     ]]></command>
     <inputs>
         <param name="input" type="data" format="txt" optional="false" label="input script file (e.g., in.lammps)"/>
-        <param name="graph_pb" type="data" format="binary" optional="false" label="machine learning force field file (e.g., graph.pb from DeePMD)"/>
-        <param name="mof_data" type="data" format="txt" optional="false" label="starting structure file (e.g., data.in)"/>
+        <param name="graph_pb" type="data" format="binary" optional="false"
+               label="machine learning force field file (e.g., graph.pb from DeePMD)"/>
+        <param name="mof_data" type="data" format="txt" optional="false"
+               label="starting structure file (e.g., data.in)"/>
     </inputs>
     <outputs>
         <data format="txt" name="log" label="${tool.name} on ${input.name} (log)"/>

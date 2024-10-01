@@ -1,11 +1,13 @@
 <tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.4.0">
-  <description></description>
+    <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_refinement:0.4</container>
+        <container type="docker" shell="/bin/bash">
+            code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/gsas2_refinement:0.4
+        </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         cd /app &&
@@ -30,13 +32,13 @@
             <option value="N" selected="false">Neutron</option>
             <option value="X" selected="false">X-ray</option>
         </param>
-        <param name="bank_id" type="integer" label="Bank ID" value="0" />
-        <param name="xmin" type="float" label="Left bound" value="0" />
-        <param name="xmax" type="float" label="Right bound" value="0" />
+        <param name="bank_id" type="integer" label="Bank ID" value="0"/>
+        <param name="xmin" type="float" label="Left bound" value="0"/>
+        <param name="xmax" type="float" label="Right bound" value="0"/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection1" label="GSAS2 refinement output">
-            <discover_datasets format= "binary" pattern="__designation__" directory="portal" />
+            <discover_datasets format="binary" pattern="__designation__" directory="portal"/>
         </collection>
         <data format="txt" name="output" label="GSAS2 console output"></data>
     </outputs>

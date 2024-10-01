@@ -52,12 +52,14 @@
                 <option value="file">A file on SNS/HFIR storage</option>
                 <option value="oncat">A file on SNS/HFIR storage by IPTS and run number</option>
                 <option value="folder">A folder on SNS/HFIR storage</option>
-            </param>>
+            </param>
+            >
             <when value="file">
-        		<param name="filepath" type="text" label="Filesystem path" optional="false"/>
+                <param name="filepath" type="text" label="Filesystem path" optional="false"/>
             </when>
             <when value="oncat">
-                <param name="facility" type="select" label="Facility Name" default="SNS" refresh_on_change="true" optional="false">
+                <param name="facility" type="select" label="Facility Name" default="SNS" refresh_on_change="true"
+                       optional="false">
                     <option value="SNS">SNS</option>
                     <option value="HFIR">HFIR</option>
                 </param>
@@ -72,24 +74,29 @@
                 <param name="run" type="integer" label="Run Number" value="0" optional="false"/>
             </when>
             <when value="folder">
-                    <param name="folder" type="text" label="Folder to ingress" optional="false"/>
-                    <param name="recursive" type="boolean" truevalue="True" falsevalue="False" checked="true" label="Recursive ingress"/>
-                    <param name="filter" type="text" label="Filter Files" value="" optional="true" help="Wildcard to filter ingressed data.
+                <param name="folder" type="text" label="Folder to ingress" optional="false"/>
+                <param name="recursive" type="boolean" truevalue="True" falsevalue="False" checked="true"
+                       label="Recursive ingress"/>
+                <param name="filter" type="text" label="Filter Files" value="" optional="true" help="Wildcard to filter ingressed data.
                     E.g. *.dat (all .dat files in the folder, no recursion); subfolder/*.dat (.dat files in subfolder);
                     **/*.dat - all .dat files in the folder and subfolders;
                     empty string (or **) - all files in the folder and all subfolders.
                     "/>
-                    <param name="collection_name" type="text" label="New collection name" value="" optional="true"/>
-                    <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Output log file"/>
+                <param name="collection_name" type="text" label="New collection name" value="" optional="true"/>
+                <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" checked="false"
+                       label="Output log file"/>
             </when>
         </conditional>
     </inputs>
     <outputs>
-        <data format="h5" name="output" label="#if $params.ingest_mode == 'file' then $params.filepath else str($params.facility)+'-'+str($params.instrument)+'-'+str($params.ipts)+'-'+str($params.run)+' data' #">
+        <data format="h5" name="output"
+              label="#if $params.ingest_mode == 'file' then $params.filepath else str($params.facility)+'-'+str($params.instrument)+'-'+str($params.ipts)+'-'+str($params.run)+' data' #">
             <filter>params["ingest_mode"] == "file" or params["ingest_mode"] == "oncat"</filter>
         </data>
-        <collection type="list" name="output_collection" label="#if $params.collection_name then $params.collection_name else $params.folder">
-            <discover_datasets format="binary" match_relative_path="True" pattern="__designation__" recurse="true" directory="output"/>
+        <collection type="list" name="output_collection"
+                    label="#if $params.collection_name then $params.collection_name else $params.folder">
+            <discover_datasets format="binary" match_relative_path="True" pattern="__designation__" recurse="true"
+                               directory="output"/>
             <filter>params["ingest_mode"] == "folder"</filter>
         </collection>
         <data format="txt" name="folder_debug_output" label="$folder ingress output">

@@ -1,5 +1,5 @@
-<tool id="neutrons_amml_pclimax" name="PClimax"  profile="22.05" version="0.1.0">
-  <description></description>
+<tool id="neutrons_amml_pclimax" name="PClimax" profile="22.05" version="0.1.0">
+    <description></description>
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -29,19 +29,22 @@
         <param name="input" type="data" format="csv" optional="false" label="csv file"/>
         <param name="ids" type="text" optional="true" label="ID(s) of spectra to be plotted"
                help="Add one or more ids to print separated by comma. If empty, all spectra will be plotted">
-                                            <validator type="regex">^[1-9]\d*(,[1-9]\d*)*$</validator>
+            <validator type="regex">^[1-9]\d*(,[1-9]\d*)*$</validator>
         </param>
         <param name="xrange" type="text" optional="true" label="X range"
-            help="Enter min:max values, e.g. 0:100. If empty, full range will be plotted">
-            <validator type="regex">^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?:[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$</validator>
+               help="Enter min:max values, e.g. 0:100. If empty, full range will be plotted">
+            <validator type="regex">^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?:[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$
+            </validator>
         </param>
         <param name="yrange" type="text" optional="true" label="Y range"
-            help="Enter min:max values, e.g. 0:100. If empty, full range will be plotted">
-            <validator type="regex">^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?:[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$</validator>
+               help="Enter min:max values, e.g. 0:100. If empty, full range will be plotted">
+            <validator type="regex">^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?:[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$
+            </validator>
         </param>
         <param name="zrange" type="text" optional="true" label="Z range"
-            help="Enter min:max values, e.g. 0:100. If empty, full range will be plotted">
-            <validator type="regex">^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?:[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$</validator>
+               help="Enter min:max values, e.g. 0:100. If empty, full range will be plotted">
+            <validator type="regex">^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?:[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$
+            </validator>
         </param>
     </inputs>
     <outputs>
