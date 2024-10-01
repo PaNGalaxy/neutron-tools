@@ -44,6 +44,7 @@
         <data name="output_single" auto_format="true" label="SAS View Console Output">
         </data>
     </outputs>
-    <help>
-    </help>
+    <help><![CDATA[
+        Starts SASView interactive application.
+    ]]></help>
 </tool>

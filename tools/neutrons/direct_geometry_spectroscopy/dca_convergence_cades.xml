@@ -19,7 +19,7 @@
         <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
-        A tool to run DCA convergence.
-]]></help>
+        Runs DCA++ convergence in ORC cloud infrastructure.
+    ]]></help>
 </tool>
 

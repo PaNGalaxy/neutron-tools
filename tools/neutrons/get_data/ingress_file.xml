@@ -22,6 +22,7 @@
         <param name="input" type="text" label="Filesystem path"/>
     </repeat>
   </inputs>
-  <help>
-  </help>
+    <help><![CDATA[
+        Registers file in Galaxy (internal tool, not exposed to users).
+    ]]></help>
 </tool>

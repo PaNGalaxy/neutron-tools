@@ -49,7 +49,7 @@
 		<data format="txt" name="output" label="DCA SofQOmega - console output"/>
     </outputs>
     <help><![CDATA[
-        A tool to run s of q omega simulations
-]]></help>
+        Runs S(Q,W) simulations.
+    ]]></help>
 </tool>
 

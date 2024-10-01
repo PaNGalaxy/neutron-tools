@@ -27,7 +27,7 @@
             <filter>output_option == "1"</filter>
         </data>
     </outputs>
-    <help>
-        Runs an interactive Thinlinc session
-    </help>
+    <help><![CDATA[
+        Runs an interactive Thinlinc session.
+    ]]></help>
 </tool>

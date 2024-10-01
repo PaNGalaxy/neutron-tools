@@ -31,7 +31,7 @@
         <data format="txt" name="force_raw" label="force file"/>
         <data format="txt" name="type_raw" label="type file"/>
     </outputs>
-    <help>
-        Extracts atomic coordinates and forces from the CP2K MD trajectory, and converts them into \*.raw files needed by DeePMD.
-    </help>
+    <help><![CDATA[
+        Extracts atomic coordinates and forces from the CP2K MD trajectory, and converts them into *.raw files needed by DeePMD.
+    ]]></help>
 </tool>

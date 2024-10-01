@@ -72,7 +72,7 @@
         </test>
     </tests>
     <help><![CDATA[
-        A tool to run incident beamline simulations
+        Runs incident beamline simulations.
     ]]></help>
 </tool>
 

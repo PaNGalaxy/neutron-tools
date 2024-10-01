@@ -37,8 +37,10 @@
         <data format="txt" name="force" label="force file"/>
         <data format="txt" name="pos" label="position file"/>
     </outputs>
-    <help>
-        Runs  DFT molecular dynamics (MD) with CP2K. Returns atomic coordinates and forces along the MD trajectory saved in xyz format.
-    </help>
+    <help><![CDATA[
+        Runs DFT molecular dynamics (MD) with CP2K program.
+
+        Returns atomic coordinates and forces along the MD trajectory saved in xyz format.
+    ]]></help>
 </tool>
 

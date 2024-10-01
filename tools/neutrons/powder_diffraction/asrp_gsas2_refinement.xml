@@ -40,7 +40,7 @@
         </collection>
         <data format="txt" name="output" label="GSAS2 console output"></data>
     </outputs>
-    <help>
-        A tool to run a GSAS2 Rietveld refinement.
-    </help>
+    <help><![CDATA[
+        Runs GSAS2 Rietveld refinement.
+    ]]></help>
 </tool>

@@ -81,7 +81,6 @@
         </data>
     </outputs>
     <help><![CDATA[
-        A tool allows to automatically register live Neutron experimental data in Galaxy and
-        run a workflow with this data as an input
+        Automatically register live Neutron experimental data in Galaxy and run a workflow with this data as an input.
     ]]></help>
 </tool>

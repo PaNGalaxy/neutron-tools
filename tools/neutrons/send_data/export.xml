@@ -49,6 +49,7 @@
     <outputs>
         <data name="output" auto_format="true" label="exported files"/>
     </outputs>
-  <help>
-  </help>
+    <help><![CDATA[
+        Exports data to SNS/HFIR storage.
+    ]]></help>
 </tool>

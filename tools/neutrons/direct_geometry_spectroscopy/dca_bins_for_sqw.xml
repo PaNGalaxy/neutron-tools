@@ -39,7 +39,7 @@
 		<data format="txt" name="output_data" label="DCA ChiDataC"/>
     </outputs>
     <help><![CDATA[
-        A tool to extract Q values from DCA++ results
-]]></help>
+        Extract Q values from DCA++ results, runs on HPC.
+    ]]></help>
 </tool>
 

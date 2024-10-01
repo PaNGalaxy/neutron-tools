@@ -37,7 +37,7 @@
         </collection>
     </outputs>
     <help><![CDATA[
-        A tool to extract Q values from DCA++ results
-]]></help>
+        Extract Q values from DCA++ results, runs in ORC cloud infrastructure.
+    ]]></help>
 </tool>
 

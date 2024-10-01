@@ -36,7 +36,7 @@
         </data>
     </outputs>
     <help><![CDATA[
-        TOPAZ data combine tool
-]]></help>
+        Runs TOPAZ data reduction - combine part.
+    ]]></help>
 </tool>
 

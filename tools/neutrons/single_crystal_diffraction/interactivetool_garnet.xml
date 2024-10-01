@@ -28,7 +28,7 @@
         <data format="txt" name="output" label="Console output">
         </data>
     </outputs>
-    <help>
-        Single Crystal Grapical Advanced Reduction Neutron Event Toolkit
-    </help>
+    <help><![CDATA[
+        Starts interactive single crystal grapical advanced reduction neutron event toolkit (GARNET).
+    ]]></help>
 </tool>

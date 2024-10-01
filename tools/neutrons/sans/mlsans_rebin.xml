@@ -21,7 +21,7 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Rebin x-data of input file following the x-data of the reference input file.
-]]></help>
+        Rebins x-data of input file following the x-data of the reference input file.
+    ]]></help>
 </tool>
 

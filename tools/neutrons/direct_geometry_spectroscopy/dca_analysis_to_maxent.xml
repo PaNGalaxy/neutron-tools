@@ -51,7 +51,7 @@
         </collection>
     </outputs>
     <help><![CDATA[
-        A tool to convert analysis results to MaxEnt format
-]]></help>
+        Converts DCA++ analysis results to MaxEnt format.
+    ]]></help>
 </tool>
 

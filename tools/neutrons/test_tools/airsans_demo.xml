@@ -35,6 +35,6 @@
         </data>
     </outputs>
     <help>
-        A demo tool with multiple Trame Apps
+        Runs a demo interactive application with multiple Trame Apps
     </help>
 </tool>

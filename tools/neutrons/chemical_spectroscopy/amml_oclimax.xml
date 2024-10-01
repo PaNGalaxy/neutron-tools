@@ -24,6 +24,8 @@
         <data format="csv" name="out" label="${tool.name} on ${dump.name} (out.tclimax)"/>
     </outputs>
     <help><![CDATA[
-        Simulation of INS spectra from LAMMPS MD trajectory. The \*.params file defines how the INS simulation will be performed. By default, if no params file is provided, the simulation will be done for VISION.
-]]></help>
+        Simulates inelastic neutron scattering spectra from LAMMPS MD trajectory.
+
+        The *.params file defines how the INS simulation will be performed. By default, if no params file is provided, the simulation will be done for VISION.
+    ]]></help>
 </tool>

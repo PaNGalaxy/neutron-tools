@@ -55,6 +55,6 @@
         </collection>
     </outputs>
     <help><![CDATA[
-        TODO: Fill in help.
+        Executes a remote command.
     ]]></help>
 </tool>

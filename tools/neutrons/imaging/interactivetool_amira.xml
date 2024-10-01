@@ -43,7 +43,7 @@
         <data name="output_single" auto_format="true" label="Amira Console Output">
         </data>
     </outputs>
-    <help>
-        Runs the Amira-Avizo 3D Software
-    </help>
+    <help><![CDATA[
+        Runs the Amira-Avizo 3D Software.
+    ]]></help>
 </tool>

@@ -38,7 +38,7 @@
         </data>
     </outputs>
     <help><![CDATA[
-        USANS data reduction tool
-]]></help>
+        Runs USANS data reduction.
+    ]]></help>
 </tool>
 

@@ -53,9 +53,6 @@
     <outputs>
         <data name="output" format="json" ></data>
     </outputs>
-    <help>
-        A tool to pattern match a group of patterns using clustering algorithms.
-    </help>
     <tests>
         <test>
             <param name="dataFiles_0|dataFile" value="NOM_Li2ODCl_at_280K.gsa" />
@@ -69,4 +66,7 @@
             <output name="output" file="expected_clusters.json"/>
         </test>
     </tests>
+    <help><![CDATA[
+        Matches a group of patterns using clustering algorithms.
+    ]]></help>
 </tool>

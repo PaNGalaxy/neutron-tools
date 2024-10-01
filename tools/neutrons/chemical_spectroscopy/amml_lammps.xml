@@ -23,11 +23,13 @@
         <data format="txt" name="log" label="${tool.name} on ${input.name} (log)"/>
         <data format="txt" name="dump" label="${tool.name} on ${input.name} (dump.2)"/>
     </outputs>
-    <help>
+    <help><![CDATA[
+        Simulates molecular dynamics trajectory using LAMMPS program.
+
         To use the MD trajectory for subsequent INS simulations, the following format is required (where A B C are the element symbols):
-        &#xA;
+
         dump 1 all custom 1 lammps.dump id element x y z
-        &#xA;
+
         dump_modify 1 element A B C
-    </help>
+    ]]></help>
 </tool>

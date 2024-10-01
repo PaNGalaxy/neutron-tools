@@ -35,9 +35,6 @@
     <outputs>
         <data name="output" format="json" ></data>
     </outputs>
-    <help>
-        A tool to fit a single peak in a pattern.
-    </help>
     <tests>
         <test>
             <param name="input_data" value="NOM_Fe2O3_ramp_to_500K_at_temperature_95.05_K.gsa"/>
@@ -50,4 +47,7 @@
             <output name="output" file="expected_spf_output.json"/>
         </test>
     </tests>
+    <help><![CDATA[
+        Fits a single peak in a pattern.
+    ]]></help>
 </tool>

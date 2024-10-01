@@ -46,7 +46,7 @@
     	</data>
     </outputs>
     <help><![CDATA[
-A tool to prepare input for incident beamline simulations from experimental data
-]]></help>
+        Prepares input for incident beamline simulations using experimental data.
+    ]]></help>
 </tool>
 

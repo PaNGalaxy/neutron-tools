@@ -24,8 +24,9 @@
         <data format="txt" name="output" label="DCA Binning - console output"/>
     </outputs>
     <help><![CDATA[
-        A tool to run DCA binning.
+        Runs DCA++ binning, runs on HPC.
+
         mpi command: srun, extra arguments: -N1 -n8 -c7 --gpus-per-task=1 --gpu-bind=closest (change -N - number of nodes accordingly)
-]]></help>
+    ]]></help>
 </tool>
 

@@ -22,8 +22,9 @@
         <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
-        A tool to run DCA convergence.
+        Runs DCA++ convergence on HPC.
+
         mpi command: srun, extra arguments: -N1 -n8 -c7 --gpus-per-task=1 --gpu-bind=closest (change -N - number of nodes accordingly)
-]]></help>
+    ]]></help>
 </tool>
 

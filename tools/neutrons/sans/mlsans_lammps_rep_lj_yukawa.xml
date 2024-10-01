@@ -26,20 +26,20 @@
         <data format="txt" name="output_data" />
     </outputs>
     <help><![CDATA[
+        Runs a LAMMPS simulation of a colloidal suspension and calculates the scattering spectra, using Yukawa potential.
 
-A tool that would run a LAMMPS[1] simulation of a colloidal suspension and then calculate the scattering spectra using FFTW[2,3]. The interaction among charged colloidal particles is described by an excluded volume, represented by a repulsive Lennard-Jones potential, and a long-range potential represented by the Yukawa potential up to a screening length, 1/kappa. The tool will output two files: the raw text file and a PNG image file of the scattering spectra. Please refer to [4] for more details.
+        A tool that would run a LAMMPS[1] simulation of a colloidal suspension and then calculate the scattering spectra using FFTW[2,3].
+        The interaction among charged colloidal particles is described by an excluded volume, represented by a repulsive Lennard-Jones potential,
+        and a long-range potential represented by the Yukawa potential up to a screening length, 1/kappa.
+        The tool will output two files: the raw text file and a PNG image file of the scattering spectra. Please refer to [4] for more details.
 
-Ref:
+        **References**
 
-[1] https://www.lammps.org/
-
-[2] https://www.fftw.org/
-
-[3] Carrillo, J. M. Y., & Dobrynin, A. V. (2011). Polyelectrolytes in salt solutions: Molecular dynamics simulations. Macromolecules, 44(14), 5798-5816.
-https://doi.org/10.1021/ma2007943
-
-[4] Chang, Ming-Ching, et al. "A machine learning inversion scheme for determining interaction from scattering." Communications Physics 5.1 (2022): 46. 
-https://doi.org/10.1038/s42005-021-00778-y
+        * [1] https://www.lammps.org/
+        * [2] https://www.fftw.org/
+        * [3] Carrillo, J. M. Y., & Dobrynin, A. V. (2011). Polyelectrolytes in salt solutions: Molecular dynamics simulations. Macromolecules, 44(14), 5798-5816. https://doi.org/10.1021/ma2007943
+        * [4] Chang, Ming-Ching, et al. "A machine learning inversion scheme for determining interaction from scattering." Communications Physics 5.1 (2022): 46.
+        https://doi.org/10.1038/s42005-021-00778-y
 
     ]]></help>
 </tool>

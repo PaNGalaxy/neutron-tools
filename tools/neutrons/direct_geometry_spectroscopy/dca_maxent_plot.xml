@@ -55,7 +55,7 @@
         <data format="png" name="plot" label="DCA Maxent Plot"/>
     </outputs>
     <help><![CDATA[
-        A tool to visualize MaxEnt results
-]]></help>
+        Visualizes MaxEnt results, runs on HPC.
+    ]]></help>
 </tool>
 

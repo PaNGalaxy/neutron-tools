@@ -37,7 +37,7 @@
         </data>
     </outputs>
     <help><![CDATA[
-        GPSANS data reduction tool
-]]></help>
+        Runs GPSANS data reduction.
+    ]]></help>
 </tool>
 

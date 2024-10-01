@@ -32,17 +32,20 @@
         <data format="txt" name="output_data" />
     </outputs>
     <help><![CDATA[
+        Runs a LAMMPS simulation of a colloidal suspension and calculates the scattering spectra, using double Yukawa potential.
 
-**What it does**
+        **What it does**
 
-A tool that would run a LAMMPS[1] simulation of a colloidal suspension and then calculate the scattering spectra using FFTW[2,3]. The interaction among charged colloidal particles is described by an excluded volume, represented by a repulsive Lennard-Jones potential, and double Yukawa potential [4]. The tool will output two files: the raw text file and a PNG image file of the scattering spectra.
+        A tool that would run a LAMMPS[1] simulation of a colloidal suspension and then calculate the scattering spectra using FFTW[2,3].
+        The interaction among charged colloidal particles is described by an excluded volume, represented by a repulsive Lennard-Jones potential,
+        and double Yukawa potential [4]. The tool will output two files: the raw text file and a PNG image file of the scattering spectra.
 
-**References**
+        **References**
 
-* [1] https://www.lammps.org/
-* [2] https://www.fftw.org/
-* [3] Carrillo, J. M. Y., & Dobrynin, A. V. (2011). Polyelectrolytes in salt solutions: Molecular dynamics simulations. Macromolecules, 44(14), 5798-5816. https://doi.org/10.1021/ma2007943
-* [4] Wu, Jianlan, et al. "Structural arrest transitions in fluids described by two Yukawa potentials." Physical Review E 70.5 (2004): 050401. https://doi.org/10.1103/PhysRevE.70.050401
+        * [1] https://www.lammps.org/
+        * [2] https://www.fftw.org/
+        * [3] Carrillo, J. M. Y., & Dobrynin, A. V. (2011). Polyelectrolytes in salt solutions: Molecular dynamics simulations. Macromolecules, 44(14), 5798-5816. https://doi.org/10.1021/ma2007943
+        * [4] Wu, Jianlan, et al. "Structural arrest transitions in fluids described by two Yukawa potentials." Physical Review E 70.5 (2004): 050401. https://doi.org/10.1103/PhysRevE.70.050401
 
     ]]></help>   
     

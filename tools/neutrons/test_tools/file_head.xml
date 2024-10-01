@@ -17,6 +17,6 @@
         <data name="output" format="txt" />
     </outputs>
     <help><![CDATA[
-        TODO: Fill in help.
+        Gets head of the file.
     ]]></help>
 </tool>

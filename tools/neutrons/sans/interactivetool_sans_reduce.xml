@@ -34,7 +34,7 @@
         <data format="txt" name="output" label="Console output">
         </data>
     </outputs>
-    <help>
-        SANS Data Reduction Trame App
-    </help>
+    <help><![CDATA[
+        Starts SANS data reduction Trame application.
+    ]]></help>
 </tool>

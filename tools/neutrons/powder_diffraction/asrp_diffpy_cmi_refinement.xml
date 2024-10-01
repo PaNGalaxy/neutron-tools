@@ -54,7 +54,7 @@
         <data format="txt" name="output" label="DiffPy-CMI console output">
         </data>
     </outputs>
-    <help>
-        A tool to run a PDF Rietveld refinement using DiffPy-CMI.
-    </help>
+    <help><![CDATA[
+        Runs a PDF Rietveld refinement using DiffPy-CMI.
+    ]]></help>
 </tool>

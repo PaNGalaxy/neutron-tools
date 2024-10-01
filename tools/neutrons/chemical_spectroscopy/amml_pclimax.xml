@@ -48,7 +48,7 @@
         <data format="png" name="out" label="${tool.name} on ${input.name} (plot)"/>
 
     </outputs>
-<help><![CDATA[
-    Runs PClimax Tool
-]]></help>
+    <help><![CDATA[
+        Prepares plot from OCLIMAX results.
+    ]]></help>
 </tool>

@@ -42,9 +42,6 @@
     <outputs>
         <data name="output" format="binary" ></data>
     </outputs>
-    <help>
-        A tool to find peaks in single crystal diffraction.
-    </help>
     <tests>
         <test>
             <param name="data_files" value="HB3A_exp770_scan0008_0001.jpg,HB3A_exp770_scan0008_0002.jpg,HB3A_exp770_scan0009_0001.jpg,HB3A_exp770_scan0009_0002.jpg" />
@@ -54,4 +51,7 @@
             <output name="output" file="expected_peak_list.npy"/>
         </test>
     </tests>
+    <help><![CDATA[
+        Finds peaks in single crystal diffraction.
+    ]]></help>
 </tool>

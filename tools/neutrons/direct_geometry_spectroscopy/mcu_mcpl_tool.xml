@@ -21,8 +21,7 @@
 		<data format="txt" name="output" label="mcpl header"/>
     </outputs>
     <help>
-A tool to extract a header from an mcpl file.
-
+        Extracts a header from a mcpl file.
 -----
 
 **Dump options**

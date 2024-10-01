@@ -29,6 +29,6 @@
     	</data>
     </outputs>
     <help><![CDATA[
-        A helper tool to create facility/instrument workflow inputs
+        Creates a file with facility and instrument values for workflow inputs.
     ]]></help>
 </tool>

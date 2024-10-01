@@ -53,8 +53,9 @@
     <outputs>
         <data name="output" format="txt" label="Paraview Output"></data>
     </outputs>
-    <help>
-         Starts a remote Paraview Server. This is an experimental tool, to connect to Paraview
-         a client sholud be configured correspondingly.
-    </help>
+    <help><![CDATA[
+        Starts a remote Paraview Server.
+
+        This is an experimental tool, to connect to Paraview a client sholud be configured correspondingly.
+    ]]></help>
 </tool>

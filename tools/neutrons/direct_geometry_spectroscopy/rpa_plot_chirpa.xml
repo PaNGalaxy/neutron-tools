@@ -40,6 +40,8 @@
         </test>
     </tests>
     <help><![CDATA[
-A tool to plot chi(q,w). Use with the RPA tool to plot the result. The MRPA++ code has been developed with resources from the Center of Nanophase M aterials Sciences, which is a DOE Office of Science User Facility, and the NSF u nder DMR-1308603.
-]]></help>
+        Plots chi(q,w).
+
+        Use with the RPA tool to plot the result. The MRPA++ code has been developed with resources from the Center of Nanophase M aterials Sciences, which is a DOE Office of Science User Facility, and the NSF u nder DMR-1308603.
+    ]]></help>
 </tool>

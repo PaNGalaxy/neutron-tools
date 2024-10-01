@@ -39,7 +39,7 @@
         </data>
     </outputs>
     <help><![CDATA[
-        TOPAZ data reduction tool
-]]></help>
+        Runs TOPAZ data reduction - reduce part.
+    ]]></help>
 </tool>
 

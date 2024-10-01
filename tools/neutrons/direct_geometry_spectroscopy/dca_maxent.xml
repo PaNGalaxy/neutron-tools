@@ -73,7 +73,7 @@
         </collection>
     </outputs>
     <help><![CDATA[
-        A tool to run Maxent.py
-]]></help>
+        Processes DCA++ results using maximum entropy method.
+    ]]></help>
 </tool>
 

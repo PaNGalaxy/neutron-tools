@@ -44,7 +44,7 @@
         <data name="output_single" auto_format="true" label="Jana2020 Console Output">
         </data>
     </outputs>
-    <help>
-        Runs the Jana2020 Crystallographic Computing System for Standard and Modulated Structures Software
-    </help>
+    <help><![CDATA[
+        Starts the interactive Jana2020 Crystallographic Computing System for Standard and Modulated Structures Software.
+    ]]></help>
 </tool>

@@ -1,4 +1,4 @@
-<tool id="neutrons_import_oncat" name="Load Neutron Data" version="0.3.0" profile="22.05">
+<tool id="neutrons_load_data" name="Load Neutron Data" version="0.3.0" profile="22.05">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -8,6 +8,10 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #if $params.ingest_mode == 'file':
+            if [[ "$params.filepath" != /SNS* && "$params.filepath" != /HFIR* ]]; then
+              echo "The file must start with /SNS or /HFIR"  > /dev/stderr &&
+              exit 1;
+            fi &&
             ln -sf '$params.filepath' $output
         #elif $params.ingest_mode == 'oncat':
             python3 /app/import_oncat.py
@@ -18,8 +22,12 @@
             --oncat-url https://oncat.ornl.gov
             --output $output
         #elif $params.ingest_mode == 'folder':
+            if [[ "$params.folder" != /SNS* && "$params.folder" != /HFIR* ]]; then
+              echo "The folder must start with /SNS or /HFIR." > /dev/stderr &&
+              exit 1;
+            fi &&
             if [ ! -d $params.folder -o ! -x $params.folder ]; then
-                echo $params.folder does not exist or cannot be accessed > $output
+                echo $params.folder does not exist or cannot be accessed > /dev/stderr &&
                 exit 1;
             fi &&
             mkdir output &&
@@ -90,6 +98,6 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Load file or folder on SNS/HFIR storage to Galaxy
+        Loads file or folder on SNS/HFIR storage to Galaxy.
     ]]></help>
 </tool>

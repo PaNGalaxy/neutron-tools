@@ -47,6 +47,6 @@
         <data format="txt" name="lcurve" label="${tool.name} on ${input.name} (lcurve)"/>
     </outputs>
     <help><![CDATA[
-    Trains DeePMD model with INS data
-]]></help>
+        Trains DeePMD model with inelastic neutron scattering data.
+    ]]></help>
 </tool>

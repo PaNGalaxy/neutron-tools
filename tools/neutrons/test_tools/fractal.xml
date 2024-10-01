@@ -16,17 +16,20 @@
             <option value="mandelbrot" selected="true">Mandelbrot Set</option>
             <option value="julia">Julia Set Animation</option>
             <option value="random">Random Walk</option>
-			<option value="markus">Markus-Lyapunov Fractal</option>
+            <option value="markus">Markus-Lyapunov Fractal</option>
         </param>
     </inputs>
     <outputs>
-	<data auto_format="true" name="output" label="$option">
-	</data>
-  </outputs>
-  <tests>
-      <test> <!-- basic test -->
-          <param name="option" value="markus"/>
-          <output name="output" file="expected_markus.png"/>
-      </test>
-  </tests>
+        <data auto_format="true" name="output" label="$option">
+        </data>
+    </outputs>
+    <tests>
+        <test> <!-- basic test -->
+            <param name="option" value="markus"/>
+            <output name="output" file="expected_markus.png"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Creates various kind of fractals.
+    ]]></help>
 </tool>

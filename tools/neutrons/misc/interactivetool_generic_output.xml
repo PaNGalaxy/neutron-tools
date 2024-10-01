@@ -122,7 +122,7 @@
             <output name="jupyter_notebook" file="test.ipynb" ftype="ipynb"/>
         </test>
     </tests> -->
-    <help>
-        Runs a Jupyter interactive notebook
-    </help>
+    <help><![CDATA[
+        Runs a generic Jupyter Notebook in interactive or non-interactive mode.
+    ]]></help>
 </tool>

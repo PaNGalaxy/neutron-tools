@@ -34,7 +34,7 @@
         <data format="txt" name="output" label="Console output">
         </data>
     </outputs>
-    <help>
-        Interactive user interface for TOPAZ Data Reduction
-    </help>
+    <help><![CDATA[
+        Starts interactive user interface for TOPAZ Data Reduction.
+    ]]></help>
 </tool>
