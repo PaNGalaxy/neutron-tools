@@ -58,6 +58,6 @@
     <help><![CDATA[
         Starts a remote Paraview Server.
 
-        This is an experimental tool, to connect to Paraview a client sholud be configured correspondingly.
+        This is an experimental tool; to connect to Paraview a client should be configured correspondingly.
     ]]></help>
 </tool>
