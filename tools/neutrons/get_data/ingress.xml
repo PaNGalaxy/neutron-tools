@@ -8,10 +8,12 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #if $params.ingest_mode == 'file':
-            if [[ "$params.filepath" != /SNS* && "$params.filepath" != /HFIR* ]]; then
-              echo "The file must start with /SNS or /HFIR"  > /dev/stderr &&
-              exit 1;
-            fi &&
+            case "$params.filepath" in /SNS* | /HFIR*) ;;
+              *)
+                echo "The file must start with /SNS or /HFIR"  > /dev/stderr &&
+                exit 1;
+                ;;
+            esac &&
             ln -sf '$params.filepath' $output
         #elif $params.ingest_mode == 'oncat':
             python3 /app/import_oncat.py
@@ -22,16 +24,18 @@
             --oncat-url https://oncat.ornl.gov
             --output $output
         #elif $params.ingest_mode == 'folder':
-            if [[ "$params.folder" != /SNS* && "$params.folder" != /HFIR* ]]; then
-              echo "The folder must start with /SNS or /HFIR." > /dev/stderr &&
-              exit 1;
-            fi &&
+            case "$params.folder" in /SNS* | /HFIR*) ;;
+              *)
+                echo "The folder must start with /SNS or /HFIR"  > /dev/stderr &&
+                exit 1;
+                ;;
+            esac &&
             if [ ! -d $params.folder -o ! -x $params.folder ]; then
                 echo $params.folder does not exist or cannot be accessed > /dev/stderr &&
                 exit 1;
             fi &&
             mkdir output &&
-            python -c "import glob; [print(f) for f in glob.glob('$params.folder/' + ('$params.filter' or '**'), recursive=$params.recursive)]" |
+            python3 -c "import glob; [print(f) for f in glob.glob('$params.folder/' + ('$params.filter' or '**'), recursive=$params.recursive)]" |
             while IFS= read -r file; do
               if [ -f \$file ]; then
                relative_path="\${file#$params.folder}" &&
