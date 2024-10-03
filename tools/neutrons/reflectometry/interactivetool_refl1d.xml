@@ -1,11 +1,12 @@
 <tool id="neutrons_reflectometry_refl1d" tool_type="interactive" name="Refl1D" profile="22.05" version="0.1.1">
-  <description></description>
+    <description></description>
     <creator>
         <person name="Mathieu Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/reflectometry/refl1d:0.2.9</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/reflectometry/refl1d:0.2.9
+        </container>
     </requirements>
     <entry_points>
         <entry_point name="Refl1D" label="refl1d" requires_domain="False" requires_path_in_url="True">
@@ -31,17 +32,19 @@
     ]]>
     </command>
     <inputs>
-         <repeat name="datasets" title="Datasets">
+        <repeat name="datasets" title="Datasets">
             <param name="input" type="data" label="Dataset"/>
         </repeat>
     </inputs>
     <outputs>
         <collection type="list" name="output" label="Refl1D Output Files">
-                <discover_datasets pattern="__designation__" directory="outputs" />
+            <discover_datasets pattern="__designation__" directory="outputs"/>
         </collection>
         <data name="output_console" auto_format="true" label="Ref1D Console Output"/>
     </outputs>
-    <help>
+    <help><![CDATA[
+        Starts Refl1D interactive tool.
+
         1-D reflectometry allows material scientists to understand the structure of thin films, providing composition and 
         density information as a function of depth. With polarized neutron measurements, scientists can study the sub-surface 
         structure of magnetic samples. The Refl1D modeling program supports a mixture of slabs, freeform and specialized layer 
@@ -50,5 +53,5 @@
 
         Any tool input files will be made available in the /data/inputs directory. Any files placed in the /data/outputs
         directory will be returned to the history in a dataset collection when the tool finishes.
-    </help>
+    ]]></help>
 </tool>

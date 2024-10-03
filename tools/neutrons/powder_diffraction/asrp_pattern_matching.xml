@@ -1,11 +1,12 @@
 <tool id="neutrons_asrp_pm" name="Pattern Matching" profile="22.05" version="0.3.0">
-  <description></description>
+    <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/pattern_matching:0.3</container>
+        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/pattern_matching:0.3
+        </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         ##Move files to execution directory
@@ -26,10 +27,10 @@
 
     ]]></command>
     <inputs>
-    	<repeat name="dataFiles" title="Data Files">
-	    	<param name="dataFile" type="data" format="txt" label="Data File">
-		    </param>
-	    </repeat>
+        <repeat name="dataFiles" title="Data Files">
+            <param name="dataFile" type="data" format="txt" label="Data File">
+            </param>
+        </repeat>
         <param name="distance_metric_type" type="select" label="Distance Metric Type" optional="false">
             <option value="euclidean" selected="false">Euclidean</option>
             <option value="manhattan" selected="false">Manhattan</option>
@@ -40,26 +41,23 @@
             <option value="dbscan" selected="false">DBSCAN</option>
             <option value="hdbscan" selected="false">HDBSCAN</option>
         </param>
-        <param name="xmin" type="float" label="Left bound" value="0" />
-        <param name="xmax" type="float" label="Right bound" value="0" />
+        <param name="xmin" type="float" label="Left bound" value="0"/>
+        <param name="xmax" type="float" label="Right bound" value="0"/>
 
         <param name="background_type" type="select" label="Background type" optional="false">
-                <option value="Linear" selected="true">Linear</option>
+            <option value="Linear" selected="true">Linear</option>
         </param>
         <param name="units" type="select" label="Units" optional="false">
-                <option value="TOF" selected="true">TOF</option>
+            <option value="TOF" selected="true">TOF</option>
         </param>
     </inputs>
     <outputs>
-        <data name="output" format="json" ></data>
+        <data name="output" format="json"></data>
     </outputs>
-    <help>
-        A tool to pattern match a group of patterns using clustering algorithms.
-    </help>
     <tests>
         <test>
-            <param name="dataFiles_0|dataFile" value="NOM_Li2ODCl_at_280K.gsa" />
-            <param name="dataFiles_1|dataFile" value="NOM_Li2ODCl_at_300K.gsa" />
+            <param name="dataFiles_0|dataFile" value="NOM_Li2ODCl_at_280K.gsa"/>
+            <param name="dataFiles_1|dataFile" value="NOM_Li2ODCl_at_300K.gsa"/>
             <param name="distance_metric_type" value="pearson"/>
             <param name="cluster_algorithm_type" value="dbscan"/>
             <param name="xmin" value="1.0"/>
@@ -69,4 +67,7 @@
             <output name="output" file="expected_clusters.json"/>
         </test>
     </tests>
+    <help><![CDATA[
+        Matches a group of patterns using clustering algorithms.
+    ]]></help>
 </tool>

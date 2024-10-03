@@ -1,11 +1,13 @@
-<tool id="neutrons_gpsans" name="GPSANS"  profile="22.05" version="0.2.0">
-  <description></description>
+<tool id="neutrons_gpsans" name="GPSANS" profile="22.05" version="0.2.0">
+    <description></description>
     <creator>
         <person name="Yingrui Shang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.2.0</container>
+        <container type="docker" shell="/bin/bash">
+            code.ornl.gov:4567/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.2.0
+        </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir reduced &&
@@ -25,19 +27,19 @@
     </inputs>
     <outputs>
         <collection type="list" name="output_collection1" label="GPSANS output">
-            <discover_datasets format= "binary" pattern="__designation__" directory="reduced" />
+            <discover_datasets format="binary" pattern="__designation__" directory="reduced"/>
         </collection>
         <collection type="list" name="output_collection2" label="GPSANS 1D ouptut">
-            <discover_datasets pattern="__designation_and_ext__" directory="reduced/1D" />
+            <discover_datasets pattern="__designation_and_ext__" directory="reduced/1D"/>
         </collection>
         <collection type="list" name="output_collection3" label="GPSANS 2D ouptut">
-            <discover_datasets pattern="__designation_and_ext__" directory="reduced/2D" />
+            <discover_datasets pattern="__designation_and_ext__" directory="reduced/2D"/>
         </collection>
         <data format="txt" name="output" label="GPSANS console output">
         </data>
     </outputs>
     <help><![CDATA[
-        GPSANS data reduction tool
-]]></help>
+        Runs GPSANS data reduction.
+    ]]></help>
 </tool>
 

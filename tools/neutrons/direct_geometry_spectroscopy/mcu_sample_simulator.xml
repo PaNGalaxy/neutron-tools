@@ -31,6 +31,6 @@
         <data format="h5" name="sim" label="Simulated events"/>
     </outputs>
     <help><![CDATA[
-A tool to run McVine simulations of a Sample
-]]></help>
+        Runs McVine simulations of a sample.
+    ]]></help>
 </tool>

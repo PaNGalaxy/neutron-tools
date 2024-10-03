@@ -29,7 +29,7 @@
         <data format="png" name="heatmap" label="DCA Maxent Heatmap"/>
     </outputs>
     <help><![CDATA[
-        A tool to visualize MaxEnt results
-]]></help>
+        Visualizes MaxEnt results, in ORC cloud infrastructure.
+    ]]></help>
 </tool>
 

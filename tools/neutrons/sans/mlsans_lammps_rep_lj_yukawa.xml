@@ -1,10 +1,13 @@
-<tool id="neutrons_mlsans_lammps_rep_lj_yukawa" name="LAMMPS Simulation - LJ+Yukawa"  profile="22.05" version="0.1" python_template_version="3.5">
+<tool id="neutrons_mlsans_lammps_rep_lj_yukawa" name="LAMMPS Simulation - LJ+Yukawa" profile="22.05" version="0.1"
+      python_template_version="3.5">
     <creator>
         <person name="Changwoo Do"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow:0.1</container>
+        <container type="docker">
+            code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow:0.1
+        </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         pwd && cd /app && ls && 
@@ -17,29 +20,32 @@
     ]]>
     </command>
     <inputs>
-        <param name="N" type="float" optional="false" value="0.315" min="0.015" max="0.450" label="Volume fraction, phi, [0.015 - 0.450]"/>
-        <param name="K" type="float" optional="false" value="0.030" min="0.020" max="0.500" label="(kappa D)^-1 (kappa^-1 is debye screening length), [0.020 - 0.500]"/>
-        <param name="A" type="float" optional="false" value="1.0" min="1.0" max="20.0" label="Coupling parameter, A, [1.000 - 20.00]"/>
+        <param name="N" type="float" optional="false" value="0.315" min="0.015" max="0.450"
+               label="Volume fraction, phi, [0.015 - 0.450]"/>
+        <param name="K" type="float" optional="false" value="0.030" min="0.020" max="0.500"
+               label="(kappa D)^-1 (kappa^-1 is debye screening length), [0.020 - 0.500]"/>
+        <param name="A" type="float" optional="false" value="1.0" min="1.0" max="20.0"
+               label="Coupling parameter, A, [1.000 - 20.00]"/>
     </inputs>
     <outputs>
-        <data format="png" name="output_image" />
-        <data format="txt" name="output_data" />
+        <data format="png" name="output_image"/>
+        <data format="txt" name="output_data"/>
     </outputs>
     <help><![CDATA[
+        Runs a LAMMPS simulation of a colloidal suspension and calculates the scattering spectra, using Yukawa potential.
 
-A tool that would run a LAMMPS[1] simulation of a colloidal suspension and then calculate the scattering spectra using FFTW[2,3]. The interaction among charged colloidal particles is described by an excluded volume, represented by a repulsive Lennard-Jones potential, and a long-range potential represented by the Yukawa potential up to a screening length, 1/kappa. The tool will output two files: the raw text file and a PNG image file of the scattering spectra. Please refer to [4] for more details.
+        A tool that would run a LAMMPS[1] simulation of a colloidal suspension and then calculate the scattering spectra using FFTW[2,3].
+        The interaction among charged colloidal particles is described by an excluded volume, represented by a repulsive Lennard-Jones potential,
+        and a long-range potential represented by the Yukawa potential up to a screening length, 1/kappa.
+        The tool will output two files: the raw text file and a PNG image file of the scattering spectra. Please refer to [4] for more details.
 
-Ref:
+        **References**
 
-[1] https://www.lammps.org/
-
-[2] https://www.fftw.org/
-
-[3] Carrillo, J. M. Y., & Dobrynin, A. V. (2011). Polyelectrolytes in salt solutions: Molecular dynamics simulations. Macromolecules, 44(14), 5798-5816.
-https://doi.org/10.1021/ma2007943
-
-[4] Chang, Ming-Ching, et al. "A machine learning inversion scheme for determining interaction from scattering." Communications Physics 5.1 (2022): 46. 
-https://doi.org/10.1038/s42005-021-00778-y
+        * [1] https://www.lammps.org/
+        * [2] https://www.fftw.org/
+        * [3] Carrillo, J. M. Y., & Dobrynin, A. V. (2011). Polyelectrolytes in salt solutions: Molecular dynamics simulations. Macromolecules, 44(14), 5798-5816. https://doi.org/10.1021/ma2007943
+        * [4] Chang, Ming-Ching, et al. "A machine learning inversion scheme for determining interaction from scattering." Communications Physics 5.1 (2022): 46.
+        https://doi.org/10.1038/s42005-021-00778-y
 
     ]]></help>
 </tool>

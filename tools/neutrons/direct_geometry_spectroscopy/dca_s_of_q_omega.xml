@@ -1,5 +1,5 @@
-<tool id="neutrons_dca_sofqo" name="DCA S of Q Omega Simulator"  profile="22.05" version="0.4.0">
-  <description></description>
+<tool id="neutrons_dca_sofqo" name="DCA S of Q Omega Simulator" profile="22.05" version="0.4.0">
+    <description></description>
     <creator>
         <person name="Thomas Maier"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -38,18 +38,18 @@
         ln -s \$STORAGE_FOLDER/* portal/sofqomega0.bp
     ]]></command>
     <inputs>
-        <param name="input"  type="data" format="json" optional="false" label="Config"/>
+        <param name="input" type="data" format="json" optional="false" label="Config"/>
         <param name="input_data" type="data" format="h5" optional="false" label="Binning Data"/>
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection" label="DCA SofQOmega">
-            <discover_datasets format="data" pattern="__designation__" directory="portal/sofqomega0.bp" />
+            <discover_datasets format="data" pattern="__designation__" directory="portal/sofqomega0.bp"/>
         </collection>
-		<data format="txt" name="output" label="DCA SofQOmega - console output"/>
+        <data format="txt" name="output" label="DCA SofQOmega - console output"/>
     </outputs>
     <help><![CDATA[
-        A tool to run s of q omega simulations
-]]></help>
+        Runs S(Q,W) simulations.
+    ]]></help>
 </tool>
 

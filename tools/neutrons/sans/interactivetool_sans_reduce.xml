@@ -1,11 +1,12 @@
 <tool id="neutrons_trame_sans" tool_type="interactive" name="SANS Data Reduction" profile="22.05" version="0.7.2">
-  <description></description>
+    <description></description>
     <creator>
         <person name="Yingrui Shang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.7.2</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.7.2
+        </container>
     </requirements>
     <entry_points>
         <entry_point name="Trame SANS" label="sans" requires_domain="False" requires_path_in_url="True">
@@ -14,7 +15,7 @@
     </entry_points>
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
-        <environment_variable name="GALAXY_API_KEY" inject="api_key" />
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">sans</environment_variable>
     </environment_variables>
@@ -34,7 +35,7 @@
         <data format="txt" name="output" label="Console output">
         </data>
     </outputs>
-    <help>
-        SANS Data Reduction Trame App
-    </help>
+    <help><![CDATA[
+        Starts SANS data reduction Trame application.
+    ]]></help>
 </tool>

@@ -4,7 +4,8 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.11</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/jana2020:0.11
+        </container>
     </requirements>
     <entry_points>
         <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requries_path_in_url="True">
@@ -39,12 +40,12 @@
     </inputs>
     <outputs>
         <collection type="list" name="output" label="Jana2020 Output Files">
-                <discover_datasets pattern="__designation__" directory="outputs" />
+            <discover_datasets pattern="__designation__" directory="outputs"/>
         </collection>
         <data name="output_single" auto_format="true" label="Jana2020 Console Output">
         </data>
     </outputs>
-    <help>
-        Runs the Jana2020 Crystallographic Computing System for Standard and Modulated Structures Software
-    </help>
+    <help><![CDATA[
+        Starts the interactive Jana2020 Crystallographic Computing System for Standard and Modulated Structures Software.
+    ]]></help>
 </tool>

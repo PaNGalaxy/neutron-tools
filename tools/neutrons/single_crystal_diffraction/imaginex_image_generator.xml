@@ -45,6 +45,6 @@
         </collection>
     </outputs>
     <help><![CDATA[
-        Image generation for IMAGINE-X beamline data reduction.
+        Generates images for IMAGINE-X beamline data reduction.
     ]]></help>
 </tool>

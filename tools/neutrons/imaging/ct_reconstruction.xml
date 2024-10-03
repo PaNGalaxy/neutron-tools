@@ -41,7 +41,7 @@
         <data name="jupyter_notebook" format="ipynb" label="Executed CTR Tool"/>
     </outputs>
     <help>
-        This Computed Tomography Reconstruction interactive tool runs a full CT reconstruction in Jupyter Notebook.
+        Runs a computed tomography reconstruction interactive tool in Jupyter Notebook.
 
         **NOTE**: Please change the kernel from ipykernel to imars3d before executing the notebook.
 

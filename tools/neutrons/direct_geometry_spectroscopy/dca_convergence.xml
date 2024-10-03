@@ -1,5 +1,5 @@
-<tool id="neutrons_dca_convergence" name="DCA Convergence (HPC)"  profile="22.05" version="0.6.0">
-  <description></description>
+<tool id="neutrons_dca_convergence" name="DCA Convergence (HPC)" profile="22.05" version="0.6.0">
+    <description></description>
     <creator>
         <person name="Thomas Maier"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -14,7 +14,7 @@
         ln -s \$(pwd)/conv.hdf5 $data_output
     ]]></command>
     <inputs>
-        <param name="input"  type="data" format="json" optional="false" label="Config"/>
+        <param name="input" type="data" format="json" optional="false" label="Config"/>
         <param name="experiment_name" type="text" optional="false" label="Experiment Name"/>
     </inputs>
     <outputs>
@@ -22,8 +22,9 @@
         <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
-        A tool to run DCA convergence.
+        Runs DCA++ convergence on HPC.
+
         mpi command: srun, extra arguments: -N1 -n8 -c7 --gpus-per-task=1 --gpu-bind=closest (change -N - number of nodes accordingly)
-]]></help>
+    ]]></help>
 </tool>
 
