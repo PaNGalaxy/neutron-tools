@@ -39,7 +39,7 @@ testing:
   script:
     - echo "Running tests for all tools."
     - cd `pwd`/tools/neutrons
-    - TEST_FOLDERS=`find . -type f -name "*.xml" -exec grep -l "<test>" {} + | awk -F/ 'BEGIN { OFS="/"; } { $NF=""; sub(/\/$/, ""); print }' | sort -u | sed 's/^\.\///'`
+    - TEST_FOLDERS=`find . -type d -name retired -prune -o -type d -name dockerfiles -prune -o -type f -name "*.xml" -exec grep -l "<test>" {} + | awk -F/ 'BEGIN { OFS="/"; } { $NF=""; sub(/\/$/, ""); print }' | sort -u | sed 's/^\.\///'`
     - echo testing in $TEST_FOLDERS
     - |
       for FOLDER in $TEST_FOLDERS
