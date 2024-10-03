@@ -21,7 +21,7 @@
         <data format="h5" name="data_output" label="DCA Binning"/>
     </outputs>
     <help><![CDATA[
-        A tool to run DCA binning.
-]]></help>
+        Runs DCA++ binning in ORC cloud infrastructure.
+    ]]></help>
 </tool>
 

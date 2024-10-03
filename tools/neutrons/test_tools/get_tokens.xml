@@ -32,6 +32,6 @@
         </data>
     </outputs>
     <help><![CDATA[
-        TODO: Fill in help.
+        Prints OIDC tokens.
     ]]></help>
 </tool>

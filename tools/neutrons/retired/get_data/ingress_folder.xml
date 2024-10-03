@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tool name="Register Data Folder" id="neutrons_ingress_folder" version="0.1.1" profile="22.05">
-    <description>in Galaxy </description>
+    <description>in Galaxy</description>
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -30,19 +30,23 @@
     ]]></command>
     <inputs>
         <param name="folder" type="text" label="Folder to ingress" value="" optional="false"/>
-        <param name="recursive" type="boolean" truevalue="True" falsevalue="False" checked="true" label="Recursive ingress"/>
+        <param name="recursive" type="boolean" truevalue="True" falsevalue="False" checked="true"
+               label="Recursive ingress"/>
         <param name="filter" type="text" label="Filter Files" value="" optional="true" help="Wildcard to filter ingressed data.
         E.g. *.dat (all .dat files in the folder, no recursion); subfolder/*.dat (.dat files in subfolder);
         **/*.dat - all .dat files in the folder and subfolders;
         empty string (or **) - all files in the folder and all subfolders.
         "/>
         <param name="collection_name" type="text" label="New collection name" value="" optional="true"/>
-        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Output log file"/>
+        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" checked="false"
+               label="Output log file"/>
 
     </inputs>
     <outputs>
-        <collection type="list" name="output_collection" label="#if $collection_name then $collection_name else $folder">
-            <discover_datasets format="binary" match_relative_path="True" pattern="__designation__" recurse="true" directory="output"/>
+        <collection type="list" name="output_collection"
+                    label="#if $collection_name then $collection_name else $folder">
+            <discover_datasets format="binary" match_relative_path="True" pattern="__designation__" recurse="true"
+                               directory="output"/>
         </collection>
         <data format="txt" name="output" label="$folder ingress output">
             <filter>debug_output</filter>
@@ -57,12 +61,12 @@
             <output_collection name="output_collection" type="list">
                 <element name="test1.dat">
                     <assert_contents>
-                        <has_text text="col1" />
+                        <has_text text="col1"/>
                     </assert_contents>
                 </element>
                 <element name="test2.dat">
                     <assert_contents>
-                        <has_text text="col2" />
+                        <has_text text="col2"/>
                     </assert_contents>
                 </element>
             </output_collection>

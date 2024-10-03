@@ -4,7 +4,8 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/paraview/cpu:0.1</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/paraview/cpu:0.1
+        </container>
     </requirements>
     <entry_points>
         <entry_point name="Paraview Server" requires_domain="True">
@@ -44,17 +45,19 @@
     ]]>
     </command>
     <inputs>
-         <repeat name="data" title="Data">
+        <repeat name="data" title="Data">
             <param name="input" type="data" multiple="true" label="Datasets or collection"/>
-            <param name="alias" type="text" optional="true" default="" help="leave empty to set automatically" label="Folder name in visualizer"/>
+            <param name="alias" type="text" optional="true" default="" help="leave empty to set automatically"
+                   label="Folder name in visualizer"/>
         </repeat>
 
     </inputs>
     <outputs>
         <data name="output" format="txt" label="Paraview Output"></data>
     </outputs>
-    <help>
-         Starts a remote Paraview Server. This is an experimental tool, to connect to Paraview
-         a client sholud be configured correspondingly.
-    </help>
+    <help><![CDATA[
+        Starts a remote Paraview Server.
+
+        This is an experimental tool; to connect to Paraview a client should be configured correspondingly.
+    ]]></help>
 </tool>

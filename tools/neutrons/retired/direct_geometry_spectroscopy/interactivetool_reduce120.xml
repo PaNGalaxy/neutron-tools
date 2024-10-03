@@ -7,7 +7,8 @@
         <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.1.0</container>
     </requirements>
     <entry_points>
-        <entry_point name="Jupyter Interactive Tool" label="reduce120" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="Jupyter Interactive Tool" label="reduce120" requires_domain="False"
+                     requires_path_in_url="True">
             <port>8888</port>
             <url>ipython/lab</url>
         </entry_point>
@@ -16,7 +17,7 @@
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
-        <environment_variable name="API_KEY" inject="api_key" />
+        <environment_variable name="API_KEY" inject="api_key"/>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">reduce120</environment_variable>
     </environment_variables>
     <command><![CDATA[
@@ -57,7 +58,8 @@
     <inputs>
 
         <conditional name="mode">
-            <param name="mode_select" type="select" label="Jupyter notebook" help="Select 'Start with a fresh notebook' to use a default one.">
+            <param name="mode_select" type="select" label="Jupyter notebook"
+                   help="Select 'Start with a fresh notebook' to use a default one.">
                 <option value="scratch">Start with a fresh notebook</option>
                 <option value="previous">Load a previous notebook</option>
             </param>
@@ -66,11 +68,12 @@
                 <param name="ipynb" type="data" format="ipynb" label="IPython Notebook"/>
             </when>
         </conditional>
-        <param name="run_it" type="boolean" truevalue="true" falsevalue="false" label="Execute notebook noninteractively"
-                    help="This option is useful in workflows when you just want to execute a notebook and not dive into the webfrontend."/>
+        <param name="run_it" type="boolean" truevalue="true" falsevalue="false"
+               label="Execute notebook noninteractively"
+               help="This option is useful in workflows when you just want to execute a notebook and not dive into the webfrontend."/>
         <param name="data" type="data" format="h5" optional="false" label="Data File"/>
-        <param name="monitor"  type="data" format="h5" optional="false" label="Monitor File"/>
-        <param name="van"  type="data" format="h5" optional="false" label="Vanadium File"/>
+        <param name="monitor" type="data" format="h5" optional="false" label="Monitor File"/>
+        <param name="van" type="data" format="h5" optional="false" label="Vanadium File"/>
     </inputs>
     <outputs>
         <data name="jupyter_notebook" format="ipynb" label="Executed Notebook"></data>

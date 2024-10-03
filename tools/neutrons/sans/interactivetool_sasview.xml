@@ -4,7 +4,8 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/sas-view:latest</container>
+        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/sas-view:latest
+        </container>
     </requirements>
     <entry_points>
         <entry_point name="SASView" label="sasview" requires_domain="False" requries_path_in_url="True">
@@ -31,19 +32,20 @@
         ]]>
     </command>
     <inputs>
-         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
-         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
-         <repeat name="datasets" title="Datasets">
+        <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
+        <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
+        <repeat name="datasets" title="Datasets">
             <param name="input" type="data" label="Dataset"/>
         </repeat>
     </inputs>
     <outputs>
         <collection type="list" name="output" label="SAS View Output Files">
-                <discover_datasets pattern="__designation__" directory="outputs" />
+            <discover_datasets pattern="__designation__" directory="outputs"/>
         </collection>
         <data name="output_single" auto_format="true" label="SAS View Console Output">
         </data>
     </outputs>
-    <help>
-    </help>
+    <help><![CDATA[
+        Starts SASView interactive application.
+    ]]></help>
 </tool>

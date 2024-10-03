@@ -1,11 +1,12 @@
-<tool id="neutrons_trame_topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.9.1">
-  <description></description>
+<tool id="neutrons_trame_topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.10.0">
+    <description></description>
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.9.1</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.10
+        </container>
     </requirements>
     <entry_points>
         <entry_point name="Trame Topaz" label="topaz" requires_domain="False" requires_path_in_url="True">
@@ -14,7 +15,7 @@
     </entry_points>
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
-        <environment_variable name="GALAXY_API_KEY" inject="api_key" />
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">topaz</environment_variable>
     </environment_variables>
@@ -34,7 +35,7 @@
         <data format="txt" name="output" label="Console output">
         </data>
     </outputs>
-    <help>
-        Interactive user interface for TOPAZ Data Reduction
-    </help>
+    <help><![CDATA[
+        Starts interactive user interface for TOPAZ Data Reduction.
+    ]]></help>
 </tool>

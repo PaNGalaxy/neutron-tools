@@ -1,5 +1,5 @@
-<tool id="neutrons_amml_cp2k_convert" name="CP2K Output Parsing"  profile="22.05" version="0.2.0">
-  <description></description>
+<tool id="neutrons_amml_cp2k_convert" name="CP2K Output Parsing" profile="22.05" version="0.2.0">
+    <description></description>
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -21,8 +21,8 @@
     ]]></command>
     <inputs>
         <param name="mof_input" type="data" format="txt" optional="false" label="CP2K *.inp file"/>
-        <param  name="mof_force" type="data" format="txt" label="CP2K *.xyz file containing atomic forces"/>
-        <param name="mof_pos" type="data" format="txt"  label="CP2K *.xyz file containing atomic coordinates"/>
+        <param name="mof_force" type="data" format="txt" label="CP2K *.xyz file containing atomic forces"/>
+        <param name="mof_pos" type="data" format="txt" label="CP2K *.xyz file containing atomic coordinates"/>
     </inputs>
     <outputs>
         <data format="txt" name="box_raw" label="box file"/>
@@ -31,7 +31,7 @@
         <data format="txt" name="force_raw" label="force file"/>
         <data format="txt" name="type_raw" label="type file"/>
     </outputs>
-    <help>
-        Extracts atomic coordinates and forces from the CP2K MD trajectory, and converts them into \*.raw files needed by DeePMD.
-    </help>
+    <help><![CDATA[
+        Extracts atomic coordinates and forces from the CP2K MD trajectory, and converts them into *.raw files needed by DeePMD.
+    ]]></help>
 </tool>

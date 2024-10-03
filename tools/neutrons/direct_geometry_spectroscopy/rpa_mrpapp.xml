@@ -1,4 +1,4 @@
-<tool id="neutrons_rpa_mrpapp" name="RPA Simulation"  profile="22.05" version="0.2.0">
+<tool id="neutrons_rpa_mrpapp" name="RPA Simulation" profile="22.05" version="0.2.0">
     <creator>
         <person name="Thomas Maier"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -22,9 +22,9 @@
     <outputs>
         <data format="txt" name="output_data" label="RPA simulation results"/>
         <collection type="list" name="output_collection" label="All RPA output">
-            <discover_datasets format="txt" pattern="__designation_and_ext__" directory="results" />
+            <discover_datasets format="txt" pattern="__designation_and_ext__" directory="results"/>
         </collection>
-    </outputs> 
+    </outputs>
     <tests>
         <test>
             <param name="params" value="rpa_input.txt"/>
@@ -34,7 +34,12 @@
         </test>
     </tests>
     <help><![CDATA[
-        A tool to run simulations of neutron scattering and superconductivity in correlated electron systems using the MRPA++ code. It uses random-phase approximation (RPA) / Bardeen-Cooper-Schrieffer (BCS) theory to predict the neutron scattering cross section of realistic multi-orbital tight-binding models with Hubbard-like electron-electron interactions for the normal and superconducting states. It can also be used to calculate the pairing interaction in these models using an RPA approximation and to predict the superconducting gap structure.
+        Runs simulations of neutron scattering and superconductivity in correlated electron systems using the MRPA++ code.
+
+        It uses random-phase approximation (RPA) / Bardeen-Cooper-Schrieffer (BCS) theory to predict the neutron scattering
+         cross section of realistic multi-orbital tight-binding models with Hubbard-like electron-electron interactions
+         for the normal and superconducting states. It can also be used to calculate the pairing interaction in these
+         models using an RPA approximation and to predict the superconducting gap structure.
 
         The MRPA++ code has been developed with resources from the Center of Nanophase M aterials Sciences, which is a DOE Office of Science User Facility, and the NSF u nder DMR-1308603.
     ]]></help>

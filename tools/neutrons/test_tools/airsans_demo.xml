@@ -1,5 +1,5 @@
 <tool id="neutrons_airsans_demo" tool_type="interactive" name="Air-SANS Demo" profile="22.05" version="0.2.0">
-  <description></description>
+    <description></description>
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -14,7 +14,7 @@
     </entry_points>
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
-        <environment_variable name="GALAXY_API_KEY" inject="api_key" />
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">airsans-demo</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
@@ -35,6 +35,6 @@
         </data>
     </outputs>
     <help>
-        A demo tool with multiple Trame Apps
+        Runs a demo interactive application with multiple Trame Apps
     </help>
 </tool>

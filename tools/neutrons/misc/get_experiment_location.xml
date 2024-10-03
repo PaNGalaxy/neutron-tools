@@ -1,4 +1,5 @@
-<tool id="neutrons_get_experiment_location" name="Get Experiment Location" version="0.1.0"  profile="22.05" python_template_version="3.5">
+<tool id="neutrons_get_experiment_location" name="Get Experiment Location" version="0.1.0" profile="22.05"
+      python_template_version="3.5">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -10,25 +11,25 @@
 	    echo $instrument > $output_instrument
     ]]></command>
     <inputs>
-	<param name="facility" type="select" label="Facility Name" optional="false">
-		<option value="SNS" selected="false">SNS</option>
-		<option value="HFIR">HFIR</option>
-	</param>
-	<param name="instrument" type="select" label="Instrument Name" optional="false">
-		<options from_data_table="instruments">
-			<column name="name" index="3"/>
-			<column name="value" index="2"/>
-			<filter type="param_value" ref="facility" column="0"/>
-		</options>
-	</param>
+        <param name="facility" type="select" label="Facility Name" optional="false">
+            <option value="SNS" selected="false">SNS</option>
+            <option value="HFIR">HFIR</option>
+        </param>
+        <param name="instrument" type="select" label="Instrument Name" optional="false">
+            <options from_data_table="instruments">
+                <column name="name" index="3"/>
+                <column name="value" index="2"/>
+                <filter type="param_value" ref="facility" column="0"/>
+            </options>
+        </param>
     </inputs>
     <outputs>
-	<data format="txt" name="output_facility">
-    	</data>
-	<data format="txt" name="output_instrument">
-    	</data>
+        <data format="txt" name="output_facility">
+        </data>
+        <data format="txt" name="output_instrument">
+        </data>
     </outputs>
     <help><![CDATA[
-        A helper tool to create facility/instrument workflow inputs
+        Creates a file with facility and instrument values for workflow inputs.
     ]]></help>
 </tool>

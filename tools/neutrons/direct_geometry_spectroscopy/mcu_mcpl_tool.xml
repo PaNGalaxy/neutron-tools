@@ -1,5 +1,5 @@
-<tool id="neutrons_mcu_mcpltool" name="MCPL Tool"  profile="22.05" version="0.2.0">
-  <description></description>
+<tool id="neutrons_mcu_mcpltool" name="MCPL Tool" profile="22.05" version="0.2.0">
+    <description></description>
     <creator>
         <person name="Garrett Granroth"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -18,22 +18,26 @@
         <param name="dump_options" type="text" optional="true" value="" label="Dump options"/>
     </inputs>
     <outputs>
-		<data format="txt" name="output" label="mcpl header"/>
+        <data format="txt" name="output" label="mcpl header"/>
     </outputs>
-    <help>
-A tool to extract a header from an mcpl file.
+    <help><![CDATA[
+        Extracts a header from a mcpl file.
 
------
+        **Dump options**
 
-**Dump options**
-  By default include the info in the FILE header plus the first ten contained
-  particles. Modify with the following options:
+        By default include the info in the FILE header plus the first ten contained
+        particles. Modify with the following options:
 
-   -j, --justhead  : Dump just header info and no particle info.
-   -n, --nohead    : Dump just particle info and no header info.
-   -lN             : Dump up to N particles from the file (default 10). You can specify -l0 to disable this limit.
-   -sN             : Skip past the first N particles in the file (default 0).
-   -bKEY           : Dump binary blob stored under KEY to standard output.
-</help>
+        -j, --justhead : Dump just header info and no particle info.
+
+        -n, --nohead : Dump just particle info and no header info.
+
+        -lN : Dump up to N particles from the file (default 10). You can specify -l0 to disable this limit.
+
+        -sN : Skip past the first N particles in the file (default 0).
+
+        -bKEY : Dump binary blob stored under KEY to standard output.
+        
+    ]]></help>
 </tool>
 

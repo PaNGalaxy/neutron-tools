@@ -1,4 +1,4 @@
-<tool id="neutrons_monitor" name="Monitor IPTS Folder"  profile="22.05" version="0.1.0">
+<tool id="neutrons_monitor" name="Monitor IPTS Folder" profile="22.05" version="0.1.0">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -7,7 +7,7 @@
         <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:0.1</container>
     </requirements>
     <environment_variables>
-        <environment_variable name="API_KEY" inject="api_key" />
+        <environment_variable name="API_KEY" inject="api_key"/>
     </environment_variables>
     <command><![CDATA[
             #set $monitor_folder="/"+str($facility)+"/"+str($instrument)+"/IPTS-"+str($ipts).strip()+"/nexus"
@@ -21,22 +21,22 @@
             > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-	<param name="facility" type="select" label="Facility Name" optional="false">
-		<option value="SNS" selected="false">SNS</option>
-		<option value="HFIR">HFIR</option>
-	</param>
-	<param name="instrument" type="select" label="Instrument Name" optional="false">
-		<options from_data_table="instruments">
-			<column name="name" index="3"/>
-			<column name="value" index="2"/>
-			<filter type="param_value" ref="facility" column="0"/>
-		</options>
-	</param>
+        <param name="facility" type="select" label="Facility Name" optional="false">
+            <option value="SNS" selected="false">SNS</option>
+            <option value="HFIR">HFIR</option>
+        </param>
+        <param name="instrument" type="select" label="Instrument Name" optional="false">
+            <options from_data_table="instruments">
+                <column name="name" index="3"/>
+                <column name="value" index="2"/>
+                <filter type="param_value" ref="facility" column="0"/>
+            </options>
+        </param>
         <param name="ipts" type="text" label="IPTS Number" value="0" optional="false"/>
     </inputs>
     <outputs>
-	<data format="txt" name="output" label="Monitoring IPTS ${ipts}">
-    	</data>
+        <data format="txt" name="output" label="Monitoring IPTS ${ipts}">
+        </data>
     </outputs>
     <help><![CDATA[
         TODO: Fill in help.

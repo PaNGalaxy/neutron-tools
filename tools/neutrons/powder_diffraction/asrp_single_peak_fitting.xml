@@ -1,11 +1,12 @@
 <tool id="neutrons_asrp_spf" name="Single Peak Fitting" profile="22.05" version="0.3.0">
-  <description></description>
+    <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/single_peak_fit:0.3</container>
+        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/single_peak_fit:0.3
+        </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch $output &&
@@ -20,24 +21,21 @@
         mv /portal/enpp.json $output
     ]]></command>
     <inputs>
-        <param name="input_data"  type="data" format="txt" optional="false" label="Input data"/>
-        <param name="bank_id" type="integer" label="Bank ID" value="0" />
-        <param name="peak_center" type="float" label="Peak Center" value="0" />
-        <param name="xmin" type="float" label="Left bound" value="0" />
-        <param name="xmax" type="float" label="Right bound" value="0" />
+        <param name="input_data" type="data" format="txt" optional="false" label="Input data"/>
+        <param name="bank_id" type="integer" label="Bank ID" value="0"/>
+        <param name="peak_center" type="float" label="Peak Center" value="0"/>
+        <param name="xmin" type="float" label="Left bound" value="0"/>
+        <param name="xmax" type="float" label="Right bound" value="0"/>
         <param name="background_type" type="select" label="Background type" optional="false">
-                <option value="Linear" selected="true">Linear</option>
+            <option value="Linear" selected="true">Linear</option>
         </param>
         <param name="units" type="select" label="Units" optional="false">
-                <option value="TOF" selected="true">TOF</option>
+            <option value="TOF" selected="true">TOF</option>
         </param>
     </inputs>
     <outputs>
-        <data name="output" format="json" ></data>
+        <data name="output" format="json"></data>
     </outputs>
-    <help>
-        A tool to fit a single peak in a pattern.
-    </help>
     <tests>
         <test>
             <param name="input_data" value="NOM_Fe2O3_ramp_to_500K_at_temperature_95.05_K.gsa"/>
@@ -50,4 +48,7 @@
             <output name="output" file="expected_spf_output.json"/>
         </test>
     </tests>
+    <help><![CDATA[
+        Fits a single peak in a pattern.
+    ]]></help>
 </tool>

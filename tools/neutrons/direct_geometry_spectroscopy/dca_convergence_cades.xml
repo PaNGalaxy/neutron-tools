@@ -1,5 +1,5 @@
-<tool id="neutrons_dca_convergence_cades" name="DCA Convergence (Cloud)"  profile="22.05" version="0.4.0">
-  <description></description>
+<tool id="neutrons_dca_convergence_cades" name="DCA Convergence (Cloud)" profile="22.05" version="0.4.0">
+    <description></description>
     <creator>
         <person name="Thomas Maier"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -12,14 +12,14 @@
         mv conv.hdf5  $data_output
     ]]></command>
     <inputs>
-        <param name="input"  type="data" format="json" optional="false" label="Config"/>
+        <param name="input" type="data" format="json" optional="false" label="Config"/>
     </inputs>
     <outputs>
         <data format="h5" name="data_output" label="DCA Convergence"/>
         <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
-        A tool to run DCA convergence.
-]]></help>
+        Runs DCA++ convergence in ORC cloud infrastructure.
+    ]]></help>
 </tool>
 

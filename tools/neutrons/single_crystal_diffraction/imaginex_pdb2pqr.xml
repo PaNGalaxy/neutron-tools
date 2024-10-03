@@ -24,6 +24,6 @@
         <data format="pdb" name="protonated" from_work_dir="output/protonated.pdb"/>
     </outputs>
     <help><![CDATA[
-        Convert .pdb files to .pqr, fully adding all protons to all sites.
+        Converts .pdb files to .pqr, fully adding all protons to all sites.
     ]]></help>
 </tool>

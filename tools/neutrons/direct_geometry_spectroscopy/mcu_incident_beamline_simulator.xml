@@ -1,5 +1,5 @@
-<tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator"  profile="22.05" version="0.2.0">
-  <description></description>
+<tool id="neutrons_mcu_ibs" name="Incident Beamline Simulator" profile="22.05" version="0.2.0">
+    <description></description>
     <creator>
         <person name="Garrett Granroth"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -23,8 +23,9 @@
     ]]></command>
     <inputs>
         <conditional name="input_mode">
-            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="false" label="Manual input"
-            help=""/>
+            <param name="manual_input" type="boolean" truevalue="true" falsevalue="false" default="false"
+                   label="Manual input"
+                   help=""/>
             <when value="false">
                 <param name="facility" type="select" refresh_on_change="true" label="Facility Name" optional="false">
                     <option value="none" selected="true">None</option>
@@ -40,20 +41,22 @@
                 </param>
             </when>
             <when value="true">
-                <param name="instrument_source_code"  type="data" format="txt" optional="false" label="Simulation code source"/>
+                <param name="instrument_source_code" type="data" format="txt" optional="false"
+                       label="Simulation code source"/>
             </when>
         </conditional>
         <param name="input" type="data" format="txt" optional="false" label="Simulation input"/>
         <param name="n" type="text" value="1e9" label="Number of particles"/>
         <param name="nproc" type="integer" value="1" label="Number of processes"/>
         <param name="gpu" type="boolean" checked="true" label="Use GPU"/>
-        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" default="false" label="Output debug files"
-            help=""/>
+        <param name="debug_output" type="boolean" truevalue="true" falsevalue="false" default="false"
+               label="Output debug files"
+               help=""/>
     </inputs>
     <outputs>
-		<data format="gz" name="out_mcpl" label="mcpl"/>
+        <data format="gz" name="out_mcpl" label="mcpl"/>
         <collection type="list" name="output_collection" label="debug output">
-            <discover_datasets pattern="__designation__" format="txt" directory="outputs" />
+            <discover_datasets pattern="__designation__" format="txt" directory="outputs"/>
             <filter>debug_output</filter>
         </collection>
     </outputs>
@@ -72,7 +75,7 @@
         </test>
     </tests>
     <help><![CDATA[
-        A tool to run incident beamline simulations
+        Runs incident beamline simulations.
     ]]></help>
 </tool>
 
