@@ -1,4 +1,4 @@
-<tool id="neutrons_imaging_sammy" name="imaging_sammy"  profile="24.0" version="0.1.0-dev">
+<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.1.0-dev">
   <description></description>
     <requirements>
         <container type="docker">savannah.ornl.gov/sammy/sammy@sha256:88b89a00a5ac37966d20f869a0e8161aa833972bf6def82fc5fb2ef8382f0e8b</container>
