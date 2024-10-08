@@ -1,4 +1,4 @@
-<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.1.0-dev">
+<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.2.0-dev">
   <description></description>
     <requirements>
         <container type="docker">hub.docker.com/kedokudo/sammy@sha256:5aaf034bcfa12eaa49fe8252e04224bbc9c0324fe9b90f6fc2317396b5a2a788</container>
