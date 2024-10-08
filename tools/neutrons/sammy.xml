@@ -14,7 +14,7 @@
            $par
            $dat
 EOF
-        > >(tee -a $sammy_console_output 2> >(tee -a $sammy_consol_output >&2)
+        > >(tee -a $sammy_console_output 2> >(tee -a $sammy_console_output >&2)
     ]]></command>
     <inputs>
         <param name="inp" type="data" format="txt" optional="false" label="Input file"/>
