@@ -1,4 +1,4 @@
-FROM savannah.ornl.gov/ndip/galaxy/galaxy/dev:latest
+FROM savannah.ornl.gov/ndip/galaxy:24.1.dev3.ornl
 
 RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-24.0.2.tgz
 RUN tar zxvf docker-24.0.2.tgz && cp docker/docker /usr/bin/docker
