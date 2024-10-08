@@ -34,7 +34,7 @@ EOF
             <param name="inp" value="ex012a.inp"/>
             <param name="par" value="ex012a.par"/>
             <param name="dat" value="ex012a.dat"/>
-            <param name="sammy_console_output" value="sammy_console_output.txt"/>
+            <output name="sammy_console_output" value="sammy_console_output.txt"/>
         </test>
     </tests>
     <help><![CDATA[
