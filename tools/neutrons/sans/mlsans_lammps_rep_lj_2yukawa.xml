@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker">
-            code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow_2yukawa:0.1.1
+            savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/lammps_simulation_workflow_2yukawa:0.1.1
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

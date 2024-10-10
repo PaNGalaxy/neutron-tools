@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/ingress:0.1</container>
+        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/tool-sources/generic/ingress:0.1</container>
     </requirements>
     <environment_variables>
         <environment_variable name="API_KEY" inject="api_key"/>

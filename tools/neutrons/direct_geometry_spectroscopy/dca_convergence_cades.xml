@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/dca/dca-main:0.2</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/dca/dca-main:0.2</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         unset TMP &&

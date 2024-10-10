@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/topaz/topaz-reduction:0.3
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/topaz/topaz-reduction:0.3
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

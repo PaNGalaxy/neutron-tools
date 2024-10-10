@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker">
-            code.ornl.gov:4567/ndip/tool-sources/mcu/sample-simulator/release/sample-simulator-mcvine:latest
+            savannah.ornl.gov/ndip/tool-sources/mcu/sample-simulator/release/sample-simulator-mcvine:latest
         </container>
     </requirements>
     <inputs>

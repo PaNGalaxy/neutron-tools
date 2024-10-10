@@ -19,7 +19,7 @@
         source /gpfs/alpine/stf007/world-shared/containers/utils/requiredmpilibs.source &&
         ( [ -e \${GALAXY_CONTAINERS_DIR}/$sif_name ] ||
           singularity pull --disable-cache --dir \${GALAXY_CONTAINERS_DIR} $sif_name
-                      oras://code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
+                      oras://savannah.ornl.gov/ndip/tool-sources/dca/dca_mini_apps/$sif_image ) &&
         \${GALAXY_COMMAND_PREFIX} singularity exec
                 --bind \$(pwd)/portal:/portal
                 --pwd /portal
