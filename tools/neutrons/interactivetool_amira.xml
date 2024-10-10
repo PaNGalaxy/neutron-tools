@@ -1,6 +1,6 @@
 <tool id="interactive_tool_amira" tool_type="interactive" name="Amira Visualizer" version="0.1.0-dev" profile="22.05">
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/amira/amira-novnc</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/amira/amira-novnc:0.4_vgl</container>
     </requirements>
     <entry_points>
         <entry_point name="Amira" label="amiratool" requires_domain="False" requries_path_in_url="True">
