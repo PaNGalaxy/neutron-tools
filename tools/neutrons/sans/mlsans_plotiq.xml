@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker">
-            code.ornl.gov:4567/ndip/tool-sources/ml-assisted-sans-data-analysis/plot_iq:0.12.multi.1
+            savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/plot_iq:0.12.multi.1
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

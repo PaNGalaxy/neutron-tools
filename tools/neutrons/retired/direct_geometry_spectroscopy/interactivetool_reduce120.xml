@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/generic/jupyter-notebook:0.1.0</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/generic/jupyter-notebook:0.1.0</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="reduce120" requires_domain="False"

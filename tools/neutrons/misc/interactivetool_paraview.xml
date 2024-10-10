@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/generic/paraview/cpu:0.1
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/paraview/cpu:0.1
         </container>
     </requirements>
     <entry_points>

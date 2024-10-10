@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/tool-sources/dca/maxent:0.4</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/dca/maxent:0.4</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #import re
