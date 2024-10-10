@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/ndip/tool-sources/playground/fractal:82f871fd</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/playground/fractal:0.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #import json
