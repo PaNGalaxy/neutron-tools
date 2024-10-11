@@ -1,7 +1,7 @@
 <tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.6.0-dev">
   <description></description>
     <requirements>
-        <container type="docker">savannah.ornl.gov/ndip/tool-sources/imaging/sammy:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/sammy:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
 	echo "$inp" >> \$_GALAXY_JOB_TMP_DIR/sammy_input &&
