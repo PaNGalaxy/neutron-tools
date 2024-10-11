@@ -4,16 +4,13 @@
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/imaging/sammy:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir data &&
-        cp $inp data/$inp &&
-        cp $par data/$par &&
-        cp $dat data/$dat &&
-        cd data &&
-	sammy > >(tee -a $sammy_console_output) 2> >(tee -a $sammy_console_output >&2) <<EOF
-           $inp
-           $par
-           $dat
-EOF
+	echo "$inp" >> \$_GALAXY_JOB_TMP_DIR/sammy_input &&
+	echo "$par" >> \$_GALAXY_JOB_TMP_DIR/sammy_input &&
+	echo "$dat" >> \$_GALAXY_JOB_TMP_DIR/sammy_input &&
+        mkdir output &&
+        cd output &&
+	sammy < \$_GALAXY_JOB_TMP_DIR/sammy_input
+	> >(tee -a $sammy_console_output) 2> >(tee -a $sammy_console_output >&2)
     ]]></command>
     <inputs>
         <param name="inp" type="data" format="txt" optional="false" label="Input file"/>
@@ -23,10 +20,9 @@ EOF
 	
     <outputs>
         <collection type="list" name="sammy_output_files" label="SAMMY output files">
-            <discover_datasets format="binary" pattern="__designation__" directory="data"/>
+            <discover_datasets format="binary" pattern="__designation__" directory="output"/>
         </collection>
-        <data format="txt" name="sammy_console_output" label="SAMMY console output">
-        </data>
+        <data format="txt" name="sammy_console_output" label="SAMMY console output"/>
     </outputs>
     <tests>
         <test>
