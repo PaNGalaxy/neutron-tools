@@ -1,15 +1,18 @@
-<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.6.0-dev">
+<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.7.0-dev">
   <description></description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/sammy:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-	echo "$inp" >> \$_GALAXY_JOB_TMP_DIR/sammy_input &&
-	echo "$par" >> \$_GALAXY_JOB_TMP_DIR/sammy_input &&
-	echo "$dat" >> \$_GALAXY_JOB_TMP_DIR/sammy_input &&
         mkdir output &&
         cd output &&
-	sammy < \$_GALAXY_JOB_TMP_DIR/sammy_input
+	ln -s "$inp" tmp_data.inp &&
+	ln -s "$par" tmp_data.par &&
+	ln -s "$dat" tmp_data.dat &&
+	echo "tmp_data.inp" >> input &&
+	echo "tmp_data.par" >> input &&
+	echo "tmp_data.dat" >> input &&
+	sammy < input
 	> >(tee -a $sammy_console_output) 2> >(tee -a $sammy_console_output >&2)
     ]]></command>
     <inputs>
