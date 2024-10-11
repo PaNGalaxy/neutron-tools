@@ -1,7 +1,7 @@
-<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.4.0-dev">
+<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.5.0-dev">
   <description></description>
     <requirements>
-        <container type="docker">savannah.ornl.gov/ndip/imaging/sammy@sha256:a3803773</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/imaging/sammy:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir data &&
