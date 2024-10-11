@@ -1,4 +1,4 @@
-<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.5.0-dev">
+<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.6.0-dev">
   <description></description>
     <requirements>
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/imaging/sammy:0.1.0</container>
@@ -9,12 +9,11 @@
         cp $par data/$par &&
         cp $dat data/$dat &&
         cd data &&
-	sammy <<EOF
+	sammy > >(tee -a $sammy_console_output) 2> >(tee -a $sammy_console_output >&2) <<EOF
            $inp
            $par
            $dat
 EOF
-        > >(tee -a $sammy_console_output 2> >(tee -a $sammy_console_output >&2)
     ]]></command>
     <inputs>
         <param name="inp" type="data" format="txt" optional="false" label="Input file"/>
