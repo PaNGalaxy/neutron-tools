@@ -79,6 +79,6 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Runs a Jupyter Notebook with drtSANS in interactive mode.
+        Runs a Jupyter Notebook with drtsans in interactive mode.
     ]]></help>
 </tool>
