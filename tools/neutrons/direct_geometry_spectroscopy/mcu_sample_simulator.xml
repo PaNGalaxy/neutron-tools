@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_sample_simulator" name="Sample Simulator" profile="22.05" version="0.1.0">
+<tool id="neutrons_mcu_sample_simulator" name="Sample Simulator" profile="22.05" version="0.1.1">
     <description></description>
     <creator>
         <person name="Garrett Granroth"/>
@@ -11,7 +11,7 @@
     </requirements>
     <inputs>
         <param name="instrument" type="text" optional="false" label="Instrument Name"/>
-        <param name="ARCS_json" type="data" format="text" optional="false" label="ARCS json config"/>
+        <param name="ARCS_json" type="data" format="txt,json" optional="false" label="ARCS json config"/>
         <param name="ARCS_mcpl" type="data" optional="false" label="ARCS vsource mcpl"/>
         <param name="sample_assembly" type="data" format="gz,zip" optional="false"
                label="Sample assembly to be used in simulation"/>
