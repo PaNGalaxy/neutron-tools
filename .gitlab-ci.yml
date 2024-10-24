@@ -4,12 +4,12 @@ stages:
 
 variables:
   GIT_STRATEGY: clone
-  CONTAINER_URL: "${CI_REGISTRY_IMAGE}"
+  CONTAINER_URL: "${NDIP_DOCKER_REPOSITORY}/${CI_PROJECT_PATH}"
 
 # This import is for the func_rse_docker_* functions
 before_script:
   - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker login -u $NDIP_DOCKER_USER -p $NDIP_DOCKER_PASSWORD $NDIP_DOCKER_REPOSITORY
   - source rse-bash-modules.sh
   - func_rse_docker_cleanup
 
@@ -26,10 +26,10 @@ service-build:
       docker build
       -f dockerfiles/Dockerfile 
       -t galaxy_tools .
-    - docker tag galaxy_tools $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
+    - docker tag galaxy_tools $CONTAINER_URL:build-$CI_COMMIT_SHORT_SHA
     - docker tag galaxy_tools $CONTAINER_URL:latest
     - docker push $CONTAINER_URL:latest
-    - docker push $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
+    - docker push $CONTAINER_URL:build-$CI_COMMIT_SHORT_SHA
   when: manual
   tags:
     - rse-multi-builder
@@ -44,7 +44,7 @@ testing:
     - |
       for FOLDER in $TEST_FOLDERS
       do
-        docker run -v `pwd`:`pwd` --workdir `pwd`/$FOLDER code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output_${FOLDER}.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY      
+        docker run -v `pwd`:`pwd` --workdir `pwd`/$FOLDER $CONTAINER_URL planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output_${FOLDER}.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY      
       done
   artifacts:
     when: always

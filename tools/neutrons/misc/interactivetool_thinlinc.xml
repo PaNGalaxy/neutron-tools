@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container shell="/bin/bash" type="docker">code.ornl.gov:4567/ndip/galaxy-tools/thinlinc-web</container>
+        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/galaxy-tools/thinlinc-web</container>
     </requirements>
     <entry_points>
         <entry_point name="Thinlinc Tool" requires_domain="True">

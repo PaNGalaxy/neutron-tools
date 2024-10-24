@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">code.ornl.gov:4567/ndip/playground/air-sans:0.2</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/playground/air-sans:0.2</container>
     </requirements>
     <entry_points>
         <entry_point name="Air-SANS Demo" label="airsans-demo" requires_domain="False" requires_path_in_url="True">

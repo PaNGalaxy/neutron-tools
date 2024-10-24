@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/ndip/tool-sources/dca/dca_mini_apps:0.4</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/dca/dca_mini_apps:0.4</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir output_l output_w &&
