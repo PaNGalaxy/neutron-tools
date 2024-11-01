@@ -25,7 +25,7 @@
         --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server timeout=0
         > >(tee -a $output) 2> >(tee -a $output >&2) &
         until wget -o /dev/null -O /dev/null http://localhost:8080; do sleep 0.1; done &&
-        bash /prepare_nginx.sh
+        bash /prepare_nginx.sh &&
         fg
     ]]></command>
     <outputs>
