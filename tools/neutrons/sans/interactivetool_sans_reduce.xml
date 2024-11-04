@@ -20,13 +20,16 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">sans</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        bash /prepare_nginx.sh &&
+        set -m;
         python -m sans_reduction_gui.app
         #if $config:
             --config $config
         #end if
         --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server timeout=0
-        > >(tee -a $output) 2> >(tee -a $output >&2)
+        > >(tee -a $output) 2> >(tee -a $output >&2) &
+        until wget -o /dev/null -O /dev/null http://localhost:8080; do sleep 0.1; done &&
+        bash /prepare_nginx.sh &&
+        fg
     ]]></command>
     <inputs>
         <param name="config" type="data" optional="true" label="Config file"/>
