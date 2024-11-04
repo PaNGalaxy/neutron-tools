@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.10
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:supervisor
         </container>
     </requirements>
     <entry_points>
@@ -20,16 +20,11 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">topaz</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        set -m;
-        python -m topaz_data_reduction.app
         #if $config:
-            --config $config
+            export CONFIG=$config &&
         #end if
-        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server timeout=0
-        > >(tee -a $output) 2> >(tee -a $output >&2) &
-        until wget -o /dev/null -O /dev/null http://localhost:8080; do sleep 0.1; done &&
-        bash /prepare_nginx.sh &&
-        fg
+        export OUTPUT=$output &&
+        supervisord
     ]]></command>
     <inputs>
         <param name="config" type="data" optional="true" label="Config file"/>
