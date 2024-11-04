@@ -1,11 +1,11 @@
-<tool id="neutrons_trame_garnet" tool_type="interactive" name="Garnet" profile="22.05" version="0.1.0">
+<tool id="neutrons_trame_garnet" tool_type="interactive" name="Garnet" profile="22.05" version="0.2.0">
     <description></description>
     <creator>
         <person name="Zachary Morgan"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/garnet:0.1</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/garnet:0.2.0</container>
     </requirements>
     <entry_points>
         <entry_point name="Trame Garnet" label="garnet" requires_domain="False" requires_path_in_url="True">
