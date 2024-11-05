@@ -1,11 +1,11 @@
-<tool id="neutrons_trame_ctscan" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="0.2.3">
+<tool id="neutrons_trame_ctscan" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="0.2.4">
     <description></description>
     <creator>
         <person name="John Duggan" />
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/ct-scan-visualizer:0.2.3
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/ct-scan-visualizer:0.2.4
         </container>
     </requirements>
     <entry_points>
