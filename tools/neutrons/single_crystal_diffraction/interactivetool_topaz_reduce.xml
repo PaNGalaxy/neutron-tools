@@ -1,11 +1,11 @@
-<tool id="neutrons_trame_topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.10.0">
+<tool id="neutrons_trame_topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.12.0">
     <description></description>
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.10
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.12.0
         </container>
     </requirements>
     <entry_points>
@@ -20,13 +20,10 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">topaz</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        bash /prepare_nginx.sh &&
-        python -m topaz_data_reduction.app
         #if $config:
-            --config $config
+            export CONFIG=$config &&
         #end if
-        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server timeout=0
-        > >(tee -a $output) 2> >(tee -a $output >&2)
+        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="config" type="data" optional="true" label="Config file"/>

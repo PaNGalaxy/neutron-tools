@@ -1,0 +1,47 @@
+<tool id="neutrons_imaging_sammy" name="SAMMY R-Matrix Code"  profile="24.0" version="0.8.0">
+  <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/sammy:0.1.0</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir output &&
+        cd output &&
+	ln -s "$inp" tmp_data.inp &&
+	ln -s "$par" tmp_data.par &&
+	ln -s "$dat" tmp_data.dat &&
+	echo "tmp_data.inp" >> input &&
+	echo "tmp_data.par" >> input &&
+	echo "tmp_data.dat" >> input &&
+	sammy < input
+	> >(tee -a $sammy_console_output) 2> >(tee -a $sammy_console_output >&2)
+    ]]></command>
+    <inputs>
+        <param name="inp" type="data" format="txt" optional="false" label="Input file"/>
+        <param name="par" type="data" format="txt" optional="false" label="Parameter file"/>
+        <param name="dat" type="data" format="txt" optional="false" label="Experimental data"/>
+    </inputs>
+	
+    <outputs>
+        <collection type="list" name="sammy_output_files" label="SAMMY output files">
+            <discover_datasets format="data" pattern="__designation__" directory="output"/>
+        </collection>
+        <data format="txt" name="sammy_console_output" label="SAMMY console output"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="inp" value="ex012a.inp"/>
+            <param name="par" value="ex012a.par"/>
+            <param name="dat" value="ex012a.dat"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+SAMMY is an R-matrix Bayesian fitting program used in the analysis of nuclear cross section data.
+
+Documentation can be found in the SAMMY Manual `pdf <https://info.ornl.gov/sites/publications/files/Pub13056.pdf>`__ and `here <https://code.ornl.gov/RNSD/SAMMY/-/tree/master/docs>`__
+
+Quick Installation instructions can be found `here <https://code.ornl.gov/RNSD/SAMMY/-/tree/master?ref_type=heads#quick-installation>`__
+
+Detailed Installation instructions are listed `here <https://code.ornl.gov/RNSD/SAMMY/-/tree/master?ref_type=heads#build-and-test>`__ after the quick install instructions.
+]]></help>
+</tool>
+
