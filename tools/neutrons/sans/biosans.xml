@@ -1,0 +1,44 @@
+<tool id="neutrons_biosans" name="BIOSANS" profile="22.05" version="0.1.0">
+    <description></description>
+    <creator>
+        <person name="John Duggan"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">
+            savannah.ornl.gov/ndip/tool-sources/sans-data-reduction/biosans-reduction:0.1.0
+        </container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir reduced &&
+        . /app/activate_env.sh &&
+        ln -s $user_input /app/user_input.py &&
+        echo ipts_number = None > /app/staff_input.py &&
+        echo output_directory = None >> /app/staff_input.py &&
+        cat $staff_input >> /app/staff_input.py &&
+        python -u /app/biosans.py -i $ipts_number -o reduced
+        > >(tee -a $output) 2> >(tee -a $output >&2)
+
+    ]]></command>
+    <inputs>
+        <param name="ipts_number" type="integer" optional="false" value="0" label="IPTS Number"/>
+        <param name="user_input" type="data" format="py,txt" optional="false" label="User input"/>
+        <param name="staff_input" type="data" format="py,txt" optional="false" label="Staff input"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection1" label="BIOSANS output">
+            <discover_datasets format="binary" pattern="__designation__" directory="reduced"/>
+        </collection>
+        <collection type="list" name="output_collection2" label="BIOSANS 1D ouptut">
+            <discover_datasets pattern="__designation_and_ext__" directory="reduced/1D"/>
+        </collection>
+        <collection type="list" name="output_collection3" label="BIOSANS 2D ouptut">
+            <discover_datasets pattern="__designation_and_ext__" directory="reduced/2D"/>
+        </collection>
+        <data format="txt" name="output" label="BIOSANS console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        Runs BIOSANS data reduction.
+    ]]></help>
+</tool>
