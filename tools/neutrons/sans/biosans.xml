@@ -29,10 +29,10 @@
         <collection type="list" name="output_collection1" label="BIOSANS output">
             <discover_datasets format="binary" pattern="__designation__" directory="reduced"/>
         </collection>
-        <collection type="list" name="output_collection2" label="BIOSANS 1D ouptut">
+        <collection type="list" name="output_collection2" label="BIOSANS 1D output">
             <discover_datasets pattern="__designation_and_ext__" directory="reduced/1D"/>
         </collection>
-        <collection type="list" name="output_collection3" label="BIOSANS 2D ouptut">
+        <collection type="list" name="output_collection3" label="BIOSANS 2D output">
             <discover_datasets pattern="__designation_and_ext__" directory="reduced/2D"/>
         </collection>
         <data format="txt" name="output" label="BIOSANS console output">
