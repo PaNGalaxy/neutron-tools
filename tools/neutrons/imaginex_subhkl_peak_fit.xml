@@ -6,7 +6,7 @@
 
 		mkdir out ; 
 
-		python /integration.py $input out 
+		python -m subhkl.io.parser finder $input out/out.csv
 
     ]]></command>
     <inputs>
@@ -15,7 +15,7 @@
 		
     </inputs>
     <outputs>
-		<data format="txt" name="out/output.txt" />
+		<data format="txt" name="out/out.csv" />
     </outputs>
     <help><![CDATA[
         Calculates peak indices.

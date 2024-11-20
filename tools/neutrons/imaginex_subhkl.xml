@@ -6,23 +6,21 @@
 
 		mkdir out ; 
 
-		#if unitCell.unitCell
-			python /optimization.py $input out $wavelengthMin $wavelengthMax $unitCell.unitFile
+		#if metadata.metadata
+			python -m subhkl.io.parser index-using-file $peaks $goniometer out/out.csv
 		#else
-			python /optimization.py $input out $wavelengthMin $wavelengthMax $unitCell.a $unitCell.b $unitCell.c $unitCell.alpha $unitCell.beta $unitCell.gamma
+			python -m subhkl.io.parser index-using-file $peaks $goniometer out/out.csv $metadata.a $metadata.b $metadata.c $metadata.alpha $metadata.beta $metadata.gamma $metadata.wavelengthMin $metadata.wavelengthMax $metadata.sample
 		#end for
 
     ]]></command>
     <inputs>
     
-		<param format="h5" name="input" type="data" label="Peak data file" />
-	    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
-		<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
-		<conditional name="unitCell">
-			<param name="unitCell" type="boolean" checked="true" label="Use unit cell file" help="Use a file to define a unit cell rather than constants."> 
+		<param format="csv" name="peaks" type="data" label="Peak data file" />
+		<param format="csv" name="goniometer" type="goniometer" label="Goniometer data file" />
+		<conditional name="metadata">
+			<param name="metadata" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
 			</param>
 			<when value="true">
-				<param name="unitFile" type="data" format="cif,pdb" label="Unit cell structure file" />
 			</when>
 			<when value="false">
 				<param name="a" type="float" value="0.0" label="a" /> 
@@ -31,12 +29,15 @@
 				<param name="alpha" type="float" value="0.0" label="Alpha" /> 
 				<param name="beta" type="float" value="0.0" label="Beta" /> 
 				<param name="gamma" type="float" value="0.0" label="Gamma" /> 
+			    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
+				<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
+				<param name="sample" type="float" value="0.0" label="Sample Centering" /> 
 			</when>
 		</conditional>
 
     </inputs>
     <outputs>
-		<data format="mtz" name="out/output" />
+		<data format="csv" name="out/out.csv" />
     </outputs>
     <help><![CDATA[
         Calculates peak indices in reciprocol space.
