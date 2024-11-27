@@ -1,4 +1,4 @@
-<tool id="neutrons_trame_sans" tool_type="interactive" name="SANS Data Reduction" profile="22.05" version="0.7.2">
+<tool id="neutrons_trame_gpsans" tool_type="interactive" name="GP-SANS Data Reduction" profile="22.05" version="0.7.2">
     <description></description>
     <creator>
         <person name="Yingrui Shang"/>
@@ -39,6 +39,6 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Starts SANS data reduction Trame application.
+        GP-SANS data reduction Trame application.
     ]]></help>
 </tool>
