@@ -1,11 +1,11 @@
-<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev18"
+<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev19"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/gravitas/containers/phonopy:0.2.0-dev8</container>
+        <container type="docker">code.ornl.gov:4567/gravitas/containers/phonopy:0.2.0-dev9</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="gravitas" requires_domain="False"
@@ -59,8 +59,7 @@
 
         #set $noteboook_name = 'ipython_galaxy_notebook'
 	    #if $mode.mode_select == 'scratch':
-	    find /data
-            cp '$__tool_directory__/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
+	    cp '$./jupyter/examples/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
         #else:
             cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
         #end if
