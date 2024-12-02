@@ -1,4 +1,4 @@
-<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev15"
+<tool id="neutrons_gravitas_phonopy" tool_type="interactive" name="Phonopy - Interactive Jupyter Notebook ORNL" version="0.1.0-dev16"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
