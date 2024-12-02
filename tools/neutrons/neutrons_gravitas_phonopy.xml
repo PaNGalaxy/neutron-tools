@@ -59,7 +59,7 @@
 
         #set $noteboook_name = 'ipython_galaxy_notebook'
 	    #if $mode.mode_select == 'scratch':
-	    cp '$./examples/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
+	    cp './examples/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
         #else:
             cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
         #end if
