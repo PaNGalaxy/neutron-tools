@@ -9,7 +9,7 @@
         </container>
     </requirements>
     <entry_points>
-        <entry_point name="Trame SANS" label="sans" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="Trame GP-SANS" label="gpsans" requires_domain="False" requires_path_in_url="True">
             <port>8081</port>
         </entry_point>
     </entry_points>
@@ -17,7 +17,7 @@
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">sans</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gpsans</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         set -m;
