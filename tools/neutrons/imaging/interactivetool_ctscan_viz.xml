@@ -1,15 +1,15 @@
-<tool id="neutrons_trame_topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.13.1">
+<tool id="neutrons_trame_ctscan" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="0.3.2">
     <description></description>
     <creator>
-        <person name="Xiaoping Wang"/>
+        <person name="John Duggan" />
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.13.1
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/ct-scan-visualizer:0.3.2
         </container>
     </requirements>
     <entry_points>
-        <entry_point name="Trame Topaz" label="topaz" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="Trame CT Scan Viz" label="ctscan" requires_domain="False" requires_path_in_url="True">
             <port>8081</port>
         </entry_point>
     </entry_points>
@@ -17,22 +17,17 @@
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">topaz</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">ctscan</environment_variable>
+        <environment_variable name="TRAME_WS_HEART_BEAT">600</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        #if $config:
-            export CONFIG=$config &&
-        #end if
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
-    <inputs>
-        <param name="config" type="data" optional="true" label="Config file"/>
-    </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output">
         </data>
     </outputs>
     <help><![CDATA[
-        Starts interactive user interface for TOPAZ Data Reduction.
+        Starts CT Scan Visualizer Trame application.
     ]]></help>
 </tool>

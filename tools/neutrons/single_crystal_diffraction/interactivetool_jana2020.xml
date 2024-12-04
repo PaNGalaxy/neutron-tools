@@ -36,7 +36,7 @@
     <inputs>
         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
-        <param name="input" type="data" multiple="true" label="Dataset"/>
+        <param name="input" type="data" optional="true" multiple="true" label="Dataset"/>
     </inputs>
     <outputs>
         <collection type="list" name="output" label="Jana2020 Output Files">
