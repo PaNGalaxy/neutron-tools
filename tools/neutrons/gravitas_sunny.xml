@@ -1,4 +1,4 @@
-<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev19"
+<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev20"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -58,7 +58,8 @@
         export PATH=/home/jovyan/.local/bin:\$PATH &&
 
         #set $noteboook_name = 'ipython_galaxy_notebook'
-        #if $mode.mode_select == 'scratch':
+	#if $mode.mode_select == 'scratch':
+            ls '/import/examples/default' &&
 	    cp '/import/examples/default/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
         #else:
             cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
