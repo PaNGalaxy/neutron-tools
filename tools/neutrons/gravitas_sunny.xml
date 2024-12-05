@@ -69,8 +69,8 @@
             jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
-            jupyter --paths
-	    jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+            jupyter --paths &&
+            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
         #end if
         cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
