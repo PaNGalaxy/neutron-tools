@@ -1,4 +1,4 @@
-<tool id="imaginex_subhkl_peak_fit" name="IMAGINE-X HKL Peak Fit"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+<tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X HKL Prepare Peaks"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/zjmorgan/subhkl:0.0.1</container>
   </requirements>
