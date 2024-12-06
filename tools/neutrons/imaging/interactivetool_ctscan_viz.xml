@@ -1,7 +1,7 @@
 <tool id="neutrons_trame_ctscan" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="0.3.2">
     <description></description>
     <creator>
-        <person name="John Duggan" />
+        <person name="Jean Belheux" />
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
