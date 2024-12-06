@@ -1,15 +1,15 @@
-<tool id="neutrons_trame_sans" tool_type="interactive" name="SANS Data Reduction" profile="22.05" version="0.7.2">
+<tool id="neutrons_trame_biosans" tool_type="interactive" name="Bio-SANS Data Reduction" profile="22.05" version="0.9.2">
     <description></description>
     <creator>
-        <person name="Yingrui Shang"/>
+        <person name="Alan Hicks"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.7.2
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.9.2
         </container>
     </requirements>
     <entry_points>
-        <entry_point name="Trame SANS" label="sans" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="Trame Bio-SANS" label="biosans" requires_domain="False" requires_path_in_url="True">
             <port>8081</port>
         </entry_point>
     </entry_points>
@@ -17,19 +17,13 @@
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">sans</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">biosans</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        set -m;
-        python -m sans_reduction_gui.app
         #if $config:
-            --config $config
+            export CONFIG=$config &&
         #end if
-        --galaxy-history-id \$HISTORY_ID --host 0.0.0.0 --server timeout=0
-        > >(tee -a $output) 2> >(tee -a $output >&2) &
-        until wget -o /dev/null -O /dev/null http://localhost:8080; do sleep 0.1; done &&
-        bash /prepare_nginx.sh &&
-        fg
+        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="config" type="data" optional="true" label="Config file"/>
@@ -39,6 +33,6 @@
         </data>
     </outputs>
     <help><![CDATA[
-        Starts SANS data reduction Trame application.
+        Bio-SANS data reduction Trame application.
     ]]></help>
 </tool>
