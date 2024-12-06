@@ -1,4 +1,4 @@
-<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev24"
+<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev25"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -11,7 +11,7 @@
         <entry_point name="Jupyter Interactive Tool" label="gravitas" requires_domain="False"
                      requires_path_in_url="True">
             <port>8888</port>
-            <url>ipython/lab</url>
+            <url>ipython</url>
         </entry_point>
     </entry_points>
     <environment_variables>
