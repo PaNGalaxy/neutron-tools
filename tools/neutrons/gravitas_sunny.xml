@@ -1,4 +1,4 @@
-<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev23"
+<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev24"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -70,7 +70,7 @@
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
             jupyter --paths &&
-            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+            jupyter notebook --allow-root --no-browser --NotebookApp.shutdown_button=True &&
         #end if
         cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
