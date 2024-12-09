@@ -62,6 +62,8 @@ testing:
 interactive-tools-testing:
   stage: test
   script:
-    - echo "$API_KEY" > API_KEY
-    - pip install nova-galaxy
-    - python run tests/interactive_tools.py
+    - >
+      docker build
+      -f dockerfiles/Dockerfile.interactive_test
+      -t galaxy_tools .
+    - docker run -e GALAXY_URL="https://calvera-test.ornl.gov" -e API_KEY=$ANDREW_API_KEY galaxy_tools
