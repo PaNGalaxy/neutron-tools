@@ -15,7 +15,7 @@
     ]]></command>
     <inputs>
     
-		<param format="txt" name="input" type="data" label="Peak data file" />
+<!-- 		<param format="txt" name="input" type="data" label="Peak data file" />
 		<param name="shape" type="select" optional="false" value="flat" label="Detector Shape">
 			<option value="flat">flat</option>
 			<option value="curved">curved</option>
@@ -27,7 +27,8 @@
 	    <param name="scale_y" type="float" value="1.0" label="Scale Y"/> 
 	    <param name="nx" type="int" value="1" label="nx"/> 
 	    <param name="ny" type="int" value="1" label="ny"/> 
-		
+		-->
+		<param format="tiff" name="input" type="data" label="Peak data file" />
     </inputs>
     <outputs>
 		<!-- <data format="hd5" name="out/output.hd5" /> -->
