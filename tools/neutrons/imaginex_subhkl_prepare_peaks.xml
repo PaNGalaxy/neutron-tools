@@ -3,35 +3,14 @@
     <container type="docker">ghcr.io/zjmorgan/subhkl:0.0.1</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
-
-<!--		mkdir out ; 
-
-		python -m subhkl.io.parser preparer $input out/out.csv flat $height $distance -image-orientation $orientation -scale-x $scale_x -scale-y $scale_y -nx $nx -ny $ny 
--->
-
 		mkdir out ; 
 
 		python -m subhkl.io.parser finder $input out/out.csv
     ]]></command>
     <inputs>
-    
-<!-- 		<param format="txt" name="input" type="data" label="Peak data file" />
-		<param name="shape" type="select" optional="false" value="flat" label="Detector Shape">
-			<option value="flat">flat</option>
-			<option value="curved">curved</option>
-		</param>
-	    <param name="height" type="float" value="1.0" label="Detector Height"/> 
-	    <param name="distance" type="float" value="1.0" label="Detector Distance"/> 
-	    <param name="orientation" type="float" value="0.0" label="Image Orientation"/> 
-	    <param name="scale_x" type="float" value="1.0" label="Scale X"/> 
-	    <param name="scale_y" type="float" value="1.0" label="Scale Y"/> 
-	    <param name="nx" type="int" value="1" label="nx"/> 
-	    <param name="ny" type="int" value="1" label="ny"/> 
-		-->
 		<param format="tiff" name="input" type="data" label="Peak data file" />
     </inputs>
     <outputs>
-		<!-- <data format="hd5" name="out/output.hd5" /> -->
 		<data format="txt" name="out/out.csv" />
     </outputs>
     <help><![CDATA[
