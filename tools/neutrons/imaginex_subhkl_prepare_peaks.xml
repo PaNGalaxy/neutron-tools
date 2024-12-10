@@ -4,10 +4,14 @@
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 
+<!--		mkdir out ; 
+
+		python -m subhkl.io.parser preparer $input out/out.csv flat $height $distance -image-orientation $orientation -scale-x $scale_x -scale-y $scale_y -nx $nx -ny $ny 
+-->
+
 		mkdir out ; 
 
-		python -m subhkl.io.parser preparer $input out/out.csv flat $height $distance --image-orientation $orientation --scale-x $scale_x --scale-y $scale_y --nx $nx --ny $ny 
-
+		python -m subhkl.io.parser finder $input out/out.csv
     ]]></command>
     <inputs>
     
