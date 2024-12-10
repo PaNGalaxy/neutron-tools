@@ -1,4 +1,4 @@
-<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev23"
+<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev26"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -11,7 +11,7 @@
         <entry_point name="Jupyter Interactive Tool" label="gravitas" requires_domain="False"
                      requires_path_in_url="True">
             <port>8888</port>
-            <url>ipython/lab</url>
+            <url>ipython</url>
         </entry_point>
     </entry_points>
     <environment_variables>
@@ -69,8 +69,7 @@
             jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
-            jupyter --paths &&
-            jupyter lab --allow-root --no-browser --NotebookApp.shutdown_button=True &&
+            jupyter notebook --no-browser &&
         #end if
         cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
