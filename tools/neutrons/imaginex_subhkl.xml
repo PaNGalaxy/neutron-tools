@@ -3,43 +3,17 @@
     <container type="docker">ghcr.io/zjmorgan/subhkl:0.0.1</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
-
 		mkdir out ; 
 
-		#if metadata.metadata
-			python -m subhkl.io.parser index-using-file $peaks $goniometer out/out.csv
-		#else
-			python -m subhkl.io.parser index-using-file $peaks $goniometer out/out.csv $metadata.a $metadata.b $metadata.c $metadata.alpha $metadata.beta $metadata.gamma $metadata.wavelengthMin $metadata.wavelengthMax $metadata.sample
-		#end for
-
+		python -m subhkl.io.parser finder $input out/out.csv
     ]]></command>
     <inputs>
-    
-		<param format="csv" name="peaks" type="data" label="Peak data file" />
-		<param format="csv" name="goniometer" type="goniometer" label="Goniometer data file" />
-		<conditional name="metadata">
-			<param name="metadata" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
-			</param>
-			<when value="true">
-			</when>
-			<when value="false">
-				<param name="a" type="float" value="0.0" label="a" /> 
-				<param name="b" type="float" value="0.0" label="b" /> 
-				<param name="c" type="float" value="0.0" label="ac" /> 
-				<param name="alpha" type="float" value="0.0" label="Alpha" /> 
-				<param name="beta" type="float" value="0.0" label="Beta" /> 
-				<param name="gamma" type="float" value="0.0" label="Gamma" /> 
-			    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
-				<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
-				<param name="sample" type="float" value="0.0" label="Sample Centering" /> 
-			</when>
-		</conditional>
-
+		<param format="tiff" name="input" type="data" label="Peak data file" />
     </inputs>
     <outputs>
-		<data format="csv" name="out/out.csv" />
+		<data format="txt" name="out/out.csv" />
     </outputs>
     <help><![CDATA[
-        Calculates peak indices in reciprocol space.
+        Calculates peak indices.
     ]]></help>
 </tool>
