@@ -27,7 +27,18 @@ def run_tool_test( tool_id: str, params: Optional[Parameters] = None) -> bool:
 if __name__ == "__main__":
     interactive_tools = {
         "interactive_tool_amira": None,
-        "interactive_tool_jana2020": None
+        "interactive_tool_jana2020": None,
+        "neutrons_trame_garnet": None,
+        "neutrons_trame_topaz": None,
+        "interactive_tool_paraview": None,
+        "interactive_tool_generic_output": None,
+        "neutrons_airsans_demo": None,
+        "neutrons_ctr": None,
+        "interactive_tool_sasview": None,
+        "neutrons_interactive_tool_drtsans": None,
+        "neutrons_trame_sans": None,
+        "neutrons_reflectometry_refl1d": None,
+        "neutrons_reduce120": None
     }
 
     status = True
