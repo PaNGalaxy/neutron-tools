@@ -67,3 +67,9 @@ interactive-tools-testing:
       -f dockerfiles/Dockerfile.interactive_test
       -t galaxy_tools .
     - docker run -e GALAXY_URL="https://calvera-test.ornl.gov" -e API_KEY=$ANDREW_API_KEY galaxy_tools
+  tags:
+    - rse-multi-builder
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - when: manual
