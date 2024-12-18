@@ -44,12 +44,12 @@ testing:
     - |
       for FOLDER in $TEST_FOLDERS
       do
-        docker run -v `pwd`:`pwd` --workdir `pwd`/$FOLDER $CONTAINER_URL planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output_${FOLDER}.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY      
+        docker run -v `pwd`:`pwd` --workdir `pwd`/$FOLDER $CONTAINER_URL planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_json `pwd`/test_output_${FOLDER}.json --test_output_junit `pwd`/test_output_${FOLDER}.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY      
       done
   artifacts:
     when: always
     reports:
-      junit: tools/neutrons/junit_output*.xml
+      junit: tools/neutrons/test_output*.xml
   tags:
     - rse-multi-builder
   rules:
