@@ -7,7 +7,7 @@ RUN tar zxvf docker-24.0.2.tgz && cp docker/docker /usr/bin/docker
 RUN apt-get install -y python3-pip
 
 # Install Planemo
-RUN pip3 install planemo
+RUN pip3 install planemo prometheus_client
 
 COPY dockerfiles/dummy_tool.xml /tmp/dummy_tool.xml
 

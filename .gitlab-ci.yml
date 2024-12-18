@@ -36,25 +36,55 @@ service-build:
 
 testing:
   stage: test
+  variables:
+    ENVIRONMENT: "calvera-test"
+    GALAXY_URL: "https://calvera-test.ornl.gov"
+    API_KEY: $CALVERA_TEST_API_KEY
+    ADMIN_KEY: $CALVERA_TEST_ADMIN_KEY
   script:
     - echo "Running tests for all tools."
     - cd `pwd`/tools/neutrons
     - TEST_FOLDERS=`find . -type d -name retired -prune -o -type d -name dockerfiles -prune -o -type f -name "*.xml" -exec grep -l "<test>" {} + | awk -F/ 'BEGIN { OFS="/"; } { $NF=""; sub(/\/$/, ""); print }' | sort -u | sed 's/^\.\///'`
     - echo testing in $TEST_FOLDERS
+    - ERROR=0
     - |
       for FOLDER in $TEST_FOLDERS
       do
-        docker run -v `pwd`:`pwd` --workdir `pwd`/$FOLDER $CONTAINER_URL planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output_${FOLDER}.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY      
+        docker run -v `pwd`:`pwd` --workdir `pwd`/$FOLDER  $CONTAINER_URL \
+          planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
+          --test_output_json `pwd`/test_output_${FOLDER}.json \
+          --test_output_junit `pwd`/test_output_${FOLDER}.xml \
+          --galaxy_url  $GALAXY_URL \
+          --galaxy_user_key $API_KEY \
+          --galaxy_admin_key $ADMIN_KEY || ERROR=1
       done
+    - cd -
+    - |
+      if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
+        docker run \
+          -v `pwd`:`pwd` \
+          --workdir `pwd` \
+          -e CI_PIPELINE_ID \
+          -e CI_PROJECT_URL \
+          -e PROMETHEUS_URL \
+          -e ENVIRONMENT \
+          $CONTAINER_URL python3 scripts/push_to_gateway.py tools/neutrons
+      fi
+    - exit $ERROR
   artifacts:
     when: always
     reports:
-      junit: tools/neutrons/junit_output*.xml
+      junit: tools/neutrons/test_output*.xml
   tags:
     - rse-multi-builder
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
       when: always
     - if: '$CI_COMMIT_BRANCH == "main"'
-      when: manual
+      variables:
+        ENVIRONMENT: "calvera"
+        GALAXY_URL: "https://calvera.ornl.gov"
+        API_KEY: $CALVERA_API_KEY
+        ADMIN_KEY: $CALVERA_ADMIN_KEY
+      when: always
     - when: never
