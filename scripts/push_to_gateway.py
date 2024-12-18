@@ -12,9 +12,9 @@ def collect_test_results(filename):
 
         test_results = {}
         for item in report_data['tests']:
-            test_name = item['data']['tool_id']
+            tool_id = item['data']['tool_id']
             outcome = item['data']['status'] == 'success'
-            test_results[test_name] = {'outcome': outcome}
+            test_results[tool_id] = {'outcome': outcome}
 
         return test_results
 
@@ -30,9 +30,9 @@ def push_results_to_prometheus(test_results):
     gauge_outcome = Gauge('planemo_tool_tests', 'Planemo tool tests outcome (pass/fail)',
                           ['tool_id', 'pipeline_url', 'env'], registry=registry)
 
-    for test_name, result_info in test_results.items():
+    for tool_id, result_info in test_results.items():
         outcome = int(result_info['outcome'])
-        gauge_outcome.labels(test_name, pipeline_url, env).set(outcome)
+        gauge_outcome.labels(tool_id, pipeline_url, env).set(outcome)
 
     prometheus_url = os.getenv('PROMETHEUS_URL')
     push_to_gateway(prometheus_url, job=f'planemo_tests_{env}', registry=registry)
