@@ -56,8 +56,9 @@ testing:
           --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY || ERROR=1
       done
     - cd -
-    - if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
-      docker run -v `pwd`:`pwd` --workdir `pwd` -e PROMETHEUS_URL -e ENVIRONMENT $CONTAINER_URL python3 scripts/push_to_gateway.py tools/neutrons
+    - |
+      if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
+        docker run -v `pwd`:`pwd` --workdir `pwd` -e PROMETHEUS_URL -e ENVIRONMENT $CONTAINER_URL python3 scripts/push_to_gateway.py tools/neutrons
       fi
     - exit $ERROR
   artifacts:
