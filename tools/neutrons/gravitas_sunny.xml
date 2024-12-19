@@ -1,11 +1,11 @@
-<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev28"
+<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.1.0-dev29"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.1.0-dev21</container>
+        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.1.0-dev23</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="gravitas" requires_domain="False"
