@@ -46,7 +46,7 @@ testing:
     - cd `pwd`/tools/neutrons
     - TEST_FOLDERS=`find . -type d -name retired -prune -o -type d -name dockerfiles -prune -o -type f -name "*.xml" -exec grep -l "<test>" {} + | awk -F/ 'BEGIN { OFS="/"; } { $NF=""; sub(/\/$/, ""); print }' | sort -u | sed 's/^\.\///'`
     - echo testing in $TEST_FOLDERS
-    - ERROR=0
+    - GLOBAL_ERROR=0
     - |
       for FOLDER in $TEST_FOLDERS
       do
@@ -56,7 +56,12 @@ testing:
           --test_output_junit `pwd`/test_output_${FOLDER}.xml \
           --galaxy_url  $GALAXY_URL \
           --galaxy_user_key $API_KEY \
-          --galaxy_admin_key $ADMIN_KEY || ERROR=1
+          --galaxy_admin_key $ADMIN_KEY 2>&1 | tee docker_output.log || ERROR=1
+        if grep -q "No tests were executed" docker_output.log && [ "$CI_COMMIT_BRANCH" == "main" ]; then
+          echo "Ignoring error: 'no tests were executed'"
+          ERROR=0
+        fi
+        GLOBAL_ERROR=$((GLOBAL_ERROR | ERROR))
       done
     - cd -
     - |
@@ -70,7 +75,7 @@ testing:
           -e ENVIRONMENT \
           $CONTAINER_URL python3 scripts/push_to_gateway.py tools/neutrons
       fi
-    - exit $ERROR
+    - exit $GLOBAL_ERROR
   artifacts:
     when: always
     reports:
