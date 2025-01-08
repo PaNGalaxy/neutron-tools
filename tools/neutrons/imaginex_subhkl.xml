@@ -7,7 +7,7 @@
 
 		#if metadata.metadata:
 			python -m subhkl.io.parser index-using-file 8 $peaks $goniometer out/out.csv
-		#else
+		#else:
 			python -m subhkl.io.parser index-using-file 8 $peaks $goniometer out/out.csv $metadata.a $metadata.b $metadata.c $metadata.alpha $metadata.beta $metadata.gamma $metadata.wavelengthMin $metadata.wavelengthMax $metadata.sample
 		#end if
 
