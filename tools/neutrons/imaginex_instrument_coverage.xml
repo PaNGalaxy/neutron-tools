@@ -8,7 +8,7 @@
 
 		mkdir out ; 
 
-		python coverage/instrument_coverage.py $phi out/out.mtz --instrument_mask $mask --mtz_file $input
+		python /coverage/instrument_coverage.py $phi out/out.mtz --instrument_mask $mask --mtz_file $input
 
     ]]></command>
     <inputs>
