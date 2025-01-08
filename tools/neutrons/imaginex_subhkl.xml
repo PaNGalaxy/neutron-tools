@@ -30,7 +30,16 @@
 				<param name="gamma" type="float" value="0.0" label="Gamma" /> 
 			    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
 				<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
-				<param name="sample" type="float" value="0.0" label="Sample Centering" /> 
+				<param name="sample" type="select" optional="false" value="P" label="Sample Centering" > 
+					<option value="P">Primitive</option>
+					<option value="I">Body Centered</option>
+					<option value="F">Face Centered</option>
+					<option value="A">Base Centered A</option>
+					<option value="B">Base Centered B</option>
+					<option value="C">Base Centered C</option>
+					<option value="R">Rhombohedral</option>
+					<option value="R_obv">Rhombohedral Observed</option>
+				</param>
 			</when>
 		</conditional>
 
