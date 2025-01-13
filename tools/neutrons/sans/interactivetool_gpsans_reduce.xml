@@ -1,11 +1,11 @@
-<tool id="neutrons_trame_gpsans" tool_type="interactive" name="GP-SANS Data Reduction" profile="22.05" version="0.7.2">
+<tool id="neutrons_trame_gpsans" tool_type="interactive" name="GP-SANS Data Reduction" profile="22.05" version="0.10.0">
     <description></description>
     <creator>
         <person name="Yingrui Shang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.7.2
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.10.0
         </container>
     </requirements>
     <entry_points>
