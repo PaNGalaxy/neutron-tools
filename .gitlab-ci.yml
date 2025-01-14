@@ -11,7 +11,7 @@ variables:
 # This import is for the func_rse_docker_* functions
 before_script:
   - curl https://code.ornl.gov/rse-deployment/rse-sharables/raw/master/rse-bash-modules.sh -O
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker login -u $NDIP_DOCKER_USER -p $NDIP_DOCKER_PASSWORD $NDIP_DOCKER_REPOSITORY
   - source rse-bash-modules.sh
   - func_rse_docker_cleanup
 
@@ -24,9 +24,9 @@ after_script:
 service-build:
   stage: build
   script:
-    - >    
+    - >
       docker build
-      -f dockerfiles/Dockerfile 
+      -f dockerfiles/Dockerfile
       -t galaxy_tools .
     - docker tag galaxy_tools $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
     - docker tag galaxy_tools $CONTAINER_URL:latest
@@ -42,13 +42,13 @@ push_dev_tools:
     - echo "$CALVERA_TEST_SSH_KEY" > key
     - chmod 400 key
     - >
-      python3 utils/push_tools.py 
+      python3 utils/push_tools.py
       --source-directory "tools/neutrons"
-      --ssh-key-path key 
-      --remote-user cloud 
+      --ssh-key-path key
+      --remote-user cloud
       --remote-host calvera-test.ornl.gov
       --remote-directory /srv/galaxy/local_tools/neutrons-dev/
-  rules: 
+  rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       when: always
     - when: never
@@ -71,7 +71,7 @@ testing:
     - |
       if [ -z "$files_with_test" ]; then
         echo "No tools with tests have changed, so no tests will run."
-        touch $(pwd)/junit_output.xml      
+        touch $(pwd)/junit_output.xml
       else
           echo "will execute tests for $files_with_test"
           docker run -v `pwd`:/`pwd` \
