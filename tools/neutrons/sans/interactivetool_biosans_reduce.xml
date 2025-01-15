@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui:0.10.0
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui/biosans:0.10.0
         </container>
     </requirements>
     <entry_points>
