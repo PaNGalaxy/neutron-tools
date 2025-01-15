@@ -5,10 +5,10 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 
-		#if metadata.metadata:
+		#if metad.metad:
 			python -m subhkl.io.parser index-using-file 8 $peaks $goniometer out/out.csv
 		#else:
-			python -m subhkl.io.parser index-using-file 8 $peaks $goniometer out/out.csv $metadata.a $metadata.b $metadata.c $metadata.alpha $metadata.beta $metadata.gamma $metadata.wavelengthMin $metadata.wavelengthMax $metadata.sample
+			python -m subhkl.io.parser index-using-file 8 $peaks $goniometer out/out.csv $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample
 		#end if
 
     ]]></command>
@@ -16,8 +16,8 @@
     
 		<param format="csv" name="peaks" type="data" label="Peak data file" />
 		<param format="csv" name="goniometer" type="data" label="Goniometer data file" />
-		<conditional name="metadata">
-			<param name="metadata" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
+		<conditional name="metad">
+			<param name="metad" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
 			</param>
 			<when value="true">
 			</when>
