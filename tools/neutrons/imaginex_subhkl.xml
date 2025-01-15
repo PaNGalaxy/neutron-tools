@@ -11,7 +11,8 @@
 			python -m subhkl.io.parser indexer 8 $peaks $metad.goniometer out/out.csv $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample ;
 		#end if
 		
-		ls out;
+		ls out ;
+		cat out/out.csv 
     ]]></command>
     <inputs>
     
