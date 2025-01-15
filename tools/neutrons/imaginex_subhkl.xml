@@ -1,4 +1,4 @@
-<tool id="imaginex_subhkl" name="IMAGINE-X subhkl"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+<tool id="imaginex_subhkl" name="IMAGINE-X subhkl Peak Indexing "  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
   </requirements>
