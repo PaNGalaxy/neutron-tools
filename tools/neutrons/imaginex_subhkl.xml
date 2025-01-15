@@ -6,22 +6,22 @@
 		mkdir out ; 
 
 		#if $metad.metad == 'true':
-			python -m subhkl.io.parser indexer-using-file 8 $peaks $goniometer out/out.csv
+			python -m subhkl.io.parser indexer-using-file 8 $peaks out/out.csv
 		#else:
-			python -m subhkl.io.parser indexer 8 $peaks $goniometer out/out.csv $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample
+			python -m subhkl.io.parser indexer 8 $peaks $metad.goniometer out/out.csv $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample
 		#end if
 
     ]]></command>
     <inputs>
     
 		<param format="csv" name="peaks" type="data" label="Peak data file" />
-		<param format="csv" name="goniometer" type="data" label="Goniometer data file" />
 		<conditional name="metad">
 			<param name="metad" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
 			</param>
 			<when value="true">
 			</when>
 			<when value="false">
+				<param format="csv" name="goniometer" type="data" label="Goniometer data file" />
 				<param name="a" type="float" value="0.0" label="a" /> 
 				<param name="b" type="float" value="0.0" label="b" /> 
 				<param name="c" type="float" value="0.0" label="ac" /> 
