@@ -1,4 +1,4 @@
-<tool id="neutrons_gpsans" name="GPSANS" profile="22.05" version="0.2.0">
+<tool id="neutrons_gpsans" name="GPSANS" profile="22.05" version="0.3.0">
     <description></description>
     <creator>
         <person name="Yingrui Shang"/>
@@ -6,24 +6,20 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.2.0
+            savannah.ornl.gov/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.3.0
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir reduced &&
         . /app/activate_env.sh &&
-        ln -s $user_input /app/user_input.py &&
-        echo ipts_number = None > /app/staff_input.py &&
-        echo output_directory = None >> /app/staff_input.py &&
-        cat $staff_input >> /app/staff_input.py &&
+        ln -s $config_file /app/config.json &&
         python -u /app/gpsans.py -i $ipts_number -o reduced
         > >(tee -a $output) 2> >(tee -a $output >&2)
 
     ]]></command>
     <inputs>
         <param name="ipts_number" type="integer" optional="false" value="0" label="IPTS Number"/>
-        <param name="user_input" type="data" format="py,txt" optional="false" label="User input"/>
-        <param name="staff_input" type="data" format="py,txt" optional="false" label="Staff input"/>
+        <param name="config_file" type="data" format="json" optional="false" label="Configuration File"/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection1" label="GPSANS output">
@@ -42,4 +38,3 @@
         Runs GPSANS data reduction.
     ]]></help>
 </tool>
-
