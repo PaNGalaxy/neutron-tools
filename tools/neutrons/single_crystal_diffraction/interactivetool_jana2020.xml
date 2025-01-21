@@ -23,7 +23,7 @@
         export GALAXY_WORKING_DIR=`pwd` &&
         /setup.sh \$GALAXY_TOOL_USER &&
         #if $directory:
-            ln -s ${directory} /home/novnc_user &&
+            ln -s ${directory} /home/novnc_user/data &&
         #end if
         /start.sh \$GALAXY_TOOL_USER
         ]]>
