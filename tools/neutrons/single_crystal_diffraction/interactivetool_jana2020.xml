@@ -1,4 +1,4 @@
-<tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.1.0" profile="22.05">
+<tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.2.0" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -21,29 +21,20 @@
     <command><![CDATA[
         echo "Notebook produced no output" > $output_single &&
         export GALAXY_WORKING_DIR=`pwd` &&
-        mkdir -p /home/novnc_user/inputs &&
-        mkdir -p ./outputs &&
         /setup.sh \$GALAXY_TOOL_USER &&
-        ln -s \${GALAXY_WORKING_DIR}/outputs /home/novnc_user/outputs &&
-        ln -s /home/novnc_user/outputs /home/novnc_user/Downloads &&
-        #for $el in $input:
-            #set $name = os.path.basename(str($el.element_identifier))
-            su novnc_user -c "cp '${el}' '/home/novnc_user/inputs/${name}'" &&
-        #end for
+        #if $directory:
+            ln -s ${directory} /home/novnc_user &&
+        #end if
         /start.sh \$GALAXY_TOOL_USER
         ]]>
     </command>
     <inputs>
         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
-        <param name="input" type="data" optional="true" multiple="true" label="Dataset"/>
+        <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
     </inputs>
     <outputs>
-        <collection type="list" name="output" label="Jana2020 Output Files">
-            <discover_datasets pattern="__designation__" directory="outputs"/>
-        </collection>
-        <data name="output_single" auto_format="true" label="Jana2020 Console Output">
-        </data>
+        <data name="output_single" auto_format="true" label="Jana2020 Console Output"></data>
     </outputs>
     <help><![CDATA[
         Starts the interactive Jana2020 Crystallographic Computing System for Standard and Modulated Structures Software.
