@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/jana2020:0.11
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/jana2020:vesta-heartbeat
         </container>
     </requirements>
     <entry_points>
