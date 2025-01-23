@@ -25,6 +25,10 @@
         #if $directory:
             ln -s ${directory} /home/novnc_user/data &&
         #end if
+        #if $cif_file:
+            #set $name = os.path.basename(str($cif_file.element_identifier))
+            su novnc_user -c "cp '${cif_file}' '/home/novnc_user/${name}'" &&
+        #end if
         /start.sh \$GALAXY_TOOL_USER
         ]]>
     </command>
@@ -32,6 +36,7 @@
         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
         <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
+        <param name="cif_file" type="data" optional="true" label="Input CIF file"/>
     </inputs>
     <outputs>
         <data name="output_single" auto_format="true" label="Jana2020 Console Output"></data>
