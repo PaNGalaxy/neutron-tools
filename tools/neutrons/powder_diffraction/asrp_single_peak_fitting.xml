@@ -5,7 +5,8 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/single_peak_fit:0.3
+        <container type="docker">
+            savannah.ornl.gov/asrp/single_peak_fit:0.3
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
