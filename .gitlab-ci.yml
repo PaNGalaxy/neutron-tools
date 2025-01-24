@@ -108,3 +108,4 @@ interactive-tools-testing:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
     - when: manual
+      allow_failure: true
