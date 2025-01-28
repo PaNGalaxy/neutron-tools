@@ -28,7 +28,7 @@
 
     ]]></command>
     <inputs>
-        <param format="txt" multiple="true" name="data_files" type="data" label="Data Files"/>
+        <param multiple="true" name="data_files" type="data" label="Data Files"/>
         <param name="instrument" type="select" label="Select instrument name:" optional="false">
             <option value="DEMAND" selected="true">DEMAND</option>
         </param>
