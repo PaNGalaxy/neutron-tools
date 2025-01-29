@@ -15,6 +15,32 @@
 			echo $iinput > input.csv
 		#end for
 
+		#set $flags = ""
+		
+      	#if $coverage.use_coverage == 'true'
+      		#set $flags = $flags + " --coverage_mtz " + str($coverage.coverage_file)
+      	#end if
+      	#if $intensity.use_intensity == 'true'
+      		#set $flags = $flags + " --array " + str($intensity.array)
+      	#end if
+      	#if $keep_hd == 'true'
+      		#set $flags = $flags + " --keep_hd"
+      	#end if
+      	#if $xray == 'true'
+      		#set $flags = $flags + " --xray"
+      	#end if
+      	#if $phasing.use_phasing == 'true'
+      		#set $flags = $flags + " --phasing_hint " + str($phasing.phasing_file)
+      	#end if
+		#if $honly.use_honly == 'true'
+      		#set $flags = $flags + " --h_only_file " + str($honly.honly_file)
+      	#end if
+      	#if $intermediate_solutions == 'true'
+      		#set $flags = $flags + " --intermediate_solution intermediate"
+      	#end if
+
+		python analyze_h.py $flags --pdb_ref $pdb --b0_over_b1 $b0b1 --out_path out/out.mrc input.csv
+
     ]]></command>
     <inputs>
     
