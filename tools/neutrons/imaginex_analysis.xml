@@ -58,7 +58,7 @@
 		<conditional name="intensity">
 			<param name="use_intensity" type="boolean" checked="false" label="Use intensity" help="Whether to use an intensity array." /> 
 			<when value="true">
-				<param label="array" name="Array name" type="text" value="" help="Must match a Miller array label from input mtz files." />
+				<param label="Array name" name="array" type="text" value="" help="Must match a Miller array label from input mtz files." />
 			</when>
 			<when value="false">
 			</when>
