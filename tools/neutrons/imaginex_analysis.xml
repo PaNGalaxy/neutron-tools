@@ -8,10 +8,10 @@
 		
 		touch input.csv ;
 		
-		#for $i in $input
-			echo '${i.phi},' > input.csv
-			echo '${i.input}\n' > input.csv
-		#end for
+##		#for $i in $input
+##			echo '${i.phi},' > input.csv
+##			echo '${i.input}\n' > input.csv
+##		#end for
 
 ##		#set $flags = ""
 ##		
