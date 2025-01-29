@@ -1,0 +1,124 @@
+<tool id="imaginex_merge" name="IMAGINE-X Analysis"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">code.ornl.gov:4567/dnp-computational-project/instrument/coverage:test</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+
+		mkdir out ; 
+		
+		touch input.csv ;
+		
+		#for $i in $input
+			echo '${i.phi},' > input.csv
+			echo '${i.input}\n' > input.csv
+		#end for
+
+		#set $flags = ""
+		
+      	#if $coverage.use_coverage == 'true'
+      		#set $flags = $flags + " --coverage_mtz " + str($coverage.coverage_file)
+      	#end if
+      	#if $intensity.use_intensity == 'true'
+      		#set $flags = $flags + " --array " + str($intensity.array)
+      	#end if
+      	#if $keep_hd == 'true'
+      		#set $flags = $flags + " --keep_hd"
+      	#end if
+      	#if $xray == 'true'
+      		#set $flags = $flags + " --xray"
+      	#end if
+      	#if $phasing.use_phasing == 'true'
+      		#set $flags = $flags + " --phasing_hint " + str($phasing.phasing_file)
+      	#end if
+		#if $honly.use_honly == 'true'
+      		#set $flags = $flags + " --h_only_file " + str($honly.honly_file)
+      	#end if
+      	#if $intermediate_solutions == 'true'
+      		#set $flags = $flags + " --intermediate_solution intermediate"
+      	#end if
+
+		python analyze_h.py $flags --pdb_ref $pdb --b0_over_b1 $b0b1 --out_path out/out.mrc input.csv
+
+    ]]></command>
+    <inputs>
+    
+		<param format="pdb" name="pdb" type="data" label="Reference structure" />
+		<param name="keep_hd" type="boolean" checked="false" label="Keep H/D atoms in reference structure" />
+		<param name="intermediate" type="boolean" checked="false" label="Generate intermediate solutions" />
+		<param name="xray" type="boolean" checked="false" label="Use X-ray scattering lengths" />
+		<param name="b0_over_b1" type="float" value="-3.74" label="b0/b1" help="Ratio of physical constants involved in the scattering length of polarized H" /> 
+		<conditional name="coverage">
+			<param name="use_coverage" type="boolean" checked="false" label="Use coverage" help="Whether to use a coverage mtz file." /> 
+			<when value="true">
+				<param format="mtz" name="coverage_file" type="data" label="Coverage array file" />
+			</when>
+			<when value="false">
+			</when>
+		</conditional>		
+		<conditional name="intensity">
+			<param name="use_intensity" type="boolean" checked="false" label="Use intensity" help="Whether to use an intensity array." /> 
+			<when value="true">
+				<param label="array" name="Array name" type="text" value="" help="Must match a Miller array label from input mtz files." />
+			</when>
+			<when value="false">
+			</when>
+		</conditional>		
+		<conditional name="phasing">
+			<param name="use_phasing" type="boolean" checked="false" label="Use phasing hint" help="Whether to provide an mtz file as a phasing hint." /> 
+			<when value="true">
+				<param format="mtz" name="phasing_file" type="data" label="Reference structure factor" help="With partial hydrogens." />
+			</when>
+			<when value="false">
+			</when>
+		</conditional>	
+		<conditional name="honly">
+			<param name="use_honly" type="boolean" checked="false" label="Use H only file" help="Whether to provide an mtz file with only H." /> 
+			<when value="true">
+				<param format="mtz" name="phasing_file" type="data" label="Reference structure factor" />
+			</when>
+			<when value="false">
+			</when>
+		</conditional>	
+		<repeat name="input" title="Data Files">
+	    	<param name="file" type="data" format="txt" label="Data File" />
+	    	<param name="phi" type="float" value="0" label="Phi" /> 
+	    </repeat>
+		
+		<param label="MPI Command" name="mpi_command" type="text" value="jsrun" />
+		
+		<param name="b" type="float" value="-3.0" label="b" /> 
+		<param name="dmin" type="float" value="1.5" label="d min" /> 
+		<param name="dedeuterate" type="boolean" checked="true" label="De-deuterate (remove H/D)" />
+		<param name="invert" type="boolean" checked="false" label="Invert the HD selection" />
+		<param name="xray" type="boolean" checked="false" label="X-ray scattering lengths" />
+		<conditional name="map">
+			<param name="use_map" type="boolean" checked="false" label="Compare map" help="Whether to compare with an existing mrc map file." /> 
+			<when value="true">
+				<param format="mrc" name="map_file" type="data" label="Map file" />
+			</when>
+			<when value="false">
+			</when>
+		</conditional>
+		<conditional name="occupancy">
+			<param name="use_occupancy" type="boolean" checked="false" label="Use occupancy" help="Whether to set a hydrogen occupancy amount." /> 
+			<when value="true">
+				<param name="occupancy" type="float" value="0.0" label="Occupancy" /> 
+			</when>
+			<when value="false">
+			</when>
+		</conditional>
+		
+    </inputs>
+    <outputs>
+		<data format="mrc" name="output" from_work_dir="out/out.mrc" />
+		<data format="mtz" name="minus" from_work_dir="intermediate_minus.mtz" >
+			<filter>intermediate_solutions</filter>
+		</data>
+		<data format="mtz" name="plus" from_work_dir="intermediate_plus.mtz" >
+			<filter>intermediate_solutions</filter>
+		</data>
+    </outputs>
+    <help><![CDATA[
+        Analysis.
+    ]]></help>
+</tool>
