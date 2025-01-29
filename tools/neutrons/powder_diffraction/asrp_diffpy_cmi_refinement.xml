@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            code.ornl.gov:4567/neutrons/asrp/ndip-tool-containers/asrp/diffpy_cmi_refinement:0.3
+            savannah.ornl.gov/asrp/diffpy_cmi_refinement:0.3
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

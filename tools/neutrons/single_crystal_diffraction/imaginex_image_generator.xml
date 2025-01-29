@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker">
-            code.ornl.gov:4567/dnp-computational-project/data-reduction-ndip-tools/imagine-image-generator/production/main:0.0.3
+            savannah.ornl.gov/imagine-x/imagine-image-generator/main:latest
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
