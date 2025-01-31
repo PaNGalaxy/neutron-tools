@@ -1,11 +1,11 @@
-<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev1"
+<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev2"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.2.0-dev1</container>
+        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.2.0-dev2</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="gravitas_fix_wglmakie" requires_domain="False"
