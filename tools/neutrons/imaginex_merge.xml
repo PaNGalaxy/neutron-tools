@@ -1,0 +1,60 @@
+<tool id="imaginex_merge" name="IMAGINE-X Merge"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">savannah.ornl.gov/imagine-x/coverage/main:latest</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+
+		mkdir out ; 
+
+		#set $flags = ""
+      	
+      	#if $xray == 'true'
+      		#set $flags = $flags + " --xray"
+      	#end if
+      	#if $occupancy.use_occupancy == 'true'
+      		#set $flags = $flags + " --occupancy " + str($occupancy.occupancy)
+      	#end if
+      	#if $dedeuterate != 'true'
+      		#set $flags = $flags + " --no_dedeuterate"
+      	#end if
+      	#if $invert == 'true'
+      		$set $flags = $flags + " --invert"
+      	#end if
+
+		python /coverage/merge_HD.py $flags --d_min $dmin --b $b --mrc_out out/out.mrc $input out/out.mtz
+
+    ]]></command>
+    <inputs>
+    
+		<param format="pdb" name="input" type="data" label="PDB input file" />
+		<param name="b" type="float" value="-3.0" label="b" /> 
+		<param name="dmin" type="float" value="1.5" label="d min" /> 
+		<param name="dedeuterate" type="boolean" checked="true" label="De-deuterate (remove H/D)" />
+		<param name="invert" type="boolean" checked="false" label="Invert the HD selection" />
+		<param name="xray" type="boolean" checked="false" label="X-ray scattering lengths" />
+		<conditional name="map">
+			<param name="use_map" type="boolean" checked="false" label="Compare map" help="Whether to compare with an existing mrc map file." /> 
+			<when value="true">
+				<param format="mrc" name="map_file" type="data" label="Map file" />
+			</when>
+			<when value="false">
+			</when>
+		</conditional>
+		<conditional name="occupancy">
+			<param name="use_occupancy" type="boolean" checked="false" label="Use occupancy" help="Whether to set a hydrogen occupancy amount." /> 
+			<when value="true">
+				<param name="occupancy" type="float" value="0.0" label="Occupancy" /> 
+			</when>
+			<when value="false">
+			</when>
+		</conditional>
+		
+    </inputs>
+    <outputs>
+		<data format="mrc" name="map" from_work_dir="out/out.mrc" />
+		<data format="mtz" name="output" from_work_dir="out/out.mtz" />
+    </outputs>
+    <help><![CDATA[
+        Merge.
+    ]]></help>
+</tool>
