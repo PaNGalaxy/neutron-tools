@@ -23,7 +23,9 @@
         export GALAXY_WORKING_DIR=`pwd` &&
         /setup.sh \$GALAXY_TOOL_USER &&
         #if $directory:
-            ln -s ${directory} /home/novnc_user/data &&
+            #set $dirname = os.path.basename(str($directory).rstrip('/'))
+            ln -s ${directory} /home/novnc_user/${dirname} &&
+            ln -s ${directory} /home/novnc_user/Downloads &&
         #end if
         #if $cif_file:
             #set $name = os.path.basename(str($cif_file.element_identifier))
