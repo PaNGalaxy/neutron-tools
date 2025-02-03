@@ -1,4 +1,4 @@
-<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev2"
+<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev3"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -29,7 +29,8 @@
         #import re
         #from pathlib import Path
         export GALAXY_WORKING_DIR=`pwd` &&
-        export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
+	export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
+	echo $PROXY_PREFIX &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
         cp -r /import/examples ./jupyter &&
