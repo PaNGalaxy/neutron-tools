@@ -8,7 +8,7 @@
         <container type="docker">savannah.ornl.gov/gravitas/sunny:0.2.0-dev2</container>
     </requirements>
     <entry_points>
-        <entry_point name="Jupyter Interactive Tool" label="gravitas_fix_wglmakie" requires_domain="False"
+        <entry_point name="Jupyter Interactive Tool" label="gravitas" requires_domain="False"
                      requires_path_in_url="True">
             <port>8888</port>
             <url>ipython</url>
