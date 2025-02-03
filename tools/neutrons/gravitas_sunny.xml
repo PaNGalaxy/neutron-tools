@@ -1,4 +1,4 @@
-<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev9"
+<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev10"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
