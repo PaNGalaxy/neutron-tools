@@ -1,4 +1,4 @@
-<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev12"
+<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.2.0-dev13"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -69,7 +69,7 @@
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
             printenv &&
-            jupyter notebook list --json &&
+            jupyter notebook --no-browser &&
         #end if
         cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
