@@ -1,0 +1,63 @@
+ <tool id="neutrons_mlsans_fit_yukawa_sq_kan" name="fit_Yukawa_IQ_KAN"  profile="22.04" version="0.0.1">
+  <description></description>
+    <creator>
+        <person name="ML-SANS Tools"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq@sha256:9adfe752a9859aa252216bfba8a57af4235c983bc7fcfb6f1c92425123b7bbe0</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python3 /src/curvefit.py -i $input $C $I_inc $sigma $d_sigma $phi $kappa $A || echo python finished && mv output.png $output && cp output.txt $output2
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" optional="false" label="ASCII data"/>
+        <param name="C" type="text" value="4000 3500 4500" label="C" optional="false" help="Contrast"/>
+        <param name="I_inc" type="text" value="0.5 0.1 2" label="I_inc" optional="false" help="Incoherent background"/>
+        <param name="sigma" type="text" value="1 0.9 1.1" label="σ" optional="false" help="Particle diameter"/>
+        <param name="d_sigma" type="text" value="0.07 0.02 0.1" label="d_σ" optional="false" help="Particle size polydispersity"/>
+        <param name="phi" type="text" value="0.1 0.05 0.25" label="Φ" optional="false" help="Volume fraction"/>
+        <param name="kappa" type="text" value="0.2 0.1 0.3" label="1/κD" optional="false" help="Screening constant"/>
+        <param name="A" type="text" value="10 1 20" label="βA" optional="false" help="Repulsion strength"/>
+    </inputs>
+	
+    <outputs>
+        <data name="output" format="png" label="fitting results plot">
+        </data>
+        <data name="output2" format="txt" label="fitting results">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        **What it does**
+        
+        Fit the input hard sphere Yukawa colloid I(Q) curve. 
+
+        **Usage**
+
+        Initial guess, lower bound and upper bound are separated using spaces. 
+        Q points are rescaled such that QD in 0.2:0.2:16, the sigma fitting parameter reflects the differences between the actual particle radius and the initial guesses.
+
+        **Acknowledgement**
+        
+        This research was sponsored by the Laboratory Directed Research and Development Program of Oak Ridge National Laboratory, managed by UT-Battelle, LLC, for the U. S. Department of Energy.
+]]></help>
+    <citations>
+    <!-- Example of annotating a citation using a DOI. -->
+        <citation type="doi">10.1038/s42005-021-00778-y</citation>
+        <citation type="doi">10.1016/j.cartre.2023.100252</citation>
+        <citation type="doi">10.1107/S1600576724004515</citation>
+    </citations>
+    <tests>
+        <test>
+            <param name="input" value="example_IQ_Yukawa.csv" />
+            <param name="C"  value="4000 3500 4500" />
+            <param name="I_inc"  value="0.5 0.1 2" />
+            <param name="sigma"  value="1 0.9 1.1" />
+            <param name="d_sigma"  value="0.07 0.02 0.1" />
+            <param name="phi"  value="0.1 0.05 0.25" />
+            <param name="kappa"  value="0.2 0.1 0.3" />
+            <param name="A" value="10 1 20" />
+        </test>
+    </tests>
+</tool>
+
