@@ -1,12 +1,12 @@
-<tool id="imaginex_subhkl_peak_fit" name="IMAGINE-X HKL Peak Fit"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+<tool id="imaginex_subhkl_peak_fit" name="IMAGINE-X HKL Peak Fitting"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/zjmorgan/subhkl:0.0.1</container>
+    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir out ; 
 
-		python /integration.py $input out 
+		python -m subhkl.io.parser finder $input out/out.csv
 
     ]]></command>
     <inputs>
@@ -15,7 +15,7 @@
 		
     </inputs>
     <outputs>
-		<data format="txt" name="out/output.txt" />
+		<data format="csv" name="output" from_work_dir="out/out.csv" />
     </outputs>
     <help><![CDATA[
         Calculates peak indices.

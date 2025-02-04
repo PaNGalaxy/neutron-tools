@@ -1,42 +1,50 @@
-<tool id="imaginex_subhkl_peak_index" name="IMAGINE-X HKL Peak Indexing"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+<tool id="imaginex_subhkl" name="IMAGINE-X subhkl Peak Indexing "  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/zjmorgan/subhkl:0.0.1</container>
+    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
-
 		mkdir out ; 
 
-		#if unitCell.unitCell
-			python /optimization.py $input out $wavelengthMin $wavelengthMax $unitCell.unitFile
-		#else
-			python /optimization.py $input out $wavelengthMin $wavelengthMax $unitCell.a $unitCell.b $unitCell.c $unitCell.alpha $unitCell.beta $unitCell.gamma
-		#end for
-
+		#if $metad.metad == 'true':
+			python -m subhkl.io.parser indexer-using-file 8 $peaks out/out.h5 ;
+		#else:
+			python -m subhkl.io.parser indexer 8 $peaks $metad.goniometer out/out.h5 $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample ;
+		#end if
     ]]></command>
     <inputs>
     
-		<param format="h5" name="input" type="data" label="Peak data file" />
-	    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
-		<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
-		<conditional name="unitCell">
-			<param name="unitCell" type="boolean" checked="true" label="Use unit cell file" help="Use a file to define a unit cell rather than constants."> 
+		<param format="csv" name="peaks" type="data" label="Peak data file" />
+		<conditional name="metad">
+			<param name="metad" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
 			</param>
 			<when value="true">
-				<param name="unitFile" type="data" format="cif,pdb" label="Unit cell structure file" />
 			</when>
 			<when value="false">
+				<param format="csv" name="goniometer" type="data" label="Goniometer data file" />
 				<param name="a" type="float" value="0.0" label="a" /> 
 				<param name="b" type="float" value="0.0" label="b" /> 
 				<param name="c" type="float" value="0.0" label="ac" /> 
 				<param name="alpha" type="float" value="0.0" label="Alpha" /> 
 				<param name="beta" type="float" value="0.0" label="Beta" /> 
 				<param name="gamma" type="float" value="0.0" label="Gamma" /> 
+			    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
+				<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
+				<param name="sample" type="select" optional="false" value="P" label="Sample Centering" > 
+					<option value="P">Primitive</option>
+					<option value="I">Body Centered</option>
+					<option value="F">Face Centered</option>
+					<option value="A">Base Centered A</option>
+					<option value="B">Base Centered B</option>
+					<option value="C">Base Centered C</option>
+					<option value="R">Rhombohedral</option>
+					<option value="R_obv">Rhombohedral Observed</option>
+				</param>
 			</when>
 		</conditional>
 
     </inputs>
     <outputs>
-		<data format="mtz" name="out/output" />
+		<data format="h5" name="output" from_work_dir="out/out.h5" />
     </outputs>
     <help><![CDATA[
         Calculates peak indices in reciprocol space.

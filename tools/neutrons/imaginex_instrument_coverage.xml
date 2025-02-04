@@ -1,0 +1,24 @@
+<tool id="imaginex_instrument_coverage" name="IMAGINE-X Instrument Coverage"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">savannah.ornl.gov/imagine-x/coverage/main:latest</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+
+		mkdir out ; 
+
+		python /coverage/instrument_coverage.py $phi out/out.mtz --instrument_mask $mask --mtz_file $input
+
+    ]]></command>
+    <inputs>
+    	<param name="phi" type="float" value="0" label="Phi"/> 
+		<param format="nxs" name="mask" type="data" label="Instrument mask file" />
+		<param format="mtz" name="input" type="data" label="Input file" />
+		
+    </inputs>
+    <outputs>
+		<data format="mtz" name="output" from_work_dir="out/out.mtz" />
+    </outputs>
+    <help><![CDATA[
+        Calculates peak indices.
+    ]]></help>
+</tool>

@@ -1,0 +1,29 @@
+<tool id="neutrons_trame_time_resolved_vis" tool_type="interactive" name="Time-resolved visualization" profile="22.05" version="0.3.1-dev">
+    <description></description>
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/time-resolved-visualization:0.3.0
+        </container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Trame Time-resolved visualization" label="timeresvis" requires_domain="False" requires_path_in_url="True">
+            <port>8081</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">timeresvis</environment_variable>
+    </environment_variables>
+    <command detect_errors="exit_code"><![CDATA[
+        conda run --no-capture-output -n time-resolved-vis supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        Starts interactive Time-resolved data visualization application.
+    ]]></help>
+</tool>
