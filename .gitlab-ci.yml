@@ -62,6 +62,8 @@ testing:
   stage: test
   script:
     - sudo apt-get install -y libxml2-utils
+    - echo "Before SHA: $CI_COMMIT_BEFORE_SHA"
+    - echo "After SHA: $CI_COMMIT_SHA"
     - CHANGED_FILES=$(git diff --diff-filter=AM --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- "*.xml" | tr '\n' ' ')
     - files_with_test=""
     - |
