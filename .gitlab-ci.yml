@@ -45,6 +45,10 @@ push_dev_tools:
       rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key"
       --rsync-path "sudo rsync" -rv --delete
       tools/neutrons/ cloud@calvera-test.ornl.gov:/srv/galaxy/local_tools/neutrons-dev/
+    - >
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
+      cloud@calvera-test.ornl.gov
+      sudo /root/update_prototype_tools.sh
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       when: always
