@@ -42,12 +42,8 @@ push_dev_tools:
     - echo "$CALVERA_TEST_SSH_KEY" > key
     - chmod 400 key
     - >
-      python3 utils/push_tools.py
-      --source-directory "tools/neutrons"
-      --ssh-key-path key
-      --remote-user cloud
-      --remote-host calvera-test.ornl.gov
-      --remote-directory /srv/galaxy/local_tools/neutrons-dev/
+      rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key"
+      tools/neutrons cloud@calvera-test.ornl.gov/srv/galaxy/local_tools/neutrons-dev/
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       when: always
