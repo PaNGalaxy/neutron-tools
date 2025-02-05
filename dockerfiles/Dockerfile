@@ -4,7 +4,7 @@ RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-24.0.2.tg
 RUN tar zxvf docker-24.0.2.tgz && cp docker/docker /usr/bin/docker
 
 # Install dependencies for Planemo
-RUN apt-get install -y python3-pip
+RUN apt-get update && apt-get install -y python3-pip
 
 # Install Planemo
 RUN pip3 install planemo
