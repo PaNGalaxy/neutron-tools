@@ -43,7 +43,7 @@ push_dev_tools:
     - chmod 400 key
     - >
       rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key"
-      --rsync-path "sudo rsync" -rv
+      --rsync-path "sudo rsync" -rv --delete
       tools/neutrons/ cloud@calvera-test.ornl.gov:/srv/galaxy/local_tools/neutrons-dev/
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
