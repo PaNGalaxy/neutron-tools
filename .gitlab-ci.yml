@@ -6,7 +6,7 @@ stages:
 
 variables:
   GIT_STRATEGY: clone
-  CONTAINER_URL: "${CI_REGISTRY_IMAGE}"
+  CONTAINER_URL: "${NDIP_DOCKER_REPOSITORY}/${CI_PROJECT_PATH}"
 
 # This import is for the func_rse_docker_* functions
 before_script:
@@ -83,7 +83,7 @@ testing:
           docker run -v `pwd`:/`pwd` \
                      -u `id -u`:`id -g` \
                      --workdir `pwd` \
-                      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY $files_with_test
+                      $CONTAINER_URL planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY $files_with_test
       fi
   artifacts:
     reports:
