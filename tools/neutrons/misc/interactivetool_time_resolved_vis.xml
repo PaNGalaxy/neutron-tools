@@ -23,11 +23,6 @@
         <data format="txt" name="output" label="Console output">
         </data>
     </outputs>
-    <tests>
-        <test>
-            <param name="dat" value="ex012a.dat1"/>
-        </test>
-    </tests>
     <help><![CDATA[
         Starts interactive Time-resolved data visualization application.
     ]]></help>

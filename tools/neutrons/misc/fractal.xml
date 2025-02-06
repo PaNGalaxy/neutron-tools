@@ -1,0 +1,35 @@
+<tool id="neutrons_fractal_dev" name="Fractals" version="0.2.0" python_template_version="3.5">
+    <creator>
+        <person name="NDIP Team"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/playground/fractal:0.1</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #import json
+	    python3 /src/fractal.py --option $option &&
+	    mv data.* $output
+    ]]></command>
+    <inputs>
+        <param name="option" type="select" display="radio" label="Select Option">
+            <option value="mandelbrot" selected="true">Mandelbrot Set</option>
+            <option value="julia">Julia Set Animation</option>
+            <option value="random">Random Walk</option>
+            <option value="markus">Markus-Lyapunov Fractal</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data auto_format="true" name="output" label="$option">
+        </data>
+    </outputs>
+    <tests>
+        <test> <!-- basic test -->
+            <param name="option" value="markus"/>
+            <output name="output" file="expected_markus.png"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Creates various kind of fractals.
+    ]]></help>
+</tool>
