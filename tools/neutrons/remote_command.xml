@@ -1,4 +1,4 @@
-<tool id="neutrons_remote_command" name="Remote Command" profile="22.05" version="0.3.0" python_template_version="3.5">
+<tool id="neutrons_remote_command" name="Remote Command" profile="22.05" version="0.2.0" python_template_version="3.5">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -32,11 +32,6 @@
                 <option value="uptime" selected="true">uptime</option>
                 <option value="lscpu">lscpu</option>
                 <option value="hostname">hostname</option>
-                <option value="copy">copy</option>
-                <option value="head">head</option>
-                <option value="fail">fail</option>
-                <option value="fail_o">fail_with_output</option>
-                <option value="ok_fail_output">ok_fail_output</option>
             </param>
             <when value="copy">
                 <param name="input" type="data" optional="false" label="Input dataset"/>
