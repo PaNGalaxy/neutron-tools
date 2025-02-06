@@ -28,10 +28,8 @@ service-build:
       docker build
       -f dockerfiles/Dockerfile
       -t galaxy_tools .
-    - docker tag galaxy_tools $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
-    - docker tag galaxy_tools $CONTAINER_URL:latest
-    - docker push $CONTAINER_URL:latest
-    - docker push $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
+    - docker tag galaxy_tools $CONTAINER_URL:prototype
+    - docker push $CONTAINER_URL:prototype
   when: manual
   tags:
     - rse-multi-builder
@@ -83,7 +81,7 @@ testing:
           docker run -v `pwd`:/`pwd` \
                      -u `id -u`:`id -g` \
                      --workdir `pwd` \
-                      $CONTAINER_URL planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY $files_with_test
+                      $CONTAINER_URL:prototype planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY $files_with_test
       fi
   artifacts:
     reports:
