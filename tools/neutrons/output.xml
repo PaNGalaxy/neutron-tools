@@ -1,5 +1,6 @@
 <tool id="neutrons_output" name="output" version="0.1.0"  profile="22.05" python_template_version="3.5">
     <requirements>
+     <resource type=cuda_device_count_min>1</resource>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
     for i in {1..1000};
