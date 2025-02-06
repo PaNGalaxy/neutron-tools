@@ -1,4 +1,4 @@
-<tool id="neutrons_remote_command" name="Remote Command" profile="22.05" version="0.2.0" python_template_version="3.5">
+<tool id="neutrons_remote_command" name="Remote Command" profile="22.05" version="0.2.1" python_template_version="3.5">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
