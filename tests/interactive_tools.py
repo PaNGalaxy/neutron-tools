@@ -1,7 +1,7 @@
 import os
 import sys
 from typing import Optional
-from nova.galaxy import Nova, Tool, Parameters
+from nova.galaxy import Connection, Tool, Parameters
 from nova.galaxy.tool import stop_all_tools_in_store
 
 def run_tool_test( tool_id: str, params: Optional[Parameters] = None) -> bool:
@@ -9,8 +9,8 @@ def run_tool_test( tool_id: str, params: Optional[Parameters] = None) -> bool:
     Runs an integration test for a given tool ID with provided parameters
     """
     try:
-        nova = Nova(galaxy_url = os.environ["GALAXY_URL"], galaxy_key = os.environ["API_KEY"])
-        with nova.connect() as connection:
+        conn = Connection(galaxy_url = os.environ["GALAXY_URL"], galaxy_key = os.environ["API_KEY"])
+        with conn.connect() as connection:
             d_store = connection.create_data_store(name = f"{tool_id}_test")
             d_store.persist()
             d_tool = Tool(id=tool_id)
