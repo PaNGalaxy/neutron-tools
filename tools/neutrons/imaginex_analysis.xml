@@ -8,34 +8,34 @@
 		
 		touch input.csv ;
 		
-		#for $i in $input
+		#for $i in $input:
 			#set $iphi = str($i.phi) + ","		
 			#set $iinput = str($i.file) + "\n"		
-			echo $iphi > input.csv
-			echo $iinput > input.csv
+			echo $iphi > input.csv ;
+			echo $iinput > input.csv ;
 		#end for
 
 		#set $flags = ""
 		
-      	#if $coverage.use_coverage == 'true'
+      	#if $coverage.use_coverage == 'true':
       		#set $flags = $flags + " --coverage_mtz " + str($coverage.coverage_file)
       	#end if
-      	#if $intensity.use_intensity == 'true'
+      	#if $intensity.use_intensity == 'true':
       		#set $flags = $flags + " --array " + str($intensity.array)
       	#end if
-      	#if $keep_hd == 'true'
+      	#if $keep_hd == 'true':
       		#set $flags = $flags + " --keep_hd"
       	#end if
-      	#if $xray == 'true'
+      	#if $xray == 'true':
       		#set $flags = $flags + " --xray"
       	#end if
-      	#if $phasing.use_phasing == 'true'
+      	#if $phasing.use_phasing == 'true':
       		#set $flags = $flags + " --phasing_hint " + str($phasing.phasing_file)
       	#end if
-		#if $honly.use_honly == 'true'
+		#if $honly.use_honly == 'true':
       		#set $flags = $flags + " --h_only_file " + str($honly.honly_file)
       	#end if
-      	#if $intermediate_solutions == 'true'
+      	#if $intermediate_solutions == 'true':
       		#set $flags = $flags + " --intermediate_solution intermediate"
       	#end if
 
