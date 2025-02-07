@@ -1,11 +1,11 @@
- <tool id="neutrons_mlsans_fit_yukawa_sq_kan" name="fit_Yukawa_IQ_KAN"  profile="22.04" version="0.0.1-dev">
+ <tool id="neutrons_mlsans_fit_yukawa_sq_kan" name="fit_Yukawa_IQ_KAN"  profile="22.04" version="0.0.2-dev">
   <description></description>
     <creator>
         <person name="ML-SANS Tools"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq_kan@sha256:4bb6d5109623ac74b22f5da942b544dfe77b5d86b2af9430a649986b797751b0</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq_kan@sha256:722091f86d214278ce576add2f7802369342a42e665106705db6b740be9dd507</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python3 /src/curvefit.py -i $input $C $I_inc $sigma $d_sigma $phi $kappa $A || echo python finished && mv output.png $output && cp output.txt $output2
