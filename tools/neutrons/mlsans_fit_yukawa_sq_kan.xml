@@ -1,4 +1,4 @@
- <tool id="neutrons_mlsans_fit_yukawa_sq_kan" name="fit_Yukawa_IQ_KAN"  profile="22.04" version="0.0.1">
+ <tool id="neutrons_mlsans_fit_yukawa_sq_kan" name="fit_Yukawa_IQ_KAN"  profile="22.04" version="0.0.1-dev">
   <description></description>
     <creator>
         <person name="ML-SANS Tools"/>
