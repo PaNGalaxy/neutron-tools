@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq@sha256:9adfe752a9859aa252216bfba8a57af4235c983bc7fcfb6f1c92425123b7bbe0</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/ml-assisted-sans-data-analysis/fit_yukawa_sq_kan@sha256:4bb6d5109623ac74b22f5da942b544dfe77b5d86b2af9430a649986b797751b0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python3 /src/curvefit.py -i $input $C $I_inc $sigma $d_sigma $phi $kappa $A || echo python finished && mv output.png $output && cp output.txt $output2
