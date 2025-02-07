@@ -6,7 +6,7 @@ stages:
 
 variables:
   GIT_STRATEGY: clone
-  CONTAINER_URL: "${CI_REGISTRY_IMAGE}"
+  CONTAINER_URL: "${NDIP_DOCKER_REPOSITORY}/${CI_PROJECT_PATH}"
 
 # This import is for the func_rse_docker_* functions
 before_script:
@@ -28,10 +28,8 @@ service-build:
       docker build
       -f dockerfiles/Dockerfile
       -t galaxy_tools .
-    - docker tag galaxy_tools $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
-    - docker tag galaxy_tools $CONTAINER_URL:latest
-    - docker push $CONTAINER_URL:latest
-    - docker push $CONTAINER_URL:$CI_COMMIT_SHORT_SHA
+    - docker tag galaxy_tools $CONTAINER_URL:prototype
+    - docker push $CONTAINER_URL:prototype
   when: manual
   tags:
     - rse-multi-builder
@@ -42,12 +40,15 @@ push_dev_tools:
     - echo "$CALVERA_TEST_SSH_KEY" > key
     - chmod 400 key
     - >
-      python3 utils/push_tools.py
-      --source-directory "tools/neutrons"
-      --ssh-key-path key
-      --remote-user cloud
-      --remote-host calvera-test.ornl.gov
-      --remote-directory /srv/galaxy/local_tools/neutrons-dev/
+      rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key"
+      --rsync-path "sudo rsync" -rv --delete
+      tools/neutrons/ cloud@calvera-test.ornl.gov:/srv/galaxy/local_tools/neutrons-dev/
+    - >
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
+      cloud@calvera-test.ornl.gov
+      sudo /root/update_prototype_tools.sh 
+      /srv/galaxy/local_tools/neutrons-dev
+      /srv/galaxy/config/tool_conf_prototype.xml
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       when: always
@@ -59,7 +60,10 @@ testing:
   stage: test
   script:
     - sudo apt-get install -y libxml2-utils
-    - CHANGED_FILES=$(git diff --diff-filter=AM --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- "tools/neutrons/*.xml" | tr '\n' ' ')
+    - echo Before SHA $CI_COMMIT_BEFORE_SHA
+    - echo After SHA $CI_COMMIT_SHA
+    - git fetch --unshallow
+    - CHANGED_FILES=$(git diff --diff-filter=AM --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA -- "*.xml" | tr '\n' ' ')
     - files_with_test=""
     - |
       for file in $CHANGED_FILES; do
@@ -77,7 +81,7 @@ testing:
           docker run -v `pwd`:/`pwd` \
                      -u `id -u`:`id -g` \
                      --workdir `pwd` \
-                      code.ornl.gov:4567/ndip/galaxy-tools planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY $files_with_test
+                      $CONTAINER_URL:prototype planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --test_output_junit `pwd`/junit_output.xml --galaxy_url https://calvera-test.ornl.gov --galaxy_user_key $CALVERA_TEST_API_KEY --galaxy_admin_key $CALVERA_TEST_ADMIN_KEY $files_with_test
       fi
   artifacts:
     reports:
