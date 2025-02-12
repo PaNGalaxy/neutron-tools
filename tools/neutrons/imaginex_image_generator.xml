@@ -1,6 +1,6 @@
 <tool id="imaginex_image_generator" name="IMAGINE-X image generator"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">code.ornl.gov:4567/dnp-computational-project/data-reduction-ndip-tools/imagine-image-generator/production/main:0.0.7</container>
+    <container type="docker">savannah.ornl.gov/imagine-x/imagine-image-generator/main</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir output ;

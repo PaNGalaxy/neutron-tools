@@ -17,8 +17,6 @@
 			echo '$csv_input' >> input.csv ;
 		#end for
 
-		cat input.csv ;
-
 		#set $flags = ""
 		
       	#if $coverage.use_coverage == 'true':
