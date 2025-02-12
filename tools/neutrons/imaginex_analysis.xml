@@ -44,29 +44,6 @@
     ]]></command>
     <inputs>
     
-    	<param format="pdb" name="input" type="data" label="PDB input file" />
-		<param name="b" type="float" value="-3.0" label="b" /> 
-		<param name="dmin" type="float" value="1.5" label="d min" /> 
-		<param name="dedeuterate" type="boolean" checked="true" label="De-deuterate (remove H/D)" />
-		<param name="invert" type="boolean" checked="false" label="Invert the HD selection" />
-		<param name="xray" type="boolean" checked="false" label="X-ray scattering lengths" />
-		<conditional name="map">
-			<param name="use_map" type="boolean" checked="false" label="Compare map" help="Whether to compare with an existing mrc map file." /> 
-			<when value="true">
-				<param format="mrc" name="map_file" type="data" label="Map file" />
-			</when>
-			<when value="false">
-			</when>
-		</conditional>
-		<conditional name="occupancy">
-			<param name="use_occupancy" type="boolean" checked="false" label="Use occupancy" help="Whether to set a hydrogen occupancy amount." /> 
-			<when value="true">
-				<param name="occupancy" type="float" value="0.0" label="Occupancy" /> 
-			</when>
-			<when value="false">
-			</when>
-		</conditional>
-    
 		<param format="pdb" name="pdb" type="data" label="Reference structure" />
 		<param name="keep_hd" type="boolean" checked="false" label="Keep H/D atoms in reference structure" />
 		<param name="intermediate_solutions" type="boolean" checked="false" label="Generate intermediate solutions" />
