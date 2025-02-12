@@ -76,7 +76,7 @@
 		<conditional name="honly">
 			<param name="use_honly" type="boolean" checked="false" label="Use H only file" help="Whether to provide an mtz file with only H." /> 
 			<when value="true">
-				<param format="mtz" name="phasing_file" type="data" label="Reference structure factor" />
+				<param format="mtz" name="honly_file" type="data" label="Reference structure factor" />
 			</when>
 			<when value="false">
 			</when>
