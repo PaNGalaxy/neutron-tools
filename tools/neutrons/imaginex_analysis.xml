@@ -9,12 +9,13 @@
 		touch input.csv ;
 		
 		#set $csv_input = 'phi,mtz_file'
+		echo '$csv_input' >> input.csv
 		
 		#for $i in $input2:
-			#set $csv_input = $csv_input + '\n' + str($i.phi) + ','	+ str($i.file)	
+			#set $csv_input = str($i.phi) + ','	+ str($i.file)	
+			echo '\n' >> input.csv
+			echo '$csv_input' >> input.csv
 		#end for
-		
-		echo '$csv_input' > input.csv ;
 
 		cat input.csv ;
 
