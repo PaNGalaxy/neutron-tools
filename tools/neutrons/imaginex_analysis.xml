@@ -22,8 +22,6 @@
       	#end if
 
 		python /coverage/merge_HD.py $flags --d_min $dmin --b $b --mrc_out out/out.mrc $input out/out.mtz ;
-
-		mkdir out ; 
 		
 		touch input.csv ;
 		
