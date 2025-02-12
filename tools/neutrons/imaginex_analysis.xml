@@ -39,7 +39,7 @@
       		#set $flags = $flags + " --intermediate_solution intermediate"
       	#end if
 
-		python analyze_h.py $flags --pdb_ref $pdb --b0_over_b1 $b0b1 --out_path out/out.mrc input.csv
+		python analyze_h.py $flags --pdb_ref $pdb --b0_over_b1 $b0_over_b1 --out_path out/out.mrc input.csv
 
     ]]></command>
     <inputs>
