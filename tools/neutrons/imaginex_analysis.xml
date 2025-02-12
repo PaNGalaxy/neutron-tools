@@ -82,7 +82,7 @@
 			</when>
 		</conditional>	
 		<repeat name="input" title="Data Files">
-	    	<param name="file" type="data" format="txt" label="Data File" />
+	    	<param name="file" type="data" format="mtz" label="Data File" />
 	    	<param name="phi" type="float" value="0" label="Phi" /> 
 	    </repeat>
 		
