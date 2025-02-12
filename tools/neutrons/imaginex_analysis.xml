@@ -27,7 +27,7 @@
 		
 		touch input.csv ;
 		
-		#for $i in $input:
+		#for $i in $input2:
 			#set $iphi = str($i.phi) + ','		
 			#set $iinput = str($i.file) + '\n'		
 			echo $iphi > input.csv ;
@@ -58,7 +58,7 @@
       		#set $flags = $flags + " --intermediate_solution intermediate"
       	#end if
 
-		python analyze_h.py $flags --pdb_ref $pdb --b0_over_b1 $b0_over_b1 --out_path out/out.mrc input.csv
+		python analyze_h.py $flags --pdb_ref $pdb2 --b0_over_b1 $b0_over_b1 --out_path out/out.mrc input.csv
 
     ]]></command>
     <inputs>
@@ -86,7 +86,7 @@
 			</when>
 		</conditional>
     
-		<param format="pdb" name="pdb" type="data" label="Reference structure" />
+		<param format="pdb2" name="pdb" type="data" label="Reference structure" />
 		<param name="keep_hd" type="boolean" checked="false" label="Keep H/D atoms in reference structure" />
 		<param name="intermediate_solutions" type="boolean" checked="false" label="Generate intermediate solutions" />
 		<param name="xray" type="boolean" checked="false" label="Use X-ray scattering lengths" />
@@ -123,7 +123,7 @@
 			<when value="false">
 			</when>
 		</conditional>	
-		<repeat name="input" title="Data Files">
+		<repeat name="input2" title="Data Files">
 	    	<param name="file" type="data" format="mtz" label="Data File" />
 	    	<param name="phi" type="float" value="0" label="Phi" /> 
 	    </repeat>
