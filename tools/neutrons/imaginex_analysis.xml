@@ -8,7 +8,7 @@
 		
 		touch input.csv ;
 		
-		#set $csv_input = ''
+		#set $csv_input = 'phi,mtz_file\n'
 		
 		#for $i in $input2:
 			#set $csv_input = $csv_input + str($i.phi) + ','	+ str($i.file) + '\n'		
