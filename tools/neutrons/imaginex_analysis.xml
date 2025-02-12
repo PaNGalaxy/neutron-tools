@@ -89,12 +89,6 @@
     </inputs>
     <outputs>
 		<data format="mrc" name="output" from_work_dir="out/out.mrc" />
-		<data format="mtz" name="minus" from_work_dir="intermediate_minus.mtz" >
-			<filter>intermediate_solutions</filter>
-		</data>
-		<data format="mtz" name="plus" from_work_dir="intermediate_plus.mtz" >
-			<filter>intermediate_solutions</filter>
-		</data>
     </outputs>
     <help><![CDATA[
         Analysis.
