@@ -86,7 +86,7 @@
 			</when>
 		</conditional>
     
-		<param format="pdb2" name="pdb" type="data" label="Reference structure" />
+		<param format="pdb" name="pdb" type="data" label="Reference structure" />
 		<param name="keep_hd" type="boolean" checked="false" label="Keep H/D atoms in reference structure" />
 		<param name="intermediate_solutions" type="boolean" checked="false" label="Generate intermediate solutions" />
 		<param name="xray" type="boolean" checked="false" label="Use X-ray scattering lengths" />
