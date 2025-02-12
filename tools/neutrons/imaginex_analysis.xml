@@ -13,7 +13,7 @@
 			#set $iinput = str($i.file) + '\n'		
 			echo $iphi > input.csv ;
 			echo $iinput > input.csv ;
-		#end if
+		#end for
 
 		#set $flags = ""
 		
