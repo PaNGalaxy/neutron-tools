@@ -14,7 +14,7 @@
 			#set $csv_input = $csv_input + '\n' + str($i.phi) + ','	+ str($i.file)	
 		#end for
 		
-		echo $'$csv_input' > input.csv ;
+		echo $'csv_input' > input.csv ;
 
 		cat input.csv ;
 
