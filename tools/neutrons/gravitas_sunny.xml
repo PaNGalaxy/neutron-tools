@@ -65,7 +65,7 @@
         #end if
         jupyter trust './${noteboook_name}.ipynb' &&
         #if $run_it:
-            jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
+            #jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
             jupyter notebook --no-browser &&
