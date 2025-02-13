@@ -1,4 +1,4 @@
-<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.3.0-dev7"
+<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.3.0-dev8"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -70,7 +70,7 @@
         #else:
             jupyter notebook --no-browser &&
         #end if
-        #cp './${noteboook_name}.ipynb' '$jupyter_notebook'
+        cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
             && cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || :
         #end if
