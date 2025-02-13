@@ -1,4 +1,4 @@
-<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.3.0-dev8"
+<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.3.0-dev9"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -59,13 +59,13 @@
 
         #set $noteboook_name = 'ipython_galaxy_notebook'
 	#if $mode.mode_select == 'scratch':
-	    cp '/import/examples/default_notebook.ipynb' './${noteboook_name}.ipynb' &&
+	    cp '/import/examples/default_notebook.ipynb' './${noteboook_name}.ipynb'
         #else:
             # cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
         #end if
         #jupyter trust './${noteboook_name}.ipynb' &&
         #if $run_it:
-            #jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
+            #jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
             jupyter notebook --no-browser &&
