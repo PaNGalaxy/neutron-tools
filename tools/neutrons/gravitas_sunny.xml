@@ -63,14 +63,14 @@
         #else:
             # cp '$mode.ipynb' './${noteboook_name}.ipynb' &&
         #end if
-        jupyter trust './${noteboook_name}.ipynb' &&
+        #jupyter trust './${noteboook_name}.ipynb' &&
         #if $run_it:
-            jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
+            #jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb &&
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
             jupyter notebook --no-browser &&
         #end if
-        cp './${noteboook_name}.ipynb' '$jupyter_notebook'
+        #cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
             && cp `find ./outputs -maxdepth 1 -not -type d | tail -n 1` '$output_single' || :
         #end if
