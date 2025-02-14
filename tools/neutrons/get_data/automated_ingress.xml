@@ -1,10 +1,10 @@
-<tool id="neutrons_ingress" name="Live Neutron Data Monitor" profile="22.05" version="0.3.0">
+<tool id="neutrons_ingress" name="Live Neutron Data Monitor" profile="22.05" version="0.4.0">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/tool-sources/generic/ingress:0.5.0
+        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/tool-sources/generic/ingress:0.6.0
         </container>
     </requirements>
     <environment_variables>
@@ -14,14 +14,14 @@
             #set $filter = $data_type.filter if $data_type.mode == "reduced" else "**"
             python3 -u /app/main.py
               --live-monitoring $live_monitor
+              --live-monitoring-type kafka
               --ingress-previous-data $previous_data
               --facility $facility
               --instrument $instrument
               --ipts $ipts
-              --pulsar-topic-prefix ""
               --data-type $data_type.mode
               --file-from-disk-filter "$filter"
-              --pulsar-url pulsar://10.64.193.124:6650
+              --kafka-url 10.64.193.19:9092
               --galaxy-url $__galaxy_url__
               --galaxy-user-api-key \$API_KEY
               --galaxy-history-name "$history"
