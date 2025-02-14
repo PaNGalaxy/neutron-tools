@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/tool-sources/generic/ingress:build-680e1639
+        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/tool-sources/generic/ingress:0.6.0
         </container>
     </requirements>
     <environment_variables>
