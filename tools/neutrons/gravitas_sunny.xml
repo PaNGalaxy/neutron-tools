@@ -16,6 +16,7 @@
     </entry_points>
     <environment_variables>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="BONITO_JUPYTER_REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key"/>
