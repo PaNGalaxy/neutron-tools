@@ -1,11 +1,11 @@
-<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.2.0"
+<tool id="neutrons_gravitas_sunny" tool_type="interactive" name="Sunny - Interactive Jupyter Notebook ORNL" version="0.3.0"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.2.0</container>
+        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.3.0</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="gravitas" requires_domain="False"
@@ -17,6 +17,7 @@
     <environment_variables>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+        <environment_variable name="BONITO_JUPYTER_REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key"/>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gravitas</environment_variable>
