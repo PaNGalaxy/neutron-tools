@@ -1,4 +1,4 @@
-<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Add GLMakie" version="0.3.1.dev6"
+<tool id="gravitas_fix_wglmakie" tool_type="interactive" name="Sunny - Add GLMakie" version="0.3.1.dev7"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
@@ -32,7 +32,7 @@
         #from pathlib import Path
         export GALAXY_WORKING_DIR=`pwd` &&
         export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
-        mkdir -p \$XDG_RUNTIME_DIR &amp;&amp;
+        mkdir -p \$XDG_RUNTIME_DIR &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
         cp -r /import/examples ./jupyter &&
