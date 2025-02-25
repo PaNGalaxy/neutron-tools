@@ -1,14 +1,14 @@
-<tool id="gravitas_fix_wglmakie_4" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.3.0-dev13"
+<tool id="gravitas_add_glmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.3.1.dev1"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.3.0-dev6</container>
+        <container type="docker">savannah.ornl.gov/gravitas/sunny:0.3.1-dev1</container>
     </requirements>
     <entry_points>
-        <entry_point name="Jupyter Interactive Tool" label="gravitas_fix_wglmakie" requires_domain="False"
+        <entry_point name="Jupyter Interactive Tool" label="gravitas_add_glmakie" requires_domain="False"
                      requires_path_in_url="True">
             <port>8888</port>
             <url>ipython</url>
@@ -20,7 +20,7 @@
         <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key"/>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gravitas_fix_wglmakie</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gravitas_add_glmakie</environment_variable>
     </environment_variables>
     <command><![CDATA[
         echo "job was interrupted" > $jupyter_notebook &&
@@ -31,6 +31,8 @@
         #from pathlib import Path
         export GALAXY_WORKING_DIR=`pwd` &&
         export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
+        export XDG_RUNTIME_DIR=/run/user/0 &&
+        mkdir -p $XDG_RUNTIME_DIR &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
         cp -r /import/examples ./jupyter &&
@@ -69,7 +71,7 @@
             #jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
-            jupyter notebook --no-browser &&
+            xvfb-run -s '-screen 0 1024x768x24' jupyter notebook --no-browser &&
         #end if
         cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
