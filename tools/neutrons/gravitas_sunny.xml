@@ -21,6 +21,7 @@
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="API_KEY" inject="api_key"/>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gravitas_fix_wglmakie</environment_variable>
+        <environment_variable name="XDG_RUNTIME_DIR">"/run/user/0"</environment_variable>
     </environment_variables>
     <command><![CDATA[
         echo "job was interrupted" > $jupyter_notebook &&
@@ -31,7 +32,6 @@
         #from pathlib import Path
         export GALAXY_WORKING_DIR=`pwd` &&
         export PROXY_PREFIX=\${EP_PATH%/ipython*} &&
-        export XDG_RUNTIME_DIR=/run/user/0 &&
         mkdir -p $XDG_RUNTIME_DIR &&
         mkdir -p ./jupyter/outputs/ &&
         mkdir -p ./jupyter/data &&
