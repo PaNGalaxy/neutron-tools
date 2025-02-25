@@ -1,4 +1,4 @@
-<tool id="gravitas_add_glmakie" tool_type="interactive" name="Sunny - Fixing WGLMakie" version="0.3.1.dev1"
+<tool id="gravitas_add_glmakie" tool_type="interactive" name="Sunny - Add GLMakie" version="0.3.1.dev2"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
