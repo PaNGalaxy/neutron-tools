@@ -71,7 +71,7 @@
             #jupyter nbconvert --to notebook --execute --output ./ipython_galaxy_notebook_converted.ipynb --allow-errors  ./*.ipynb
             #set $noteboook_name = 'ipython_galaxy_notebook_converted'
         #else:
-            xvfb-run -s '-screen 0 1024x768x24' jupyter notebook --no-browser &&
+            xvfb-run -s '-screen 0 1024x768x24' --auto-servernum jupyter notebook --no-browser &&
         #end if
         cp './${noteboook_name}.ipynb' '$jupyter_notebook'
         #if $output_option == '1':
