@@ -8,9 +8,7 @@
 
 		#for $input in $inputs
 			#set $out_name = $input.element_identifier[0:-3] + "csv"
-			echo "$out_name"
-			python -m subhkl.io.parser finder $input out/$out_name
-			ls
+			python -m subhkl.io.parser finder $input out/$out_name ;
 		#end for
 
     ]]></command>
