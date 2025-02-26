@@ -6,12 +6,15 @@
 
 		mkdir out ; 
 
-		python -m subhkl.io.parser finder $input out/out.csv
+		#for $input in $inputs
+			#set $out_name = $input.element_identifier[0:-3] + "csv"
+			python -m subhkl.io.parser finder $input out/$out_name
+		#end for
 
     ]]></command>
     <inputs>
     
-		<param format="tiff,png" name="input" type="data" label="Peak data file" />
+		<param format="tiff,png" multiple="true" name="inputs" type="data" label="Peak data file" />
 		
     </inputs>
     <outputs>
