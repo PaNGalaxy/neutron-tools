@@ -11,10 +11,8 @@
     <inputs>
     
 		<param format="txt" name="input" type="data" label="Peak data file" />
-		<param name="shape" type="select" optional="false" value="flat" label="Detector Shape">
-			<option value="flat">flat</option>
-			<option value="curved">curved</option>
-		</param>
+		<param format="csv" name="instrument" type="data" label="CSV Instrument Definition" />
+		<param data_ref="instrument" name="shape" type="data_column" label="Detector Shape"/>
 	    <param name="height" type="float" value="1.0" label="Detector Height"/> 
 	    <param name="distance" type="float" value="1.0" label="Detector Distance"/> 
 	    <param name="orientation" type="float" value="0.0" label="Image Orientation"/> 
