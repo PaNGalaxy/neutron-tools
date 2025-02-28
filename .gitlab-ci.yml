@@ -101,7 +101,24 @@ interactive-tools-testing:
       docker build
       -f dockerfiles/Dockerfile.interactive_test
       -t galaxy_tools .
-    - docker run -e GALAXY_URL="https://calvera-test.ornl.gov" -e API_KEY=$ANDREW_API_KEY galaxy_tools
+    # Create test_results directory for artifacts
+    - mkdir -p test_results
+    # Run tests with --push-metrics if scheduled or web
+    - |
+      if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
+        docker run -e GALAXY_URL="https://calvera-test.ornl.gov" -e API_KEY=$ANDREW_API_KEY \
+          -e CI_PIPELINE_ID -e CI_PROJECT_URL -e PROMETHEUS_URL \
+          -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py --push-metrics
+      else
+        docker run -e GALAXY_URL="https://calvera-test.ornl.gov" -e API_KEY=$ANDREW_API_KEY \
+          -v $(pwd)/test_results:/src/test_results galaxy_tools
+      fi
+  artifacts:
+    when: always
+    paths:
+      - test_results/
+    reports:
+      junit: test_results/interactive_tests_results.xml
   tags:
     - rse-multi-builder
   rules:
