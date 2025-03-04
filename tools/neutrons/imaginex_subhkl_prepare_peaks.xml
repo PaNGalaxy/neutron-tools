@@ -12,8 +12,9 @@
 		
 		#import csv
 		#manifest_file = open($manifest)
-		#for i in range(len(manifest_file))
-			#row = manifest_file(i)
+		#csv_content = csv.DictReader(manifest_file)
+		#for i in range(len(csv_content))
+			#row = csv_content[i]
 		#end for
 
 		
