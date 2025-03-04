@@ -12,8 +12,7 @@
 		
 
 		#manifest_file = open($manifest, "r")
-		#set $row = manifest_file[0]
-		echo "$row" ;
+		#row = manifest_file[0]
 
 		
     ]]></command>
