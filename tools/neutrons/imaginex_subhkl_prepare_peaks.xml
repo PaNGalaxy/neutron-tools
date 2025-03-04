@@ -13,7 +13,7 @@
 		#import csv
 		#manifest_file = open($manifest)
 		#for row in csv.DictReader(manifest_file)
-			#pass
+			#print("here")
 		#end for
 
 		
