@@ -12,6 +12,17 @@
 		
 		#import csv
 		#manifest_file = open($manifest)
+		#for row in csv.DictReader(manifest_file)
+			#set $col1 = row[0]
+			#set $col2 = row[1]
+			#set $col3 = row[2]
+			#set $col4 = row[3]
+			#set $col5 = row[4]
+			#set $col6 = row[5]
+			#set $col7 = row[6]
+			#set $col8 = row[7]
+			#set $col9 = row[8]
+		#end for
 
 		
     ]]></command>
