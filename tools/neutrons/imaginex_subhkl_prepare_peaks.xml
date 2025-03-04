@@ -5,25 +5,34 @@
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir out ; 
+		
+		#for $input_file in $input
+			mv $input_file $input_file.element_identifier
+		#end for
+		
+		header = true ;
+		while IFS=, read -r col1 col2 col3 col4 col5 col6 col7 col8 col9 ;
+		do
+		    if ((header))
+		    then
+		        header = false ;
+		    else
+		        python -m subhkl.io.parser preparer "$col1 out/$col1.csv $col2 $col3 $col4 --image-orientation $col5 --scale-x $col6 --scale-y $col7 --nx $col8 --ny $col9" ; 
+		    fi
+		done < $manifest
 
-		python -m subhkl.io.parser preparer $input out/out.csv $shape $height $distance --image-orientation $orientation --scale-x $scale_x --scale-y $scale_y --nx $nx --ny $ny 
+		
     ]]></command>
     <inputs>
     
-		<param format="txt" name="input" type="data" label="Peak data file" />
-		<param format="csv" name="instrument" type="data" label="CSV Instrument Definition" />
-		<param data_ref="instrument" name="shape" type="data_column" label="Detector Shape"/>
-	    <param name="height" type="float" value="1.0" label="Detector Height"/> 
-	    <param name="distance" type="float" value="1.0" label="Detector Distance"/> 
-	    <param name="orientation" type="float" value="0.0" label="Image Orientation"/> 
-	    <param name="scale_x" type="float" value="1.0" label="Scale X"/> 
-	    <param name="scale_y" type="float" value="1.0" label="Scale Y"/> 
-	    <param name="nx" type="integer" value="1" label="nx"/> 
-	    <param name="ny" type="integer" value="1" label="ny"/> 
+		<param format="csv" multiple="true" name="input" type="data" label="Peak data file" />
+		<param format="csv" name="instrument" type="data" label="Manifest file" help="CSV file with one header row and columns in the following order: input file name without file extension, instrument shape(string in subhkl defined format), height, distance, orientation, scale x, scale y, nx, ny" />
 		
     </inputs>
     <outputs>
-		<data format="csv" name="output" from_work_dir="out/out.csv" />
+		<collection name="output_data" type="list" label="Output Data">
+		    <discover_datasets pattern="__designation__" ext="csv" directory="out/" />
+		</collection>
     </outputs>
     <help><![CDATA[
         Calculates peak indices.
