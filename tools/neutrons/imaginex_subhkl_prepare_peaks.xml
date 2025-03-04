@@ -12,8 +12,8 @@
 		
 
 		#manifest_file = open($manifest)
-		#for $i in range(len(manifest_file))
-			echo "$i" ;
+		#for i in range(len(manifest_file))
+			echo "here" ;
 		#end for
 
 		
