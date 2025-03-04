@@ -26,7 +26,7 @@
     <inputs>
     
 		<param format="csv" multiple="true" name="input" type="data" label="Peak data file" />
-		<param format="csv" name="instrument" type="data" label="Manifest file" help="CSV file with one header row and columns in the following order: input file name without file extension, instrument shape(string in subhkl defined format), height, distance, orientation, scale x, scale y, nx, ny" />
+		<param format="csv" name="manifest" type="data" label="Manifest file" help="CSV file with one header row and columns in the following order: input file name without file extension, instrument shape(string in subhkl defined format), height, distance, orientation, scale x, scale y, nx, ny" />
 		
     </inputs>
     <outputs>
