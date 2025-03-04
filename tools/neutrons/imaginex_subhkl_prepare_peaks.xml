@@ -12,7 +12,9 @@
 		
 		#import csv
 		#manifest_file = open($manifest)
-		#row = manifest_file[0]
+		#for i in range(len(manifest_file))
+			#row = manifest_file(i)
+		#end for
 
 		
     ]]></command>
