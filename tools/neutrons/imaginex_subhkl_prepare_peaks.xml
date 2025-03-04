@@ -12,9 +12,8 @@
 		
 
 		#manifest_file = open($manifest, "r")
-		#for i in range(len(manifest_file.read_lines()))
-			echo "here" ;
-		#end for
+		#set $num_lines = len(manifest_file.read_lines())
+		echo "$num_lines" ;
 
 		
     ]]></command>
