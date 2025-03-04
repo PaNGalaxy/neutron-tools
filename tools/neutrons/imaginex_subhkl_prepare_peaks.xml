@@ -13,7 +13,7 @@
 
 		#manifest_file = open($manifest, "r")
 		#row0 = str(manifest_file[0])
-		#set row = row0
+		#set $test_row = row0
 
 		
     ]]></command>
