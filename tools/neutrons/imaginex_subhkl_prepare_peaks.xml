@@ -12,7 +12,7 @@
 		
 
 		#manifest_file = open($manifest, "r")
-		#set $num_lines = len(manifest_file.read_lines())
+		#set $num_lines = len(manifest_file.readlines())
 		echo "$num_lines" ;
 
 		
