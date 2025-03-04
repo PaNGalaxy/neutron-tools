@@ -12,9 +12,8 @@
 		
 
 		#manifest_file = open($manifest)
-		#for i in range(len(manifest_file))
-			#set $row = manifest_file[i]
-			echo "$row" ;
+		#for $i in range(len(manifest_file))
+			echo "$i" ;
 		#end for
 
 		
