@@ -18,6 +18,7 @@
 			fi
 		done < manifest.csv
 
+		ls out ;
 		
     ]]></command>
     <inputs>
