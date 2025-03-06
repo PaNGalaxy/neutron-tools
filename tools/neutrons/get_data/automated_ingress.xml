@@ -102,7 +102,7 @@ You can also ingress old files from a finished experiment using the "Ingress old
 checkboxes are turned off (value of "No"), then the tool will fail. 
 
 The "Data Type" field lets you choose whether you want Raw Data, or you can filter out the raw data and only see reduced data.
-You can also choose a wildcard to filter your reduced data. For example, if you only ".dat" file types in the top level experiment directory,
+You can also choose a wildcard to filter your reduced data. For example, if you only want ".dat" file types in the top level experiment directory,
 you can set the Data Type to "Reduced Data", and then enter "*.dat" into the Filter Files field.
 
 Some more examples of filtering include:
