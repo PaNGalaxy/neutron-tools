@@ -1,11 +1,11 @@
-<tool id="neutrons_trame_topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.14.7">
+<tool id="neutrons_trame_topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.14.8">
     <description></description>
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.14.7
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/topaz-data-reduction:0.14.8
         </container>
     </requirements>
     <entry_points>
