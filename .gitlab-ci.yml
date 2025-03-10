@@ -37,7 +37,7 @@ service-build:
 push_dev_tools:
   stage: push
   script:
-    - echo "$CALVERA_TEST_SSH_KEY" > key
+    - echo "$PULSAR_SSH_KEY" > key
     - chmod 400 key
     - >
       rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key"
@@ -46,7 +46,7 @@ push_dev_tools:
     - >
       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
       cloud@calvera-test.ornl.gov
-      sudo /root/update_prototype_tools.sh 
+      sudo /root/update_prototype_tools.sh
       /srv/galaxy/local_tools/neutrons-dev
       /srv/galaxy/config/tool_conf_prototype.xml
   rules:
