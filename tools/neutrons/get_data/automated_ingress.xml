@@ -86,7 +86,42 @@
               label="Ingress $ipts data ($data_type.mode) to history ${str($history) if str($history)!='' else str($ipts)}">
         </data>
     </outputs>
-    <help><![CDATA[
-        Automatically registers live Neutron experimental data in Galaxy and runs a workflow with this data as an input.
-    ]]></help>
+    <help>
+This tool enables users to automatically ingress their experiment data in realtime. 
+
+----------
+Both SNS and HFIR data are available. Specify which facility using the "Facility Name" parameter.
+The "Instrument Name" parameter allows you to choose which instrument that you want to see data from.
+The "IPTS" field allows you to enter their IPTS number to specify which experiment to see data from.
+
+If you want to have multiple instruments, runs, or has experiments at both facilities, then you should
+simply lauch an instance of this tool for each individual run, with the appropriate parameters supplied.
+
+The "Live monitor and ingress new files" checkbox is the option that enables live data ingressing into Galaxy.
+You can also ingress old files from a finished experiment using the "Ingress old files" checkbox. If both of these 
+checkboxes are turned off (value of "No"), then the tool will fail. 
+
+The "Data Type" field lets you choose whether you want Raw Data, or you can filter out the raw data and only see reduced data.
+You can also choose a wildcard to filter your reduced data. For example, if you only want ".dat" file types in the top level experiment directory,
+you can set the Data Type to "Reduced Data", and then enter "*.dat" into the Filter Files field.
+
+Some more examples of filtering include:
+
+- *.dat (all files in autoreduce folder, no recursion);
+
+- subfolder/*.dat (.dat files in subfolder)
+
+- **/*.dat - all .dat files in autoreduce and subfolders
+
+- empty string (or **) - all files in autoreduce and all subfolders
+
+
+
+After you ingress data into Galaxy, you can automatically kick off a Galaxy workflow. First, you set "Execute workflow after ingress" to "Yes". From here,
+supply the name of the workflow and importantly which workflow input will correspond to the data that you are ingressing. For example, if your workflow has two inputs, say
+an input called "analysis_config" and then another called "reduced_data", and the "reduced_data" input is the parameter that you want to feed your live data into, then make sure that
+you enter "reduced_data" into the "Input parameter name for ingress" field. You can also add extra inputs into the workflow from your existing Galaxy history. Click the Plus button in the section, and you can enter that input's name as well, alongside choosing which file *from your history* that you want to feed into that input. Using our previous example, if we had a config file in our history (called "analysis.config"), then we would enter "analysis.config" into the Input parameter name field, and then choose that file in the file picker. 
+
+Finally, you can specify which history you want the data to ingress into. An empty value will create a new history, with the name being based off of the IPTS number for easy access. 
+    </help>
 </tool>
