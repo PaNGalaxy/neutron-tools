@@ -5,7 +5,7 @@
     </requirements>
     <entry_points>
         <entry_point name="NOVA Tutorial" label="tutorial" requires_domain="False" requires_path_in_url="True">
-            <port>8081</port>
+            <port>8080</port>
         </entry_point>
     </entry_points>
         <environment_variables>
