@@ -126,5 +126,3 @@ interactive-tools-testing:
       when: always
     - when: manual
       allow_failure: true
-  schedule:
-    cron: "0 23 * * *"
