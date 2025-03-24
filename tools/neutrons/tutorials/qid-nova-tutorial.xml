@@ -15,7 +15,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">tutorial</environment_variable>
     </environment_variables>
      <command><![CDATA[
-	echo $EP_PATH > >(tee -a $output) &&
+	echo $EP_PATH &&
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <outputs>
