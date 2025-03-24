@@ -14,7 +14,7 @@
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">tutorial</environment_variable>
     </environment_variables>
-     <command><![CDATA[
+     <command detect_errors="exit_code"><![CDATA[
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <outputs>
