@@ -15,7 +15,8 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">tutorial</environment_variable>
     </environment_variables>
      <command detect_errors="exit_code"><![CDATA[
-        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        /bin/bash /run_trame.sh > >(tee -a $output) 2> >(tee -a $output) &
+	/bin/bash /run_nginx.sh > >(tee -a $output) 2> >(tee -a $output)
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
