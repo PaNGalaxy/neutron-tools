@@ -96,6 +96,10 @@ testing:
 
 interactive-tools-testing:
   stage: test
+  variables:
+    ENVIRONMENT: "test"
+    GALAXY_URL: "https://calvera-test.ornl.gov"
+    API_KEY: $ANDREW_API_KEY
   script:
     - >
       docker build
@@ -106,22 +110,26 @@ interactive-tools-testing:
     # Run tests with --push-metrics if scheduled or web
     - |
       if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
-        docker run -e GALAXY_URL="https://calvera-test.ornl.gov" -e API_KEY=$ANDREW_API_KEY \
-          -e CI_PIPELINE_ID -e CI_PROJECT_URL -e PROMETHEUS_URL \
+        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY \
+          -e CI_PIPELINE_ID -e CI_PROJECT_URL -e PROMETHEUS_URL -e ENVIRONMENT \
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py --push-metrics
       else
-        docker run -e GALAXY_URL="https://calvera-test.ornl.gov" -e API_KEY=$ANDREW_API_KEY \
+        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e ENVIRONMENT \
           -v $(pwd)/test_results:/src/test_results galaxy_tools
       fi
   artifacts:
     when: always
     paths:
       - test_results/
-    reports:
-      junit: test_results/interactive_tests_results.xml
   tags:
     - rse-multi-builder
   rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      variables:
+        ENVIRONMENT: "prod"
+        GALAXY_URL: "https://calvera.ornl.gov"
+        API_KEY: $ANDREW_API_KEY_PROD
+      when: always
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
     - when: manual
