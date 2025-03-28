@@ -1,7 +1,7 @@
-<tool id="yfa_test-nova-tutorial"  tool_type="interactive" name="yfa_test-Nova Tutorial" version="0.1.0" profile="22.01">
+<tool id="yfa_test-nova-tutorial"  tool_type="interactive" name="yfa_test-Nova Tutorial" version="0.2.0" profile="22.01">
     <description>yfa_test-Nova Tutorial - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/yfa_test-nova-tutorial:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/yfa_test-nova-tutorial:0.2.0</container>
     </requirements>
     <entry_points>
         <entry_point name="NOVA Tutorial" label="tutorial" requires_domain="False" requires_path_in_url="True">
