@@ -1,7 +1,7 @@
-<tool id="9cq-nova-tutorial"  tool_type="interactive" name="9cq-Nova Tutorial" version="0.1.0" profile="22.01">
+<tool id="9cq-nova-tutorial"  tool_type="interactive" name="9cq-Nova Tutorial" version="0.2.0" profile="22.01">
     <description>9cq-Nova Tutorial - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/9cq-nova-tutorial:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/9cq-nova-tutorial:0.2.0</container>
     </requirements>
     <entry_points>
         <entry_point name="NOVA Tutorial" label="tutorial" requires_domain="False" requires_path_in_url="True">
