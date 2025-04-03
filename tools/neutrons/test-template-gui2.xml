@@ -1,0 +1,25 @@
+<tool id="test-template-gui2-prototype" tool_type="interactive"  name="test-template-gui2" version="0.1.0" profile="22.01">
+    <description>test-template-gui2 - A tool generated using the NOVA Application Template</description>
+    <requirements>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/generic/test-template-gui2:0.1.0</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
+            <port>8081</port>
+        </entry_point>
+    </entry_points>
+     <command><![CDATA[
+        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+    </outputs>
+    <help><![CDATA[
+        **test-template-gui2**
+        
+        This is a Galaxy tool for test-template-gui2.
+        
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/test-template-gui2
+    ]]></help>
+</tool>
