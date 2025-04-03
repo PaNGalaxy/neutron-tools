@@ -12,7 +12,7 @@
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gravitas</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
