@@ -1,7 +1,7 @@
 <tool id="test-gui-template-prototype" tool_type="interactive"  name="Test Gui Template" version="0.1.0" profile="22.01">
     <description>Test Gui Template - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/test-gui-template:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/sans/test-gui-template:0.1.0</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
