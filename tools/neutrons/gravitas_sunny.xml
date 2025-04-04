@@ -1,11 +1,11 @@
-<tool id="sunny_glmakie" tool_type="interactive" name="Sunny - GLMakie" version="0.4.0.dev2"
+<tool id="sunny_glmakie" tool_type="interactive" name="Sunny - GLMakie" version="0.4.0.dev3"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/gravitas/sunny_gl:0.4.0-dev1</container>
+        <container type="docker">savannah.ornl.gov/gravitas/sunny_gl:0.4.0-dev2</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="sunny_glmakie" requires_domain="False"
