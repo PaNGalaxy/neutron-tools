@@ -11,7 +11,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        python -m yfa_testing_cli:main >>(tee -a $output) 2> >(tee -a $output >&2)
+        python3.10 -m yfa_testing_cli > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
