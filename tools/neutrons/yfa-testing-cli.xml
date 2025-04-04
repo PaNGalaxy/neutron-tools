@@ -1,0 +1,26 @@
+<tool id="yfa-testing-cli-prototype"  name="YFA testing cli" version="0.1.0" profile="22.01">
+    <description>YFA testing cli - A tool generated using the NOVA Application Template</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/yfa-testing-cli:0.1.0</container>
+    </requirements>
+    
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
+    </environment_variables>
+     <command><![CDATA[
+        python -m yfa_testing_cli:main >>(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+    </outputs>
+    <help><![CDATA[
+        **YFA testing cli**
+        
+        This is a Galaxy tool for YFA testing cli.
+        
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/single-crystal-diffraction/yfa-testing-cli
+    ]]></help>
+</tool>
