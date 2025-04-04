@@ -1,11 +1,11 @@
-<tool id="sunny_wglmake" tool_type="interactive" name="Sunny - WGLMakie" version="0.4.0.dev3"
+<tool id="sunny_wglmake" tool_type="interactive" name="Sunny - WGLMakie" version="0.4.0.dev4"
       profile="22.05">
     <creator>
         <person name="GRAVITAS Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/gravitas/sunny_wgl:0.4.0-dev3</container>
+        <container type="docker">savannah.ornl.gov/gravitas/sunny_wgl:0.4.0-dev4</container>
     </requirements>
     <entry_points>
         <entry_point name="Jupyter Interactive Tool" label="sunny_wglmake" requires_domain="False"
