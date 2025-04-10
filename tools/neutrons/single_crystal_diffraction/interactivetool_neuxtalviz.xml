@@ -15,7 +15,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">neuxtalviz</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        cd /src && supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="Console output">
