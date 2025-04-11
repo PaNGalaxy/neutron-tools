@@ -11,14 +11,14 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
     Runs an integration test for a given tool ID with provided parameters
     """
     try:
-        conn = Connection(galaxy_url=os.environ["GALAXY_URL"], galaxy_key=os.environ["API_KEY"])
+        conn = Connection(galaxy_url = os.environ["GALAXY_URL"], galaxy_key = os.environ["API_KEY"])
         with conn.connect() as connection:
-            d_store = connection.create_data_store(name=f"{tool_id}_test")
+            d_store = connection.create_data_store(name = f"{tool_id}_test")
             d_store.persist()
             d_tool = Tool(id=tool_id)
             if params is None:
                 params = Parameters()
-            link = d_tool.run_interactive(d_store, params, max_tries=600)
+            link = d_tool.run_interactive(d_store, params, max_tries = 600)
             print(f"Tool {tool_id} started successfully.")
             stop_all_tools_in_store(d_store)
             return True
