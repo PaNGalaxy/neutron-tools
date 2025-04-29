@@ -1,4 +1,4 @@
-<tool id="neutrons_trame_ctscan_test" tool_type="interactive" name="Timeout Test" profile="22.05" version="0.4.1">
+<tool id="neutrons_trame_ctscan" tool_type="interactive" name="Timeout Test" profile="22.05" version="0.4.1">
     <description></description>
     <creator>
         <person name="Jean Belheux" />
