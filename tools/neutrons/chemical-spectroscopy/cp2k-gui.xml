@@ -1,7 +1,7 @@
-<tool id="cp2k-gui-prototype" tool_type="interactive"  name="CP2K GUI" version="0.2.0" profile="22.01">
+<tool id="cp2k-gui-prototype" tool_type="interactive"  name="CP2K GUI" version="0.1.0" profile="22.01">
     <description>CP2K GUI - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/cp2k-gui:src-dfac9a7c9880c478a4e298a05fa1132c24adac8a</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/cp2k-gui:0.1.0</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
