@@ -43,6 +43,7 @@ if __name__ == "__main__":
         "neutrons_trame_time_resolved_vis": None,
         "neutrons_gravitas_phonopy": None,
         "neutrons_gravitas_sunny": None
+        "neutrons_cp2k_gui": None
     }
 
     status = True
