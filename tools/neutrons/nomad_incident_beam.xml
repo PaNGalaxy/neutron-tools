@@ -10,9 +10,7 @@
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
-        ln -s $instrument_code /inputs/instrument.instr &&
-        ln -s $spectrum_file /inputs/spectrum.dat &&
-        mcstas -o NOMAD_NDIP instrument.instr &&
+        mcstas -o NOMAD_NDIP $instrument_code &&
         ./NOMAD_NDIP.out \\
           --s3l=$s3l --s3r=$s3r --s3t=$s3t --s3b=$s3b \\
           --s4l=$s4l --s4r=$s4r --s4t=$s4t --s4b=$s4b \\
