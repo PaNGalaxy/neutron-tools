@@ -10,9 +10,9 @@
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
-        mcrun $instrument_code -d output \\
-          --s3l=$s3l --s3r=$s3r --s3t=$s3t --s3b=$s3b \\
-          --s4l=$s4l --s4r=$s4r --s4t=$s4t --s4b=$s4b \\
+        mcrun $instrument_code -d \\
+          s3l=$s3l s3r=$s3r s3t=$s3t s3b=$s3b \\
+          s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b \\
           --ncount=$ncount --dir=outputs &&
         (mv outputs/*.mcpl.gz $out_mcpl || true)
     ]]></command>
