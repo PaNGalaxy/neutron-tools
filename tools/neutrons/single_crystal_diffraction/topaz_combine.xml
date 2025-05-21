@@ -1,11 +1,11 @@
-<tool id="neutrons_topaz_combine" name="Topaz Combine" profile="22.05" version="0.3.0">
+<tool id="neutrons_topaz_combine" name="Topaz Combine" profile="22.05" version="0.4.0">
     <description></description>
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/topaz/topaz-reduction:0.3
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/topaz/topaz-reduction:0.4
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
