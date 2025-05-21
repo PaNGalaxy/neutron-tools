@@ -1,0 +1,31 @@
+<tool id="yfa-deploy-proto-test2-prototype" tool_type="interactive"  name="yfa-deploy-proto-test2" version="0.1.0" profile="22.01">
+    <description>yfa-deploy-proto-test2 - A tool generated using the NOVA Application Template</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/yfa-deploy-proto-test2/prototypes:964c8556dfffd75c80d861c3fc093146509b534f</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
+            <port>8081</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
+    </environment_variables>
+     <command><![CDATA[
+        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+    </outputs>
+    <help><![CDATA[
+        **yfa-deploy-proto-test2**
+        
+        This is a Galaxy tool for yfa-deploy-proto-test2.
+        
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/yfa-deploy-proto-test2
+    ]]></help>
+</tool>
