@@ -10,7 +10,7 @@
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
-        mcstas $instrument_code -d output \\
+        mcrun $instrument_code -d output \\
           --s3l=$s3l --s3r=$s3r --s3t=$s3t --s3b=$s3b \\
           --s4l=$s4l --s4r=$s4r --s4t=$s4t --s4b=$s4b \\
           --ncount=$ncount --dir=outputs &&
