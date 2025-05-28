@@ -25,8 +25,6 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
     except Exception as e:
         print(f"Tool {tool_id} failed to start: {str(e)}")
         return False
-
-
 # Dictionary of interactive tools to test
 INTERACTIVE_TOOLS = {
     "interactive_tool_amira": None,
@@ -45,7 +43,8 @@ INTERACTIVE_TOOLS = {
     "neutrons_trame_gravitas": None,
     "neutrons_trame_time_resolved_vis": None,
     "neutrons_gravitas_phonopy": None,
-    "neutrons_gravitas_sunny": None
+    "neutrons_gravitas_sunny": None,
+    "neutrons_cp2k_gui": None
 }
 
 
