@@ -5,7 +5,7 @@ import sys
 
 from prometheus_client import CollectorRegistry, Gauge, Info, push_to_gateway
 
-def collect_planemo_test_results(filename):
+def collect_test_results(filename):
     try:
         with open(filename, 'r') as file:
             report_data = json.load(file)
@@ -22,7 +22,7 @@ def collect_planemo_test_results(filename):
         print("JSON report not found. Make sure pytest was run with --json option.")
         return {}
 
-def push_planemo_results_to_prometheus(test_results):
+def push_results_to_prometheus(test_results):
     pipeline_url = f"{os.environ.get('CI_PROJECT_URL')}/-/pipelines/{os.environ.get('CI_PIPELINE_ID')}"
     env = os.getenv('ENVIRONMENT', 'unknown')
 
@@ -38,7 +38,7 @@ def push_planemo_results_to_prometheus(test_results):
     push_to_gateway(prometheus_url, job=f'planemo_tests_{env}', registry=registry)
 
 
-def collect_pytest_test_results(directory=None):
+def collect_pytest_test_results(filename=None):
     """
     Collects pytest test results from JSON files in a directory.
     It looks for files matching 'test_output_*.json' or '*_report.json'
@@ -53,17 +53,15 @@ def collect_pytest_test_results(directory=None):
     pytest_results = {}
     files_to_process = []
 
-    if directory: # Ensure directory is not None
-        for root, _, files in os.walk(directory):
-            for file in files:
-                if fnmatch.fnmatch(file, "test_output_*.json") or fnmatch.fnmatch(file, "*_report.json"):
-                    files_to_process.append(os.path.join(root, file))
+    if filename and os.path.isfile(filename):
+        files_to_process.append(filename)
 
+    print(f"Found {len(files_to_process)} file to process.")
     for file_path in files_to_process:
-        report_type, file_results = _process_pytest_json_file(file_path)
-        if report_type == 'pytest':
-            pytest_results.update(file_results)
+        file_results = _process_pytest_json_file(file_path)
+        pytest_results.update(file_results)
 
+    print(pytest_results)
     return pytest_results
 
 def _process_pytest_json_file(filename):
@@ -78,11 +76,9 @@ def _process_pytest_json_file(filename):
             report_data = json.load(file)
         
         results = {}
-        report_type = None
         
         # Verify it's a pytest-json format
         if 'report' in report_data and 'tests' in report_data['report']:
-            report_type = 'pytest'
             for item in report_data['report']['tests']:
                 test_name = item['name']
                 # Extract the tool_id from test_name if it's in the format test_interactive_tool[tool_id-params]
@@ -104,7 +100,7 @@ def _process_pytest_json_file(filename):
                 if not outcome and 'call' in item and 'longrepr' in item['call']:
                     results[tool_id]['error_message'] = item['call']['longrepr']
         
-        return report_type, results
+        return results
 
     except (FileNotFoundError, json.JSONDecodeError) as e:
         print(f"Error processing pytest JSON file {filename}: {str(e)}")
@@ -150,9 +146,9 @@ if __name__ == "__main__":
         
     path = sys.argv[1]
     if os.path.isfile(path):
-        planemo_results = collect_planemo_test_results(filename=path)
+        planemo_results = collect_test_results(filename=path)
         if planemo_results:
-            push_planemo_results_to_prometheus(planemo_results)
+            push_results_to_prometheus(planemo_results)
         else:
             print(f"No Planemo test results found in file: {path}")
             sys.exit(1)

@@ -97,7 +97,7 @@ testing:
 interactive-tools-testing:
   stage: test
   variables:
-    ENVIRONMENT: "test"
+    ENVIRONMENT: "calvera-test"
     GALAXY_URL: "https://calvera-test.ornl.gov"
     API_KEY: $ANDREW_API_KEY
   script:
@@ -115,7 +115,7 @@ interactive-tools-testing:
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py --push-metrics
       else
         docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e ENVIRONMENT \
-          -v $(pwd)/test_results:/src/test_results galaxy_tools
+          -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py
       fi
   artifacts:
     when: always
@@ -126,7 +126,7 @@ interactive-tools-testing:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        ENVIRONMENT: "prod"
+        ENVIRONMENT: "calvera"
         GALAXY_URL: "https://calvera.ornl.gov"
         API_KEY: $ANDREW_API_KEY_PROD
       when: always

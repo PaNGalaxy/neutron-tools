@@ -14,7 +14,4 @@ RUN mkdir -p /src/test_results
 ENV TEST_RESULTS_DIR=/src
 
 # By default, run tests without pushing metrics
-#CMD python tests/interactive_tools.py
-
-# Alternative command to run with metrics pushing:
- CMD python tests/interactive_tools.py --push-metrics
+CMD python tests/interactive_tools.py

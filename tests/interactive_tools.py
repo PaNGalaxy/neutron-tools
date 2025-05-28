@@ -63,6 +63,7 @@ if __name__ == "__main__":
     # Path for test results
     result_dir = os.environ.get("TEST_RESULTS_DIR", ".")
     test_results_dir = os.path.join(result_dir, "test_results")
+    print(os.environ.get("PROMETHEUS_URL"))
     
     # Create test_results directory if it doesn't exist
     os.makedirs(test_results_dir, exist_ok=True)
@@ -77,11 +78,11 @@ if __name__ == "__main__":
         try:
             parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
             sys.path.insert(0, parent_dir)
-            from scripts.push_to_gateway import collect_test_results, push_results_to_prometheus
+            from scripts.push_to_gateway import collect_pytest_test_results, push_pytest_results_to_prometheus
             json_path = os.path.join(test_results_dir, "interactive_tests_report.json")
-            test_results = collect_test_results(json_path)
+            test_results = collect_pytest_test_results(json_path)
             if test_results:
-                push_results_to_prometheus(test_results)
+                push_pytest_results_to_prometheus(test_results)
         except Exception as e:
             print(f"Failed to push results to Prometheus: {str(e)}")
     
