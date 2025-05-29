@@ -1,0 +1,57 @@
+<tool id="neumatix_sample_assembly_creator" name="Sample Assembly Creator"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">savannah.ornl.gov/ndip/tool-sources/mcu/sample-assembly-creator/release/sample-assembly-creator:v0.1.0</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+
+	mkdir out ; 
+
+
+    python -m mcu_sample_assembly_creator.main 
+      --file-directory out
+
+    #for $i, $c in enumerate($cylinders)
+      #if str( $c.material_type.selector ) == "sofq"
+        --add-cylinder "${c.radius}" "${c.height}" sofq-file "${c.material_type.sofq_file}"
+      #end if
+      #if str( $c.material_type.selector ) == "sofqe"
+        --add-cylinder "${c.radius}" "${c.height}" sofqe-file "${c.material_type.sofqe_file}"
+      #end if
+    #end for
+    ; 
+
+    tar -czvf $out_gz out ;
+    
+
+    ]]></command>
+    <inputs>
+    
+        <repeat name="cylinders" title="Cylinders">
+            <param name="radius" type="float" label="Radius (mm)">
+            </param>
+            <param name="height" type="float" label="Height (mm)">
+            </param>
+
+            <conditional name="material_type">
+              <param name="selector" type="select" value="sofq" label="Material Type">
+                <option value="sofq">S(Q) File</option>
+                <option value="sofqe">S(Q,E) File</option>
+              </param>
+              <when value="sofq">
+                  <param name="sofq_file" type="data" format="txt" label="S(Q) File"/>
+              </when>
+              <when value="sofqe">
+                  <param name="sofqe_file" type="data" format="txt" label="S(Q,E) File"/>
+              </when>
+            </conditional>
+
+        </repeat>
+		
+    </inputs>
+    <outputs>
+        <data format="gz" name="out_gz" />
+    </outputs>
+    <help><![CDATA[
+        Create sample assembly for instrument simulation.
+    ]]></help>
+</tool>
