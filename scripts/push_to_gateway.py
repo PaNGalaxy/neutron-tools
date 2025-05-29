@@ -143,17 +143,18 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python push_to_gateway.py <directory_or_file>")
         sys.exit(1)
-        
+
     path = sys.argv[1]
-    if os.path.isfile(path):
-        planemo_results = collect_test_results(filename=path)
-        if planemo_results:
-            push_results_to_prometheus(planemo_results)
-        else:
-            print(f"No Planemo test results found in file: {path}")
-            sys.exit(1)
-    elif os.path.isdir(path):
-        pytest_results = collect_pytest_test_results(directory=path)
+
+    if os.path.isdir(path):
+        test_results ={}
+        for root, _, files in os.walk(path):
+            for file in files:
+                if fnmatch.fnmatch(file, "test_output_*.json"):
+                    test_results.update(collect_test_results(os.path.join(root, file)))
+            push_results_to_prometheus(test_results)
+    elif os.path.isfile(path):
+        pytest_results = collect_pytest_test_results(path)
         if pytest_results:
             push_pytest_results_to_prometheus(pytest_results)
         else:
