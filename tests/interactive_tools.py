@@ -25,9 +25,9 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
     except Exception as e:
         print(f"Tool {tool_id} failed to start: {str(e)}")
         return False
+
 # Dictionary of interactive tools to test
 INTERACTIVE_TOOLS = {
-    "interactive_tool_amira": None,
     # "interactive_tool_jana2020": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/158
     "neutrons_trame_garnet": None,
     "neutrons_trame_topaz": None,
@@ -47,6 +47,12 @@ INTERACTIVE_TOOLS = {
     "neutrons_cp2k_gui": None
 }
 
+PROTOTYPE_INTERACTIVE_TOOLS = {
+    "interactive_tool_amira": None
+}
+
+if os.environ.get("ENVIRONMENT") == "calvera-test":
+    INTERACTIVE_TOOLS.update(PROTOTYPE_INTERACTIVE_TOOLS)
 
 # Create a test function for each interactive tool
 @pytest.mark.parametrize("tool_id,params", list(INTERACTIVE_TOOLS.items()))
@@ -63,7 +69,6 @@ if __name__ == "__main__":
     # Path for test results
     result_dir = os.environ.get("TEST_RESULTS_DIR", ".")
     test_results_dir = os.path.join(result_dir, "test_results")
-    print(os.environ.get("PROMETHEUS_URL"))
     
     # Create test_results directory if it doesn't exist
     os.makedirs(test_results_dir, exist_ok=True)
