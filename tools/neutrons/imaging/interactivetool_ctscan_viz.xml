@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <resource type="cuda_device_count_min">1</resource>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ct-scan-visualizer:performance-test
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ct-scan-visualizer:bin-e3bc12adce3e49dcace696dbff870a9b9b5ed015
         </container>
     </requirements>
     <entry_points>
@@ -19,6 +19,7 @@
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">ctscan</environment_variable>
+        <environment_variable name="DATASET_3D_MB_LIMIT">500</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
