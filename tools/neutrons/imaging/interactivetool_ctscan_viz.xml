@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <resource type="cuda_device_count_min">1</resource>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ct-scan-visualizer:bin-77c18a7b8ff1052854a288a000debe6a6dec0cfd
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ct-scan-visualizer:bin-e231acfaf719ceab3922f2afe44f51aa3da3bbf9
         </container>
     </requirements>
     <entry_points>
