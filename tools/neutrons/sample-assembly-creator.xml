@@ -1,51 +1,160 @@
 <tool id="neumatix_sample_assembly_creator" name="Sample Assembly Creator"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">savannah.ornl.gov/ndip/tool-sources/mcu/sample-assembly-creator/release/sample-assembly-creator:v0.1.0</container>
+    <container type="docker">savannah.ornl.gov/ndip/tool-sources/mcu/sample-assembly-creator/release/sample-assembly-creator:v0.2.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 
-	mkdir out ; 
+      mkdir ./out/ &&
+      cd ./out/ &&
 
+      echo "Copy any cylinders material files..." &&
 
-    python -m mcu_sample_assembly_creator.main 
-      --file-directory out
+      #import os
+      #for $i, $c in enumerate($cylinders)
 
-    #for $i, $c in enumerate($cylinders)
-      #if str( $c.material_type.selector ) == "sofq"
-        --add-cylinder "${c.radius}" "${c.height}" sofq-file "${c.material_type.sofq_file}"
-      #end if
-      #if str( $c.material_type.selector ) == "sofqe"
-        --add-cylinder "${c.radius}" "${c.height}" sofqe-file "${c.material_type.sofqe_file}"
-      #end if
-    #end for
-    ; 
+        #if str( $c.material_type.selector ) == "sofq":
+          #set filename=os.path.basename(str($c.material_type.sofq_file.element_identifier))
+          cp "${c.material_type.sofq_file}" ./$filename &&
+        #end if
 
-    tar -czvf $out_gz out ;
+        #if str( $c.material_type.selector ) == "sofqe":
+          #set filename=os.path.basename(str($c.material_type.sofqe_file.element_identifier))
+          cp "${c.material_type.sofqe_file}" ./$filename &&
+        #end if
+
+      #end for
+
+      echo "Copy any hollow cylinders material files..." &&
+
+      #import os
+      #for $i, $hc in enumerate($hollow_cylinders):
+
+        #if str( $hc.material_type.selector ) == "sofq":
+          #set filename=os.path.basename(str($hc.material_type.sofq_file.element_identifier))
+          cp "${hc.material_type.sofq_file}" ./$filename &&
+        #end if
+
+        #if str( $hc.material_type.selector ) == "sofqe":
+          #set filename=os.path.basename(str($hc.material_type.sofqe_file.element_identifier))
+          cp "${hc.material_type.sofqe_file}" ./$filename &&
+        #end if
+
+      #end for
+
+      echo "Done copying files..." &&
+
+      python -m mcu_sample_assembly_creator.main
+        --file-directory .
+
+      #for $i, $c in enumerate($cylinders):
+
+        #if str( $c.material_type.selector ) == "sofq":
+          #set filename=os.path.basename(str($c.material_type.sofq_file.element_identifier))
+          --add-cylinder "${c.radius}" "${c.height}" sofq-file "./${filename}"
+        #end if
+
+        #if str( $c.material_type.selector ) == "sofqe":
+          #set filename=os.path.basename(str($c.material_type.sofqe_file.element_identifier))
+          --add-cylinder "${c.radius}" "${c.height}" sofqe-file "./${filename}"
+        #end if
+
+        #if str( $c.material_type.selector ) == "predefined":
+          #if str( $c.material_type.predefined_value.value ) == "aluminium":
+            --add-cylinder "${c.radius}" "${c.height}" predefined "aluminium-powder-diffraction"
+          #end if
+
+          #if str( $c.material_type.predefined_value.value ) == "vanadium":
+            --add-cylinder "${c.radius}" "${c.height}" predefined "vanadium-powder-diffraction"
+          #end if
+        #end if
+
+      #end for
+
+      #for $i, $hc in enumerate($hollow_cylinders):
+
+        #if str( $hc.material_type.selector ) == "sofq":
+          #set filename=os.path.basename(str($hc.material_type.sofq_file.element_identifier))
+          --add-hollow-cylinder "${hc.inner_radius}" "${hc.outer_radius}" "${hc.height}" sofq-file "./${filename}"
+        #end if
+
+        #if str( $hc.material_type.selector ) == "sofqe":
+          #set filename=os.path.basename(str($hc.material_type.sofqe_file.element_identifier))
+          --add-hollow-cylinder "${hc.inner_radius}" "${hc.outer_radius}" "${hc.height}" sofqe-file "./${filename}"
+        #end if
+
+        #if str( $hc.material_type.selector ) == "predefined":
+          #if str( $hc.material_type.predefined_value.value ) == "aluminium":
+            --add-hollow-cylinder "${hc.inner_radius}" "${hc.outer_radius}" "${hc.height}" predefined "aluminium-powder-diffraction"
+          #end if
+          #if str( $hc.material_type.predefined_value.value ) == "vanadium":
+            --add-hollow-cylinder "${hc.inner_radius}" "${hc.outer_radius}" "${hc.height}" predefined "vanadium-powder-diffraction"
+          #end if
+        #end if
+
+      #end for
+
+      && cd ../
+      && tar -czvf $out_gz out;
     
 
     ]]></command>
     <inputs>
     
         <repeat name="cylinders" title="Cylinders">
-            <param name="radius" type="float" label="Radius (mm)">
-            </param>
-            <param name="height" type="float" label="Height (mm)">
-            </param>
+          <param name="radius" type="float" label="Radius (mm)">
+          </param>
+          <param name="height" type="float" label="Height (mm)">
+          </param>
 
-            <conditional name="material_type">
-              <param name="selector" type="select" value="sofq" label="Material Type">
-                <option value="sofq">S(Q) File</option>
-                <option value="sofqe">S(Q,E) File</option>
-              </param>
-              <when value="sofq">
-                  <param name="sofq_file" type="data" format="txt" label="S(Q) File"/>
-              </when>
-              <when value="sofqe">
-                  <param name="sofqe_file" type="data" format="txt" label="S(Q,E) File"/>
-              </when>
-            </conditional>
-
+          <conditional name="material_type">
+            <param name="selector" type="select" value="sofq" label="Material Type">
+              <option value="sofq">S(Q) File</option>
+              <option value="sofqe">S(Q,E) File</option>
+              <option value="predefined">Predefined</option>
+            </param>
+            <when value="sofq">
+                <param name="sofq_file" type="data" format="txt" label="S(Q) File"/>
+            </when>
+            <when value="sofqe">
+                <param name="sofqe_file" type="data" format="txt" label="S(Q,E) File"/>
+            </when>
+            <when value="predefined">
+                <param name="predefined_value" type="select" label="Predifined">
+                  <option value="aluminium">Aluminium</option>
+                  <option value="vanadium">Vanadium</option>
+                </param>
+            </when>
+          </conditional>
         </repeat>
+
+        <repeat name="hollow_cylinders" title="Hollow Cylinders">
+          <param name="outer_radius" type="float" label="Outer Radius (mm)">
+          </param>
+          <param name="inner_radius" type="float" label="Inner Radius (mm)">
+          </param>
+          <param name="height" type="float" label="Height (mm)">
+          </param>
+
+          <conditional name="material_type">
+            <param name="selector" type="select" value="sofq" label="Material Type">
+              <option value="sofq">S(Q) File</option>
+              <option value="sofqe">S(Q,E) File</option>
+              <option value="predefined">Predefined</option>
+            </param>
+            <when value="sofq">
+                <param name="sofq_file" type="data" format="txt" label="S(Q) File"/>
+            </when>
+            <when value="sofqe">
+                <param name="sofqe_file" type="data" format="txt" label="S(Q,E) File"/>
+            </when>
+            <when value="predefined">
+                <param name="predefined_value" type="select" label="Predifined">
+                  <option value="aluminium">Aluminium</option>
+                  <option value="vanadium">Vanadium</option>
+                </param>
+            </when>
+          </conditional>
+      </repeat>
 		
     </inputs>
     <outputs>
