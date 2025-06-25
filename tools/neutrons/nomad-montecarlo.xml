@@ -6,21 +6,21 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo/prototypes:3b65432ab937bcca934a350c924ebd0e94ec74ba</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo/prototypes:046f338db74cb8d0b298d7edd007c2bd1adf176f</container>
     </requirements>
     
     <command detect_errors="exit_code"><![CDATA[
-        #set $instrument_code_path = "$instrument_code" if $instrument_code else "/src/Incident_beam_MCstas/Incident_beam_MCstas/NOMAD_NDIP.instr"
-        #set $spectrum_file_path = "$spectrum_file" if $spectrum_file else "/src/Incident_beam_MCstas/a1G0AD-2-f5.dat"
+        #set $instrument_code_path = $instrument_code if $instrument_code else "/src/nomad-montecarlo/Incident_beam_MCstas/NOMAD_NDIP.instr"
+        #set $spectrum_file_path = $spectrum_file if $spectrum_file else "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
+        #set $instrument_code_name = $instrument_code.name if $instrument_code else "NOMAD_NDIP.instr"
+        #set $spectrum_file_name = $spectrum_file.name if $spectrum_file else "a1G0AD-2-f5.dat"
 
-        # Create the symbolic links using the determined paths
-        ln -s "$instrument_code_path" "$instrument_code_path.name" &&
-        ln -s "$spectrum_file_path" "$spectrum_file_path.name" && 
-
-        mcrun "$instrument_code_path" -d \
-            s3l=$s3l s3r=$s3r s3t=$s3t s3b=$s3b \
-            s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b \
-            --ncount=$ncount --dir=outputs &&
+        ln -s $instrument_code_path $instrument_code_name &&
+        ln -s $spectrum_file_path $spectrum_file_name && 
+        mcrun $instrument_code -d
+          s3l=$s3l s3r=$s3r s3t=$s3t s3b=$s3b
+          s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b
+          --ncount=$ncount --dir=outputs &&
         (mv outputs/*.mcpl.gz $out_mcpl || true)
     ]]></command>
 
