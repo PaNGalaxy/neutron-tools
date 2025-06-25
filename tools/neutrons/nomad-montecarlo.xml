@@ -6,7 +6,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo/prototypes:046f338db74cb8d0b298d7edd007c2bd1adf176f</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo/prototypes:614d69c71e7770ad8d3c38dec258eb69c0baa2f9</container>
     </requirements>
     
     <command detect_errors="exit_code"><![CDATA[
@@ -14,14 +14,14 @@
         #set $spectrum_file_path = $spectrum_file if $spectrum_file else "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
         #set $instrument_code_name = $instrument_code.name if $instrument_code else "NOMAD_NDIP.instr"
         #set $spectrum_file_name = $spectrum_file.name if $spectrum_file else "a1G0AD-2-f5.dat"
-
+                    
         ln -s $instrument_code_path $instrument_code_name &&
         ln -s $spectrum_file_path $spectrum_file_name && 
-        mcrun $instrument_code -d
-          s3l=$s3l s3r=$s3r s3t=$s3t s3b=$s3b
-          s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b
-          --ncount=$ncount --dir=outputs &&
-        (mv outputs/*.mcpl.gz $out_mcpl || true)
+        mcrun $instrument_code_name -d
+          s3l=$s3l s3r=$s3r s3t=$s3t s3b=$s3b              
+          s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b     
+          --ncount=$ncount --dir=outputs &&       
+        (mv outputs/*.mcpl.gz $out_mcpl || true)  
     ]]></command>
 
     <inputs>
