@@ -25,9 +25,17 @@
     ]]></command>
 
     <inputs>
+        <param name="instrument_choice" type="select" label="Select Instrument">
+            <option value="nomad" selected="true">Nomad</option>
+            <option value="custom">Provide your own instrument files</option>
+        </param>
+        <param name="instrument_code" type="data" format="txt" label="Instrument Source (.instr)" optional="false">
+            <when value="custom"/>
+        </param>
+        <param name="spectrum_file" type="data" format="txt" label="Source Spectrum (.dat)" optional="false">
+            <when value="custom"/>
+        </param>
         <section name="input_parameters" title="Optional Input Parameters" expanded="false">
-            <param name="instrument_code" type="data" format="txt" label="Instrument Source (.instr)" optional="true"/>
-            <param name="spectrum_file" type="data" format="txt" label="Source Spectrum (.dat)" optional="true"/>
             <param name="s3l" type="float" value="1.1" label="s3 left"/>
             <param name="s3r" type="float" value="1.1" label="s3 right"/>
             <param name="s3t" type="float" value="1.1" label="s3 top"/>
