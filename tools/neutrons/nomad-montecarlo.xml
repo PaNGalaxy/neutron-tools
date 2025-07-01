@@ -10,10 +10,17 @@
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
-        #set $instrument_code_path = $instrument.instrument_code if $instrument.instrument_code else "/src/nomad-montecarlo/Incident_beam_MCstas/NOMAD_NDIP.instr"
-        #set $spectrum_file_path = $instrument.spectrum_file if $instrument.spectrum_file else "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
-        #set $instrument_code_name = $instrument.instrument_code.name if $instrument.instrument_code else "NOMAD_NDIP.instr"
-        #set $spectrum_file_name = $instrument.spectrum_file.name if $instrument.spectrum_file else "a1G0AD-2-f5.dat"
+        #if $instrument.instrument_choice == 'custom':
+            #set $instrument_code_path = $instrument.instrument_code
+            #set $spectrum_file_path = $instrument.spectrum_file
+            #set $instrument_code_name = $instrument.instrument_code.name
+            #set $spectrum_file_name = $instrument.spectrum_file.name
+        #else
+            #set $instrument_code_path = "/src/nomad-montecarlo/Incident_beam_MCstas/NOMAD_NDIP.instr"
+            #set $spectrum_file_path = "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
+            #set $instrument_code_name = "NOMAD_NDIP.instr"
+            #set $spectrum_file_name = "a1G0AD-2-f5.dat"
+        #end if
 
         ln -s $instrument_code_path $instrument_code_name &&
         ln -s $spectrum_file_path $spectrum_file_name &&
@@ -60,8 +67,9 @@
         This Galaxy tool runs McStas simulations using the NOMAD_NDIP instrument.
 
         ### Usage:
-        - Select "Nomad" to use the default configuration.
-        - Select "Provide your own instrument files" to upload your own `.instr` and `.dat` files.
+        - **Nomad**: uses default instrument and spectrum built into the container.
+        - **Provide your own instrument files**: upload your custom `.instr` and `.dat` files.
+        - You can also tweak collimator aperture parameters and number of simulated particles.
 
         Repository: https://code.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo
     ]]></help>
