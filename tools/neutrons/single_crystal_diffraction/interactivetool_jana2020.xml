@@ -8,7 +8,7 @@
         </container>
     </requirements>
     <entry_points>
-        <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requries_path_in_url="True">
+        <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requires_path_in_url="True">
             <port>8080</port>
         </entry_point>
     </entry_points>
