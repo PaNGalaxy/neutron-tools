@@ -1,10 +1,17 @@
 FROM --platform=amd64 regproxy.ornl.gov/hub_proxy/python:3.10-slim AS source
 
-RUN apt update && apt install
+RUN apt update && apt install -y
 
-RUN pip install nova-galaxy
+# Install necessary packages
+RUN pip install nova-galaxy pytest pytest-json prometheus_client
 
+# Copy source code
 COPY . /src
 WORKDIR /src
 
+# Create directory for test results
+RUN mkdir -p /src/test_results
+ENV TEST_RESULTS_DIR=/src
+
+# By default, run tests without pushing metrics
 CMD python tests/interactive_tools.py
