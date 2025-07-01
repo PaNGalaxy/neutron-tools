@@ -10,11 +10,11 @@
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
-        #set $instrument_code_path = $instrument_code if $instrument_choice == 'custom' and $instrument_code else "/src/nomad-montecarlo/Incident_beam_MCstas/NOMAD_NDIP.instr"
-        #set $spectrum_file_path = $spectrum_file if $instrument_choice == 'custom' and $spectrum_file else "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
-        #set $instrument_code_name = $instrument_code.name if $instrument_choice == 'custom' and $instrument_code else "NOMAD_NDIP.instr"
-        #set $spectrum_file_name = $spectrum_file.name if $instrument_choice == 'custom' and $spectrum_file else "a1G0AD-2-f5.dat"
-        
+        #set $instrument_code_path = $instrument.instrument_code if $instrument.instrument_code else "/src/nomad-montecarlo/Incident_beam_MCstas/NOMAD_NDIP.instr"
+        #set $spectrum_file_path = $instrument.spectrum_file if $instrument.spectrum_file else "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
+        #set $instrument_code_name = $instrument.instrument_code.name if $instrument.instrument_code else "NOMAD_NDIP.instr"
+        #set $spectrum_file_name = $instrument.spectrum_file.name if $instrument.spectrum_file else "a1G0AD-2-f5.dat"
+
         ln -s $instrument_code_path $instrument_code_name &&
         ln -s $spectrum_file_path $spectrum_file_name &&
         mcrun $instrument_code_name -d
@@ -25,24 +25,17 @@
     ]]></command>
 
     <inputs>
-        <param name="instrument_choice" type="select" label="Select Instrument">
-            <option value="nomad" selected="true">Nomad</option>
-            <option value="custom">Provide your own instrument files</option>
-        </param>
-
-        <param name="instrument_code" type="data" format="txt" label="Instrument Source (.instr)" optional="true"
-               help="Only required if 'Provide your own instrument files' is selected.">
-            <expand macro="display_if">
-                <when input="instrument_choice" value="custom"/>
-            </expand>
-        </param>
-
-        <param name="spectrum_file" type="data" format="txt" label="Source Spectrum (.dat)" optional="true"
-               help="Only required if 'Provide your own instrument files' is selected.">
-            <expand macro="display_if">
-                <when input="instrument_choice" value="custom"/>
-            </expand>
-        </param>
+        <conditional name="instrument">
+            <param name="instrument_choice" type="select" label="Select Instrument">
+                <option value="nomad" selected="true">Nomad</option>
+                <option value="custom">Provide your own instrument files</option>
+            </param>
+            <when value="nomad"/>
+            <when value="custom">
+                <param name="instrument_code" type="data" format="txt" label="Instrument Source (.instr)" optional="false"/>
+                <param name="spectrum_file" type="data" format="txt" label="Source Spectrum (.dat)" optional="false"/>
+            </when>
+        </conditional>
 
         <section name="input_parameters" title="Optional Input Parameters" expanded="false">
             <param name="s3l" type="float" value="1.1" label="s3 left"/>
@@ -67,9 +60,8 @@
         This Galaxy tool runs McStas simulations using the NOMAD_NDIP instrument.
 
         ### Usage:
-        - Select "Nomad" to use the default built-in instrument and spectrum.
+        - Select "Nomad" to use the default configuration.
         - Select "Provide your own instrument files" to upload your own `.instr` and `.dat` files.
-        - Adjust slit and runtime parameters as needed in the optional section.
 
         Repository: https://code.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo
     ]]></help>
