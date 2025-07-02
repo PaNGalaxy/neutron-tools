@@ -7,7 +7,12 @@
 		mkdir out ; 
 
 		#for $input in $inputs
-			#set $out_name = $input.element_identifier[0:-3] + "csv"
+			#if "." in $input.element_identifier
+				#set $out_name = $input.element_identifier[0:-3] + "csv"
+			#else
+				#set $out_name = $input.element_identifier + ".csv"
+			#end if
+			
 			python -m subhkl.io.parser finder $input out/$out_name ;
 		#end for
 
