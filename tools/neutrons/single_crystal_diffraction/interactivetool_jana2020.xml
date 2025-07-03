@@ -1,14 +1,14 @@
-<tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.15" profile="22.05">
+<tool id="interactive_tool_jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.16" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/jana2020:0.15
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/jana2020:0.16
         </container>
     </requirements>
     <entry_points>
-        <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requries_path_in_url="True">
+        <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requires_path_in_url="True">
             <port>8080</port>
         </entry_point>
     </entry_points>
@@ -26,7 +26,7 @@
         /setup.sh \$GALAXY_TOOL_USER &&
         #if $directory:
             #set $dirname = os.path.basename(str($directory).rstrip('/'))
-            ln -s ${directory} /home/novnc_user/${dirname} &&
+            ln -s ${directory} /home/novnc_user/data/${dirname} &&
             ln -s ${directory} /home/novnc_user/Downloads &&
         #end if
         #if $cif_file:
