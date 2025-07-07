@@ -1,4 +1,4 @@
-<tool id="qid-test-prototype"  name="qid test" version="0.1.0 # Default version, can be adjusted later if needed" profile="22.01">
+<tool id="qid-test-prototype" nova_category="powder-diffraction" name="qid test" version="0.1.0 # Default version, can be adjusted later if needed" profile="22.01">
     <description>qid test - A tool generated using the NOVA Application Template</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/qid-test/prototypes:a1a750b7ce998c31e860fd4e70d78eb2bfb5628a</container>
