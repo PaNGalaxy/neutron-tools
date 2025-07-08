@@ -1,7 +1,7 @@
 <tool id="pdiffvis-prototype" nova_category="powder-diffraction" tool_type="interactive"  name="PDiffVis" version="0.4.8" profile="22.01">
     <description>PDiffVis - Powder Diffraction Visualization Tools</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis/prototypes:a208f3918e475c96203a4114d73dba1268c26dfa</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis/prototypes:ef2c9aed62df53c70b65733ec36eccf78f8e06d4</container>
         <resource type="cuda_device_count_min">1</resource>
     </requirements>
     <entry_points>
@@ -18,7 +18,7 @@
         <environment_variable name="OIDC_ACCESS_TOKEN_PINGFED" inject="oidc_access_token_pingfed"/>
     </environment_variables>
      <command><![CDATA[
-        export USER_OIDC_TOKEN=${OIDC_ACCESS_TOKEN_AZURE-${OIDC_ACCESS_TOKEN_PINGFED}}
+        USER_OIDC_TOKEN=${OIDC_ACCESS_TOKEN_AZURE-${OIDC_ACCESS_TOKEN_PINGFED}}
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
 
     ]]></command>
