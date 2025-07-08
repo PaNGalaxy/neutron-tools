@@ -40,7 +40,6 @@ INTERACTIVE_TOOLS = {
     # "neutrons_trame_sans": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/161
     "neutrons_reflectometry_refl1d": None,
     # "neutrons_reduce120": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/162
-    "neutrons_trame_gravitas": None,
     "neutrons_trame_time_resolved_vis": None,
     "neutrons_gravitas_phonopy": None,
     "neutrons_gravitas_sunny": None,
