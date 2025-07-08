@@ -15,7 +15,8 @@
         <param name="C" type="text" value="4000 3500 4500" label="C" optional="false" help="Contrast"/>
         <param name="I_inc" type="text" value="0.5 0.1 2" label="I_inc" optional="false" help="Incoherent background"/>
         <param name="L" type="text" value="1 0.9 1.1" label="σ" optional="false" help="Particle diameter"/>
-        <param name="b" type="text" value="0.07 0.02 0.1" label="d_σ" optional="false" help="Particle size polydispersity"/>	
+        <param name="b" type="text" value="0.07 0.02 0.1" label="d_σ" optional="false" help="Particle size polydispersity"/>
+    </inputs>	
     <outputs>
         <data name="output" format="png" label="fitting results plot">
         </data>
