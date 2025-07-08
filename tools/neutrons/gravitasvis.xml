@@ -1,4 +1,4 @@
-<tool id="gravitasvis-prototype" tool_type="interactive"  name="gravitasvis" version="0.3.0" profile="22.01">
+<tool id="gravitasvis-prototype" nova_category="spectroscopy" tool_type="interactive"  name="gravitasvis" version="0.3.0" profile="22.01">
     <description>gravitasvis - A tool generated using the NOVA Application Template</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/spectroscopy/gravitas/gravitasvis/prototypes:6a41f75293212d6a9d1f0fee3f4a4c1b34b20b1c</container>
