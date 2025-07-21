@@ -18,7 +18,7 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
             d_tool = Tool(id=tool_id)
             if params is None:
                 params = Parameters()
-            link = d_tool.run_interactive(d_store, params, max_tries = 6000)
+            link = d_tool.run_interactive(d_store, params, max_tries = 600)
             print(f"Tool {tool_id} started successfully.")
             stop_all_tools_in_store(d_store)
             return True
