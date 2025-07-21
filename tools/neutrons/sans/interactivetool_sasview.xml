@@ -1,4 +1,4 @@
-<tool id="interactive_tool_sasview" tool_type="interactive" name="SASView" version="0.1.0" profile="22.05">
+<tool id="interactive_tool_sasview" nova_category="small-angle-neutron-scattering" tool_type="interactive" name="SASView" version="0.1.0" profile="22.05">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
