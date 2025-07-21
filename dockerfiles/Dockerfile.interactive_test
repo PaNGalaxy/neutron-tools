@@ -11,6 +11,8 @@ WORKDIR /src
 
 # Create directory for test results
 RUN mkdir -p /src/test_results
+RUN chmod og+rwX /src
+
 ENV TEST_RESULTS_DIR=/src
 
 # By default, run tests without pushing metrics
