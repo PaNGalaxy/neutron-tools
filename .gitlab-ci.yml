@@ -50,7 +50,7 @@ testing:
     - |
       for FOLDER in $TEST_FOLDERS
       do
-        docker run --user `id -u:id -g` -v `pwd`:`pwd` --workdir `pwd`/$FOLDER  $CONTAINER_URL \
+        docker run --user `id -u`:`id -g` -v `pwd`:`pwd` --workdir `pwd`/$FOLDER  $CONTAINER_URL \
           planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
           --test_output_json `pwd`/test_output_${FOLDER}.json \
           --test_output_junit `pwd`/test_output_${FOLDER}.xml \
@@ -68,7 +68,7 @@ testing:
       if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
         docker run \
           -v `pwd`:`pwd` \
-          --user `id -u:id -g` \      
+          --user `id -u`:`id -g` \      
           --workdir `pwd` \
           -e CI_PIPELINE_ID \
           -e CI_PROJECT_URL \
@@ -112,12 +112,12 @@ interactive-tools-testing:
     - |
       if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
         docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY \
-          --user `id -u:id -g` \
+          --user `id -u`:`id -g` \
           -e CI_PIPELINE_ID -e CI_PROJECT_URL -e PROMETHEUS_URL -e ENVIRONMENT \
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py --push-metrics
       else
         docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e ENVIRONMENT \
-          --user `id -u:id -g` \
+          --user `id -u`:`id -g` \
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py
       fi
   artifacts:
