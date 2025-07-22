@@ -13,7 +13,7 @@
         cd /app &&
         touch $output &&
         #set gsas_filename=os.path.basename(str($gsas_file.element_identifier))
-        echo "this is my file: $gsas_filename" &&
+        ln -s $gsas_file $gsas_filename &&
         python -m gsas2_refinement.gsas2_refinement
                 --cif-filename $cif_file
                 --gsas-filename $gsas_filename
