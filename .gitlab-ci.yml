@@ -66,7 +66,7 @@ testing:
       done
     - cd -
     - |
-      if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
+      if true || [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
         docker run \
           -v `pwd`:`pwd` \
           --user `id -u`:`id -g` \      
