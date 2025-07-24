@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.6.0">
+<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.7.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/asrp/gsas2_refinement:0.6
+            savannah.ornl.gov/asrp/gsas2_refinement:0.7
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
