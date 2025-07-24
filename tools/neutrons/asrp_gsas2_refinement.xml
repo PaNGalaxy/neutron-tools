@@ -14,12 +14,12 @@
         touch $output &&
         #set gsas_filename=os.path.basename(str($gsas_file.element_identifier))
         ln -s $gsas_file /app/$gsas_filename &&
-        ln -s $prm_file /app/input.prm &&
+        ln -s $prm_file /app/input.instprm &&
         ln -s $cif_file /app/input.cif &&
         python -m gsas2_refinement.gsas2_refinement
                 --cif-filename /app/input.cif
                 --gsas-filename /app/$gsas_filename
-                --instrument-params-filename /app/input.prm
+                --instrument-params-filename /app/input.instprm
                 --scatter-type $scatter_type
                 --bank-id $bank_id
                 --xmin $xmin
