@@ -69,7 +69,7 @@ testing:
       if true || [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
         docker run \
           -v `pwd`:`pwd` \
-          --user `id -u`:`id -g` \      
+          --user `id -u`:`id -g` \
           --workdir `pwd` \
           -e CI_PIPELINE_ID \
           -e CI_PROJECT_URL \
