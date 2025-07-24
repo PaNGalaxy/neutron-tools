@@ -47,7 +47,6 @@ testing:
     - TEST_FOLDERS=`find . -type d -name retired -prune -o -type d -name dockerfiles -prune -o -type f -name "*.xml" -exec grep -l "<test>" {} + | awk -F/ 'BEGIN { OFS="/"; } { $NF=""; sub(/\/$/, ""); print }' | sort -u | sed 's/^\.\///'`
     - echo testing in $TEST_FOLDERS
     - GLOBAL_ERROR=0
-    - set -x
     - |
       for FOLDER in $TEST_FOLDERS
       do
@@ -66,7 +65,7 @@ testing:
       done
     - cd -
     - |
-      if true || [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
+      if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
         docker run \
           -v `pwd`:`pwd` \
           --user `id -u`:`id -g` \
