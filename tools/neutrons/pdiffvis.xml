@@ -1,7 +1,7 @@
-<tool id="pdiffvis-prototype" nova_category="powder-diffraction" tool_type="interactive"  name="PDiffVis" version="0.4.12" profile="22.01">
+<tool id="pdiffvis-prototype" nova_category="powder-diffraction" tool_type="interactive"  name="PDiffVis" version="0.4.14" profile="22.01">
     <description>PDiffVis - Powder Diffraction Visualization Tools</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis/prototypes:2220ccf1f48e16637c0d4c468327b39ba4929967</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis/prototypes:10f4c756dd1a90c2001e48f28c2b9cb28f3f4438</container>
         <resource type="cuda_device_count_min">1</resource>
     </requirements>
     <entry_points>
