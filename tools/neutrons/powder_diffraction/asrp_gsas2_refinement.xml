@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.4.0">
+<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.7.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -6,16 +6,20 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/asrp/gsas2_refinement:0.5
+            savannah.ornl.gov/asrp/gsas2_refinement:0.7
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         cd /app &&
         touch $output &&
+        #set gsas_filename=os.path.basename(str($gsas_file.element_identifier))
+        ln -s $gsas_file /app/$gsas_filename &&
+        ln -s $prm_file /app/input.instprm &&
+        ln -s $cif_file /app/input.cif &&
         python -m gsas2_refinement.gsas2_refinement
-                --cif-filename $cif_file
-                --gsas-filename $gsas_file
-                --instrument-params-filename $prm_file
+                --cif-filename /app/input.cif
+                --gsas-filename /app/$gsas_filename
+                --instrument-params-filename /app/input.instprm
                 --scatter-type $scatter_type
                 --bank-id $bank_id
                 --xmin $xmin
