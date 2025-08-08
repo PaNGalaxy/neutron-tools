@@ -27,34 +27,40 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
         return False
 
 # Dictionary of interactive tools to test
-INTERACTIVE_TOOLS = {
+INTERACTIVE_TOOLS_BOTH = {
     # "interactive_tool_jana2020": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/158
     "neutrons_trame_garnet": None,
     "neutrons_trame_topaz": None,
     # "interactive_tool_paraview": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/159
     "interactive_tool_generic_output": None,
-    "neutrons_airsans_demo": None,
-    "neutrons_ctr": None,
     "interactive_tool_sasview": None,
     # "neutrons_interactive_tool_drtsans": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/160
     # "neutrons_trame_sans": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/161
     "neutrons_reflectometry_refl1d": None,
     # "neutrons_reduce120": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/162
-    "neutrons_trame_time_resolved_vis": None,
-    "neutrons_gravitas_phonopy": None,
     "neutrons_gravitas_sunny": None,
     "neutrons_cp2k_gui": None
 }
+INTERACTIVE_TOOLS_TEST = {
+    "neutrons_airsans_demo": None,
+    "interactive_tool_amira": None,
+    "neutrons_ctr": None,
+    "neutrons_gravitas_phonopy": None,
+    "neutrons_trame_time_resolved_vis": None,
+}
 
-PROTOTYPE_INTERACTIVE_TOOLS = {
-    "interactive_tool_amira": None
+# Probably will never need to test something in prod without also testing in test but it's here just in case.
+INTERACTIVE_TOOLS_PROD = {
+
 }
 
 if os.environ.get("ENVIRONMENT") == "calvera-test":
-    INTERACTIVE_TOOLS.update(PROTOTYPE_INTERACTIVE_TOOLS)
+    INTERACTIVE_TOOLS_BOTH.update(INTERACTIVE_TOOLS_TEST)
+elif os.environ.get("ENVIRONMENT") == "calvera":
+    INTERACTIVE_TOOLS_BOTH.update(INTERACTIVE_TOOLS_PROD)
 
 # Create a test function for each interactive tool
-@pytest.mark.parametrize("tool_id,params", list(INTERACTIVE_TOOLS.items()))
+@pytest.mark.parametrize("tool_id,params", list(INTERACTIVE_TOOLS_BOTH.items()))
 def test_interactive_tool(tool_id: str, params: Optional[Dict[str, Any]]):
     """
     Parameterized test function that tests each interactive tool
