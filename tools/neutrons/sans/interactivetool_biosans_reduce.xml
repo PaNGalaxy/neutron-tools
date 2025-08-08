@@ -18,6 +18,7 @@
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">biosans</environment_variable>
+        <environment_variable name="INSTRUMENT">biosans</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         #if $config:
