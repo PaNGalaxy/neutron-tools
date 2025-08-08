@@ -1,7 +1,7 @@
 <tool id="testmantiddeployment-prototype" nova_category="generic" tool_type="interactive"  name="TestMantidDeployment" version="0.1.0" profile="22.01">
     <description>TestMantidDeployment - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/testmantiddeployment/prototypes:e3cc85271a936a2b27ea41cc2891dc8e070be635</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/testmantiddeployment/prototypes:0ccf8b4528397a1561fe85d646f9b6c9dd19a237</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
