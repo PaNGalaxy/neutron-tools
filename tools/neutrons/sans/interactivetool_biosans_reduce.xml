@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-reduction-gui/biosans:bin-72eb0dc8c4d6e1a6a0e8aaf1dbb231856f66d1a3
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-reduction-gui/biosans:bin-ed7e65f6f92ad90e9b6457d95645ff1017cfaa60
         </container>
     </requirements>
     <entry_points>
