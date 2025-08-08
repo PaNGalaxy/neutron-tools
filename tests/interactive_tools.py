@@ -29,7 +29,6 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
 # Dictionary of interactive tools to test
 INTERACTIVE_TOOLS_BOTH = {
     # "interactive_tool_jana2020": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/158
-    "neutrons_trame_garnet": None,
     "neutrons_trame_topaz": None,
     # "interactive_tool_paraview": None, https://code.ornl.gov/ndip/galaxy-tools/-/issues/159
     "interactive_tool_generic_output": None,
@@ -43,6 +42,7 @@ INTERACTIVE_TOOLS_BOTH = {
 }
 INTERACTIVE_TOOLS_TEST = {
     "neutrons_airsans_demo": None,
+    "neutrons_trame_garnet": None,
     "interactive_tool_amira": None,
     "neutrons_ctr": None,
     "neutrons_gravitas_phonopy": None,
