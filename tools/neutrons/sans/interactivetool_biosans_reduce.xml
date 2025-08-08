@@ -1,11 +1,11 @@
-<tool id="neutrons_trame_biosans" nova_category="small-angle-neutron-scattering" tool_type="interactive" name="Bio-SANS Data Reduction" profile="22.05" version="0.10.3">
+<tool id="neutrons_trame_biosans" nova_category="small-angle-neutron-scattering" tool_type="interactive" name="Bio-SANS Data Reduction" profile="22.05" version="0.14.0">
     <description></description>
     <creator>
         <person name="Alan Hicks"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui/biosans:0.10.3
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/sans-reduction-gui/biosans:bin-4df421b33b429993c0a22e4792b68171be6a498f
         </container>
     </requirements>
     <entry_points>
