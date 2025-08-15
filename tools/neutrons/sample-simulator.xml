@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker">
-            savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/mcu/sample-simulator/release/sample-simulator-mcvine:v0.3.0
+            savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/mcu/sample-simulator/release/sample-simulator-mcvine:v0.4.0
         </container>
     </requirements>
     <inputs>
@@ -24,7 +24,7 @@
         mkdir ./output/ &&
         mkdir ./sampleassembly/ && tar xf $sample_assembly -C sampleassembly --strip-components 1 &&
 
-        python -m mcu_sample_simulator.main
+        mcu_sample_simulator
           $instrument_name
           $incident_beam
           ./sampleassembly/
@@ -36,19 +36,20 @@
           --multiple-scattering
         #end if
         &&
-        echo "=== DEBUG ===" &&
-        pwd &&
-        echo "===" &&
-        ls  &&
-        echo "===" &&
-        ls ./output &&
-        ls ./output/rank0-step0/ &&
-        echo "=== DEBUG ==="
+        tar -czvf mcvine-output.tgz output/
+        &&
+        mcu_convert_to_nexus \
+          ./output \
+          ./output-nexus.nxs 
+        &&
+        mv ./output-nexus.nxs $output_nexus
     ]]></command>
     <outputs>
-        <collection type="list" name="output_files" label="McVine output files">
-            <discover_datasets format="binary" pattern="__designation__" directory="./output/rank0-step0"/>
+        <collection type="list" name="output_mcvine" label="McViNE simulation output files">
+            <discover_datasets format="binary" pattern="__designation__" directory="./mcvine-output.tgx>
         </collection>
+        <data format="txt" name="output_nexus" label="NeXuS output file from McViNE">
+        </data>
     </outputs>
 
     <help><![CDATA[
