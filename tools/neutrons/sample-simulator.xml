@@ -41,14 +41,12 @@
         mcu_convert_to_nexus \
           ./output \
           ./output-nexus.nxs 
-        &&
-        mv ./output-nexus.nxs $output_nexus
     ]]></command>
     <outputs>
         <collection type="list" name="output_mcvine" label="McViNE simulation output files">
-            <discover_datasets format="binary" pattern="__designation__" directory="./mcvine-output.tgz">
+            <discover_datasets format="binary" pattern="__designation__" directory="./mcvine-output.tgz"/>
         </collection>
-        <data format="txt" name="output_nexus" label="NeXuS output file from McViNE">
+        <data format="h5" name="output_nexus" from_work_dir="./output-nexus.nxs" />
         </data>
     </outputs>
 
