@@ -40,7 +40,8 @@
         &&
         mcu_convert_to_nexus \
           ./output \
-          ./output-nexus.nxs 
+          ./output-nexus.nxs \
+          --instrument-name $instrument_name
     ]]></command>
     <outputs>
         <collection type="list" name="output_mcvine" label="McViNE simulation output files">
