@@ -46,7 +46,7 @@
     ]]></command>
     <outputs>
         <collection type="list" name="output_mcvine" label="McViNE simulation output files">
-            <discover_datasets format="binary" pattern="__designation__" directory="./mcvine-output.tgx>
+            <discover_datasets format="binary" pattern="__designation__" directory="./mcvine-output.tgz">
         </collection>
         <data format="txt" name="output_nexus" label="NeXuS output file from McViNE">
         </data>
