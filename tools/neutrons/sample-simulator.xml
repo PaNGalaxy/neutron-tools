@@ -47,7 +47,6 @@
             <discover_datasets format="binary" pattern="__designation__" directory="./mcvine-output.tgz"/>
         </collection>
         <data format="h5" name="output_nexus" from_work_dir="./output-nexus.nxs" />
-        </data>
     </outputs>
 
     <help><![CDATA[
