@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.7.0">
+<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.8.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -26,6 +26,8 @@
                 --xmax $xmax
                 --output-directory ./portal
         &&
+        tar -cvzf output-gsas2.tgz ./portal
+        &&
         pwd
         &&
         ls
@@ -44,10 +46,7 @@
         <param name="xmax" type="float" label="Right bound" value="0"/>
     </inputs>
     <outputs>
-        <collection type="list" name="output_collection1" label="GSAS2 refinement output">
-            <discover_datasets format="binary" pattern="__designation__" directory="portal"/>
-        </collection>
-        <data format="txt" name="output" label="GSAS2 console output"></data>
+        <data format="tgz" name="output_mcvine" from_work_dir="./output-mcvine.tgz"/>
     </outputs>
     <help><![CDATA[
         Runs GSAS2 Rietveld refinement.
