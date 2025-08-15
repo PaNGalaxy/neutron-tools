@@ -25,7 +25,10 @@
                 --xmin $xmin
                 --xmax $xmax
                 --output-directory ./portal
-        > >(tee -a $output) 2> >(tee -a $output >&2)
+        &&
+        pwd
+        &&
+        ls
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
