@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_sample_simulator_new" name="New Sample Simulator" profile="22.05" version="0.1.1">
+<tool id="neutrons_mcu_sample_simulator_new" name="New Sample Simulator" profile="22.05" version="0.1.2">
     <description></description>
     <creator>
         <person name="Garrett Granroth"/>
@@ -37,6 +37,8 @@
         #end if
         &&
         tar -czvf mcvine-output.tgz output/
+        &&
+        mcu_convert_to_nexus --help
         &&
         mcu_convert_to_nexus \
           ./output \
