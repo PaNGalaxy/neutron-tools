@@ -36,17 +36,13 @@
           --multiple-scattering
         #end if
         &&
-        tar -czvf mcvine-output.tgz output/
-        &&
-        mcu_convert_to_nexus --help
+        tar -czvf output-mcvine.tgz output/
         &&
         mcu_convert_to_nexus --instrument-name $instrument_name ./output ./output-nexus.nxs
     ]]></command>
     <outputs>
-        <collection type="list" name="output_mcvine" label="McViNE simulation output files">
-            <discover_datasets format="binary" pattern="__designation__" directory="./mcvine-output.tgz"/>
-        </collection>
-        <data format="h5" name="output_nexus" from_work_dir="./output-nexus.nxs" />
+        <data format="tgz" name="output_mcvine" from_work_dir="./output-mcvine.tgz" />
+        <data format="h5"  name="output_nexus"  from_work_dir="./output-nexus.nxs" />
     </outputs>
 
     <help><![CDATA[
