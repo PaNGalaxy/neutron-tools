@@ -27,11 +27,13 @@
                 --output-directory ./portal
                 > >(tee -a $output) 2> >(tee -a $output >&2)
         &&
-        tar -cvzf output-gsas2.tgz ./portal
+        mv ./portal ./output-gsas2
+        && 
+        tar -cvzf output-gsas2.tgz ./output-gsas2
         &&
-        pwd
+        mv ./output-gsas2.tgz $output_gsas2
         &&
-        ls
+        ls -lath ./output-gsas2
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
@@ -47,7 +49,7 @@
         <param name="xmax" type="float" label="Right bound" value="0"/>
     </inputs>
     <outputs>
-        <data format="tgz" name="output_gsas2" from_work_dir="./output-gsas2.tgz"/>
+        <data format="tgz" name="output_gsas2" label="GSAS2 Refinment output/>
         <data format="txt" name="output" label="GSAS2 console output"></data>
     </outputs>
     <help><![CDATA[
