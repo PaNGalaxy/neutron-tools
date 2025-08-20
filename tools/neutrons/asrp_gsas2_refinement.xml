@@ -45,7 +45,7 @@
         &&
         echo "===========" > >(tee -a $output) 2> >(tee -a $output >&2)
         &&
-        cp ./output-gsas.tgz $output_gsas2
+        cp ./output-gsas2.tgz $output_gsas2
         &&
         echo "===========" > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
