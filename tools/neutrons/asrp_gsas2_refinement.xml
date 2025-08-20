@@ -27,11 +27,11 @@
                 --output-directory ./portal
                 > >(tee -a $output) 2> >(tee -a $output >&2)
         &&
-        mv ./portal ./output-gsas2
+        mv ./portal ./output-gsas2 > >(tee -a $output) 2> >(tee -a $output >&2)
         && 
-        tar -cvzf output-gsas2.tgz ./output-gsas2
+        tar -cvzf output-gsas2.tgz ./output-gsas2 > >(tee -a $output) 2> >(tee -a $output >&2)
         &&
-        ls -lath ./output-gsas2
+        ls -lath ./output-gsas2 > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
