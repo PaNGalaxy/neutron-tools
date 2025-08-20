@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.8.0">
+<tool id="neutrons_asrp_gsas2_new" name="GSAS2 Refinement" profile="22.05" version="0.8.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -32,6 +32,8 @@
         tar -cvzf output-gsas2.tgz ./output-gsas2 > >(tee -a $output) 2> >(tee -a $output >&2)
         &&
         ls -lath ./output-gsas2 > >(tee -a $output) 2> >(tee -a $output >&2)
+        &&
+        ls -lath ./ > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
