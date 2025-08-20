@@ -2,7 +2,7 @@
     <description></description>
     <requirements>
         <resource type="cuda_device_count_min">1</resource>
-        <container type="docker" shell="/bin/bash">ghcr.io/evilkermit/neuxtalviz:0.1.0.dev190</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/evilkermit/neuxtalviz:0.1.0.dev255</container>
     </requirements>
     <entry_points>
         <entry_point name="Trame NeuXtalViz" label="neuxtalviz" requires_domain="False" requires_path_in_url="True">
