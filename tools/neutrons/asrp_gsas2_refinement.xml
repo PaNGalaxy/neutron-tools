@@ -44,6 +44,10 @@
         ls -lath ./ > >(tee -a $output) 2> >(tee -a $output >&2)
         &&
         echo "===========" > >(tee -a $output) 2> >(tee -a $output >&2)
+        &&
+        cp ./output-gsas.tgz $output_gsas2
+        &&
+        echo "===========" > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="cif_file" type="data" format="txt" label="CIF File"/>
@@ -59,7 +63,8 @@
         <param name="xmax" type="float" label="Right bound" value="0"/>
     </inputs>
     <outputs>
-        <data format="tgz" name="output_gsas2" from_work_dir="./output-gsas2.tgz" />
+        <data format="tgz" name="output_gsas2_from_work_dir" from_work_dir="./output-gsas2.tgz" />
+        <data format="tgz" name="output_gsas2"/>
         <data format="txt" name="output" label="GSAS2 console output"></data>
     </outputs>
     <help><![CDATA[
