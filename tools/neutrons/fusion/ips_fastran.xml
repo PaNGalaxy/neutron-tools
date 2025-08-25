@@ -1,4 +1,4 @@
-<tool id="fusion_ips_fastran" name="IPS Fastran"  profile="22.05" version="0.1.2">
+<tool id="fusion_ips_fastran" name="IPS Fastran"  profile="22.05" version="0.1.0">
   <description></description>
     <requirements>
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/fusion/ips-fastran:0.1.1</container>
@@ -11,8 +11,8 @@
             or $__job_resource.__job_resource__select == 'no'
             or $__job_resource.remote_resource_cloud_nersc == "orc"
         )
-            mkdir summary&&
-            cp /result.nc summary/f\${SHOT_NUMBER}.\${TIME_ID}
+            mkdir summary &&
+            cp /result.nc summary/f\${SHOT_NUMBER}.\${TIME_ID} &&
         #else
             module load python &&
             source activate /global/common/software/atom/perlmutter/cesol/conda/dev &&
@@ -26,7 +26,7 @@
         <param name="time_id" type="text" value="00001" label="Time ID"/>
     </inputs>
     <outputs>
-        <data format="h5" name="output"/>
+        <data format="netcdf" name="output"/>
     </outputs>
     <help><![CDATA[
         A tool to run IPS Fastran code
