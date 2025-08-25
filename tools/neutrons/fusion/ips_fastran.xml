@@ -18,7 +18,7 @@
             source activate /global/common/software/atom/perlmutter/cesol/conda/dev &&
             ips.py --simulation=$config --platform=perlmutter_cpu_node.conf --log=ips.log &&
         #end if
-        ln -s summary/f\${SHOT_NUMBER}.\${TIME_ID} $output
+        mv summary/f\${SHOT_NUMBER}.\${TIME_ID} $output
     ]]></command>
     <inputs>
         <param name="config" type="data" format="txt" optional="false" label="Config File"/>
