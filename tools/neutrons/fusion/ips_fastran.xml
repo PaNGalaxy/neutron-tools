@@ -1,7 +1,7 @@
 <tool id="fusion_ips_fastran" name="IPS Fastran"  profile="22.05" version="0.1.2">
   <description></description>
     <requirements>
-        <container type="docker">savannah.ornl.gov/ndip/tool-sources/fusion/ips-fastran:0.1.0</container>
+        <container type="docker">savannah.ornl.gov/ndip/tool-sources/fusion/ips-fastran:0.1.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         export SHOT_NUMBER=$shot_number &&
@@ -12,7 +12,7 @@
             or $__job_resource.remote_resource_cloud_nersc == "orc"
         )
             mkdir summary&&
-            cp /data summary/f\${SHOT_NUMBER}.\${TIME_ID}
+            cp /result.nc summary/f\${SHOT_NUMBER}.\${TIME_ID}
         #else
             module load python &&
             source activate /global/common/software/atom/perlmutter/cesol/conda/dev &&
