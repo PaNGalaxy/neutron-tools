@@ -1,4 +1,4 @@
-<tool id="pvviewer" nova_category="generic" tool_type="interactive"  name="PVViewer" version="0.1.0" profile="22.01">
+<tool id="pvviewer" nova_category="generic-tools" tool_type="interactive"  name="PVViewer" version="0.1.0" profile="22.01">
     <description>PVViewer - A tool generated using the NOVA Application Template</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer:0.1.0</container>
