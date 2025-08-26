@@ -1,7 +1,7 @@
 <tool id="pvviewer-prototype" nova_category="generic" tool_type="interactive"  name="PVViewer" version="0.1.0" profile="22.01">
     <description>PVViewer - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer/prototypes:d597cb23215d26a99b1a5861f6cd0007f070d03f</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer/prototypes:7c4cdb91f46808dc41e2d2fbc202dec4289d4c39</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -15,9 +15,12 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
+        export TRAME_STARTUP_INPUT_PATH=$input_path &&
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
-
     ]]></command>
+    <inputs>
+        <param name="input_path" type="text" optional="true" label="Startup Input File"/>
+    </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
     </outputs>
