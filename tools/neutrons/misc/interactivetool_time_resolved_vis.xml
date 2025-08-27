@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/trame-apps/time-resolved-visualization:0.5.0
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/time-resolved-visualization:0.5.0
         </container>
     </requirements>
     <entry_points>
