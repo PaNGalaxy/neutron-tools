@@ -1,7 +1,7 @@
 <tool id="ips-fastran-gui-prototype" nova_category="fusion" tool_type="interactive"  name="IPS Fastran GUI" version="0.1.0" profile="22.01">
     <description>IPS Fastran GUI - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/fusion/ips-fastran-gui/prototypes:54faaab178bd88a3f0af5febdbc0bf7701543e6b</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/fusion/ips-fastran-gui/prototypes:7e07b0e445e205c7fc1d3302f66d5170f7d8a1ca</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
