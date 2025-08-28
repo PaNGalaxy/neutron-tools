@@ -1,7 +1,7 @@
-<tool id="neutrons_cp2k_gui" nova_category="chemical-spectroscopy" tool_type="interactive"  name="CP2K GUI" version="0.4.0" profile="22.01">
-    <description>CP2K GUI - A tool generated using the NOVA Application Template</description>
+<tool id="pdiffvis" nova_category="powder-diffraction" tool_type="interactive"  name="PDiffVis" version="0.4.18" profile="22.01">
+    <description>PDiffVis - Powder Diffraction Visualization Tools</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/cp2k-gui:0.4.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis:0.4.18</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -13,19 +13,22 @@
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
+        <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
+        <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
     </environment_variables>
      <command><![CDATA[
+        export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_AZURE-\${OIDC_ID_TOKEN_PINGFED}} &&
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
-        
+
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
     </outputs>
     <help><![CDATA[
-        **CP2K GUI**
-        
-        This is a Galaxy tool for CP2K GUI.
-        
-        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/chemical-spectroscopy/cp2k-gui
+        **PDiffVis**
+
+        This is a Galaxy tool for PDiffVis.
+
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis
     ]]></help>
 </tool>
