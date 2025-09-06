@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker">
-            savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/mcu/sample-simulator/release/sample-simulator-mcvine:v0.8.0
+            savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/mcu/sample-simulator/release/sample-simulator-mcvine:v0.9.0
         </container>
     </requirements>
     <inputs>
