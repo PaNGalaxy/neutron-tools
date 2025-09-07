@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_sample_simulator_new" name="New Sample Simulator" profile="22.05" version="0.1.2">
+<tool id="neutrons_mcu_sample_simulator_new" name="NOMAD Sample Simulator" profile="22.05" version="0.1.2">
     <description></description>
     <creator>
         <person name="Garrett Granroth"/>
