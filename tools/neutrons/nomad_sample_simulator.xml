@@ -21,10 +21,8 @@
         <param name="number_of_nodes" type="integer" label="Number of Compute Nodes" value="1"/>
     </inputs>
     <command detect_errors="exit_code"><![CDATA[
-        echo "SHELL=$SHELL"
-        echo "PATH=$PATH"
-        mkdir ./output && \
-        mkdir ./sampleassembly && \
+        mkdir ./output/ && \
+        mkdir ./sampleassembly/ && \
         tar xf $sample_assembly -C sampleassembly --strip-components 1 && \
         mcu_sample_simulator \
           $instrument_name \
