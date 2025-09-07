@@ -31,7 +31,9 @@
           --number-of-neutrons $number_of_neutrons \
           --number-of-nodes $number_of_nodes \
           --overwrite-datafiles \
-          #if $multi_scat_flag: --multiple-scattering #end if && \
+        #if $multi_scat_flag: 
+          --multiple-scattering 
+        #end if && \
         tar -czvf output-mcvine.tgz output/ && \
         mcu_convert_to_nexus --instrument-name $instrument_name ./output ./output-nexus.nxs
     ]]></command>
