@@ -24,7 +24,6 @@
         mkdir ./output/ &&
         mkdir ./sampleassembly/ &&
         tar xf $sample_assembly -C sampleassembly --strip-components 1 && 
-        echo "incident_beam: $(basename "$incident_beam")" &&
         mcu_sample_simulator  $instrument_name  $incident_beam  ./sampleassembly/   --simulation-directory ./output   --number-of-neutrons $number_of_neutrons   --number-of-nodes    $number_of_nodes   --overwrite-datafiles 
         tar -czvf output-mcvine.tgz output/ && 
         mcu_convert_to_nexus --instrument-name $instrument_name ./output ./output-nexus.nxs
