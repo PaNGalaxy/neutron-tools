@@ -23,7 +23,6 @@
     <command detect_errors="exit_code"><![CDATA[
         rm -rf ./output ./sampleassembly && \
         mkdir ./output ./sampleassembly && \
-        mkdir ./output/ &&
         tar xf "$sample_assembly" -C sampleassembly --strip-components 1 && \
 
         mcu_sample_simulator \
