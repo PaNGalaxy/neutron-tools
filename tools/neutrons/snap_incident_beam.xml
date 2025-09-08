@@ -18,7 +18,6 @@
             #set $spectrum_file_name   = $instrument.spectrum_file.name
             #set $guide_file_name      = $instrument.guide_file.name
         #else
-            ## Update these three paths to match your container layout:
             #set $instrument_code_path = "/src/snap_montecarlo/incident_beam_MCstas/SNAP_McStas3.instr"
             #set $spectrum_file_path   = "/src/snap_montecarlo/incident_beam_MCstas/a1G0AD-2-f5.dat"
             #set $guide_file_path      = "/src/snap_montecarlo/incident_beam_MCstas/SNAPguide_new_final_final"
@@ -27,25 +26,21 @@
             #set $guide_file_name      = "SNAPguide_new_final_final"
         #end if
 
-        # Symlink required inputs into CWD so relative filenames in the .instr work
-        ln -s "$instrument_code_path" "$instrument_code_name"
-        ln -s "$spectrum_file_path"   "$spectrum_file_name"
-        ln -s "$guide_file_path"      "$guide_file_name" || true   # guide file used by Guide_tapering(option="file=...")
+        ln -s "$instrument_code_path" "$instrument_code_name" &&
+        ln -s "$spectrum_file_path"   "$spectrum_file_name" &&
+        ln -s "$guide_file_path"      "$guide_file_name" &&
 
-        # Run SNAP with parameters (defaults mirror the DEFINE INSTRUMENT)
         mcrun "$instrument_code_name" -d 
-            focusingGuide=$input_parameters.focusingGuide 
-            slit1Width=$input_parameters.slit1Width 
-            slit1Height=$input_parameters.slit1Height 
-            slit2Width=$input_parameters.slit2Width 
-            slit2Height=$input_parameters.slit2Height 
-            slit3Width=$input_parameters.slit3Width 
-            slit3Height=$input_parameters.slit3Height 
-            slit4Width=$input_parameters.slit4Width 
-            slit4Height=$input_parameters.slit4Height 
-            --ncount=$input_parameters.ncount 
-            --dir=outputs
-
+            focusingGuide=$focusingGuide 
+            slit1Width=$slit1Width 
+            slit1Height=$slit1Height 
+            slit2Width=$slit2Width 
+            slit2Height=$slit2Height 
+            slit3Width=$slit3Width 
+            slit3Height=$slit3Height 
+            slit4Width=$slit4Width 
+            slit4Height=$slit4Height 
+            --ncount=$ncount --dir=outputs &&
         (mv outputs/*.mcpl.gz $out_mcpl || true)
     ]]></command>
 
