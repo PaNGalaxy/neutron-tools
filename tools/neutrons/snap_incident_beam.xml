@@ -1,5 +1,5 @@
 <tool id="snap-incidentBeam-prototype" name="Snap Incident Beam" version="0.1.0" profile="22.01">
-    <description>Run McStas simulation using NOMAD_NDIP instrument</description>
+    <description>Run McStas simulation using SNAP instrument</description>
     <creator>
         <person name="Fahima Islam"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -86,12 +86,12 @@
     </outputs>
 
     <help><![CDATA[
-        **Nomad MonteCarlo**
+        **SNAP MonteCarlo**
 
-        This Galaxy tool runs McStas simulations using the NOMAD_NDIP instrument.
+        This Galaxy tool runs McStas simulations using the SNAP instrument.
 
         ### Usage:
-        - **Nomad**: uses default instrument and spectrum built into the container.
+        - **SNAP**: uses default instrument and spectrum built into the container.
         - **Provide your own instrument files**: upload your custom `.instr` and `.dat` files.
         - You can also tweak collimator aperture parameters and number of simulated particles.
 
