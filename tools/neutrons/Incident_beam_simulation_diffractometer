@@ -1,0 +1,168 @@
+<tool id="incidentBeam-unified" name="Incident Beam (NOMAD or SNAP)" version="0.1.0" profile="22.01">
+  <description>Run McStas incident-beam simulations using NOMAD or SNAP</description>
+  <creator>
+    <person name="Fahima Islam"/>
+    <organization url="https://www.ornl.gov/" name="ORNL"/>
+  </creator>
+
+  <requirements>
+    <!-- Must contain BOTH instruments at the paths referenced below -->
+    <container type="docker" shell="/bin/bash">
+      savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo/prototypes:ab065f247a19a3cb279380d334807c7df90eee1e
+    </container>
+  </requirements>
+
+  <command detect_errors="exit_code"><![CDATA[
+    #if $instrument.instrument_choice == 'nomad'
+
+      #if $instrument.nomad_source_choice == 'custom'
+        #set $instrument_code_path = $instrument.nomad_instrument_code
+        #set $spectrum_file_path   = $instrument.nomad_spectrum_file
+        #set $instrument_code_name = $instrument.nomad_instrument_code.name
+        #set $spectrum_file_name   = $instrument.nomad_spectrum_file.name
+      #else
+        #set $instrument_code_path = "/src/nomad-montecarlo/Incident_beam_MCstas/NOMAD_NDIP.instr"
+        #set $spectrum_file_path   = "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
+        #set $instrument_code_name = "NOMAD_NDIP.instr"
+        #set $spectrum_file_name   = "a1G0AD-2-f5.dat"
+      #end if
+
+      [ -f "$instrument_code_path" ] || { echo "Missing $instrument_code_path" >&2; exit 1; }
+      [ -f "$spectrum_file_path" ]   || { echo "Missing $spectrum_file_path" >&2; exit 1; }
+
+      ln -s "$instrument_code_path" "$instrument_code_name" &&
+      ln -s "$spectrum_file_path"   "$spectrum_file_name" &&
+
+      mcrun "$instrument_code_name" -d
+        s3l=$s3l s3r=$s3r s3t=$s3t s3b=$s3b
+        s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b
+        --ncount=$ncount --dir=outputs &&
+
+      mcpl_file=$(ls outputs/*.mcpl.gz 2>/dev/null | head -n1) && mv "$mcpl_file" "$out_mcpl" || { echo "No MCPL found for NOMAD in outputs/"; exit 2; }
+
+    #elif $instrument.instrument_choice == 'snap'
+
+      #if $instrument.snap_source_choice == 'custom'
+        #set $instrument_code_path = $instrument.snap_instrument_code
+        #set $spectrum_file_path   = $instrument.snap_spectrum_file
+        #set $guide_file_path      = $instrument.snap_guide_file
+        #set $instrument_code_name = $instrument.snap_instrument_code.name
+        #set $spectrum_file_name   = $instrument.snap_spectrum_file.name
+        #set $guide_file_name      = $instrument.snap_guide_file.name
+      #else
+        #set $instrument_code_path = "/src/snap_montecarlo/incident_beam_MCstas/SNAP_McStas3.instr"
+        #set $spectrum_file_path   = "/src/snap_montecarlo/incident_beam_MCstas/a1G0AD-2-f5.dat"
+        #set $guide_file_path      = "/src/snap_montecarlo/incident_beam_MCstas/SNAPguide_new_final_final"
+        #set $instrument_code_name = "SNAP_McStas3.instr"
+        #set $spectrum_file_name   = "a1G0AD-2-f5.dat"
+        #set $guide_file_name      = "SNAPguide_new_final_final"
+      #end if
+
+      [ -f "$instrument_code_path" ] || { echo "Missing $instrument_code_path" >&2; exit 1; }
+      [ -f "$spectrum_file_path" ]   || { echo "Missing $spectrum_file_path" >&2; exit 1; }
+      [ -f "$guide_file_path" ]      || { echo "Missing $guide_file_path" >&2; exit 1; }
+
+      ln -s "$instrument_code_path" "$instrument_code_name" &&
+      ln -s "$spectrum_file_path"   "$spectrum_file_name" &&
+      ln -s "$guide_file_path"      "$guide_file_name" &&
+
+      mcrun "$instrument_code_name" -d
+        focusingGuide=$focusingGuide
+        slit1Width=$slit1Width
+        slit1Height=$slit1Height
+        slit2Width=$slit2Width
+        slit2Height=$slit2Height
+        slit3Width=$slit3Width
+        slit3Height=$slit3Height
+        slit4Width=$slit4Width
+        slit4Height=$slit4Height
+        --ncount=$ncount --dir=outputs &&
+
+      mcpl_file=$(ls outputs/*.mcpl.gz 2>/dev/null | head -n1) && mv "$mcpl_file" "$out_mcpl" || { echo "No MCPL found for SNAP in outputs/"; exit 2; }
+
+    #else
+      echo "Unknown instrument selection" >&2; exit 3;
+    #end if
+  ]]></command>
+
+  <inputs>
+    <conditional name="instrument">
+      <param name="instrument_choice" type="select" label="Select Instrument">
+        <option value="nomad" selected="true">NOMAD</option>
+        <option value="snap">SNAP</option>
+      </param>
+
+      <!-- NOMAD branch -->
+      <when value="nomad">
+        <param name="ncount" type="text" value="1e7" label="Number of particles (--ncount)"/>
+        <section name="nomad_params" title="NOMAD Slits" expanded="false">
+          <param name="s3l" type="float" value="1.1" label="s3 left (mm)"/>
+          <param name="s3r" type="float" value="1.1" label="s3 right (mm)"/>
+          <param name="s3t" type="float" value="1.1" label="s3 top (mm)"/>
+          <param name="s3b" type="float" value="1.1" label="s3 bottom (mm)"/>
+          <param name="s4l" type="float" value="1.1" label="s4 left (mm)"/>
+          <param name="s4r" type="float" value="1.1" label="s4 right (mm)"/>
+          <param name="s4t" type="float" value="1.1" label="s4 top (mm)"/>
+          <param name="s4b" type="float" value="1.1" label="s4 bottom (mm)"/>
+        </section>
+
+        <conditional name="nomad_source">
+          <param name="nomad_source_choice" type="select" label="Instrument files">
+            <option value="builtin" selected="true">Use built-in NOMAD files</option>
+            <option value="custom">Upload custom .instr and .dat</option>
+          </param>
+          <when value="builtin"/>
+          <when value="custom">
+            <param name="nomad_instrument_code" type="data" format="txt" label="Instrument Source (.instr)" optional="false"/>
+            <param name="nomad_spectrum_file"  type="data" format="txt" label="Source Spectrum (.dat)"   optional="false"/>
+          </when>
+        </conditional>
+      </when>
+
+      <!-- SNAP branch -->
+      <when value="snap">
+        <param name="ncount" type="text" value="1e7" label="Number of particles (--ncount)"/>
+        <section name="snap_params" title="SNAP Parameters" expanded="false">
+          <param name="focusingGuide" type="integer" value="1" label="focusingGuide (1=use new guide, 0=skip)"/>
+          <param name="slit1Width"  type="float" value="0.0555" label="slit1Width"/>
+          <param name="slit1Height" type="float" value="0.0605" label="slit1Height"/>
+          <param name="slit2Width"  type="float" value="0.0403" label="slit2Width"/>
+          <param name="slit2Height" type="float" value="0.0385" label="slit2Height"/>
+          <param name="slit3Width"  type="float" value="0.0349" label="slit3Width"/>
+          <param name="slit3Height" type="float" value="0.0313" label="slit3Height"/>
+          <param name="slit4Width"  type="float" value="0.0226" label="slit4Width"/>
+          <param name="slit4Height" type="float" value="0.0137" label="slit4Height"/>
+        </section>
+
+        <conditional name="snap_source">
+          <param name="snap_source_choice" type="select" label="Instrument files">
+            <option value="builtin" selected="true">Use built-in SNAP files</option>
+            <option value="custom">Upload custom .instr, .dat, and guide file</option>
+          </param>
+          <when value="builtin"/>
+          <when value="custom">
+            <param name="snap_instrument_code" type="data" format="txt" label="Instrument Source (.instr)" optional="false"/>
+            <param name="snap_spectrum_file"  type="data" format="txt" label="Source Spectrum (.dat)"   optional="false"/>
+            <param name="snap_guide_file"     type="data" format="txt" label="Guide Geometry File"      optional="false"/>
+          </when>
+        </conditional>
+      </when>
+    </conditional>
+  </inputs>
+
+  <outputs>
+    <data format="gz" name="out_mcpl" label="MCPL Output File"/>
+  </outputs>
+
+  <help><![CDATA[
+**Incident Beam (NOMAD or SNAP)**
+
+Runs McStas incident-beam simulations for either instrument.
+
+- **NOMAD**: uses `NOMAD_NDIP.instr` (defaults provided in container), with s3/s4 slit parameters.
+- **SNAP**: uses `SNAP_McStas3.instr` (defaults provided in container), with focusingGuide and slit parameters.
+- Choose **built-in** files (from container) or **custom** uploads per instrument.
+
+**Output**: one `*.mcpl.gz` file.
+  ]]></help>
+</tool>
