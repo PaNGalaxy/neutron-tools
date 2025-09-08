@@ -1,4 +1,4 @@
-<tool id="nomad_NDIP_mcstas" name="NOMAD NDIP Instrument" version="1.0.0">
+<tool id="snap_NDIP_mcstas" name="SNAP NDIP Instrument" version="1.0.0">
     <description>Run McStas simulation using NOMAD_NDIP instrument</description>
     <creator>
         <person name="Fahima Islam"/>
