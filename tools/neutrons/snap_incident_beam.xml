@@ -12,48 +12,72 @@
     <command detect_errors="exit_code"><![CDATA[
         #if $instrument.instrument_choice == 'custom':
             #set $instrument_code_path = $instrument.instrument_code
-            #set $spectrum_file_path = $instrument.spectrum_file
+            #set $spectrum_file_path   = $instrument.spectrum_file
+            #set $guide_file_path      = $instrument.guide_file
             #set $instrument_code_name = $instrument.instrument_code.name
-            #set $spectrum_file_name = $instrument.spectrum_file.name
+            #set $spectrum_file_name   = $instrument.spectrum_file.name
+            #set $guide_file_name      = $instrument.guide_file.name
         #else
-            #set $instrument_code_path = "/src/nomad-montecarlo/Incident_beam_MCstas/NOMAD_NDIP.instr"
-            #set $spectrum_file_path = "/src/nomad-montecarlo/Incident_beam_MCstas/a1G0AD-2-f5.dat"
-            #set $instrument_code_name = "NOMAD_NDIP.instr"
-            #set $spectrum_file_name = "a1G0AD-2-f5.dat"
+            ## Update these three paths to match your container layout:
+            #set $instrument_code_path = "/src/snap_montecarlo/incident_beam_MCstas/SNAP_McStas3.instr"
+            #set $spectrum_file_path   = "/src/snap_montecarlo/incident_beam_MCstas/a1G0AD-2-f5.dat"
+            #set $guide_file_path      = "/src/snap_montecarlo/incident_beam_MCstas/SNAPguide_new_final_final"
+            #set $instrument_code_name = "SNAP_McStas3.instr"
+            #set $spectrum_file_name   = "a1G0AD-2-f5.dat"
+            #set $guide_file_name      = "SNAPguide_new_final_final"
         #end if
 
-        ln -s $instrument_code_path $instrument_code_name &&
-        ln -s $spectrum_file_path $spectrum_file_name &&
-        mcrun $instrument_code_name -d
-          s3l=$s3l s3r=$s3r s3t=$s3t s3b=$s3b
-          s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b
-          --ncount=$ncount --dir=outputs &&
+        # Symlink required inputs into CWD so relative filenames in the .instr work
+        ln -s "$instrument_code_path" "$instrument_code_name"
+        ln -s "$spectrum_file_path"   "$spectrum_file_name"
+        ln -s "$guide_file_path"      "$guide_file_name" || true   # guide file used by Guide_tapering(option="file=...")
+
+        # Run SNAP with parameters (defaults mirror the DEFINE INSTRUMENT)
+        mcrun "$instrument_code_name" -d 
+            focusingGuide=$input_parameters.focusingGuide 
+            slit1Width=$input_parameters.slit1Width 
+            slit1Height=$input_parameters.slit1Height 
+            slit2Width=$input_parameters.slit2Width 
+            slit2Height=$input_parameters.slit2Height 
+            slit3Width=$input_parameters.slit3Width 
+            slit3Height=$input_parameters.slit3Height 
+            slit4Width=$input_parameters.slit4Width 
+            slit4Height=$input_parameters.slit4Height 
+            --ncount=$input_parameters.ncount 
+            --dir=outputs
+
         (mv outputs/*.mcpl.gz $out_mcpl || true)
     ]]></command>
 
     <inputs>
         <conditional name="instrument">
             <param name="instrument_choice" type="select" label="Select Instrument">
-                <option value="nomad" selected="true">Nomad</option>
+                <option value="snap" selected="true">SNAP (built-in)</option>
                 <option value="custom">Provide your own instrument files</option>
             </param>
-            <when value="nomad"/>
+            <when value="snap"/>
             <when value="custom">
+                <!-- The SNAP .instr and its associated files can be uploaded.
+                     Use 'txt' here if custom datatypes aren’t registered. -->
                 <param name="instrument_code" type="data" format="txt" label="Instrument Source (.instr)" optional="false"/>
-                <param name="spectrum_file" type="data" format="txt" label="Source Spectrum (.dat)" optional="false"/>
+                <param name="spectrum_file"  type="data" format="txt" label="Source Spectrum (.dat)"   optional="false"/>
+                <!-- The guide file referenced by: option="file=SNAPguide_new_final_final" -->
+                <param name="guide_file"     type="data" format="txt" label="Guide Geometry File"      optional="false"/>
             </when>
         </conditional>
 
-        <section name="input_parameters" title="Optional Input Parameters" expanded="false">
-            <param name="s3l" type="float" value="1.1" label="s3 left"/>
-            <param name="s3r" type="float" value="1.1" label="s3 right"/>
-            <param name="s3t" type="float" value="1.1" label="s3 top"/>
-            <param name="s3b" type="float" value="1.1" label="s3 bottom"/>
-            <param name="s4l" type="float" value="1.1" label="s4 left"/>
-            <param name="s4r" type="float" value="1.1" label="s4 right"/>
-            <param name="s4t" type="float" value="1.1" label="s4 top"/>
-            <param name="s4b" type="float" value="1.1" label="s4 bottom"/>
-            <param name="ncount" type="text" value="1e7" label="Number of particles"/>
+        <section name="input_parameters" title="SNAP Parameters" expanded="false">
+            <!-- Defaults match your SNAP_mcstas3.instr -->
+            <param name="focusingGuide" type="integer" value="1" label="focusingGuide (1=use new guide, 0=skip)"/>
+            <param name="slit1Width"  type="float" value="0.0555" label="slit1Width"/>
+            <param name="slit1Height" type="float" value="0.0605" label="slit1Height"/>
+            <param name="slit2Width"  type="float" value="0.0403" label="slit2Width"/>
+            <param name="slit2Height" type="float" value="0.0385" label="slit2Height"/>
+            <param name="slit3Width"  type="float" value="0.0349" label="slit3Width"/>
+            <param name="slit3Height" type="float" value="0.0313" label="slit3Height"/>
+            <param name="slit4Width"  type="float" value="0.0226" label="slit4Width"/>
+            <param name="slit4Height" type="float" value="0.0137" label="slit4Height"/>
+            <param name="ncount" type="text" value="1e7" label="Number of particles (--ncount)"/>
         </section>
     </inputs>
 
