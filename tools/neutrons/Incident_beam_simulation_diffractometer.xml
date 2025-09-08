@@ -6,7 +6,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo/prototypes:ab065f247a19a3cb279380d334807c7df90eee1e</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/neumatix/nomad-montecarlo/prototypes:eb233ee740a31b72e3c3f9dff54a1410bde4fb60</container>
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
