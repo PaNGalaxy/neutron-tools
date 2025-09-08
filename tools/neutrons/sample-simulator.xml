@@ -1,12 +1,12 @@
 <tool id="neutrons_mcu_sample_simulator_new" name="New Sample Simulator" profile="22.05" version="0.1.2">
     <description></description>
     <creator>
-        <person name="Garrett Granroth"/>
+        <person name="Marshall McDonnell"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
         <container type="docker">
-            savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/mcu/sample-simulator/release/sample-simulator-mcvine:v1.0.0
+            savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/mcu/sample-simulator/release/sample-simulator-mcvine:v1.1.0
         </container>
     </requirements>
     <inputs>
