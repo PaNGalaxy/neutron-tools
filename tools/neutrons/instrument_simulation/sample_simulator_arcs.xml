@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_sample_simulator" name="Sample Simulator" profile="22.05" version="0.1.1">
+<tool id="sample_simulator_arcs" name="Sample Simulator ARCS" profile="22.05" version="0.1.1">
     <description></description>
     <creator>
         <person name="Garrett Granroth"/>
