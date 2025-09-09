@@ -1,4 +1,4 @@
-<tool id="neumatix_sample_assembly_creator" name="Sample Assembly Creator"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+<tool id="neumatix_sample_assembly_creator" name="Sample Assembly Creator - prototype"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
     <container type="docker">savannah.ornl.gov/ndip/tool-sources/direct-geometry-spectroscopy/mcu/sample-assembly-creator/release/sample-assembly-creator:v0.6.0</container>
   </requirements>
