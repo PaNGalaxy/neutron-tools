@@ -93,7 +93,7 @@ testing:
         API_KEY: $CALVERA_API_KEY
         ADMIN_KEY: $CALVERA_ADMIN_KEY
       when: always
-    - when: manual
+    - when: never
 
 interactive-tools-testing:
   stage: test
