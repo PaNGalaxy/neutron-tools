@@ -72,6 +72,12 @@
               slit4Height=$slit4Height 
               --ncount=$ncount --dir=outputs &&
 
+            mkdir temp/ &&
+            cp outputs/neutrons_b4_sample_snap.mcpl.gz temp/neutrons_b4_sample_snap.mcpl.gz &&
+            cd temp/ &&
+            gzip -d neutrons_b4_sample_snap.mcpl.gz &&
+            mv neutrons_b4_sample_snap.mcpl $out_mcpl &&
+            cd ../ &&
             (mv outputs/*.mcpl.gz $out_mcpl_gz || true)
 
 
