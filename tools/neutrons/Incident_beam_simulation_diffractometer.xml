@@ -31,7 +31,8 @@
               s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b
               --ncount=$ncount --dir=outputs &&
 
-            (mv outputs/*.mcpl.gz $out_mcpl || true)
+            (mv outputs/*.mcpl.gz $out_mcpl || true) &&
+            ls outputs/
 
         #elif $instrument.instrument_choice == 'snap'
             #if $instrument.snap_source_choice == 'custom'
@@ -66,7 +67,9 @@
               slit4Height=$slit4Height 
               --ncount=$ncount --dir=outputs &&
 
-            (mv outputs/*.mcpl.gz $out_mcpl || true)
+            (mv outputs/*.mcpl.gz $out_mcpl || true) &&
+            ls outputs/
+
 
         #else
             echo "Unknown instrument selection"; exit 3;
@@ -139,6 +142,7 @@
     </inputs>
 
     <outputs>
+        <data format="gz" name="out_mcpl" label="Zipped MCPL Output"/>
         <data format="gz" name="out_mcpl" label="MCPL Output File"/>
     </outputs>
 
