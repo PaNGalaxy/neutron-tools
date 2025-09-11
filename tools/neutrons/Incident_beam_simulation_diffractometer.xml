@@ -31,8 +31,12 @@
               s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b
               --ncount=$ncount --dir=outputs &&
 
-            (mv outputs/*.mcpl.gz $out_mcpl || true) &&
-            ls outputs/
+
+            mkdir temp/ &&
+            cp outputs/*.mcpl.gz temp/ &&
+            tar xvzf temp/*.mcpl.gz &&
+            ls temp/ && 
+            (mv outputs/*.mcpl.gz $out_mcpl || true)
 
         #elif $instrument.instrument_choice == 'snap'
             #if $instrument.snap_source_choice == 'custom'
@@ -67,8 +71,11 @@
               slit4Height=$slit4Height 
               --ncount=$ncount --dir=outputs &&
 
-            (mv outputs/*.mcpl.gz $out_mcpl || true) &&
-            ls outputs/
+            mkdir temp/ &&
+            cp outputs/*.mcpl.gz temp/ &&
+            tar xvzf temp/*.mcpl.gz &&
+            ls temp/ && 
+            (mv outputs/*.mcpl.gz $out_mcpl || true)
 
 
         #else
@@ -143,7 +150,6 @@
 
     <outputs>
         <data format="gz" name="out_mcpl" label="Zipped MCPL Output"/>
-        <data format="gz" name="out_mcpl" label="MCPL Output File"/>
     </outputs>
 
     <help><![CDATA[
