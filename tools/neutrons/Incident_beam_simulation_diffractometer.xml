@@ -34,7 +34,7 @@
             mkdir temp/ &&
             cp outputs/neutrons_b4_sample.mcpl.gz temp/neutrons_b4_sample.mcpl.gz &&
             cd temp/ &&
-            tar xvzf neutrons_b4_sample.mcpl.gz &&
+            gzip -d neutrons_b4_sample.mcpl.gz &&
             mv neutrons_b4_sample.mcpl $out_mcpl &&
             cd ../ &&
             (mv outputs/*.mcpl.gz $out_mcpl_gz || true)
@@ -75,7 +75,7 @@
             mkdir temp/ &&
             cp outputs/neutrons_b4_sample.mcpl.gz temp/neutrons_b4_sample.mcpl.gz &&
             cd temp/ &&
-            tar xvzf neutrons_b4_sample.mcpl.gz &&
+            gzip -d neutrons_b4_sample.mcpl.gz &&
             mv neutrons_b4_sample.mcpl $out_mcpl &&
             cd ../ &&
             (mv outputs/*.mcpl.gz $out_mcpl_gz || true)
