@@ -31,12 +31,13 @@
               s4l=$s4l s4r=$s4r s4t=$s4t s4b=$s4b
               --ncount=$ncount --dir=outputs &&
 
-
             mkdir temp/ &&
-            cp outputs/*.mcpl.gz temp/ &&
-            tar xvzf temp/*.mcpl.gz &&
-            ls temp/ && 
-            (mv outputs/*.mcpl.gz $out_mcpl || true)
+            cp outputs/neutrons_b4_sample.mcpl.gz temp/neutrons_b4_sample.mcpl.gz &&
+            cd temp/ &&
+            tar xvzf neutrons_b4_sample.mcpl.gz &&
+            mv neutrons_b4_sample.mcpl $out_mcpl &&
+            cd ../ &&
+            (mv outputs/*.mcpl.gz $out_mcpl_gz || true)
 
         #elif $instrument.instrument_choice == 'snap'
             #if $instrument.snap_source_choice == 'custom'
@@ -72,10 +73,12 @@
               --ncount=$ncount --dir=outputs &&
 
             mkdir temp/ &&
-            cp outputs/*.mcpl.gz temp/ &&
-            tar xvzf temp/*.mcpl.gz &&
-            ls temp/ && 
-            (mv outputs/*.mcpl.gz $out_mcpl || true)
+            cp outputs/neutrons_b4_sample.mcpl.gz temp/neutrons_b4_sample.mcpl.gz &&
+            cd temp/ &&
+            tar xvzf neutrons_b4_sample.mcpl.gz &&
+            mv neutrons_b4_sample.mcpl $out_mcpl &&
+            cd ../ &&
+            (mv outputs/*.mcpl.gz $out_mcpl_gz || true)
 
 
         #else
@@ -149,7 +152,8 @@
     </inputs>
 
     <outputs>
-        <data format="gz" name="out_mcpl" label="Zipped MCPL Output"/>
+        <data format="gz" name="out_mcpl_gz" label="Zipped MCPL Output"/>
+        <data format="txt" name="out_mcpl" label="MCPL Output"/>
     </outputs>
 
     <help><![CDATA[
