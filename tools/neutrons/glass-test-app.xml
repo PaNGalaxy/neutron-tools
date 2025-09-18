@@ -1,7 +1,7 @@
-<tool id="glass-test-app-prototype" nova_category="reflectometry" tool_type="interactive" name="glass-test-app" version="1.0.4" profile="24.2">
+<tool id="glass-test-app-prototype" nova_category="reflectometry" tool_type="interactive" name="glass-test-app" version="1.0.5" profile="24.2">
     <description>glass-test-app - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/glass-test-app/prototypes:115b9c844b995312a145cc10ad1dc5450bc8195c</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/glass-test-app/prototypes:98cfda0e7bbcad5c76cb61c600be4b8df28d5209</container>
     </requirements>
     <entry_points>
         <entry_point name="ReactApp" label="glass_test_app" requires_domain="False" requires_path_in_url="True">
@@ -15,7 +15,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        bash /prepare_nginx.sh &&
+        uv run --directory /opt/app build-frontend &&
         uv run --directory /opt/app start > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <outputs>
