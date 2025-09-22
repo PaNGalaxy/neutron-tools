@@ -17,7 +17,7 @@
     <command detect_errors="exit_code"><![CDATA[
         uv run --directory /opt/app build-frontend > >(tee -a $output) 2> >(tee -a $output >&2) &&
         uv run --directory /opt/app start --proxy-headers > >(tee -a $output) 2> >(tee -a $output >&2) &
-        bash run_nginx.sh
+        bash /run_nginx.sh
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
