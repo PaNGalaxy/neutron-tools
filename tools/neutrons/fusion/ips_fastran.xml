@@ -1,4 +1,4 @@
-<tool id="fusion_ips_fastran" name="IPS Fastran"  profile="22.05" version="0.1.4">
+<tool id="fusion_ips_fastran" name="IPS Fastran"  profile="22.05" version="0.2.0">
   <description></description>
     <requirements>
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/fusion/ips-fastran:0.1.2</container>
@@ -23,7 +23,6 @@
             source activate /global/common/software/atom/perlmutter/cesol/conda/dev &&
             ips.py --simulation=$config --platform=/global/common/software/atom/example1/perlmutter_cpu_node.conf --log=ips.log &&
         #end if
-        cp summary/f\${SHOT_NUMBER}.\${TIME_ID} $output &&
         sleep 10
     ]]></command>
     <inputs>
@@ -32,7 +31,9 @@
         <param name="time_id" type="text" value="00001" label="Time ID"/>
     </inputs>
     <outputs>
-        <data format="netcdf" name="output"/>
+        <collection type="list" name="outputs" label="IPS Fastran output">
+            <discover_datasets format="netcdf" pattern="[fg][0-9]+.[0-9]+" directory="summary" />
+        </collection>
     </outputs>
     <help><![CDATA[
         A tool to run IPS Fastran code
