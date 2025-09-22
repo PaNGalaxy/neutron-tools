@@ -1,7 +1,7 @@
-<tool id="pvviewer-prototype" nova_category="generic" tool_type="interactive"  name="PVViewer" version="0.1.0" profile="22.01">
+<tool id="pvviewer-prototype" nova_category="generic" tool_type="interactive"  name="PVViewer" version="0.2.0" profile="22.01">
     <description>PVViewer - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer/prototypes:aed16b021f58af7f1e05f2f05acd1667139c859b</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer/prototypes:e684a4f844519da0f78931a62ffa43e41bb19c50</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
