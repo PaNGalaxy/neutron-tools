@@ -1,7 +1,7 @@
 <tool id="glass-test-app-prototype" nova_category="reflectometry" tool_type="interactive" name="glass-test-app" version="1.0.8" profile="24.2">
     <description>glass-test-app - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/glass-test-app/prototypes:40e1506ab5b73594a98a24d7c0273772c7302d9b</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/tutorial/glass-test-app/prototypes:8745c28c50e23df2df823b082d95fa743cc0ce58</container>
     </requirements>
     <entry_points>
         <entry_point name="ReactApp" label="glass_test_app" requires_domain="False" requires_path_in_url="True">
