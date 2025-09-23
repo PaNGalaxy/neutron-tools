@@ -30,7 +30,7 @@
     </inputs>
     <outputs>
         <collection type="list" name="outputs" label="IPS Fastran output">
-            <discover_datasets directory="summary" />
+            <discover_datasets format="netcdf" pattern="__designation__" directory="summary" />
         </collection>
     </outputs>
     <help><![CDATA[
