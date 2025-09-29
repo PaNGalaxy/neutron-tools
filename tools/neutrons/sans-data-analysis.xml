@@ -1,7 +1,7 @@
-<tool id="sans-data-analysis-prototype" nova_category="small-angle-neutron-scattering" tool_type="interactive"  name="SANS Data Analysis" version="0.1.0" profile="22.01">
+<tool id="sans-data-analysis-prototype" nova_category="small-angle-neutron-scattering" tool_type="interactive"  name="SANS Data Analysis" version="0.2.0" profile="22.01">
     <description>SANS Data Analysis - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-data-analysis/prototypes:b57198760952b3ceef226f363f2634b13796309f</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-data-analysis/prototypes:5b6569772bb8d47a77fc35adba0221e6ada23247</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
