@@ -1,0 +1,46 @@
+<tool id="interactive_tool_olex2" nova_category="single-crystal-diffraction" tool_type="interactive" name="Olex2 Crystallography Application" version="0.3.1" profile="22.05">
+    <creator>
+        <person name="Xiaoping Wang"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.3.1
+        </container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Olex2" label="olex2" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key" />
+        <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
+        <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">janatool</environment_variable>
+    </environment_variables>
+
+    <command><![CDATA[
+        echo "Notebook produced no output" > $output_single &&
+        export GALAXY_WORKING_DIR=`pwd` &&
+        /setup.sh \$GALAXY_TOOL_USER &&
+        #if $directory:
+            #set $dirname = os.path.basename(str($directory).rstrip('/'))
+            ln -s ${directory} /home/novnc_user/data/${dirname} &&
+            ln -s ${directory} /home/novnc_user/Downloads &&
+        #end if
+        /start.sh \$GALAXY_TOOL_USER
+        ]]>
+    </command>
+    <inputs>
+        <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
+        <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
+        <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
+    </inputs>
+    <outputs>
+        <data name="output_single" auto_format="true" label="Olex2 Console Output"></data>
+    </outputs>
+    <help><![CDATA[
+        Starts the interactive Olex2 Crystallographic Software.
+    ]]></help>
+</tool>
