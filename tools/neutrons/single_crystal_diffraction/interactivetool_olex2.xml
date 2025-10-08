@@ -38,7 +38,7 @@
         <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
     </inputs>
     <outputs>
-        <data name="output_single" auto_format="true" label="Jana2020 Console Output"></data>
+        <data name="output_single" auto_format="true" label="Olex2 Console Output"></data>
     </outputs>
     <help><![CDATA[
         Starts the interactive Olex2 Crystallographic Software.
