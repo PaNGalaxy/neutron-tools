@@ -29,7 +29,7 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
 # Dictionary of interactive tools to test
 INTERACTIVE_TOOLS_BOTH = {
     "interactive_tool_jana2020": None,
-    "interactive_tool_generic_output": None,
+    "interactive_tool_jupyter_notebook": None,
     "neutrons_trame_topaz": None,
     "interactive_tool_sasview": None,
     "neutrons_reflectometry_refl1d": None,
