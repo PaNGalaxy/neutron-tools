@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.3.1
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.3.2
         </container>
     </requirements>
     <entry_points>
@@ -15,7 +15,6 @@
     <environment_variables>
         <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
         <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">janatool</environment_variable>
     </environment_variables>
 
     <command><![CDATA[
