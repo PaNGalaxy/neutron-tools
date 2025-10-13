@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/topaz-data-reduction:0.15.0
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/topaz-data-reduction:0.15.1
         </container>
     </requirements>
     <entry_points>
