@@ -1,4 +1,4 @@
-<tool id="nova-fusion_ips_fastran_test-prototype" name="IPS Fastran"  profile="22.05" version="0.2.0">
+<tool id="fusion_ips_fastran_test" name="IPS Fastran"  profile="22.05" version="0.2.0">
   <description></description>
     <requirements>
         <container type="docker">savannah.ornl.gov/ndip/tool-sources/fusion/ips-fastran:0.1.2</container>
