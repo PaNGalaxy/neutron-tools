@@ -1,4 +1,4 @@
-<tool id="neutrons_trame_neuxtalviz" nova_category="single-crystal-diffraction" tool_type="interactive" name="NeuXtalViz" profile="22.05" version="0.1.0.dev318">
+<tool id="nova-neutrons_trame_neuxtalviz-prototype" nova_category="single-crystal-diffraction" tool_type="interactive" name="NeuXtalViz" profile="22.05" version="0.1.0.dev318">
     <description></description>
     <requirements>
         <resource type="cuda_device_count_min">1</resource>
