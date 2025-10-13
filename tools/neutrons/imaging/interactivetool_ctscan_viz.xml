@@ -1,4 +1,4 @@
-<tool id="neutrons_trame_ctscan" nova_category="imaging" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="1.0.1">
+<tool id="nova_neutrons_trame_ctscan" nova_category="imaging" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="1.0.1">
     <description></description>
     <creator>
         <person name="Jean Belheux" />
