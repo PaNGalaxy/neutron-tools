@@ -1,4 +1,4 @@
-<tool id="nova_interactive_tool_jana2020" nova_category="single-crystal-diffraction" tool_type="interactive" name="Jana2020 Visualizer" version="0.18" profile="22.05">
+<tool id="nova-interactive_tool_jana2020" nova_category="single-crystal-diffraction" tool_type="interactive" name="Jana2020 Visualizer" version="0.18" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>

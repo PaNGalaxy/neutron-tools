@@ -1,4 +1,4 @@
-<tool id="nova_neutrons_trame_gpsans" nova_category="small-angle-neutron-scattering" tool_type="interactive" name="GP-SANS Data Reduction" profile="22.05" version="1.0.3">
+<tool id="nova-neutrons_trame_gpsans" nova_category="small-angle-neutron-scattering" tool_type="interactive" name="GP-SANS Data Reduction" profile="22.05" version="1.0.3">
     <description></description>
     <creator>
         <person name="Yingrui Shang"/>
