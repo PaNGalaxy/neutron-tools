@@ -1,4 +1,4 @@
-<tool id="interactive_tool_olex2" nova_category="single-crystal-diffraction" tool_type="interactive" name="Olex2 Crystallography Application" version="0.3.3" profile="22.05">
+<tool id="interactive_tool_olex2" nova_category="single-crystal-diffraction" tool_type="interactive" name="Olex2 Crystallography Application" version="0.4" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -15,6 +15,7 @@
     <environment_variables>
         <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
         <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">olex2</environment_variable>
     </environment_variables>
 
     <command><![CDATA[
