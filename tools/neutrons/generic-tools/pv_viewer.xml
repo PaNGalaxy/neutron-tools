@@ -1,7 +1,7 @@
-<tool id="pdiffvis-prototype" nova_category="powder-diffraction" tool_type="interactive"  name="PDiffVis" version="0.4.19" profile="22.01">
-    <description>PDiffVis - Powder Diffraction Visualization Tools</description>
+<tool id="nova-pvviewer-prototype" nova_category="generic" tool_type="interactive"  name="PVViewer" version="0.2.0" profile="22.01">
+    <description>PVViewer - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis/prototypes:fcd2312354e8225f3febabe439cae69c3dc74d39</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer/prototypes:e684a4f844519da0f78931a62ffa43e41bb19c50</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -13,22 +13,22 @@
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
-        <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
-        <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
     </environment_variables>
      <command><![CDATA[
-        export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_AZURE-\${OIDC_ID_TOKEN_PINGFED}} &&
+        export TRAME_STARTUP_INPUT_PATH=$input_path &&
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
-
     ]]></command>
+    <inputs>
+        <param name="input_path" type="text" optional="true" label="Startup Input File"/>
+    </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
     </outputs>
     <help><![CDATA[
-        **PDiffVis**
+        **PVViewer**
 
-        This is a Galaxy tool for PDiffVis.
+        This is a Galaxy tool for PVViewer.
 
-        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/pv_viewer
     ]]></help>
 </tool>

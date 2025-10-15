@@ -1,7 +1,7 @@
-<tool id="pvviewer-prototype" nova_category="generic" tool_type="interactive"  name="PVViewer" version="0.2.0" profile="22.01">
-    <description>PVViewer - A tool generated using the NOVA Application Template</description>
+<tool id="nova-pyrs-live-prototype" nova_category="engineering-diffraction" tool_type="interactive"  name="PyRS Live" version="0.1.0" profile="22.01">
+    <description>PyRS Live - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer/prototypes:e684a4f844519da0f78931a62ffa43e41bb19c50</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/pyrs-live:0.1.0</container>
     </requirements>
     <entry_points>
         <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -15,20 +15,17 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        export TRAME_STARTUP_INPUT_PATH=$input_path &&
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        
     ]]></command>
-    <inputs>
-        <param name="input_path" type="text" optional="true" label="Startup Input File"/>
-    </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
     </outputs>
     <help><![CDATA[
-        **PVViewer**
-
-        This is a Galaxy tool for PVViewer.
-
-        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/pv_viewer
+        **PyRS Live**
+        
+        This is a Galaxy tool for PyRS Live.
+        
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/engineering-diffraction/pyrs-live
     ]]></help>
 </tool>
