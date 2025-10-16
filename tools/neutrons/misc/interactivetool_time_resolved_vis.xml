@@ -1,4 +1,4 @@
-<tool id="nova-neutrons_trame_time_resolved_vis" tool_type="interactive" name="Time-resolved visualization" profile="22.05" version="0.5.1">
+<tool id="nova-neutrons-trame-time-resolved-vis" tool_type="interactive" name="Time-resolved visualization" profile="22.05" version="0.5.1">
     <description></description>
     <creator>
         <person name="NDIP Team"/>
