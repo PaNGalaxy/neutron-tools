@@ -1,4 +1,4 @@
-<tool id="nova-pyrs-live-prototype" nova_category="engineering-diffraction" tool_type="interactive"  name="PyRS Live" version="0.1.0" profile="22.01">
+<tool id="nova-pyrs-live-prototype" tool_type="interactive"  name="PyRS Live" version="0.1.0" profile="22.01">
     <description>PyRS Live - A tool generated using the NOVA Application Template</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/pyrs-live:0.1.0</container>
