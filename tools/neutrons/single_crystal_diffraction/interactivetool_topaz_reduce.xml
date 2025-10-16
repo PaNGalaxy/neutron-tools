@@ -1,4 +1,4 @@
-<tool id="nova-neutrons-trame-topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.15.0">
+<tool id="nova-neutrons-trame-topaz" tool_type="interactive" name="Topaz Data Reduction" profile="22.05" version="0.15.1">
     <description></description>
     <creator>
         <person name="Xiaoping Wang"/>
