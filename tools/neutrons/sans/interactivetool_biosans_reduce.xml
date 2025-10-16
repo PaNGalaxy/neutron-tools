@@ -1,4 +1,4 @@
-<tool id="nova-neutrons_trame_biosans" nova_category="small-angle-neutron-scattering" tool_type="interactive" name="Bio-SANS Data Reduction" profile="22.05" version="1.0.2">
+<tool id="nova-neutrons_trame_biosans" tool_type="interactive" name="Bio-SANS Data Reduction" profile="22.05" version="1.0.2">
     <description></description>
     <creator>
         <person name="Alan Hicks"/>
