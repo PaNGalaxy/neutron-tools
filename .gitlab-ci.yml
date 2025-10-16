@@ -49,7 +49,6 @@ push_dev_tools:
       sudo /root/update_prototype_tools.sh
       /srv/galaxy/local_tools/neutrons-dev
       /srv/galaxy/config/tool_conf_prototype.xml
-      /etc/nova_dashboard/prototype_tools.json
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       when: always
