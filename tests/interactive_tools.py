@@ -28,21 +28,21 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
 
 # Dictionary of interactive tools to test
 INTERACTIVE_TOOLS_BOTH = {
-    "interactive_tool_jana2020": None,
+    "nova-interactive-tool-jana2020": None,
     "interactive_tool_jupyter_notebook": None,
-    "neutrons_trame_topaz": None,
-    "interactive_tool_sasview": None,
-    "neutrons_reflectometry_refl1d": None,
+    "nova-neutrons-trame-topaz": None,
+    "nova-interactive-tool-sasview": None,
+    "nova-neutrons-reflectometry-refl1d": None,
     "neutrons_gravitas_sunny": None,
-    "neutrons_cp2k_gui": None
+    "nova-neutrons-cp2k-gui": None
 }
 INTERACTIVE_TOOLS_TEST = {
     "neutrons_airsans_demo": None,
     "neutrons_trame_garnet": None,
-    "interactive_tool_amira": None,
+    "nova-interactive-tool-amira": None,
     "neutrons_ctr": None,
     "neutrons_gravitas_phonopy": None,
-    "neutrons_trame_time_resolved_vis": None,
+    "nova-neutrons-trame-time-resolved-vis": None,
 }
 
 # Probably will never need to test something in prod without also testing in test but it's here just in case.
