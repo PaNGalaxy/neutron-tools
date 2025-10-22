@@ -1,10 +1,10 @@
-<tool id="nova-pdiffvis" tool_type="interactive"  name="PDiffVis" version="0.4.19" profile="22.01">
+<tool id="nova-pdiffvis" tool_type="interactive"  name="PDiffVis" version="0.4.20" profile="22.01">
     <description>PDiffVis - Powder Diffraction Visualization Tools</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis:0.4.19</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/powder-diffraction/pdiffvis:0.4.20</container>
     </requirements>
     <entry_points>
-        <entry_point name="PDiffVis" label="app_entry" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="PDiffVis" label="pdiffvis" requires_domain="False" requires_path_in_url="True">
             <port>8081</port>
         </entry_point>
     </entry_points>
@@ -12,7 +12,7 @@
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">pdiffvis</environment_variable>
         <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
         <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
     </environment_variables>
