@@ -36,7 +36,7 @@
     </inputs>
     <outputs>
         <data format="txt" name="log" label="${tool.name} on ${input.name} (log)"/>
-        <data format="txt" name="dump" label="${tool.name} on ${input.name} (${dump_fn.name})"/>
+        <data format="txt" name="dump" label="${tool.name} on ${input.name} (dump)"/>
     </outputs>
     <help><![CDATA[
         Simulates molecular dynamics trajectory using LAMMPS program.
