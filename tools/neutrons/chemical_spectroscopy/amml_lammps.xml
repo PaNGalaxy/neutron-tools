@@ -9,7 +9,7 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         ln -s $force_field $force_field_fn  &&
-        ln -s $mof_data mof.data  &&
+        ln -s $struct_data $struct_data_fn  &&
         lmp -in $input &&
         mv $dump_fn $dump &&
         mv log.lammps $log
@@ -18,17 +18,20 @@
         <param name="input" type="data" format="txt" optional="false"
             label="input script file (e.g., in.lammps)"
         />
-        <param name="force_field_input" type="data" format="txt" optional="false"
-            label="machine learning force field file (e.g., graph.pb from DeePMD)"
-        />
-        <param name="mof_data" type="data" format="txt" optional="false"
-            label="starting structure file (e.g., data.in)"
+        <param name="force_field" type="data" format="txt" optional="false"
+            label="force field file (default: 'graph.pb')"
         />
         <param name="force_field_fn" type="string" optional="true"
-            label="force field file in script" default="graph.pb"
+            label="force field filename in input script" default="graph.pb"
+        />
+        <param name="struct_data" type="data" format="txt" optional="false"
+            label="starting structure file (default: 'mof.data')"
+        />
+        <param name="struct_data_fn" type="string" optional="true"
+            label="starting structure filename in input script" default="mof.data"
         />
         <param name="dump_fn" type="string" optional="true"
-            label="output dump filename script (default: dump.2)" default="dump.2"
+            label="output dump filename in input script (default: dump.2)" default="dump.2"
         />
     </inputs>
     <outputs>
