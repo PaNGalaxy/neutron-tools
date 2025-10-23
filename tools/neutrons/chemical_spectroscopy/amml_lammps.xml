@@ -1,4 +1,4 @@
-<tool id="neutrons_amml_lammps" name="LAMMPS Simulation" profile="22.05" version="0.2.1">
+<tool id="neutrons_amml_lammps" name="LAMMPS Simulation" profile="22.05" version="0.2.2">
     <description></description>
     <creator>
         <person name="Yongqiang Cheng"/>
@@ -16,7 +16,7 @@
     ]]></command>
     <inputs>
         <param name="input" type="data" format="txt" optional="false" label="input script file (e.g., in.lammps)"/>
-        <param name="graph_pb" type="data" format="binary" optional="false"
+        <param name="graph_pb" type="data" format="txt" optional="false"
                label="machine learning force field file (e.g., graph.pb from DeePMD)"/>
         <param name="mof_data" type="data" format="txt" optional="false"
                label="starting structure file (e.g., data.in)"/>
