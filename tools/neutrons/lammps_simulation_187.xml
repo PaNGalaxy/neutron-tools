@@ -1,0 +1,51 @@
+<tool id="neutrons_amml_lammps_new" name="LAMMPS Simulation" profile="22.05" version="0.2.2">
+    <description></description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker">ghcr.io/deepmodeling/deepmd-kit:2.2.1_cuda11.6_gpu</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s $force_field $force_field_fn  &&
+        ln -s $struct_data $struct_data_fn  &&
+        lmp -in $input &&
+        mv $dump_fn $dump &&
+        mv log.lammps $log
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" optional="false"
+            label="input script file (e.g., in.lammps)"
+        />
+        <param name="force_field" type="data" format="txt" optional="false"
+            label="force field file (default: 'graph.pb')"
+        />
+        <param name="force_field_fn" type="string" optional="true"
+            label="force field filename in input script" default="graph.pb"
+        />
+        <param name="struct_data" type="data" format="txt" optional="false"
+            label="starting structure file (default: 'mof.data')"
+        />
+        <param name="struct_data_fn" type="string" optional="true"
+            label="starting structure filename in input script" default="mof.data"
+        />
+        <param name="dump_fn" type="string" optional="true"
+            label="output dump filename in input script (default: dump.2)" default="dump.2"
+        />
+    </inputs>
+    <outputs>
+        <data format="txt" name="log" label="${tool.name} on ${input.name} (log)"/>
+        <data format="txt" name="dump" label="${tool.name} on ${input.name} (${dump_fn.name})"/>
+    </outputs>
+    <help><![CDATA[
+        Simulates molecular dynamics trajectory using LAMMPS program.
+
+        To use the MD trajectory for subsequent INS simulations, the following format is required (where A B C are the element symbols):
+
+        dump 1 all custom 1 lammps.dump id element x y z
+
+        dump_modify 1 element A B C
+    ]]></help>
+</tool>
+
