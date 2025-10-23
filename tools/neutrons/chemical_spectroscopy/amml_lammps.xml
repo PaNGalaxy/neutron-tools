@@ -11,7 +11,7 @@
         ln -s $force_field $force_field_fn  &&
         ln -s $mof_data mof.data  &&
         lmp -in $input &&
-        mv dump.2 $dump &&
+        mv $dump_fn $dump &&
         mv log.lammps $log
     ]]></command>
     <inputs>
@@ -27,10 +27,13 @@
         <param name="force_field_fn" type="string" optional="true"
             label="force field file in script" default="graph.pb"
         />
+        <param name="dump_fn" type="string" optional="true"
+            label="output dump filename script (default: dump.2)" default="dump.2"
+        />
     </inputs>
     <outputs>
         <data format="txt" name="log" label="${tool.name} on ${input.name} (log)"/>
-        <data format="txt" name="dump" label="${tool.name} on ${input.name} (dump.2)"/>
+        <data format="txt" name="dump" label="${tool.name} on ${input.name} (${dump_fn.name})"/>
     </outputs>
     <help><![CDATA[
         Simulates molecular dynamics trajectory using LAMMPS program.
