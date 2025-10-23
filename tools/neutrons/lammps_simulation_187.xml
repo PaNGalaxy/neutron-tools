@@ -1,4 +1,4 @@
-<tool id="neutrons_amml_lammps_new" name="LAMMPS Simulation" profile="22.05" version="0.2.2">
+<tool id="neutrons_amml_lammps_new" name="LAMMPS Simulation - new prototype" profile="22.05" version="0.2.2">
     <description></description>
     <creator>
         <person name="Yongqiang Cheng"/>
