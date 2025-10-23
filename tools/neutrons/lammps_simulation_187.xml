@@ -21,16 +21,16 @@
         <param name="force_field" type="data" format="txt" optional="false"
             label="force field file (default: 'graph.pb')"
         />
-        <param name="force_field_fn" type="string" optional="true"
+        <param name="force_field_fn" type="text" optional="true"
             label="force field filename in input script" default="graph.pb"
         />
         <param name="struct_data" type="data" format="txt" optional="false"
             label="starting structure file (default: 'mof.data')"
         />
-        <param name="struct_data_fn" type="string" optional="true"
+        <param name="struct_data_fn" type="text" optional="true"
             label="starting structure filename in input script" default="mof.data"
         />
-        <param name="dump_fn" type="string" optional="true"
+        <param name="dump_fn" type="text" optional="true"
             label="output dump filename in input script (default: dump.2)" default="dump.2"
         />
     </inputs>
