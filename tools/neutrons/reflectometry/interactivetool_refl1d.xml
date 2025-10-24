@@ -1,4 +1,4 @@
-<tool id="neutrons_reflectometry_refl1d" nova_category="reflectometry" tool_type="interactive" name="Refl1D" profile="22.05" version="0.1.1">
+<tool id="nova-neutrons-reflectometry-refl1d" tool_type="interactive" name="Refl1D" profile="22.05" version="0.1.1">
     <description></description>
     <creator>
         <person name="Mathieu Doucet"/>

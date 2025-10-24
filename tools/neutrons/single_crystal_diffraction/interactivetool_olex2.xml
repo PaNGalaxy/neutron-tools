@@ -1,37 +1,29 @@
-<tool id="nova-interactive-tool-jana2020" tool_type="interactive" name="Jana2020 Visualizer" version="0.18" profile="22.05">
+<tool id="nova-interactive-tool-olex2" tool_type="interactive" name="Olex2 Crystallography Application" version="0.8" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/jana2020:0.18
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.8
         </container>
     </requirements>
     <entry_points>
-        <entry_point name="Jana2020 Visualizer" label="janatool" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="Olex2" label="olex2" requires_domain="False" requires_path_in_url="True">
             <port>8080</port>
         </entry_point>
     </entry_points>
     <environment_variables>
-        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
-        <environment_variable name="GALAXY_API_KEY" inject="api_key" />
         <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
         <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">janatool</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">olex2</environment_variable>
     </environment_variables>
 
     <command><![CDATA[
         echo "Notebook produced no output" > $output_single &&
         export GALAXY_WORKING_DIR=`pwd` &&
-        /setup.sh \$GALAXY_TOOL_USER &&
         #if $directory:
             #set $dirname = os.path.basename(str($directory).rstrip('/'))
             ln -s ${directory} /home/novnc_user/data/${dirname} &&
-            ln -s ${directory} /home/novnc_user/Downloads &&
-        #end if
-        #if $cif_file:
-            #set $name = os.path.basename(str($cif_file.element_identifier))
-            su novnc_user -c "cp '${cif_file}' '/home/novnc_user/${name}'" &&
         #end if
         /start.sh \$GALAXY_TOOL_USER
         ]]>
@@ -40,12 +32,11 @@
         <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
         <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
         <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
-        <param name="cif_file" type="data" optional="true" label="Input CIF file"/>
     </inputs>
     <outputs>
-        <data name="output_single" auto_format="true" label="Jana2020 Console Output"></data>
+        <data name="output_single" auto_format="true" label="Olex2 Console Output"></data>
     </outputs>
     <help><![CDATA[
-        Starts the interactive Jana2020 Crystallographic Computing System for Standard and Modulated Structures Software.
+        Starts the interactive Olex2 Crystallographic Software.
     ]]></help>
 </tool>
