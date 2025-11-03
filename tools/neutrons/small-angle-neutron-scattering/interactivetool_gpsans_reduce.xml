@@ -1,11 +1,11 @@
-<tool id="nova-neutrons-trame-gpsans-prototype" tool_type="interactive" name="GP-SANS Data Reduction" profile="22.05" version="1.1.0-dev1">
+<tool id="nova-neutrons-trame-gpsans-prototype" tool_type="interactive" name="GP-SANS Data Reduction" profile="22.05" version="1.1.1-dev1">
     <description></description>
     <creator>
         <person name="Yingrui Shang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-reduction-gui/gpsans:1.1.0-dev1
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-reduction-gui/gpsans:1.1.1-dev0
         </container>
     </requirements>
     <entry_points>
