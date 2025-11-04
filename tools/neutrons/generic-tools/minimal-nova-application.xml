@@ -3,7 +3,7 @@
 
     <description>Minimal NOVA Application - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/minimal-nova-application/prototypes:ded193dbc8a7a492631a7692dd21367373795e3c</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/minimal-nova-application/prototypes:9cb10a6ed9f9239aba4a0160b83a2cc24716835c</container>
     </requirements>
     <entry_points>
         <entry_point name="Minimal NOVA Application" label="app_entry" requires_domain="False" requires_path_in_url="True">
