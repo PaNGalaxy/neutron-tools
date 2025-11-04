@@ -1,0 +1,33 @@
+
+<tool id="nova-minimal-nova-application-prototype" tool_type="interactive" name="Minimal NOVA Application" version="0.1.0" profile="22.01">
+
+    <description>Minimal NOVA Application - A tool generated using the NOVA Application Template</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/minimal-nova-application/prototypes:ded193dbc8a7a492631a7692dd21367373795e3c</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Minimal NOVA Application" label="app_entry" requires_domain="False" requires_path_in_url="True">
+            <port>8081</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
+    </environment_variables>
+     <command><![CDATA[
+        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+    </outputs>
+    <help><![CDATA[
+        **Minimal NOVA Application**
+
+        This is a Galaxy tool for Minimal NOVA Application.
+
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/minimal-nova-application
+    ]]></help>
+</tool>
