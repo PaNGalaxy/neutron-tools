@@ -37,8 +37,8 @@ service-build:
 testing:
   stage: test
   variables:
-    ENVIRONMENT: "calvera-test"
-    GALAXY_URL: "https://calvera-test.ornl.gov"
+    ENVIRONMENT: "ndip-test"
+    GALAXY_URL: "https://ndip-test.ornl.gov"
     API_KEY: $CALVERA_TEST_API_KEY
     ADMIN_KEY: $CALVERA_TEST_ADMIN_KEY
   script:
@@ -88,8 +88,8 @@ testing:
       when: always
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        ENVIRONMENT: "calvera"
-        GALAXY_URL: "https://calvera.ornl.gov"
+        ENVIRONMENT: "ndip"
+        GALAXY_URL: "https://ndip.ornl.gov"
         API_KEY: $CALVERA_API_KEY
         ADMIN_KEY: $CALVERA_ADMIN_KEY
       when: always
@@ -98,8 +98,8 @@ testing:
 interactive-tools-testing:
   stage: test
   variables:
-    ENVIRONMENT: "calvera-test"
-    GALAXY_URL: "https://calvera-test.ornl.gov"
+    ENVIRONMENT: "ndip-test"
+    GALAXY_URL: "https://ndip-test.ornl.gov"
     API_KEY: $ANDREW_API_KEY
   script:
     - >
@@ -129,8 +129,8 @@ interactive-tools-testing:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        ENVIRONMENT: "calvera"
-        GALAXY_URL: "https://calvera.ornl.gov"
+        ENVIRONMENT: "ndip"
+        GALAXY_URL: "https://ndip.ornl.gov"
         API_KEY: $ANDREW_API_KEY_PROD
       when: always
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
