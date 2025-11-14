@@ -50,9 +50,9 @@ INTERACTIVE_TOOLS_PROD = {
 
 }
 
-if os.environ.get("ENVIRONMENT") == "calvera-test":
+if os.environ.get("ENVIRONMENT") == "ndip-test":
     INTERACTIVE_TOOLS_BOTH.update(INTERACTIVE_TOOLS_TEST)
-elif os.environ.get("ENVIRONMENT") == "calvera":
+elif os.environ.get("ENVIRONMENT") == "ndip":
     INTERACTIVE_TOOLS_BOTH.update(INTERACTIVE_TOOLS_PROD)
 
 # Create a test function for each interactive tool
