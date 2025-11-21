@@ -1,4 +1,4 @@
-<tool id="nova-neutrons-trame-ctscan" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="1.0.1">
+<tool id="nova-neutrons-trame-ctscan" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="1.2.0">
     <description></description>
     <creator>
         <person name="Jean Belheux" />
@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <resource type="cuda_device_count_min">1</resource>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ct-scan-visualizer:1.0.1
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ct-scan-visualizer:1.2.0
         </container>
     </requirements>
     <entry_points>
