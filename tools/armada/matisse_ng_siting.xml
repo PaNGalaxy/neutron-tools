@@ -1,5 +1,5 @@
 <tool id="matisse_ng_siting" name="Natural Gas Siting Analysis"  profile="22.05" version="0.1.0">
-    <description>Runs the MATISSE Natural Gas Siting Analysis script with data from CKAN.</description>
+    <description>MATISSE Natural Gas Siting Analysis</description>
     <creator>
         <person name="Bhartendu Pandey" />
         <organization url="https://www.ornl.gov/" name="ORNL" />
