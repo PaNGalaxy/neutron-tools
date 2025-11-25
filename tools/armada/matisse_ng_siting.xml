@@ -1,0 +1,29 @@
+<tool id="matisse_ng_siting" name="Natural Gas Siting Analysis"  profile="22.05" version="0.1.0">
+    <description>Runs the MATISSE Natural Gas Siting Analysis script with data from CKAN.</description>
+    <creator>
+        <person name="Bhartendu Pandey" />
+        <organization url="https://www.ornl.gov/" name="ORNL" />
+    </creator>
+    <requirements>
+        <container type="docker">savannah.ornl.gov/armada/tool-sources/matisse/ng-siting:0.1.0</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        uv run src/NGClust_Evaluationv2.py $depsch_file $clustdist_file $ng_file $usstructures_file $ng_tea_single_file $ng_tea_cluster_file $ng_tea_cluster_sweep_file &&
+        mv output.gpkg $output
+    ]]></command>
+    <inputs>
+        <param name="depsch_file" type="text" optional="false" label="Time-dependent Assumptions *.xlsx" help="Must be a CKAN resource ID" />
+        <param name="clustdist_file" type="text" optional="false" label="Cluster Distribution *.xlsx" help="Must be a CKAN resource ID" />
+        <param name="ng_file" type="text" optional="false" label="NG Polygons *.shp" help="Must be a CKAN resource ID" />
+        <param name="usstructures_file" type="text" optional="false" label="US Structures *.gpkg" help="Must be a CKAN resource ID" />
+        <param name="ng_tea_single_file" type="text" optional="false" label="NG All-points *.csv" help="Must be a CKAN resource ID" />
+        <param name="ng_tea_cluster_file" type="text" optional="false" label="NG points *.csv" help="Must be a CKAN resource ID" />
+        <param name="ng_tea_cluster_sweep_file" type="text" optional="false" label="NG sweep *.csv" help="Must be a CKAN resource ID" />
+    </inputs>
+    <outputs>
+        <data name="output" format="binary" label="Natural Gas Levelized Cost of Energy"></data>
+    </outputs>
+    <help><![CDATA[
+        Runs the MATISSE Natural Gas Siting Analysis script. All inputs must be specified as CKAN resource IDs.
+    ]]></help>
+</tool>
