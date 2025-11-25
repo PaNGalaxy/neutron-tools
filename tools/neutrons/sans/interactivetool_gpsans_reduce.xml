@@ -19,8 +19,11 @@
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gpsans</environment_variable>
         <environment_variable name="INSTRUMENT">gpsans</environment_variable>
+        <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
+        <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
+        export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_AZURE-\${OIDC_ID_TOKEN_PINGFED}} &&
         #if $config:
             export CONFIG=$config &&
         #end if
