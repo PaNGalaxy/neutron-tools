@@ -3,7 +3,7 @@
 
     <description>CrystalPilot - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/crystalpilot-prototype:0ba4c32de6fc9bd99dd89315003b7fb42da3be70</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/crystalpilot-prototype:517a0d4b2867845275ea6638069a986519d7655b</container>
     </requirements>
     <entry_points>
         <entry_point name="CrystalPilot" label="app_entry" requires_domain="False" requires_path_in_url="True">
