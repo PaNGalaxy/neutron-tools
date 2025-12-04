@@ -15,8 +15,6 @@
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key" />
-        <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
-        <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">janatool</environment_variable>
     </environment_variables>
 
@@ -25,20 +23,16 @@
         export GALAXY_WORKING_DIR=`pwd` &&
         /setup.sh \$GALAXY_TOOL_USER &&
         #if $directory:
-            #set $dirname = os.path.basename(str($directory).rstrip('/'))
-            ln -s ${directory} /home/novnc_user/data/${dirname} &&
-            ln -s ${directory} /home/novnc_user/Downloads &&
+            export DEFAULT_DIR=$directory &&
         #end if
         #if $cif_file:
-            #set $name = os.path.basename(str($cif_file.element_identifier))
-            su novnc_user -c "cp '${cif_file}' '/home/novnc_user/${name}'" &&
+            #set $dirname = os.path.dirname(str($cif_file.element_identifier))
+            export DEFAULT_DIR=$dirname &&
         #end if
         /start.sh \$GALAXY_TOOL_USER
         ]]>
     </command>
     <inputs>
-        <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
-        <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
         <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
         <param name="cif_file" type="data" optional="true" label="Input CIF file"/>
     </inputs>
