@@ -21,14 +21,14 @@
     <command><![CDATA[
         echo "Notebook produced no output" > $output_single &&
         export GALAXY_WORKING_DIR=`pwd` &&
-        /setup.sh \$GALAXY_TOOL_USER &&
         #if $directory:
             export DEFAULT_DIR=$directory &&
         #end if
         #if $cif_file:
-            #set $dirname = os.path.dirname(str($cif_file.element_identifier))
-            export DEFAULT_DIR=$dirname &&
+            #set $name = os.path.basename(str($cif_file.element_identifier))
+            su novnc_user -c "cp '${cif_file}' '/SNS/users/\$GALAXY_TOOL_USER/${name}'" &&
         #end if
+        /setup.sh \$GALAXY_TOOL_USER &&
         /start.sh \$GALAXY_TOOL_USER
         ]]>
     </command>
