@@ -7,7 +7,8 @@
         mkdir .ckan &&
         ln -s $config_file /src/config.json &&
         python -m matisse_ng_siting /src/config.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        mv .ckan/output $output_file
+        mv .ckan/output $points_sweep &&
+        mv .ckan/output2 $nglcoe
     ]]></command>
     <inputs>
         <param name="ckan_url" type="text" optional="false" label="CKAN URL" />
@@ -16,7 +17,8 @@
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
-        <data format="gpkg" name="output_file" label="Output GeoPackage"></data>
+        <data format="gpkg" name="points_sweep" label="NG Points Sweep Results"></data>
+        <data format="gpkg" name="nglcoe" label="NGLCOE 21GW"></data>
     </outputs>
     <help><![CDATA[
         **MATISSE Natural Gas Siting**
