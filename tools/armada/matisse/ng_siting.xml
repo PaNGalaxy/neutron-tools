@@ -1,0 +1,38 @@
+<tool id="matisse-ng-siting" name="Natural Gas Siting Analysis" version="0.1.0" profile="22.01">
+    <description>Python script for running MATISSE's natural gas siting analysis on data from CKAN.</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng-siting:0.1.0</container>
+    </requirements>
+     <command><![CDATA[
+        mkdir .ckan &&
+        ln -s $config_file /src/config.json &&
+        python -m matisse_ng_siting /src/config.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        mv .ckan/output $output_file
+    ]]></command>
+    <inputs>
+        <param name="ckan_url" type="text" optional="false" label="CKAN URL" />
+        <param name="ckan_api_key" type="text" optional="false" label="CKAN API Key" />
+        <param name="config_file" type="data" format="json" optional="false" label="Configuration File" />
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+        <data format="gpkg" name="output_file" label="Output GeoPackage"></data>
+    </outputs>
+    <help><![CDATA[
+        **MATISSE Natural Gas Siting**
+
+        This tool requires a JSON configuration file with the following structure::
+
+            {
+                "depsch_file": "x",
+                "clustdist_file": "x",
+                "ng_file": "x",
+                "usstructures_file": "x",
+                "ng_tea_single_file": "x",
+                "ng_tea_cluster_file": "x",
+                "ng_tea_cluster_sweep": "x"
+            }
+
+        Each "x" value should be replaced by a CKAN resource ID that contains the file you wish the tool to use.
+    ]]></help>
+</tool>
