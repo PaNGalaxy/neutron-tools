@@ -21,8 +21,8 @@
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
-        <data format="binary" name="points_sweep" label="NG Points Sweep Results"></data>
-        <data format="binary" name="nglcoe" label="NGLCOE 21GW"></data>
+        <data format="zip" name="points_sweep" label="NG Points Sweep Results"></data>
+        <data format="zip" name="nglcoe" label="NGLCOE 21GW"></data>
     </outputs>
     <help><![CDATA[
         **MATISSE Natural Gas Siting**
