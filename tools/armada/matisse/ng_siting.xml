@@ -3,9 +3,11 @@
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:0.1.0</container>
     </requirements>
-    <environment_variable name="CKAN_URL">$ckan_url</environment_variable>
-    <environment_variable name="CKAN_API_KEY">$ckan_api_key</environment_variable>
-     <command><![CDATA[
+    <environment_variables>
+        <environment_variable name="CKAN_URL">$ckan_url</environment_variable>
+        <environment_variable name="CKAN_API_KEY">$ckan_api_key</environment_variable>
+    </environment_variables>
+    <command><![CDATA[
         mkdir .ckan &&
         ln -s $config_file /src/config.json &&
         python -m matisse_ng_siting /src/config.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
