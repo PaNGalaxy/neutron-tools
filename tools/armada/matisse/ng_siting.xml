@@ -11,8 +11,8 @@
         mkdir .ckan &&
         ln -s $config_file /src/config.json &&
         python -m matisse_ng_siting /src/config.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        zip -r .ckan/output.zip .ckan/output && mv .ckan/output.zip $points_sweep &&
-        zip -r .ckan/output2.zip .ckan/output2 && mv .ckan/output2.zip $nglcoe
+        zip -r ng_points_sweep_results.zip ng_points_sweep_results && mv ng_points_sweep_results.zip $points_sweep &&
+        zip -r nglcoe_21gw.zip nglcoe_21gw && mv nglcoe_21gw.zip $nglcoe
     ]]></command>
     <inputs>
         <param name="ckan_url" type="text" optional="false" label="CKAN URL" />
