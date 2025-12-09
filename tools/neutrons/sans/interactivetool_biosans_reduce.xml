@@ -1,11 +1,11 @@
-<tool id="nova-neutrons-trame-biosans" tool_type="interactive" name="Bio-SANS Data Reduction" profile="22.05" version="1.0.2">
+<tool id="nova-neutrons-trame-biosans" tool_type="interactive" name="Bio-SANS Data Reduction" profile="22.05" version="1.2.0">
     <description></description>
     <creator>
         <person name="Alan Hicks"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-reduction-gui/biosans:1.0.2
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-reduction-gui/biosans:1.2.0
         </container>
     </requirements>
     <entry_points>
@@ -19,8 +19,11 @@
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">biosans</environment_variable>
         <environment_variable name="INSTRUMENT">biosans</environment_variable>
+        <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
+        <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
+        export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_AZURE-\${OIDC_ID_TOKEN_PINGFED}} &&
         #if $config:
             export CONFIG=$config &&
         #end if
