@@ -1,6 +1,6 @@
 <tool id="nova-interactive-tool-amira" tool_type="interactive" name="Amira Visualizer" version="0.1.0" profile="22.05">
     <creator>
-        <person name="Jean Belheux"/>
+        <person name="Jean Bilheux"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>

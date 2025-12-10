@@ -1,7 +1,7 @@
 <tool id="nova-neutrons-trame-ctscan" tool_type="interactive" name="CT Scan Visualizer" profile="22.05" version="1.2.0">
     <description></description>
     <creator>
-        <person name="Jean Belheux" />
+        <person name="Jean Bilheux" />
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
