@@ -1,20 +1,21 @@
-<tool d="armada-ckan" name="Ingest CKAN Resource" version="0.1.0" profile="22.05">
+<tool id="ingest-ckan" name="Ingest CKAN Resource" version="0.1.0" profile="22.05">
     <description>Turns a CKAN resource ID into a file usable in Galaxy.</description>
     <creator>
         <person name="John Duggan"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/armada/ingest_ckan:0.1.0</container>
+        <container type="docker">savannah.ornl.gov/armada/ckan_utils:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python /src/ingest.py $input $output
+        python /src/src/ingest.py $resource_id $output_file > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="input" type="text" label="CKAN Resource ID" />
+        <param name="resource_id" type="text" label="CKAN Resource ID" />
     </inputs>
     <outputs>
-        <data name="output" label="Galaxy file" />
+        <data format="txt" name="output" label="Console output"></data>
+        <data name="output_file" label="Galaxy file" />
     </outputs>
     <help><![CDATA[
         Registers CKAN resources in Galaxy.
