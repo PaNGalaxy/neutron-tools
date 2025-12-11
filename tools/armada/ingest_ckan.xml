@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker">savannah.ornl.gov/armada/ckan_utils:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/ckan_utils:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python -m ckan_utils.ingest $resource_id $output_file > >(tee -a $output) 2> >(tee -a $output >&2)
