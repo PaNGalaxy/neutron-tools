@@ -16,7 +16,7 @@
         <param name="format" type="text" optional="" default="" label="CKAN Resource Format" />
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="Console output"></data>
+        <data format="txt" name="output" label="CKAN Export"></data>
     </outputs>
     <help><![CDATA[
         Exports a Galaxy file to CKAN.

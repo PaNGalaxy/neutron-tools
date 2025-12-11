@@ -14,7 +14,7 @@
         <param name="resource_id" type="text" label="CKAN Resource ID" />
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="Console output"></data>
+        <data format="txt" name="output" label="CKAN Ingest"></data>
         <data name="output_file" label="Galaxy file" />
     </outputs>
     <help><![CDATA[
