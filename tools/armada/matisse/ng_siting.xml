@@ -5,7 +5,6 @@
     </requirements>
     <command><![CDATA[
         mkdir .ckan &&
-        ln -s $config_file /src/config.json &&
         python -m matisse_ng_siting
             $depsch_file
             $clustdist_file
@@ -34,19 +33,5 @@
     </outputs>
     <help><![CDATA[
         **MATISSE Natural Gas Siting**
-
-        This tool requires a JSON configuration file with the following structure::
-
-            {
-                "depsch_file": "x",
-                "clustdist_file": "x",
-                "ng_file": "x",
-                "usstructures_file": "x",
-                "ng_tea_single_file": "x",
-                "ng_tea_cluster_file": "x",
-                "ng_tea_cluster_sweep": "x"
-            }
-
-        Each "x" value should be replaced by a CKAN resource ID that contains the file you wish the tool to use.
     ]]></help>
 </tool>
