@@ -8,7 +8,7 @@
         <container type="docker">savannah.ornl.gov/armada/ckan_utils:0.1.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python /src/src/export.py $input_file $dataset > >(tee -a $output) 2> >(tee -a $output >&2)
+        python /src/src/ckan_utils/export.py $input_file $dataset > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="input_file" type="data" label="File to Export" />
