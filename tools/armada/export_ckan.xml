@@ -14,7 +14,7 @@
         <param name="input_file" type="data" optional="false" label="File to Export" />
         <param name="dataset" type="text" optional="false" label="CKAN Dataset ID" />
         <param name="name" type="text" optional="false" label="CKAN Resource Name" />
-        <param name="format" type="text" optional="" default="" label="CKAN Resource Format" />
+        <param name="format" type="text" optional="true" default="" label="CKAN Resource Format" />
     </inputs>
     <outputs>
         <data format="txt" name="output" label="CKAN Export"></data>

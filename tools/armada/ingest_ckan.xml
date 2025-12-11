@@ -11,7 +11,7 @@
         python -m ckan_utils.ingest $resource_id $output_file > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="resource_id" type="text" label="CKAN Resource ID" />
+        <param name="resource_id" type="text" optional="false" label="CKAN Resource ID" />
     </inputs>
     <outputs>
         <data format="txt" name="output" label="CKAN Ingest"></data>
