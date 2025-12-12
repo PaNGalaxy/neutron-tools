@@ -1,38 +1,37 @@
 <tool id="matisse-ng-siting" name="Natural Gas Siting Analysis" version="0.1.0" profile="22.01">
     <description>Python script for running MATISSE's natural gas siting analysis on data from CKAN.</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng-siting:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:0.1.0</container>
     </requirements>
-     <command><![CDATA[
+    <command><![CDATA[
         mkdir .ckan &&
-        ln -s $config_file /src/config.json &&
-        python -m matisse_ng_siting /src/config.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        mv .ckan/output $output_file
+        python -m matisse_ng_siting
+            $depsch_file
+            $clustdist_file
+            $ng_file
+            $usstructures_file
+            $ng_tea_single_file
+            $ng_tea_cluster_file
+            $ng_tea_cluster_sweep
+            > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        zip -r ng_points_sweep_results.zip ng_points_sweep_results && mv ng_points_sweep_results.zip $points_sweep &&
+        zip -r nglcoe_21gw.zip nglcoe_21gw && mv nglcoe_21gw.zip $nglcoe
     ]]></command>
     <inputs>
-        <param name="ckan_url" type="text" optional="false" label="CKAN URL" />
-        <param name="ckan_api_key" type="text" optional="false" label="CKAN API Key" />
-        <param name="config_file" type="data" format="json" optional="false" label="Configuration File" />
+        <param name="depsch_file" type="data" optional="false" label="Time-dependent Assumptions" />
+        <param name="clustdist_file" type="data" optional="false" label="Cluster Distribution" />
+        <param name="ng_file" type="data" optional="false" label="Natural Gas Sites" />
+        <param name="usstructures_file" type="data" optional="false" label="US Structures" />
+        <param name="ng_tea_single_file" type="data" optional="false" label="Techno-economic Analysis (Single)" />
+        <param name="ng_tea_cluster_file" type="data" optional="false" label="Techno-economic Analysis (Cluster)" />
+        <param name="ng_tea_cluster_sweep" type="data" optional="false" label="Techno-economic Analysis (Sweep)" />
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
-        <data format="gpkg" name="output_file" label="Output GeoPackage"></data>
+        <data format="zip" name="points_sweep" label="NG Points Sweep Results"></data>
+        <data format="zip" name="nglcoe" label="NGLCOE 21GW"></data>
     </outputs>
     <help><![CDATA[
         **MATISSE Natural Gas Siting**
-
-        This tool requires a JSON configuration file with the following structure::
-
-            {
-                "depsch_file": "x",
-                "clustdist_file": "x",
-                "ng_file": "x",
-                "usstructures_file": "x",
-                "ng_tea_single_file": "x",
-                "ng_tea_cluster_file": "x",
-                "ng_tea_cluster_sweep": "x"
-            }
-
-        Each "x" value should be replaced by a CKAN resource ID that contains the file you wish the tool to use.
     ]]></help>
 </tool>
