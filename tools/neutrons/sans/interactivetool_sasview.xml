@@ -1,10 +1,10 @@
-<tool id="nova-interactive-tool-sasview" tool_type="interactive" name="SASView" version="0.1.0" profile="22.05">
+<tool id="nova-interactive-tool-sasview" tool_type="interactive" name="SASView" version="0.4.0" profile="22.05">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sas-view:0.3.1</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sas-view:0.4.0</container>
     </requirements>
     <entry_points>
         <entry_point name="SASView" label="sasview" requires_domain="False" requries_path_in_url="True">
