@@ -12,8 +12,6 @@
         </entry_point>
     </entry_points>
     <environment_variables>
-        <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
-        <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">amiratool</environment_variable>
     </environment_variables>
     <command><![CDATA[
@@ -30,8 +28,6 @@
         ]]>
     </command>
     <inputs>
-        <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
-        <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
         <repeat name="datasets" title="Datasets">
             <param name="input" type="data" label="Dataset"/>
         </repeat>
