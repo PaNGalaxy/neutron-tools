@@ -1,4 +1,4 @@
-<tool id="nova-interactive-tool-olex2" tool_type="interactive" name="Olex2 Crystallography Application" version="0.11" profile="22.05">
+<tool id="nova-interactive-tool-olex2" tool_type="interactive" name="Olex2 Crystallography Application" version="1.5" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>

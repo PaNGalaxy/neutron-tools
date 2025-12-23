@@ -1,7 +1,7 @@
-<tool id="nova-neutrons-cp2k-gui" tool_type="interactive"  name="CP2K GUI" version="0.5.0" profile="22.01">
+<tool id="nova-neutrons-cp2k-gui" tool_type="interactive"  name="CP2K GUI" version="0.6.0" profile="22.01">
     <description>CP2K GUI - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/cp2k-gui:0.5.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/cp2k-gui:0.6.0</container>
     </requirements>
     <entry_points>
         <entry_point name="CP2K GUI" label="app_entry" requires_domain="False" requires_path_in_url="True">
