@@ -1,10 +1,10 @@
-<tool id="nova-interactive-tool-olex2" tool_type="interactive" name="Olex2 Crystallography Application" version="0.9" profile="22.05">
+<tool id="nova-interactive-tool-olex2" tool_type="interactive" name="Olex2 Crystallography Application" version="1.5" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.9
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.11
         </container>
     </requirements>
     <entry_points>
@@ -13,8 +13,6 @@
         </entry_point>
     </entry_points>
     <environment_variables>
-        <environment_variable name="X_RESOLUTION">$X_RESOLUTION</environment_variable>
-        <environment_variable name="Y_RESOLUTION">$Y_RESOLUTION</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">olex2</environment_variable>
     </environment_variables>
 
@@ -29,8 +27,6 @@
         ]]>
     </command>
     <inputs>
-        <param name="X_RESOLUTION" type="integer" optional="false" value="1920" label="Resolution for X dimension"/>
-        <param name="Y_RESOLUTION" type="integer" optional="false" value="1080" label="Resolution for Y dimension"/>
         <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
     </inputs>
     <outputs>
