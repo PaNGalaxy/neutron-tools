@@ -1,4 +1,4 @@
-<tool id="nova-interactive-tool-sasview" tool_type="interactive" name="SASView" version="0.4.0" profile="22.05">
+<tool id="nova-interactive-tool-sasview" tool_type="interactive" name="SASView" version="6.1.2" profile="22.05">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
