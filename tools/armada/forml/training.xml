@@ -10,7 +10,7 @@
         <param name="rasters" type="data" optional="false" label="NLCD Rasters" />
         <param name="shapefile" type="data" optional="false" label="Counties Shapefile" />
         <param name="forseam_data" type="data" optional="false" label="ForSEAM CSV Data" />
-        <param name="fips_code" type="text" optional="false" default="47" label="FIPS Code" />
+        <param name="fips_code" type="text" optional="true" default="47" label="FIPS Code" />
     </inputs>
     <outputs>
     </outputs>
