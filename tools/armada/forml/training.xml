@@ -1,0 +1,20 @@
+<tool id="forml-training" name="Training" version="0.1.0" profile="22.01">
+    <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/forml/training:0.1.0</container>
+    </requirements>
+    <command><![CDATA[
+        tail -f /dev/null
+    ]]></command>
+    <inputs>
+        <param name="rasters" type="data" optional="false" label="NLCD Rasters" />
+        <param name="shapefile" type="data" optional="false" label="Counties Shapefile" />
+        <param name="forseam_data" type="data" optional="false" label="ForSEAM CSV Data" />
+        <param name="fips_code" type="text" optional="false" default="47" label="FIPS Code" />
+    </inputs>
+    <outputs>
+    </outputs>
+    <help><![CDATA[
+        **Uses k-Nearest Neighbors to train the ForML model based on NLCD and ForSEAM data.**
+    ]]></help>
+</tool>
