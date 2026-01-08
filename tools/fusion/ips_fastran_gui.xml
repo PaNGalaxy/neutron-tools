@@ -4,7 +4,7 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/ips-fastran-gui:0.3.2</container>
     </requirements>
     <entry_points>
-        <entry_point name="app entry" label="app_entry" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="IPS Fastran GUI" label="app_entry" requires_domain="False" requires_path_in_url="True">
             <port>8081</port>
         </entry_point>
     </entry_points>
