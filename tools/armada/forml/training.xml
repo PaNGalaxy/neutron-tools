@@ -7,14 +7,13 @@
         tail -f /dev/null
     ]]></command>
     <inputs>
-        <param name="rasters" type="data" optional="false" label="NLCD Rasters" />
-        <param name="shapefile" type="data" optional="false" label="Counties Shapefile" />
-        <param name="forseam_data" type="data" optional="false" label="ForSEAM CSV Data" />
-        <param name="fips_code" type="text" optional="true" default="47" label="FIPS Code" />
+        <param name="nlcd_raster" type="data" format="tiff" optional="false" label="NLCD Raster" />
+        <param name="forseam_data" type="data" format="csv" optional="false" label="ForSEAM CSV" />
     </inputs>
     <outputs>
+        <data format="binary" name="output_model" label="Trained Model" />
     </outputs>
     <help><![CDATA[
-        **Uses k-Nearest Neighbors to train the ForML model based on NLCD and ForSEAM data.**
+        Training stage of ForML. Intended to be used as a step in a workflow, but it can be run independently for testing.
     ]]></help>
 </tool>

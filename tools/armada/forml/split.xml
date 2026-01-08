@@ -1,0 +1,28 @@
+<tool id="forml-split" name="Split Data" version="0.1.0" profile="22.01">
+    <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/forml/split:0.1.0</container>
+    </requirements>
+    <command><![CDATA[
+        tail -f /dev/null
+    ]]></command>
+    <inputs>
+        <param name="rasters" type="data" optional="false" label="Zip containing the NLCD rasters" />
+        <param name="counties_shapefile" type="data" optional="false" label="Zip containing the shapefile with county geometries for the target area" />
+        <param name="forseam_data" type="data" optional="false" label="Zip containing the ForSEAM data" />
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_rasters" label="Raster Subsets">
+            <discover_datasets format="tiff" pattern="__designation_and_ext__" directory="rasters" />
+        </collection>
+        <collection type="list" name="output_geometries" label="County Geometries">
+            <discover_datasets format="zip" pattern="__designation_and_ext__" directory="geometries" />
+        </collection>
+        <collection type="list" name="output_forseam_data" label="ForSEAM Subsets">
+            <discover_datasets format="csv" pattern="__designation_and_ext__" directory="forseam" />
+        </collection>
+    </outputs>
+    <help><![CDATA[
+        Splits the rasters into counties/years to be processed separately in the rest of the ForML workflow.
+    ]]></help>
+</tool>

@@ -1,0 +1,20 @@
+<tool id="forml-prediction" name="Prediction" version="0.1.0" profile="22.01">
+    <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/forml/prediction:0.1.0</container>
+    </requirements>
+    <command><![CDATA[
+        tail -f /dev/null
+    ]]></command>
+    <inputs>
+        <param name="model" type="data" optional="false" label="Trained model file" />
+        <param name="features" type="data" optional="false" label="File containing features to predict" />
+        <param name="country_geometry" type="data" optional="false" label="Shapefile with the target county's geometry" />
+    </inputs>
+    <outputs>
+        <data name="output_raster" format="tiff" label="Predicted Raster" />
+    </outputs>
+    <help><![CDATA[
+        Prediction stage of ForML. Intended to be used as a step in a workflow, but it can be run independently for testing.
+    ]]></help>
+</tool>
