@@ -17,7 +17,7 @@
      <command><![CDATA[
         echo "Starting DREAM.3D" > $output &&
         export GALAXY_WORKING_DIR=`pwd` &&
-        /start.sh \$GALAXY_TOOL_USER &&
+        /start.sh \$GALAXY_TOOL_USER
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="DREAM.3D Console Output"></data>
