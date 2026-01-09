@@ -12,7 +12,7 @@
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        python -m ml_poc --url $url --experiment $experiment  > >(tee -a $output) 2> >(tee -a $output >&2)
+        cd /src && pixi run python -m ml_poc --url $url --experiment $experiment  > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow tracking server url"/>
