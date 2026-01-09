@@ -1,11 +1,9 @@
 
 <tool id="ml-test-prototype" name="MLFlow POC" version="0.1.0" profile="22.01">
-
-    <description>Generate a MLFlow</description>
+    <description>Generate a MLFlow model</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:9ddfa18c15557ee14eb9ca5696da15bf9d4204d0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:33afa9794b1c002c4d665f77ead35cd477cc4bc4</container>
     </requirements>
-
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
