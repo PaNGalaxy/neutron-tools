@@ -1,8 +1,8 @@
 
-<tool id="ml-test-prototype" name="MLFlow POC" version="0.1.0" profile="22.01">
+<tool id="ml-test-prototype" name="MLFlow POC" version="0.1.1" profile="22.01">
     <description>Generate a MLFlow model</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:7234745ffed94aafd9db24ff53c807ff50686bfa</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:4125461a29a77094d1374b2ceb5d1cf7dbb9aed5</container>
     </requirements>
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
@@ -14,7 +14,7 @@
     ]]></command>
     <inputs>
         <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow tracking server url"/>
-        <param name="experiment" type="text" value="wine-quality" label="MLFlow experiment name"/>
+        <param name="experiment" type="text" value="wine_quality" label="MLFlow experiment name"/>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
