@@ -6,7 +6,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/neumatix/pydebyer:v0.1</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/neumatix/pydebyer/v0.1</container>
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
