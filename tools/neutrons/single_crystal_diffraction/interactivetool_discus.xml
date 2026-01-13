@@ -15,13 +15,19 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">discus</environment_variable>
     </environment_variables>
     <command><![CDATA[
+        #if $working_directory:
+            export WORKING_DIR=$working_directory &&
+        #else
+            export WORKING_DIR=/opt/run &&
+        #end if
         jupyter notebook
             --allow-root
             --no-browser
             --ip=0.0.0.0
+            --notebook_dir=${WORKING_DIR}
             --NotebookApp.token=''
             --NotebookApp.password=''
-            --NotebookApp.base_url='/$EP_PATH'
+            --NotebookApp.base_url=/${EP_PATH}
             > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
