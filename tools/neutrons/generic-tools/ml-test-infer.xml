@@ -1,0 +1,30 @@
+
+<tool id="ml-test-infer-prototype" name="MLFlow POC" version="0.1.1" profile="22.01">
+    <description>Generate a MLFlow model</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:71581db8f58dec81a5d53e8c8ea638ff1cbbb189</container>
+    </requirements>
+     <command><![CDATA[
+        cd /src && pixi run python -m ml_poc --url $url --experiment $experiment  > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+        <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow tracking server url"/>
+        <param name="experiment" type="text" value="wine_quality" label="MLFlow experiment name"/>
+        <param name="mode" type="select" label="Operation mode" value="train">
+            <option value="train">Train</option>
+            <option value="load">Load</option>
+            <option value="infer">Infer</option>
+        </param>
+
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+    </outputs>
+    <help><![CDATA[
+        **ML POC**
+
+        This is a Galaxy tool that generates a ML model fow wine quality and pushes it to MlFlow.
+
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/ml-test
+    ]]></help>
+</tool>
