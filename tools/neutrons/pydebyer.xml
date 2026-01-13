@@ -1,0 +1,32 @@
+<tool id="pydbyer_prototype" name="DeByer " version="0.1.0" profile="22.01">
+    <description>DeBye Scattering Equation Calculator</description>
+    <creator>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/neumatix/pydbeyer:v0.1</container>
+    </requirements>
+
+    <command detect_errors="exit_code"><![CDATA[
+
+        mkdir /out &&
+        ln -s $structure_file /input.xyz &&
+        python -m pydebyer.main --sf --from=0.0 --to=35.0 --step=0.05 --out=/out.sq input.xyz &&
+        mv /out.sq $out_sq
+
+    ]]></command>
+
+    <inputs>
+        <param name="structure_file" title="Filename" type="data" format="xyz,extxyz"></param>
+    </inputs>
+
+    <outputs>
+        <data format="txt" name="out_sq" label="S(Q) Output"/>
+    </outputs>
+
+    <help><![CDATA[
+Runs Debyer (https://debyer.readthedocs.io) on input file to calculate S(Q) using Debyer Scattering Equation.
+    ]]></help>
+</tool>
