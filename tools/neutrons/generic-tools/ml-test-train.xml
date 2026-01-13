@@ -1,26 +1,28 @@
 <tool id="ml-test-train-prototype" name="MLFlow Train" version="0.1.1" profile="22.01">
-    <description>Generate a MLFlow model</description>
+    <description>Train a model</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:a46cea63ea4926c2fbb1320b1645d9644def25fd</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:e877e49ea751e849c99bfcf6a43d03d0ed5c35d6</container>
     </requirements>
      <command><![CDATA[
         mkdir model &&
-        pixi run --manifest-path /src python -m ml_poc
+        export MLFLOW_LOGGING_LEVEL=ERROR &&
+        pixi run --as-is --manifest-path /src python -m ml_poc
                                 --url $url
                                 --experiment $experiment
+                            train
                             #if $register_model_name !="":
                                 --register-model-name $register_model_name
                             #end if
                             #if $save_model !="":
                                 --save-model-path model
                             #end if
-                                --optimize-parames optimize_params
+                                --optimize-params $optimize_params
                                > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="url" type="text" value="http://10.64.193.19:5000" optional="false"  label="MLFlow tracking server url"/>
         <param name="experiment" type="text" value="wine_quality" optional="false"  label="MLFlow experiment name"/>
-        <param name="register_model_name" type="text" value="" label="MLFlow model name"/>
+        <param name="register_model_name" type="text" value="" label="Name to register model in MLFlow"/>
         <param name="save_model" type="boolean" checked="false" label="Output model to Galaxy history" />
         <param name="optimize_params" type="boolean" checked="false" truevalue="true" falsevalue="false" label="Optimize model parameters" />
     </inputs>

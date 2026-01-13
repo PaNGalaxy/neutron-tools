@@ -1,28 +1,33 @@
-<tool id="ml-test-load-prototype" name="MLFlow Load" version="0.1.1" profile="22.01">
-    <description>Generate a MLFlow model</description>
+<tool id="ml-test-load-prototype" name="MLFlow Import" version="0.1.1" profile="22.01">
+    <description>Import a model from MLFlow</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:a46cea63ea4926c2fbb1320b1645d9644def25fd</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:e877e49ea751e849c99bfcf6a43d03d0ed5c35d6</container>
     </requirements>
      <command><![CDATA[
-        cd /src && pixi run python -m ml_poc --url $url --experiment $experiment  > >(tee -a $output) 2> >(tee -a $output >&2)
+        mkdir model &&
+        export MLFLOW_LOGGING_LEVEL=ERROR &&
+        pixi run --as-is --manifest-path /src python -m ml_poc
+                                --url $url
+                                --experiment $experiment
+                                load
+                                --model $model_name
+                                --save-model-path model
+                > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow tracking server url"/>
-        <param name="experiment" type="text" value="wine_quality" label="MLFlow experiment name"/>
-        <param name="mode" type="select" label="Operation mode" value="train">
-            <option value="train">Train</option>
-            <option value="load">Load</option>
-            <option value="infer">Infer</option>
-        </param>
-
+        <param name="url" type="text" value="http://10.64.193.19:5000" optional="false"  label="MLFlow tracking server url"/>
+        <param name="experiment" type="text" value="wine_quality" optional="false"  label="MLFlow experiment name"/>
+        <param name="model_name" type="text" value="" label="Model in MLFlow to import"/>
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="Console output"></data>
+	    <collection name="output_data" type="list" label="Output Data">
+	        <discover_datasets pattern="__designation__" ext="dat" directory="model" />
+	    </collection>
     </outputs>
     <help><![CDATA[
         **ML POC**
 
-        This is a Galaxy tool that generates a ML model fow wine quality and pushes it to MlFlow.
+        This is a Galaxy tool that imports an ML model from MlFlow to Galaxy.
 
         For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/ml-test
     ]]></help>
