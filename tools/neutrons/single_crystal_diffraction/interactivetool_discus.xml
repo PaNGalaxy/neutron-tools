@@ -24,7 +24,7 @@
             --allow-root
             --no-browser
             --ip=0.0.0.0
-            --notebook_dir=\${WORKING_DIR}
+            --notebook-dir=\${WORKING_DIR}
             --NotebookApp.token=''
             --NotebookApp.password=''
             --NotebookApp.base_url=\${EP_PATH}
