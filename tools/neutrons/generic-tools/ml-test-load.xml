@@ -1,7 +1,7 @@
-<tool id="ml-test-load-prototype" name="MLFlow POC" version="0.1.1" profile="22.01">
+<tool id="ml-test-load-prototype" name="MLFlow Load" version="0.1.1" profile="22.01">
     <description>Generate a MLFlow model</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:efff804262e46bff682005acc6bc88491f5a16cf</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:a46cea63ea4926c2fbb1320b1645d9644def25fd</container>
     </requirements>
      <command><![CDATA[
         cd /src && pixi run python -m ml_poc --url $url --experiment $experiment  > >(tee -a $output) 2> >(tee -a $output >&2)
