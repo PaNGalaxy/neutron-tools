@@ -1,23 +1,35 @@
 <tool id="ml-test-train-prototype" name="MLFlow POC" version="0.1.1" profile="22.01">
     <description>Generate a MLFlow model</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:71581db8f58dec81a5d53e8c8ea638ff1cbbb189</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:efff804262e46bff682005acc6bc88491f5a16cf</container>
     </requirements>
      <command><![CDATA[
-        cd /src && pixi run python -m ml_poc --url $url --experiment $experiment  > >(tee -a $output) 2> >(tee -a $output >&2)
+        mkdir model &&
+        pixi run --manifest-path /src python -m ml_poc
+                                --url $url
+                                --experiment $experiment
+                            #if $register_model_name !="":
+                                --register-model-name $register_model_name
+                            #end if
+                            #if $save_model !="":
+                                --save-model-path model
+                            #end if
+                                --optimize-parames optimize_params
+                               > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow tracking server url"/>
         <param name="experiment" type="text" value="wine_quality" label="MLFlow experiment name"/>
-        <param name="mode" type="select" label="Operation mode" value="train">
-            <option value="train">Train</option>
-            <option value="load">Load</option>
-            <option value="infer">Infer</option>
-        </param>
-
+        <param name="register_model_name" type="text" value="" label="MLFlow model name"/>
+        <param name="save_model" type="boolean" checked="false" label="Output model to Galaxy history" />
+        <param name="optimize_params" type="boolean" checked="false" truevalue="true" falsevalue="false" label="Output model to Galaxy history" />
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
+	    <collection name="output_data" type="list" label="Output Data">
+	        <discover_datasets pattern="__designation__" ext="dat" directory="model" />
+            <filter>save_model</filter>
+	    </collection>
     </outputs>
     <help><![CDATA[
         **ML POC**
