@@ -11,10 +11,9 @@
 
     <command detect_errors="exit_code"><![CDATA[
 
-        mkdir /out &&
-        ln -s $structure_file /input.xyz &&
-        python -m pydebyer.main --sf --from=0.0 --to=35.0 --step=0.05 --out=/out.sq input.xyz &&
-        mv /out.sq $out_sq
+        ln -s $structure_file ./input.xyz &&
+        python -m pydebyer.main --sf --from=0.0 --to=35.0 --step=0.05 --out=./out.sq ./input.xyz &&
+        mv ./out.sq $out_sq
 
     ]]></command>
 
