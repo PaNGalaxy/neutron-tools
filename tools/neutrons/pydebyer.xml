@@ -6,7 +6,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/neumatix/pydebeyer:v0.1</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/neumatix/pydebyer:v0.1</container>
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
@@ -23,7 +23,7 @@
     </inputs>
 
     <outputs>
-        <data format="txt" name="out_sq" label="DeBeyer: S(Q) Output"/>
+        <data format="txt" name="out_sq" label="DeByer: S(Q) Output"/>
     </outputs>
 
     <help><![CDATA[
