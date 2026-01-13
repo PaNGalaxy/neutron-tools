@@ -24,10 +24,10 @@
             --allow-root
             --no-browser
             --ip=0.0.0.0
-            --notebook_dir=${WORKING_DIR}
+            --notebook_dir=\${WORKING_DIR}
             --NotebookApp.token=''
             --NotebookApp.password=''
-            --NotebookApp.base_url=/${EP_PATH}
+            --NotebookApp.base_url=\${EP_PATH}
             > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
