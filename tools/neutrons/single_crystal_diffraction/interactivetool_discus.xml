@@ -1,11 +1,10 @@
-<tool id="nova-interactive-tool-discus" tool_type="interactive" name="DISCUS: Diffuse Scattering & Defect Structure Simulation" version="6.21.00" profile="22.05">
+<tool id="nova-interactive-tool-discus" tool_type="interactive" name="DISCUS: Diffuse Scattering and Defect Structure Simulation" version="6.21.00" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/discus:0.3.0
-        </container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/discus:0.3.1</container>
     </requirements>
     <entry_points>
         <entry_point name="DISCUS" label="discus" requires_domain="False" requires_path_in_url="True">
@@ -16,9 +15,16 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">discus</environment_variable>
     </environment_variables>
     <command><![CDATA[
-        echo "Notebook produced no output" > $output_single &&
-        jupyter notebook --allow-root --no-browser --ip=0.0.0.0 --NotebookApp.token='' --NotebookApp.password='' > >(tee -a $output) 2> >(tee -a $output >&2)
+        #if $working_directory:
+            export WORKING_DIR=$working_directory &&
+        #else:
+            export WORKING_DIR=/opt/run &&
+        #end if
+        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
+    <inputs>
+        <param name="working_directory" type="text" value="/opt/run" label="Working directory for Jupyter" />
+    </inputs>
     <outputs>
         <data name="output" auto_format="true" label="DISCUS Console Output"></data>
     </outputs>
