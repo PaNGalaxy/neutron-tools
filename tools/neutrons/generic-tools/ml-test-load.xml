@@ -1,7 +1,7 @@
 <tool id="ml-test-load-prototype" name="MLFlow Import" version="0.1.1" profile="22.01">
     <description>Import a model from MLFlow</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:872af104ae826c34813e16b4b0c8465d804bd34a</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:32428f19a409f2ecd55609c9f6242e830f456eb9</container>
     </requirements>
      <command><![CDATA[
         mkdir model &&

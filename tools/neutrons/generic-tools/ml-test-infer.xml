@@ -1,44 +1,43 @@
 <tool id="ml-test-infer-prototype" name="MLFlow Infer" version="0.1.1" profile="22.01">
     <description>Run inference service</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:872af104ae826c34813e16b4b0c8465d804bd34a</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:32428f19a409f2ecd55609c9f6242e830f456eb9</container>
     </requirements>
      <command><![CDATA[
         #if not $model.use_registry:
             mkdir model &&
             #for $el in $model.local_model:
-               #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
-               #if Path($cleaned_name).suffix == '':
-                #set $cleaned_name=$cleaned_name + '.'+$el.ext
-               #end if
-               ln -sf '$el' './model/${cleaned_name}' &&
+               #set $name = str($el.element_identifier)
+               mv '$el' './model/${name}' &&
             #end for
         #end if
         pixi run --as-is --manifest-path /src python -m ml_poc
+                            --url $url
                             infer
                             #if $model.use_registry:
                                 --model models:/$model.model_name
                             #else
-                                --model model
+                                --model \$(pwd)/model
                             #end if
-                            -- input $input
-                            -- output_file_path $results
+                            --input "[[$input]]"
+                            --output-file-path $results
         > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
+        <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow model registry url"/>
         <conditional name="model">
-		    <param name="use_registry" type="boolean" checked="false" label="Use model from registry">
-		    </param>
-		    <when value="true">
-                <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow model registry url"/>
+	    <param name="use_registry" type="boolean" checked="false" label="Use model from registry">
+	    </param>
+	    <when value="true">
                 <param name="model_name" type="text" value="" label="Model in MLFlow to import" help="Use format: model_name/version"/>
-	    	</when>
-		    <when value="false">
+    	</when>
+	    <when value="false">
                 <param name="local_model" type="data_collection" optional="false" collection_type="list" label="Local Model"/>
-	    	</when>
-    	</conditional>
-        <param name="input" type="text" value="[[14.23, 1.71, 2.43, 15.6, 127.0, 2.8, 3.06, 0.28, 2.29, 5.64, 1.04, 3.92, 1065.0]]" label="Input Data"/>
+    	</when>
+	</conditional>
+        <param name="input" type="text" value="14.23, 1.71, 2.43, 15.6, 127.0, 2.8, 3.06, 0.28, 2.29, 5.64, 1.04, 3.92, 1065.0" label="Input Data"/>
     </inputs>
+
     <outputs>
         <data format="txt" name="results" label="Prediction"></data>
         <data format="txt" name="output" label="Console output"></data>
