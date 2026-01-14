@@ -1,28 +1,52 @@
 <tool id="ml-test-infer-prototype" name="MLFlow Infer" version="0.1.1" profile="22.01">
     <description>Run inference service</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:e877e49ea751e849c99bfcf6a43d03d0ed5c35d6</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:872af104ae826c34813e16b4b0c8465d804bd34a</container>
     </requirements>
      <command><![CDATA[
-        cd /src && pixi run --as-is python -m ml_poc --url $url --experiment $experiment  > >(tee -a $output) 2> >(tee -a $output >&2)
+        #if not $model.use_registry:
+            mkdir model &&
+            #for $el in $model.local_model:
+               #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
+               #if Path($cleaned_name).suffix == '':
+                #set $cleaned_name=$cleaned_name + '.'+$el.ext
+               #end if
+               ln -sf '$el' './model/${cleaned_name}' &&
+            #end for
+        #end if
+        pixi run --as-is --manifest-path /src python -m ml_poc
+                            infer
+                            #if $model.use_registry:
+                                --model models:/$model.model_name
+                            #else
+                                --model model
+                            #end if
+                            -- input $input
+                            -- output_file_path $results
+        > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow tracking server url"/>
-        <param name="experiment" type="text" value="wine_quality" label="MLFlow experiment name"/>
-        <param name="mode" type="select" label="Operation mode" value="train">
-            <option value="train">Train</option>
-            <option value="load">Load</option>
-            <option value="infer">Infer</option>
-        </param>
-
+        <conditional name="model">
+		    <param name="use_registry" type="boolean" checked="false" label="Use model from registry">
+		    </param>
+		    <when value="true">
+                <param name="url" type="text" value="http://10.64.193.19:5000" label="MLFlow model registry url"/>
+                <param name="model_name" type="text" value="" label="Model in MLFlow to import" help="Use format: model_name/version"/>
+	    	</when>
+		    <when value="false">
+                <param name="local_model" type="data_collection" optional="false" collection_type="list" label="Local Model"/>
+	    	</when>
+    	</conditional>
+        <param name="input" type="text" value="[[14.23, 1.71, 2.43, 15.6, 127.0, 2.8, 3.06, 0.28, 2.29, 5.64, 1.04, 3.92, 1065.0]]" label="Input Data"/>
     </inputs>
     <outputs>
+        <data format="txt" name="results" label="Prediction"></data>
         <data format="txt" name="output" label="Console output"></data>
     </outputs>
     <help><![CDATA[
         **ML POC**
 
-        This is a Galaxy tool that generates a ML model fow wine quality and pushes it to MlFlow.
+        This is a Galaxy tool that uses the provided ML model to predict data.
 
         For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/ml-test
     ]]></help>

@@ -1,7 +1,7 @@
 <tool id="ml-test-load-prototype" name="MLFlow Import" version="0.1.1" profile="22.01">
     <description>Import a model from MLFlow</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:e877e49ea751e849c99bfcf6a43d03d0ed5c35d6</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:872af104ae826c34813e16b4b0c8465d804bd34a</container>
     </requirements>
      <command><![CDATA[
         mkdir model &&
@@ -10,17 +10,18 @@
                                 --url $url
                                 --experiment $experiment
                                 load
-                                --model $model_name
+                                --model models:/$model_name
                                 --save-model-path model
                 > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="url" type="text" value="http://10.64.193.19:5000" optional="false"  label="MLFlow tracking server url"/>
         <param name="experiment" type="text" value="wine_quality" optional="false"  label="MLFlow experiment name"/>
-        <param name="model_name" type="text" value="" label="Model in MLFlow to import"/>
+        <param name="model_name" type="text" value="" label="Model in MLFlow to import" help="Use format: model_name/version"/>
     </inputs>
     <outputs>
-	    <collection name="output_data" type="list" label="Output Data">
+        <data format="txt" name="output" label="Console output"></data>
+	    <collection name="output_data" type="list" label="Imported Model ($model_name)">
 	        <discover_datasets pattern="__designation__" ext="dat" directory="model" />
 	    </collection>
     </outputs>
