@@ -13,13 +13,13 @@
       #for $i, $c in enumerate($cylinders)
 
         #if str( $c.material_type.selector ) == "sofq":
-          #set filename = $c.material_type.sofq_file.basename
-          cp "${c.material_type.sofq_file}" "./${filename}" &&
+          #set filename=os.path.basename(str($c.material_type.sofq_file.element_identifier))
+          cp "${c.material_type.sofq_file}" ./$filename &&
         #end if
 
         #if str( $c.material_type.selector ) == "sofqe":
           #set filename=os.path.basename(str($c.material_type.sofqe_file.element_identifier))
-          cp "${c.material_type.sofqe_file}" "./${filename}" &&
+          cp "${c.material_type.sofqe_file}" ./$filename &&
         #end if
 
       #end for
@@ -30,13 +30,13 @@
       #for $i, $hc in enumerate($hollow_cylinders):
 
         #if str( $hc.material_type.selector ) == "sofq":
-          #set filename = $hc.material_type.sofq_file.basename
-          cp "${hc.material_type.sofq_file}" "./$filename" &&
+          #set filename=os.path.basename(str($hc.material_type.sofq_file.element_identifier))
+          cp "${hc.material_type.sofq_file}" ./$filename &&
         #end if
 
         #if str( $hc.material_type.selector ) == "sofqe":
-          #set filename=$hc.material_type.sofqe_file.basename
-          cp "${hc.material_type.sofqe_file}" "./$filename" &&
+          #set filename=os.path.basename(str($hc.material_type.sofqe_file.element_identifier))
+          cp "${hc.material_type.sofqe_file}" ./$filename &&
         #end if
 
       #end for
@@ -49,12 +49,12 @@
       #for $i, $c in enumerate($cylinders):
 
         #if str( $c.material_type.selector ) == "sofq":
-          #set filename = $c.material_type.sofq_file.basename
+          #set filename=os.path.basename(str($c.material_type.sofq_file.element_identifier))
           --add-cylinder "${c.radius}" "${c.height}" sofq-file "./${filename}"
         #end if
 
         #if str( $c.material_type.selector ) == "sofqe":
-          #set filename=$c.material_type.sofqe_file.basename
+          #set filename=os.path.basename(str($c.material_type.sofqe_file.element_identifier))
           --add-cylinder "${c.radius}" "${c.height}" sofqe-file "./${filename}"
         #end if
 
@@ -73,12 +73,12 @@
       #for $i, $hc in enumerate($hollow_cylinders):
 
         #if str( $hc.material_type.selector ) == "sofq":
-          #set filename=$hc.material_type.sofq_file.basename
+          #set filename=os.path.basename(str($hc.material_type.sofq_file.element_identifier))
           --add-hollow-cylinder "${hc.inner_radius}" "${hc.outer_radius}" "${hc.height}" sofq-file "./${filename}"
         #end if
 
         #if str( $hc.material_type.selector ) == "sofqe":
-          #set filename=$hc.material_type.sofqe_file.basename
+          #set filename=os.path.basename(str($hc.material_type.sofqe_file.element_identifier))
           --add-hollow-cylinder "${hc.inner_radius}" "${hc.outer_radius}" "${hc.height}" sofqe-file "./${filename}"
         #end if
 
