@@ -23,8 +23,8 @@
     </inputs>
 
     <outputs>
-        <data format="txt" name="out_sq" label="DeByer: S(Q) Output"/>
-        <data format="csv" name="out_csv" label="DeByer: S(Q) Output [csv]"/>
+        <data format="txt" name="out_sq" label="DeByer SQ Output TXT"/>
+        <data format="csv" name="out_csv" label="DeByer SQ Output CSV"/>
 
     </outputs>
 
