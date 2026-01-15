@@ -1,0 +1,31 @@
+<tool id="forseam-nlcd-prediction" name="ForSEAM NLCD Prediction" version="0.1.3" profile="22.01">
+    <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/forml/forseam-nlcd-prediction:0.1.3</container>
+    </requirements>
+    <command><![CDATA[
+        mkdir -p /app/data/boundaries && cd /app/data &&
+        cp $geoids geoids.txt &&
+        cp $rasters rasters.zip && unzip rasters.zip &&
+        cp $forseam_data ForSEAM_Scenario6-BT23.csv &&
+        cd /app/data/boundaries && cp $counties_shapefile boundaries.zip && unzip boundaries.zip &&
+        cd /app/data && export DATA_DIR=/app/data &&
+        parallel -j $num_jobs -- 'python3 -m forml_nlcd.run --geoid {}; python3 -m forml_nlcd.pred_to_raster --geoid {}; find derived/{} -iname "*parquet*" | xargs rm;' ::: \$(cat geoids.txt) > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        find derived -iname "*.tif" -type f | xargs zip -j results.zip &&
+        cp results.zip $predictions
+    ]]></command>
+    <inputs>
+        <param name="geoids" type="data" format="txt" optional="false" label="Newline-separated GEOIDs to run predictions for" />
+        <param name="rasters" type="data" optional="false" label="Zip containing the NLCD rasters" />
+        <param name="counties_shapefile" type="data" optional="false" label="Zip containing the shapefile with county geometries for the target area" />
+        <param name="forseam_data" type="data" format="csv" optional="false" label="ForSEAM CSV data" />
+        <param name="num_jobs" type="integer" value="16" label="Number of parallel jobs to run. Setting this too high may cause the tool to crash." />
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="Console Output" />
+        <data format="zip" name="predictions" label="ForML Prediction Rasters" />
+    </outputs>
+    <help><![CDATA[
+        Runs the ForSEAM NLCD Prediction workflow.
+    ]]></help>
+</tool>
