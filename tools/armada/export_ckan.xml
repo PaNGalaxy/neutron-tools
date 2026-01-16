@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/armada/ckan-utilities:0.1.1</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/galaxy/tool-sources/armada/ckan-utilities:0.1.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python -m ckan_utils.export $input_file $name $format $dataset > >(tee -a $output) 2> >(tee -a $output >&2)
@@ -14,7 +14,7 @@
         <param name="input_file" type="data" optional="false" label="File to Export" />
         <param name="name" type="text" optional="false" label="CKAN Resource Name" />
         <param name="format" type="text" optional="false" value="dat" label="CKAN Resource Format" />
-        <param name="dataset" type="text" optional="true" default="" label="CKAN Dataset ID" />
+        <param name="dataset" type="text" optional="false" label="CKAN Dataset ID" />
     </inputs>
     <outputs>
         <data format="txt" name="output" label="CKAN Export"></data>
