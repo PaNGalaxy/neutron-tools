@@ -1,7 +1,7 @@
 <tool id="ml-test-infer-prototype" name="MLFlow Infer" version="0.1.1" profile="22.01">
     <description>Run inference service</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:32428f19a409f2ecd55609c9f6242e830f456eb9</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:043f73c9b4fd9c9af5219ce2669e9317b8e182e9</container>
     </requirements>
      <command><![CDATA[
         #if not $model.use_registry:
