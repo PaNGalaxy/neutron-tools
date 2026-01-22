@@ -12,10 +12,11 @@
     ]]></command>
     <inputs>
         <param name="resource" type="text" optional="false" label="CKAN Resource ID or URL" />
+        <param name="filename" type="text" optional="false" value="Ingested File" label="Dataset name in Galaxy" />
     </inputs>
     <outputs>
         <data format="txt" name="output" label="CKAN Ingest"></data>
-        <data name="output_file" auto_format="true" label="Ingested File" />
+        <data name="output_file" auto_format="true" label="$params.filename" />
     </outputs>
     <help><![CDATA[
         Registers CKAN resources in Galaxy.
