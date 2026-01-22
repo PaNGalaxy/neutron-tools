@@ -15,7 +15,8 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
     <command><![CDATA[
-        export GALAXY_WORKING_DIR=`pwd` &&
+        #import re
+        #from pathlib import Path
         #for $el in $datafiles:
             #if $el:
                 #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
