@@ -17,7 +17,11 @@
     <command><![CDATA[
         #for $file in $datafiles:
             #if file:
-                mv $file /home/novnc_user/dream3d/Data/ &&
+                #set $cleaned_name = re.sub('[\w]', '_', str($file.element_identifier))
+                #if Path($cleaned_name).suffix == '':
+                    #set $cleaned_name = $cleaned_name + '.' + $file.ext
+                #end if
+                mv $file /home/novnc_user/dream3d/Data/${cleaned_name} &&
             #end if
         #end for
         #if $use_gui_flag == "yes":
