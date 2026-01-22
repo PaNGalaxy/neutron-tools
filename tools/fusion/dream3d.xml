@@ -16,7 +16,7 @@
     </environment_variables>
     <command><![CDATA[
         #for $file in $datafiles:
-            #if file:
+            #if $file:
                 #set $cleaned_name = re.sub('[\w]', '_', str($file.element_identifier))
                 #if Path($cleaned_name).suffix == '':
                     #set $cleaned_name = $cleaned_name + '.' + $file.ext
