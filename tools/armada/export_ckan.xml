@@ -1,11 +1,11 @@
-<tool id="export-ckan" name="Export CKAN Resource" version="0.2.6" profile="22.05">
+<tool id="export-ckan" name="Export CKAN Resource" version="0.2.7" profile="22.05">
     <description>Exports a Galaxy file to a CKAN dataset.</description>
     <creator>
         <person name="John Duggan"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/galaxy/tool-sources/armada/ckan-utilities:0.2.6</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/galaxy/tool-sources/armada/ckan-utilities:0.2.7</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python -m ckan_utils.export "$input_file" "$name" "$format" "$ckan_type_choice" "$ckan_id" > >(tee -a $output) 2> >(tee -a $output >&2)
