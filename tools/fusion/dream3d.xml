@@ -21,7 +21,7 @@
                 #if Path($cleaned_name).suffix == '':
                     #set $cleaned_name = $cleaned_name + '.' + $el.ext
                 #end if
-                ln -sf '$el' './jupyter/data/${cleaned_name}' &&
+                ln -sf '$el' '/home/novnc_user/dream3d/Data/${cleaned_name}' &&
             #end if
         #end for
         #if $use_gui_flag == "yes":
