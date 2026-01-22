@@ -16,7 +16,7 @@
     </inputs>
     <outputs>
         <data format="txt" name="output" label="CKAN Ingest"></data>
-        <data name="output_file" auto_format="true" label="$params.filename" />
+        <data name="output_file" auto_format="true" label="$filename" />
     </outputs>
     <help><![CDATA[
         Registers CKAN resources in Galaxy.
