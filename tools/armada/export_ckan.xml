@@ -1,20 +1,31 @@
-<tool id="export-ckan" name="Export CKAN Resource" version="0.1.0" profile="22.05">
+<tool id="export-ckan" name="Export CKAN Resource" version="0.2.7" profile="22.05">
     <description>Exports a Galaxy file to a CKAN dataset.</description>
     <creator>
         <person name="John Duggan"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/ckan_utils:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/galaxy/tool-sources/armada/ckan-utilities:0.2.7</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python -m ckan_utils.export $input_file $dataset $name $format > >(tee -a $output) 2> >(tee -a $output >&2)
+        python -m ckan_utils.export "$input_file" "$name" "$format" "$ckan_type_choice" "$ckan_id" > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="input_file" type="data" optional="false" label="File to Export" />
-        <param name="dataset" type="text" optional="false" label="CKAN Dataset ID" />
         <param name="name" type="text" optional="false" label="CKAN Resource Name" />
-        <param name="format" type="text" optional="true" default="" label="CKAN Resource Format" />
+        <param name="format" type="text" optional="false" value="dat" label="CKAN Resource Format" />
+        <conditional name="ckan_type">
+            <param name="ckan_type_choice" type="select" label="Create a new dataset?">
+                <option value="yes" selected="true">Yes</option>
+                <option value="no">No</option>
+            </param>
+            <when value="yes">
+                <param name="ckan_id" type="text" optional="false" label="CKAN Organization ID" />
+            </when>
+            <when value="no">
+                <param name="ckan_id" type="text" optional="false" label="CKAN Dataset ID" />
+            </when>
+        </conditional>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="CKAN Export"></data>

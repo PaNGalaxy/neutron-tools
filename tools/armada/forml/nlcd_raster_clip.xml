@@ -1,0 +1,31 @@
+<tool id="nlcd-raster-clip" name="NLCD Raster Clipping" version="0.1.3" profile="22.01">
+    <description></description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/forml/forseam-nlcd-prediction:0.1.3</container>
+    </requirements>
+    <command><![CDATA[
+        cp $counties_shapefile shapefile.zip && unzip shapefile.zip &&
+        for year in {$start_year..$end_year}; do
+        python3 -m forml_nlcd.clip_minio_raster
+            --minio-endpoint http://cher-01.ornl.gov:9000
+            --bucket jira-data
+            --key VAEDH1-111/Annual_NLCD_LndCov_2000_2024_CU_C1V1/Annual_NLCD_LndCov_\${year}_CU_C1V1/Annual_NLCD_LndCov_\${year}_CU_C1V1.tif
+            --shapefile /data/staging/262/working/tl_2025_us_county.shp
+            --out nlcd_\${year}_tva.tif; done &&
+        ls *.tif | xargs zip -j NLCD_rasters.zip &&
+        cp NLCD_rasters.zip $predictions
+    ]]></command>
+    <inputs>
+        <param name="geoids" type="data" format="txt" optional="false" label="Newline-separated GEOIDs to run predictions for" />
+        <param name="counties_shapefile" type="data" optional="false" label="Zip containing the shapefile with county geometries for the target area" />
+        <param name="start_year" type="text" optional="false" value="2000" label="Start year for the NLCD rasters" />
+        <param name="end_year" type="text" optional="false" value="2024" label="End year for the NLCD rasters" />
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="Console Output" />
+        <data format="zip" name="predictions" label="NLCD Rasters" />
+    </outputs>
+    <help><![CDATA[
+        Extracts NLCD raster files from CHER based on the provided shapefile and geoid lists.
+    ]]></help>
+</tool>
