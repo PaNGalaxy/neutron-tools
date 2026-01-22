@@ -22,7 +22,7 @@
         export GALAXY_WORKING_DIR=`pwd` &&
         #if $use-gui-flag == "yes":
             /start.sh \$GALAXY_TOOL_USER &&
-        #else
+        #else:
             /home/novnc_user/dream3d/bin/PipelineRunner -p $pipeline_file &&
         #end if
         /collect_output.sh
