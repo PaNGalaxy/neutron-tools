@@ -33,7 +33,7 @@
                 <option value="yes" selected="true">Yes</option>
                 <option value="no" selected="true">No</option>
             </param>
-            <when value="yes">
+            <when value="no">
                 <param name="pipeline_file" type="data" optional="false" />
             </when>
         </conditional>
