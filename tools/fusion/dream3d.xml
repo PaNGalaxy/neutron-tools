@@ -15,13 +15,13 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
     <command><![CDATA[
-        #for $file in $datafiles:
-            #if $file:
-                #set $cleaned_name = re.sub('[\w]', '_', str($file.element_identifier))
+        #for $el in $datafiles:
+            #if $el:
+                #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
                 #if Path($cleaned_name).suffix == '':
-                    #set $cleaned_name = $cleaned_name + '.' + $file.ext
+                    #set $cleaned_name = $cleaned_name + '.' + $el.ext
                 #end if
-                mv $file /home/novnc_user/dream3d/Data/${cleaned_name} &&
+                ln -sf '$el' './jupyter/data/${cleaned_name}' &&
             #end if
         #end for
         #if $use_gui_flag == "yes":
