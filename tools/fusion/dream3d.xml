@@ -16,7 +16,9 @@
     </environment_variables>
     <command><![CDATA[
         #for $file in $datafiles:
-            mv $file /home/novnc_user/dream3d/Data/ &&
+            #if file:
+                mv $file /home/novnc_user/dream3d/Data/ &&
+            #end if
         #end for
         #if $use_gui_flag == "yes":
             /start.sh \${GALAXY_TOOL_USER} > >(tee -a $output) 2> >(tee -a $output >&2) &&
