@@ -34,7 +34,7 @@
                 <option value="no" selected="true">No</option>
             </param>
             <when value="no">
-                <param name="pipeline_file" type="data" optional="false" />
+                <param name="pipeline_file" type="data" format="json" optional="false" />
             </when>
         </conditional>
         <param name="datafiles" type="data" multiple="true" label="Input Files" optional="true" />
