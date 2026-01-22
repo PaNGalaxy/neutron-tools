@@ -1,7 +1,7 @@
 <tool id="dream3d" tool_type="interactive"  name="DREAM.3D" version="6.5.171" profile="22.01">
     <description>NoVNC tool for using DREAM.3D via a web browser</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.1</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.2</container>
     </requirements>
     <entry_points>
         <entry_point name="DREAM.3D" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -14,13 +14,36 @@
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
-     <command><![CDATA[
+    <command><![CDATA[
+        #for $file in $datafiles:
+            mv $file /home/novnc_user/dream3d/Data/
+        #end for
         echo "Starting DREAM.3D" > $output &&
         export GALAXY_WORKING_DIR=`pwd` &&
-        /start.sh \$GALAXY_TOOL_USER
+        #if $use-gui == "yes":
+            /start.sh \$GALAXY_TOOL_USER &&
+        #else
+            /home/novnc_user/dream3d/bin/PipelineRunner -p $pipeline_file &&
+        #end if
+        /collect_output.sh
     ]]></command>
+    <inputs>
+        <conditional name="use-gui">
+            <param name="use-gui-flag" type="select" label="Use GUI" optional="false">
+                <option value="yes" selected="true">Yes</option>
+                <option value="no" selected="true">No</option>
+            </param>
+            <when value="yes">
+                <param name="pipeline_file" type="data" optional="false" />
+            </when>
+        </conditional>
+        <param name="datafiles" type="data" multiple="true" label="Input Files" optional="true" />
+    </inputs>
     <outputs>
         <data format="txt" name="output" label="DREAM.3D Console Output"></data>
+        <collection type="list" name="outputs" label="DREAM.3D Output Files">
+            <discover_datasets pattern="__designation_and_ext__" directory="/home/novnc_user/dream3d/Data/Output" />
+        </collection>
     </outputs>
     <help><![CDATA[
         Starts the interactive DREAM.3D software.
