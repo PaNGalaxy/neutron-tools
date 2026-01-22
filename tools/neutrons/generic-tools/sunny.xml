@@ -1,0 +1,21 @@
+
+<tool id="sunny-prototype" name="Sunny" version="@TOOL_VERSION@" profile="22.01">
+
+    <description>Sunny Tool</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sunny/prototypes:6fd84ea4efcf39f2f6821ec9740a0736934f16e3</container>
+    </requirements>
+     <command><![CDATA[
+        pixi run app > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+    </outputs>
+    <help><![CDATA[
+        **Sunny**
+        
+        This is a Galaxy tool for Sunny.
+        
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/spectroscopy/sunny
+    ]]></help>
+</tool>
