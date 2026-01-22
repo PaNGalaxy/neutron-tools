@@ -16,7 +16,7 @@
     </environment_variables>
     <command><![CDATA[
         #for $file in $datafiles:
-            mv $file /home/novnc_user/dream3d/Data/
+            mv $file /home/novnc_user/dream3d/Data/ &&
         #end for
         echo "Starting DREAM.3D" > $output &&
         export GALAXY_WORKING_DIR=`pwd` &&
