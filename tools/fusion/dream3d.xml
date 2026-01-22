@@ -20,7 +20,7 @@
         #end for
         echo "Starting DREAM.3D" > $output &&
         export GALAXY_WORKING_DIR=`pwd` &&
-        #if $use-gui == "yes":
+        #if $use-gui-flag == "yes":
             /start.sh \$GALAXY_TOOL_USER &&
         #else
             /home/novnc_user/dream3d/bin/PipelineRunner -p $pipeline_file &&
