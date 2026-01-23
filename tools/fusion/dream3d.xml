@@ -1,7 +1,7 @@
 <tool id="dream3d" tool_type="interactive"  name="DREAM.3D" version="6.5.171" profile="22.01">
     <description>NoVNC tool for using DREAM.3D via a web browser</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.3</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.4</container>
     </requirements>
     <entry_points>
         <entry_point name="DREAM.3D" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -32,7 +32,7 @@
             mv $pipeline_file /home/novnc_user/pipeline.json &&
             /home/novnc_user/dream3d/bin/PipelineRunner -p /home/novnc_user/pipeline.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #end if
-        bash /collect_output.sh
+        /collect_output.sh
     ]]></command>
     <inputs>
         <conditional name="use_gui">
