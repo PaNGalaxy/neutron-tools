@@ -1,7 +1,7 @@
 <tool id="dream3d" tool_type="interactive"  name="DREAM.3D" version="6.5.171" profile="22.01">
     <description>NoVNC tool for using DREAM.3D via a web browser</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.4</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.5</container>
     </requirements>
     <entry_points>
         <entry_point name="DREAM.3D" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -19,11 +19,7 @@
         #from pathlib import Path
         #for $el in $datafiles:
             #if $el:
-                #set $cleaned_name = re.sub('[^\w]', '_', str($el.element_identifier))
-                #if Path($cleaned_name).suffix == '':
-                    #set $cleaned_name = $cleaned_name + '.' + $el.ext
-                #end if
-                ln -sf '$el' '/home/novnc_user/dream3d/Data/${cleaned_name}' &&
+                ln -sf '$el' '/home/novnc_user/dream3d/Data/${el.name}' &&
             #end if
         #end for
         #if $use_gui_flag == "yes":
