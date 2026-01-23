@@ -1,7 +1,7 @@
 <tool id="dream3d" tool_type="interactive"  name="DREAM.3D" version="6.5.171" profile="22.01">
     <description>NoVNC tool for using DREAM.3D via a web browser</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.5</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/galaxy/tool-sources/fusion/dream3d:0.6</container>
     </requirements>
     <entry_points>
         <entry_point name="DREAM.3D" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -28,7 +28,7 @@
             mv $pipeline_file /home/novnc_user/pipeline.json &&
             /home/novnc_user/dream3d/bin/PipelineRunner -p /home/novnc_user/pipeline.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #end if
-        /collect_output.sh
+        mkdir outputs && cp -r /home/novnc_user/dream3d/Data/Output .
     ]]></command>
     <inputs>
         <conditional name="use_gui">
@@ -45,7 +45,7 @@
     <outputs>
         <data format="txt" name="output" label="DREAM.3D Console Output"></data>
         <collection type="list" name="outputs" label="DREAM.3D Output Files">
-            <discover_datasets pattern="__designation_and_ext__" directory="/home/novnc_user/dream3d/Data/Output" />
+            <discover_datasets pattern="__designation__" match_relative_path="true" directory="Output" recurse="true" />
         </collection>
     </outputs>
     <help><![CDATA[
