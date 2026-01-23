@@ -32,7 +32,7 @@
             mv $pipeline_file /home/novnc_user/pipeline.json &&
             /home/novnc_user/dream3d/bin/PipelineRunner -p /home/novnc_user/pipeline.json > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #end if
-        /collect_output.sh
+        bash /collect_output.sh
     ]]></command>
     <inputs>
         <conditional name="use_gui">
