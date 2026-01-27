@@ -1,11 +1,11 @@
 <tool id="sunny-prototype" name="Sunny" version="0.1.0" profile="22.01">
     <description>Sunny Tool</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sunny/prototypes:25d429f199a1b866c1f6e5c4bcac18c66ec44ef3</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sunny/prototypes:b8ee594e3e8e95f9189dd1d97be2cdb9eb181a3d</container>
     </requirements>
      <command><![CDATA[
         mkdir outputs &&
-        pixi run app --nproc $nproc --data-dir outputs --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2)
+        pixi run app --nproc $nproc --data-dir \$(pwd)/outputs --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="nproc" type="integer" label="Number of Processes" value="1"/>
