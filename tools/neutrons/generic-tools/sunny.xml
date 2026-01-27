@@ -1,15 +1,21 @@
-
-<tool id="sunny-prototype" name="Sunny" version="@TOOL_VERSION@" profile="22.01">
-
+<tool id="sunny-prototype" name="Sunny" version="0.1.0" profile="22.01">
     <description>Sunny Tool</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sunny/prototypes:6fd84ea4efcf39f2f6821ec9740a0736934f16e3</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sunny/prototypes:25d429f199a1b866c1f6e5c4bcac18c66ec44ef3</container>
     </requirements>
      <command><![CDATA[
-        pixi run app > >(tee -a $output) 2> >(tee -a $output >&2)
+        mkdir outputs &&
+        pixi run app --nproc $nproc --data-dir outputs --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
+    <inputs>
+        <param name="nproc" type="integer" label="Number of Processes" value="1"/>
+        <param name="nsampl" type="integer" label="Number of Samples" value="1"/>
+    </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
+        <collection type="list" name="output_collection" label="Results with $nsampl sample(s)">
+            <discover_datasets pattern="__designation_and_ext__" directory="outputs"/>
+        </collection>
     </outputs>
     <help><![CDATA[
         **Sunny**
