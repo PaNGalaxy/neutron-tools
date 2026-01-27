@@ -5,7 +5,7 @@
     </requirements>
      <command><![CDATA[
         mkdir outputs &&
-        pixi run app --nproc $nproc --data-dir \$(pwd)/outputs --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2)
+        pixi run --as-is --manifest-path /app app --nproc $nproc --data-dir \$(pwd)/outputs --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="nproc" type="integer" label="Number of Processes" value="1"/>
