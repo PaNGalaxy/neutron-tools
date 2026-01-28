@@ -12,7 +12,7 @@
         #else
            module load julia/1.12.1 &&
            julia --project=/global/cfs/cdirs/m1503/maiqmag/sunny /global/cfs/cdirs/m1503/maiqmag/sunny/src/sunny/sunny.jl --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        #endif
+        #end if
         mkdir outputs &&
         ln -s \$out_folder/* outputs
     ]]></command>
