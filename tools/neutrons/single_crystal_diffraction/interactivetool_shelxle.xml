@@ -1,0 +1,36 @@
+<tool id="nova-interactive-tool-shelxle" tool_type="interactive" name="ShelXle" version="1.0.1795" profile="22.05">
+    <creator>
+        <person name="Xiaoping Wang"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/shelxle:0.1
+        </container>
+    </requirements>
+    <entry_points>
+        <entry_point name="ShelXle" label="shelxle" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">shelxle</environment_variable>
+    </environment_variables>
+    <command><![CDATA[
+        export GALAXY_WORKING_DIR=`pwd` &&
+        export DEFAULT_DIR="/SNS/users/\$GALAXY_TOOL_USER" &&
+        #if $directory:
+            export DEFAULT_DIR=$directory &&
+        #end if
+        /start.sh \$GALAXY_TOOL_USER
+        ]]>
+    </command>
+    <inputs>
+        <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
+    </inputs>
+    <outputs>
+        <data name="output_single" auto_format="true" label="ShelXle Console Output"></data>
+    </outputs>
+    <help><![CDATA[
+        Starts ShelXle.
+    ]]></help>
+</tool>
