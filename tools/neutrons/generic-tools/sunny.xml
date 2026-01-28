@@ -4,11 +4,12 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sunny/prototypes:b8ee594e3e8e95f9189dd1d97be2cdb9eb181a3d</container>
     </requirements>
      <command><![CDATA[
-        mkdir -p $output_folder.name &&
-        ln -s $output_folder.name outputs &&
-        pixi run --as-is --manifest-path /app app --nproc $nproc --data-dir \$(pwd)/$output_folder.name --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        export out_folder=\$(cat $output_folder) &&
+        mkdir -p \$out_folder &&
+        export out_folder=\$(realpath \$out_folder) &&
+        pixi run --as-is --manifest-path /app app --nproc $nproc --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
         mkdir outputs &&
-        ln -s $output_folder.name/* outputs
+        ln -s \$out_folder/* outputs
     ]]></command>
     <inputs>
         <param name="output_folder" type="data" label="Output Folder" value="1"/>
