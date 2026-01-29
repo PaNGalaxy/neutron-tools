@@ -44,7 +44,7 @@
         cp results.zip $data_output
     ]]></command>
     <inputs>
-        <param name="datafiles" type="data" format="zip" label="Input Files" />
+        <param name="datafiles" type="data" format="zip" label="Input File ZIP" />
         <param
             name="data_config"
             type="data" 
