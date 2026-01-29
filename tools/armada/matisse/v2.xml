@@ -71,7 +71,7 @@
             <param name="crs" label="Coordinate Reference System" value="ESRI:102003" type="text" />
         </section>
         <param name="buildings_threshold" label="Buildings Threshold" value="1" type="float" />
-        <param name="select_columns" label="Select Columns" value="[2, 3, 4, 5, 6, 7, 8]" type="data_collection" collection_type="list" />
+        <param name="select_columns" label="Select Columns" value="[2, 3, 4, 5, 6, 7, 8]" type="text" />
         <param name="row_start" label="Row Start" value="3" type="integer" />
         <param name="row_end" label="Row End" value="30" type="integer" />
         <param name="cap_single" label="Cap Single" value="0.75" type="float" />
