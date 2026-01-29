@@ -1,0 +1,25 @@
+<tool id="neutrons-filelist" name="File List" version="0.1.0" profile="22.01">
+    <description>Sunny Tool</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">regproxy.ornl.gov/hub_proxy/ubuntu:24.04</container>
+    </requirements>
+     <command><![CDATA[
+        mkdir -p outputs &&
+        #for $n in range(int($nfiles.value)):
+         echo $prefix/$n > outputs/${prefix}_$n &&
+        #end for
+        :
+    ]]></command>
+    <inputs>
+        <param name="prefix" type="text" label="Prefix" value=""/>
+        <param name="nfiles" type="integer" label="Number of Files" value="100"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection" label="$prefix - $nfiles batch(es)">
+            <discover_datasets format="txt" pattern="__designation__" directory="outputs"/>
+        </collection>
+    </outputs>
+    <help><![CDATA[
+        This is a Galaxy tool to create a collection with n empty files. Can be used to submit jobs in parallel.
+    ]]></help>
+</tool>
