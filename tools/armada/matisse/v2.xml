@@ -83,4 +83,40 @@
         <data format="txt" name="console_output" label="Console output"></data>
         <data format="zip" name="data_output" label="MATISSE Results"></data>
     </outputs>
+    <help><![CDATA[
+        **MATISSE v2**
+
+        There are a large number of datafiles used as input to this program, so they are configured via a JSON file for simplicity.
+        Below is an example default JSON configuration to pass to this tool::
+
+
+            {
+                "depsch_file": "data/time-dependent_assumptions_v2.0.xlsx",
+                "distribution_ng": "data/Distribution_NG.xlsx",
+                "distribution_smr": "data/Distribution_SMR.xlsx",
+                "orsage_file_paths": [
+                    "data/ORSAGE/NG_Polygons_cleaned.shp",
+                    "data/ORSAGE/SMR_Polygons_cleaned.shp",
+                    "data/ORSAGE/PV_Polygons_cleaned.shp"
+                ],
+                "usastructures_file": "data/AllTVA.gpkg",
+                "tea_single_fileng": "data/ng_points_allpoints_cost_estimates_with_LCOE.csv",
+                "tea_cluster_fileng": "data/ng_points_cost_estimates_with_LCOE.csv",
+                "tea_cluster_sweep_fileng": "data/ng_points_sweep_results.csv",
+                "tea_single_filesmr": "data/SMR_Locations_row_cost_estimates_with_LCOE.csv",
+                "tea_cluster_filesmr": "data/SMR_Locations_cluster_cost_estimates_with_LCOE.csv",
+                "tea_cluster_sweep_filesmr": "data/SMR_Locations_cluster_sweep_results.csv",
+                "fim_dir": "data/Ancillary/FIM",
+                "fim_qgis_path": "data/Ancillary/FIM/QGIS",
+                "elm_filepath": "data/Ancillary/ELM/uELM_TVA_finalspinref.elm.h0.0800.annual_mean_carbon_loss.nc",
+                "soil_erosion_raster": "data/Ancillary/SoilErosion/soil_loss_rate_30m_prevented_by_natural_vegetation.tif",
+                "soil_cache_dir": "data/Ancillary/SoilErosion/",
+                "biodiversity_raster": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/SEBlueprint20250227/5_Priorities/Blueprint2024.tif",
+                "biodiversity_cache_dir": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/",
+                "tea_pv_file": "data/PV/PV_results_Nov_25_2025.xlsx"
+            }
+
+        Note that the ZIP archive you provide to the tool must contain a directory structure that matches your JSON file or else
+        MATISSE will fail to find your input files.
+    ]]></help>
 </tool>
