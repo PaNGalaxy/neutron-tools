@@ -68,19 +68,19 @@
         cp results.zip $data_output
     ]]></command>
     <inputs>
-        <section name="ng" label="Natural Gas Parameters" expanded="true">
+        <section name="ng" title="Natural Gas Parameters" expanded="true">
             <param name="clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
             <param name="poly_width" label="Polygon Width" value="450" type="float" />
             <param name="capacity_mw" label="Capacity (MW)" value="750" type="float" />
             <param name="crs" label="Coordinate Reference System" value="ESRI:102009" type="text" />
         </section>
-        <section name="smr" label="Small Modular Reactor Parameters" expanded="true">
+        <section name="smr" title="Small Modular Reactor Parameters" expanded="true">
             <param name="clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
             <param name="poly_width" label="Polygon Width" value="450" type="float" />
             <param name="capacity_mw" label="Capacity (MW)" value="264" type="float" />
             <param name="unit_size" label="Unit Size" value="0.264" type="float" />
         </section>
-        <section name="pv" label="Photovoltaics Parameters" expanded="true">
+        <section name="pv" title="Photovoltaics Parameters" expanded="true">
             <param name="clust_max_dist" label="Max Cluster Distance" value="1300" type="float" />
             <param name="poly_width" label="Polygon Width" value="900" type="float" />
             <param name="capacity_mw" label="Capacity (MW)" value="20" type="float" />
