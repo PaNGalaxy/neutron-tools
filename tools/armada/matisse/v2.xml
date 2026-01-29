@@ -5,23 +5,7 @@
     </requirements>
     <command><![CDATA[
         echo {
-            "depsch_file": "data/time-dependent_assumptions_v2.0.xlsx",
-            "distribution_ng": "data/Distribution_NG.xlsx",
-            "distribution_smr": "data/Distribution_SMR.xlsx",
-            "orsage_file_paths": [
-                "data/ORSAGE/NG_Polygons_cleaned.shp",
-                "data/ORSAGE/SMR_Polygons_cleaned.shp",
-                "data/ORSAGE/PV_Polygons_cleaned.shp"
-            ],
-            "usastructures_file": "data/AllTVA.gpkg",
-
-            "tea_single_fileng": "data/ng_points_allpoints_cost_estimates_with_LCOE.csv",
-            "tea_cluster_fileng": "data/ng_points_cost_estimates_with_LCOE.csv",
-            "tea_cluster_sweep_fileng": "data/ng_points_sweep_results.csv",
-
-            "tea_single_filesmr": "data/SMR_Locations_row_cost_estimates_with_LCOE.csv",
-            "tea_cluster_filesmr": "data/SMR_Locations_cluster_cost_estimates_with_LCOE.csv",
-            "tea_cluster_sweep_filesmr": "data/SMR_Locations_cluster_sweep_results.csv",
+            \$(cat $data_config | jq -r 'to_entries[] | "\(.key): \"\(.value)\""')
 
             "clustmaxdist_ng": $ng.clust_max_dist,
             "clustmaxdist_smr": $smr.clust_max_dist,
@@ -47,19 +31,11 @@
             "years_end": $years_end,
             "crs_ng": "$ng.crs",
             "crs_pv": "$pv.crs",
-            "fim_dir": "data/Ancillary/FIM",
-            "fim_qgis_path": "data/Ancillary/FIM/QGIS",
-            "elm_filepath": "data/Ancillary/ELM/uELM_TVA_finalspinref.elm.h0.0800.annual_mean_carbon_loss.nc",
-            "soil_erosion_raster": "data/Ancillary/SoilErosion/soil_loss_rate_30m_prevented_by_natural_vegetation.tif",
-            "soil_cache_dir": "data/Ancillary/SoilErosion/",
-            "biodiversity_raster": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/SEBlueprint20250227/5_Priorities/Blueprint2024.tif",
-            "biodiversity_cache_dir": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/",
-            "tea_pv_file": "data/PV/PV_results_Nov_25_2025.xlsx",
 
-            "final_selection_path": "data/Output/v2/FinalProjectSelection_NG_SMR_PVtest.gpkg",
-            "ng_projects_path": "data/Output/v2/NGLCOE_21GW_v2_polytest.gpkg",
-            "smr_projects_path": "data/Output/v2/SMRLCOE_21GW_v2_polytest.gpkg",
-            "pv_projects_path": "data/Output/v2/PVLCOE_41GW_v2_polytest.gpkg",
+            "final_selection_path": "data/Output/v2/FinalProjectSelection_NG_SMR_PV.gpkg",
+            "ng_projects_path": "data/Output/v2/NGLCOE_21GW_v2_poly.gpkg",
+            "smr_projects_path": "data/Output/v2/SMRLCOE_21GW_v2_poly.gpkg",
+            "pv_projects_path": "data/Output/v2/PVLCOE_41GW_v2_poly.gpkg",
 
             "logging": { "level": "INFO" }
         } > config.json &&
@@ -68,6 +44,14 @@
         cp results.zip $data_output
     ]]></command>
     <inputs>
+        <param name="datafiles" type="data" format="zip" label="Input Files" />
+        <param
+            name="data_config"
+            type="data" 
+            format="json"
+            label="Input File Configuration"
+            help="Please ensure that you use relative paths to files and that these relative paths match the directory structure provided in the ZIP passed to Input Files."
+        />
         <section name="ng" title="Natural Gas Parameters" expanded="true">
             <param name="clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
             <param name="poly_width" label="Polygon Width" value="450" type="float" />
@@ -99,7 +83,4 @@
         <data format="txt" name="console_output" label="Console output"></data>
         <data format="zip" name="data_output" label="MATISSE Results"></data>
     </outputs>
-    <help><![CDATA[
-        **MATISSE**
-    ]]></help>
 </tool>
