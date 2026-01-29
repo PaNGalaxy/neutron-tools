@@ -1,0 +1,18 @@
+<tool id="matisse" name="MATISSE" version="2.0.0" profile="22.01">
+    <description>Python script for running MATISSE.</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:2.0.0</container>
+    </requirements>
+    <command><![CDATA[
+        python -m matisse > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+    </inputs>
+    <outputs>
+        <data format="txt" name="console_output" label="Console output"></data>
+        <data format="zip" name="data_output" label="MATISSE Results"></data>
+    </outputs>
+    <help><![CDATA[
+        **MATISSE**
+    ]]></help>
+</tool>
