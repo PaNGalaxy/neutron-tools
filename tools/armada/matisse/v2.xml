@@ -56,7 +56,7 @@
             <param name="clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
             <param name="poly_width" label="Polygon Width" value="450" type="float" />
             <param name="capacity_mw" label="Capacity (MW)" value="750" type="float" />
-            <param name="crs" label="Coordinate Reference System" value="ESRI:102009" type="text" />
+            <param name="crs" label="Coordinate Reference System" value="ESRI:102009" type="text" optional="false" />
         </section>
         <section name="smr" title="Small Modular Reactor Parameters" expanded="true">
             <param name="clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
@@ -68,10 +68,10 @@
             <param name="clust_max_dist" label="Max Cluster Distance" value="1300" type="float" />
             <param name="poly_width" label="Polygon Width" value="900" type="float" />
             <param name="capacity_mw" label="Capacity (MW)" value="20" type="float" />
-            <param name="crs" label="Coordinate Reference System" value="ESRI:102003" type="text" />
+            <param name="crs" label="Coordinate Reference System" value="ESRI:102003" type="text" optional="false" />
         </section>
         <param name="buildings_threshold" label="Buildings Threshold" value="1" type="float" />
-        <param name="select_columns" label="Select Columns" value="[2, 3, 4, 5, 6, 7, 8]" type="text" />
+        <param name="select_columns" label="Select Columns" value="[2, 3, 4, 5, 6, 7, 8]" type="text" optional="false" />
         <param name="row_start" label="Row Start" value="3" type="integer" />
         <param name="row_end" label="Row End" value="30" type="integer" />
         <param name="cap_single" label="Cap Single" value="0.75" type="float" />
