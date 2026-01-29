@@ -4,9 +4,96 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:2.0.0</container>
     </requirements>
     <command><![CDATA[
-        python -m matisse > >(tee -a $output) 2> >(tee -a $output >&2)
+        echo {
+            "depsch_file": "data/time-dependent_assumptions_v2.0.xlsx",
+            "distribution_ng": "data/Distribution_NG.xlsx",
+            "distribution_smr": "data/Distribution_SMR.xlsx",
+            "orsage_file_paths": [
+                "data/ORSAGE/NG_Polygons_cleaned.shp",
+                "data/ORSAGE/SMR_Polygons_cleaned.shp",
+                "data/ORSAGE/PV_Polygons_cleaned.shp"
+            ],
+            "usastructures_file": "data/AllTVA.gpkg",
+
+            "tea_single_fileng": "data/ng_points_allpoints_cost_estimates_with_LCOE.csv",
+            "tea_cluster_fileng": "data/ng_points_cost_estimates_with_LCOE.csv",
+            "tea_cluster_sweep_fileng": "data/ng_points_sweep_results.csv",
+
+            "tea_single_filesmr": "data/SMR_Locations_row_cost_estimates_with_LCOE.csv",
+            "tea_cluster_filesmr": "data/SMR_Locations_cluster_cost_estimates_with_LCOE.csv",
+            "tea_cluster_sweep_filesmr": "data/SMR_Locations_cluster_sweep_results.csv",
+
+            "clustmaxdist_ng": $ng.clust_max_dist,
+            "clustmaxdist_smr": $smr.clust_max_dist,
+            "clustmaxdist_pv": $pv.clust_max_dist,
+            "polyngwidth": $ng.poly_width,
+            "polysmrwidth": $smr.poly_width,
+            "polypvwidth": $pv.poly_width,
+            "buildings_threshold": $buildings_threshold,
+
+            "selectcolumns": $select_column,
+            "rowstart": $row_start,
+            "rowend": $row_end,
+
+            "cap_single": $cap_single,
+            "cap_dual": $cap_dual,
+            "smr_unit_size": $smr.unit_size,
+
+            "ng_capacity_mw": ng.capacity_mw,
+            "smr_capacity_mw": smr.capacity_mw,
+            "pv_capacity_mw": pv.capacity_mw,
+
+            "years_start": $years_start,
+            "years_end": $years_end,
+            "crs_ng": "$ng.crs",
+            "crs_pv": "$pv.crs",
+            "fim_dir": "data/Ancillary/FIM",
+            "fim_qgis_path": "data/Ancillary/FIM/QGIS",
+            "elm_filepath": "data/Ancillary/ELM/uELM_TVA_finalspinref.elm.h0.0800.annual_mean_carbon_loss.nc",
+            "soil_erosion_raster": "data/Ancillary/SoilErosion/soil_loss_rate_30m_prevented_by_natural_vegetation.tif",
+            "soil_cache_dir": "data/Ancillary/SoilErosion/",
+            "biodiversity_raster": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/SEBlueprint20250227/5_Priorities/Blueprint2024.tif",
+            "biodiversity_cache_dir": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/",
+            "tea_pv_file": "data/PV/PV_results_Nov_25_2025.xlsx",
+
+            "final_selection_path": "data/Output/v2/FinalProjectSelection_NG_SMR_PVtest.gpkg",
+            "ng_projects_path": "data/Output/v2/NGLCOE_21GW_v2_polytest.gpkg",
+            "smr_projects_path": "data/Output/v2/SMRLCOE_21GW_v2_polytest.gpkg",
+            "pv_projects_path": "data/Output/v2/PVLCOE_41GW_v2_polytest.gpkg",
+
+            "logging": { "level": "INFO" }
+        } > config.json &&
+        python -m matisse > >(tee -a $console_output) 2> >(tee -a $console_output >&2) &&
+        zip -j results.zip data/Output/v2/* &&
+        cp results.zip $data_output
     ]]></command>
     <inputs>
+        <section name="ng" label="Natural Gas Parameters" expanded="true">
+            <param name="clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
+            <param name="poly_width" label="Polygon Width" value="450" type="float" />
+            <param name="capacity_mw" label="Capacity (MW)" value="750" type="float" />
+            <param name="crs" label="Coordinate Reference System" value="ESRI:102009" type="text" />
+        </section>
+        <section name="smr" label="Small Modular Reactor Parameters" expanded="true">
+            <param name="clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
+            <param name="poly_width" label="Polygon Width" value="450" type="float" />
+            <param name="capacity_mw" label="Capacity (MW)" value="264" type="float" />
+            <param name="unit_size" label="Unit Size" value="0.264" type="float" />
+        </section>
+        <section name="pv" label="Photovoltaics Parameters" expanded="true">
+            <param name="clust_max_dist" label="Max Cluster Distance" value="1300" type="float" />
+            <param name="poly_width" label="Polygon Width" value="900" type="float" />
+            <param name="capacity_mw" label="Capacity (MW)" value="20" type="float" />
+            <param name="crs" label="Coordinate Reference System" value="ESRI:102003" type="text" />
+        </section>
+        <param name="buildings_threshold" label="Buildings Threshold" value="1" type="float" />
+        <param name="select_columns" label="Select Columns" value="[2, 3, 4, 5, 6, 7, 8]" type="data_collection" collection_type="list" />
+        <param name="row_start" label="Row Start" value="3" type="integer" />
+        <param name="row_end" label="Row End" value="30" type="integer" />
+        <param name="cap_single" label="Cap Single" value="0.75" type="float" />
+        <param name="cap_dual" label="Cap Dual" value="1.5" type="float" />
+        <param name="years_start" label="Start Year" value="2024" type="integer" />
+        <param name="years_end" label="End Year" value="2051" type="integer" />
     </inputs>
     <outputs>
         <data format="txt" name="console_output" label="Console output"></data>
