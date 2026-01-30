@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/shelxle:0.1
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/shelxle:0.2
         </container>
     </requirements>
     <entry_points>
