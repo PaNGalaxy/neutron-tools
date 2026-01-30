@@ -1,48 +1,43 @@
-<tool id="matisse" name="MATISSE" version="2.0.0" profile="22.01">
+<tool id="matisse" name="MATISSE" version="2.0.3" profile="22.01">
     <description>Python script for running MATISSE.</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:2.0.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:2.0.3</container>
     </requirements>
     <command><![CDATA[
-        echo {
-            \$(cat $data_config | jq -r 'to_entries[] | "\(.key): \"\(.value)\""')
-
-            "clustmaxdist_ng": $ng_clust_max_dist,
-            "clustmaxdist_smr": $smr_clust_max_dist,
-            "clustmaxdist_pv": $pv_clust_max_dist,
-            "polyngwidth": $ng_poly_width,
-            "polysmrwidth": $smr_poly_width,
-            "polypvwidth": $pv_poly_width,
-            "buildings_threshold": $buildings_threshold,
-
-            "selectcolumns": $select_column,
-            "rowstart": $row_start,
-            "rowend": $row_end,
-
-            "cap_single": $cap_single,
-            "cap_dual": $cap_dual,
-            "smr_unit_size": $smr_unit_size,
-
-            "ng_capacity_mw": ng_capacity_mw,
-            "smr_capacity_mw": smr_capacity_mw,
-            "pv_capacity_mw": pv_capacity_mw,
-
-            "years_start": $years_start,
-            "years_end": $years_end,
-            "crs_ng": "$ng_crs",
-            "crs_pv": "$pv_crs",
-
-            "final_selection_path": "data/Output/v2/FinalProjectSelection_NG_SMR_PV.gpkg",
-            "ng_projects_path": "data/Output/v2/NGLCOE_21GW_v2_poly.gpkg",
-            "smr_projects_path": "data/Output/v2/SMRLCOE_21GW_v2_poly.gpkg",
-            "pv_projects_path": "data/Output/v2/PVLCOE_41GW_v2_poly.gpkg",
-
-            "logging": { "level": "INFO" }
-        } > config.json &&
+        cd /opt/run &&
+        cp $data_config data_config.json &&
+        python merge_config.py data_config.json > config.json &&
+        cat config.json &&
+        cp $datafiles inputs.zip &&
+        unzip inputs.zip &&
+        rm inputs.zip &&
+        mkdir -p data/Output/v2 &&
         python -m matisse > >(tee -a $console_output) 2> >(tee -a $console_output >&2) &&
         zip -j results.zip data/Output/v2/* &&
         cp results.zip $data_output
     ]]></command>
+    <environment_variables>
+        <environment_variable name="NG_CLUST_MAX_DIST">$ng_clust_max_dist</environment_variable>
+        <environment_variable name="NG_POLY_WIDTH">$ng_poly_width</environment_variable>
+        <environment_variable name="NG_CAPACITY_MW">$ng_capacity_mw</environment_variable>
+        <environment_variable name="NG_CRS">$ng_crs</environment_variable>
+        <environment_variable name="SMR_CLUST_MAX_DIST">$smr_clust_max_dist</environment_variable>
+        <environment_variable name="SMR_POLY_WIDTH">$smr_poly_width</environment_variable>
+        <environment_variable name="SMR_CAPACITY_MW">$smr_capacity_mw</environment_variable>
+        <environment_variable name="SMR_UNIT_SIZE">$smr_unit_size</environment_variable>
+        <environment_variable name="PV_CLUST_MAX_DIST">$pv_clust_max_dist</environment_variable>
+        <environment_variable name="PV_POLY_WIDTH">$pv_poly_width</environment_variable>
+        <environment_variable name="PV_CAPACITY_MW">$pv_capacity_mw</environment_variable>
+        <environment_variable name="PV_CRS">$pv_crs</environment_variable>
+        <environment_variable name="BUILDINGS_THRESHOLD">$buildings_threshold</environment_variable>
+        <environment_variable name="SELECT_COLUMNS">$select_columns</environment_variable>
+        <environment_variable name="ROW_START">$row_start</environment_variable>
+        <environment_variable name="ROW_END">$row_end</environment_variable>
+        <environment_variable name="CAP_SINGLE">$cap_single</environment_variable>
+        <environment_variable name="CAP_DUAL">$cap_dual</environment_variable>
+        <environment_variable name="YEARS_START">$years_start</environment_variable>
+        <environment_variable name="YEARS_END">$years_end</environment_variable>
+    </environment_variables>
     <inputs>
         <param name="datafiles" type="data" format="zip" label="Input File ZIP" />
         <param
