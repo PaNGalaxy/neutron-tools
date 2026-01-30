@@ -1,0 +1,117 @@
+<tool id="matisse" name="MATISSE" version="2.0.3" profile="22.01">
+    <description>Python script for running MATISSE.</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:2.0.3</container>
+    </requirements>
+    <command><![CDATA[
+        cd /opt/run &&
+        cp $data_config data_config.json &&
+        python merge_config.py data_config.json > config.json &&
+        cat config.json &&
+        cp $datafiles inputs.zip &&
+        unzip inputs.zip &&
+        rm inputs.zip &&
+        mkdir -p data/Output/v2 &&
+        python -m matisse > >(tee -a $console_output) 2> >(tee -a $console_output >&2) &&
+        zip -j results.zip data/Output/v2/* &&
+        cp results.zip $data_output
+    ]]></command>
+    <environment_variables>
+        <environment_variable name="NG_CLUST_MAX_DIST">$ng_clust_max_dist</environment_variable>
+        <environment_variable name="NG_POLY_WIDTH">$ng_poly_width</environment_variable>
+        <environment_variable name="NG_CAPACITY_MW">$ng_capacity_mw</environment_variable>
+        <environment_variable name="NG_CRS">$ng_crs</environment_variable>
+        <environment_variable name="SMR_CLUST_MAX_DIST">$smr_clust_max_dist</environment_variable>
+        <environment_variable name="SMR_POLY_WIDTH">$smr_poly_width</environment_variable>
+        <environment_variable name="SMR_CAPACITY_MW">$smr_capacity_mw</environment_variable>
+        <environment_variable name="SMR_UNIT_SIZE">$smr_unit_size</environment_variable>
+        <environment_variable name="PV_CLUST_MAX_DIST">$pv_clust_max_dist</environment_variable>
+        <environment_variable name="PV_POLY_WIDTH">$pv_poly_width</environment_variable>
+        <environment_variable name="PV_CAPACITY_MW">$pv_capacity_mw</environment_variable>
+        <environment_variable name="PV_CRS">$pv_crs</environment_variable>
+        <environment_variable name="BUILDINGS_THRESHOLD">$buildings_threshold</environment_variable>
+        <environment_variable name="SELECT_COLUMNS">$select_columns</environment_variable>
+        <environment_variable name="ROW_START">$row_start</environment_variable>
+        <environment_variable name="ROW_END">$row_end</environment_variable>
+        <environment_variable name="CAP_SINGLE">$cap_single</environment_variable>
+        <environment_variable name="CAP_DUAL">$cap_dual</environment_variable>
+        <environment_variable name="YEARS_START">$years_start</environment_variable>
+        <environment_variable name="YEARS_END">$years_end</environment_variable>
+    </environment_variables>
+    <inputs>
+        <param name="datafiles" type="data" format="zip" label="Input File ZIP" />
+        <param
+            name="data_config"
+            type="data" 
+            format="json"
+            label="Input File Configuration"
+            help="Please ensure that you use relative paths to files and that these relative paths match the directory structure provided in the ZIP passed to Input Files."
+        />
+        <section name="ng" title="Natural Gas Parameters" expanded="true">
+            <param name="ng_clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
+            <param name="ng_poly_width" label="Polygon Width" value="450" type="float" />
+            <param name="ng_capacity_mw" label="Capacity (MW)" value="750" type="float" />
+            <param name="ng_crs" label="Coordinate Reference System" value="ESRI:102009" type="text" optional="false" />
+        </section>
+        <section name="smr" title="Small Modular Reactor Parameters" expanded="true">
+            <param name="smr_clust_max_dist" label="Max Cluster Distance" value="700" type="float" />
+            <param name="smr_poly_width" label="Polygon Width" value="450" type="float" />
+            <param name="smr_capacity_mw" label="Capacity (MW)" value="264" type="float" />
+            <param name="smr_unit_size" label="Unit Size" value="0.264" type="float" />
+        </section>
+        <section name="pv" title="Photovoltaics Parameters" expanded="true">
+            <param name="pv_clust_max_dist" label="Max Cluster Distance" value="1300" type="float" />
+            <param name="pv_poly_width" label="Polygon Width" value="900" type="float" />
+            <param name="pv_capacity_mw" label="Capacity (MW)" value="20" type="float" />
+            <param name="pv_crs" label="Coordinate Reference System" value="ESRI:102003" type="text" optional="false" />
+        </section>
+        <param name="buildings_threshold" label="Buildings Threshold" value="1" type="float" />
+        <param name="select_columns" label="Select Columns" value="[2, 3, 4, 5, 6, 7, 8]" type="text" optional="false" />
+        <param name="row_start" label="Row Start" value="3" type="integer" />
+        <param name="row_end" label="Row End" value="30" type="integer" />
+        <param name="cap_single" label="Cap Single" value="0.75" type="float" />
+        <param name="cap_dual" label="Cap Dual" value="1.5" type="float" />
+        <param name="years_start" label="Start Year" value="2024" type="integer" />
+        <param name="years_end" label="End Year" value="2051" type="integer" />
+    </inputs>
+    <outputs>
+        <data format="txt" name="console_output" label="Console output"></data>
+        <data format="zip" name="data_output" label="MATISSE Results"></data>
+    </outputs>
+    <help><![CDATA[
+        **MATISSE v2**
+
+        There are a large number of datafiles used as input to this program, so they are configured via a JSON file for simplicity.
+        Below is an example default JSON configuration to pass to this tool::
+
+
+            {
+                "depsch_file": "data/time-dependent_assumptions_v2.0.xlsx",
+                "distribution_ng": "data/Distribution_NG.xlsx",
+                "distribution_smr": "data/Distribution_SMR.xlsx",
+                "orsage_file_paths": [
+                    "data/ORSAGE/NG_Polygons_cleaned.shp",
+                    "data/ORSAGE/SMR_Polygons_cleaned.shp",
+                    "data/ORSAGE/PV_Polygons_cleaned.shp"
+                ],
+                "usastructures_file": "data/AllTVA.gpkg",
+                "tea_single_fileng": "data/ng_points_allpoints_cost_estimates_with_LCOE.csv",
+                "tea_cluster_fileng": "data/ng_points_cost_estimates_with_LCOE.csv",
+                "tea_cluster_sweep_fileng": "data/ng_points_sweep_results.csv",
+                "tea_single_filesmr": "data/SMR_Locations_row_cost_estimates_with_LCOE.csv",
+                "tea_cluster_filesmr": "data/SMR_Locations_cluster_cost_estimates_with_LCOE.csv",
+                "tea_cluster_sweep_filesmr": "data/SMR_Locations_cluster_sweep_results.csv",
+                "fim_dir": "data/Ancillary/FIM",
+                "fim_qgis_path": "data/Ancillary/FIM/QGIS",
+                "elm_filepath": "data/Ancillary/ELM/uELM_TVA_finalspinref.elm.h0.0800.annual_mean_carbon_loss.nc",
+                "soil_erosion_raster": "data/Ancillary/SoilErosion/soil_loss_rate_30m_prevented_by_natural_vegetation.tif",
+                "soil_cache_dir": "data/Ancillary/SoilErosion/",
+                "biodiversity_raster": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/SEBlueprint20250227/5_Priorities/Blueprint2024.tif",
+                "biodiversity_cache_dir": "data/Ancillary/Southeast_Blueprint_2024_Data_Download/",
+                "tea_pv_file": "data/PV/PV_results_Nov_25_2025.xlsx"
+            }
+
+        Note that the ZIP archive you provide to the tool must contain a directory structure that matches your JSON file or else
+        MATISSE will fail to find your input files.
+    ]]></help>
+</tool>

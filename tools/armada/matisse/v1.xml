@@ -1,7 +1,7 @@
-<tool id="matisse-ng-siting" name="Natural Gas Siting Analysis" version="0.1.0" profile="22.01">
-    <description>Python script for running MATISSE's natural gas siting analysis on data from CKAN.</description>
+<tool id="matisse" name="MATISSE" version="1.0.0" profile="22.01">
+    <description>Python script for running MATISSE.</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/armada/matisse/ng_siting:1.0.0</container>
     </requirements>
     <command><![CDATA[
         mkdir .ckan &&
@@ -32,6 +32,6 @@
         <data format="zip" name="nglcoe" label="NGLCOE 21GW"></data>
     </outputs>
     <help><![CDATA[
-        **MATISSE Natural Gas Siting**
+        **MATISSE**
     ]]></help>
 </tool>
