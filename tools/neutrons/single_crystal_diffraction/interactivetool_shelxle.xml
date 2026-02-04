@@ -1,4 +1,4 @@
-<tool id="nova-interactive-tool-shelxle" tool_type="interactive" name="ShelXle" version="1.0.1795" profile="22.05">
+<tool id="nova-interactive-tool-shelxle" tool_type="interactive" name="ShelXle" version="1.0.1799" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
