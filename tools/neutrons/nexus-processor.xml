@@ -1,8 +1,8 @@
-<tool id="nexus_processor" name="Nexus Processor" version="0.1.0" profile="22.01">
+<tool id="nexus_processor_prototype" name="Nexus Processor" version="0.1.0" profile="22.01">
     <description>Nexus Processor CLI Tool</description>
     <creator>
-        <person name="Your Name"/>
-        <organization url="https://www.example.com/" name="Your Organization"/>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
 
     <requirements>
@@ -10,8 +10,7 @@
     </requirements>
 
     <inputs>
-        <param name="input_file" type="data" format="nxs.h5" label="Input NeXus File"/>
-        <param name="output_dir" type="data" format="directory" label="Output Directory"/>
+        <param name="input_file" type="data" format="h5" label="Input NeXus File"/>
         <param name="include_events" type="boolean" label="Include Events"/>
         <param name="include_users" type="boolean" label="Include Users"/>
         <param name="max_events" type="integer" optional="true" label="Max Events"/>
@@ -19,15 +18,15 @@
     </inputs>
 
     <outputs>
-        <data name="parquet_output" format="parquet" label="Parquet Output Directory"/>
+        <data name="parquet_output" format="directory" label="Parquet Output Directory"/>
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-
+        
         ln -s $input_file ./input.nxs.h5 &&
         nexus_processor \
             --input_file ./input.nxs.h5 \
-            --output-dir ${output_dir:-parquet_output} \
+            --output-dir output/ \
             #if $include_events
               --include-events ${include_events:-false} \
             #end if
@@ -38,7 +37,7 @@
             --max-events $max_events \
             #end if
             --max-events-per-file ${max_events_per_file} \
-            && mv ./output/* $out_dir
+            && mv parquet_output/* $parquet_output
 
     ]]></command>
 </tool>
