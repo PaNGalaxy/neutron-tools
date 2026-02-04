@@ -23,21 +23,15 @@
 
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p output &&
+
         ln -s $input_file ./input.nxs.h5 &&
+
         nexus-processor 
             --input_file ./input.nxs.h5 
             --output-dir output/ 
-            #if str($include_events) == "true"
-            --include-events 
-            #end if
-            #if str($include_users) == "true"
-            --include-users 
-            #end if
-            #if $max_events
-            --max-events $max_events 
-            #end if
-            --max-events-per-file ${max_events_per_file} 
-            && mv output/* $parquet_output
+            --max-events-per-file $max_events_per_file
+    
+        && mv output/* $parquet_output
 
     ]]></command>
 </tool>
