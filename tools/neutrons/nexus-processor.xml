@@ -28,10 +28,19 @@
 
         && echo "running nexus-processor..."
 
-        && python -m nexus_processor.cli
+        && nexus-processor
             --input-file ./input.nxs.h5 
             --output-dir output/ 
             --max-events-per-file $max_events_per_file
+            #if str($include_events) == "true"
+              --include-events 
+            #end if
+            #if str($include_users) == "true"
+              --include-users 
+            #end if
+            #if $max_events
+              --max-events $max_events 
+            #end if
     
         && mv output/* $parquet_output
 
