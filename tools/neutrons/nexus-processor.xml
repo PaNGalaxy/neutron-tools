@@ -29,7 +29,7 @@
         && echo "running nexus-processor..."
 
         && nexus-processor
-            --input-file ./input.nxs.h5 
+            ./input.nxs.h5 
             --output-dir output/ 
             --max-events-per-file $max_events_per_file
             #if str($include_events) == "true"
