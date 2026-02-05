@@ -1,10 +1,10 @@
-<tool id="nova-interactive-tool-shelxle" tool_type="interactive" name="ShelXle" version="1.0.1795" profile="22.05">
+<tool id="nova-interactive-tool-shelxle" tool_type="interactive" name="ShelXle" version="1.0.1799" profile="22.05">
     <creator>
         <person name="Xiaoping Wang"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/shelxle:0.2
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/shelxle:0.3
         </container>
     </requirements>
     <entry_points>
