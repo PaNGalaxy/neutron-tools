@@ -1,0 +1,24 @@
+<tool id="fusion-ips-fastran" name="IPS Fastran"  profile="22.05" version="0.4.0">
+  <description></description>
+    <command detect_errors="exit_code"><![CDATA[
+        export SHOT_NUMBER=$shot_number &&
+        export TIME_ID=$time_id &&
+        module load python &&
+        cp -r /global/common/software/atom/example1/input ./ &&
+        source activate /global/common/software/atom/perlmutter/cesol/conda/dev &&
+        ips.py --simulation=$config --platform=/global/common/software/atom/example1/perlmutter_cpu_node.conf --log=ips.log
+    ]]></command>
+    <inputs>
+        <param name="config" type="data" format="txt" optional="false" label="Config File" />
+        <param name="shot_number" type="text" value="000001" label="Shot Number" />
+        <param name="time_id" type="text" value="00001" label="Time ID" />
+    </inputs>
+    <outputs>
+        <collection type="list" name="outputs" label="IPS Fastran output">
+            <discover_datasets format="netcdf" pattern="__designation__" directory="summary" />
+        </collection>
+    </outputs>
+    <help><![CDATA[
+        A tool to run IPS Fastran code
+]]></help>
+</tool>
