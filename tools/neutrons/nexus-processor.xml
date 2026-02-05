@@ -22,7 +22,7 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir -p output
+        mkdir -p output/
 
         && ln -s $input_file ./input.nxs.h5
 
@@ -41,10 +41,12 @@
             #if $max_events
               --max-events $max_events 
             #end if
-    
-        && ls
+
         && pwd
-        && mv output/*.parquet $parquet_output/
+        && echo "==========="
+        && ls -lath output/
+        && echo "==========="
+        && mv ./output/*.parquet $parquet_output/
 
     ]]></command>
 </tool>
