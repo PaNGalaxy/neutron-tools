@@ -42,7 +42,7 @@
               --max-events $max_events 
             #end if
     
-        && mv output/* $parquet_output
+        && mv output/*.parquet $parquet_output/
 
     ]]></command>
 </tool>
