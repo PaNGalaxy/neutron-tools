@@ -18,7 +18,7 @@
     </inputs>
 
     <outputs>
-        <data name="parquet_output" format="directory" label="Parquet Output Directory"/>
+        <data format="gz" name="out_gz" label="Gzip Parquet Output Directory"/>
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
@@ -42,11 +42,8 @@
               --max-events $max_events 
             #end if
 
-        && pwd
-        && echo "==========="
-        && ls -lath output/
-        && echo "==========="
-        && mv ./output/*.parquet $parquet_output/
+    
+        && tar -czvf $out_gz output/
 
     ]]></command>
 </tool>
