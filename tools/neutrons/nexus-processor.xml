@@ -29,7 +29,7 @@
         && echo "running nexus-processor..."
 
         && python -m nexus_processor.cli
-            --input_file ./input.nxs.h5 
+            --input-file ./input.nxs.h5 
             --output-dir output/ 
             --max-events-per-file $max_events_per_file
     
