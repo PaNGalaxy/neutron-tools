@@ -1,4 +1,4 @@
-<tool id="nexus_processor_prototype" name="Nexus Processor" version="0.3.0" profile="22.01">
+<tool id="nexus_processor_prototype" name="Nexus Processor" version="0.4.0" profile="22.01">
     <description>Nexus Processor CLI Tool</description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -42,6 +42,8 @@
               --max-events $max_events 
             #end if
     
+        && ls
+        && pwd
         && mv output/*.parquet $parquet_output/
 
     ]]></command>
