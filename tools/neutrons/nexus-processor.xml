@@ -1,4 +1,4 @@
-<tool id="nexus_processor_prototype" name="Nexus Processor" version="0.1.0" profile="22.01">
+<tool id="nexus_processor_prototype" name="Nexus Processor" version="0.2.0" profile="22.01">
     <description>Nexus Processor CLI Tool</description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -22,11 +22,13 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir -p output &&
+        mkdir -p output
 
-        ln -s $input_file ./input.nxs.h5 &&
+        && ln -s $input_file ./input.nxs.h5
 
-        python -m nexus_processor.cli
+        && echo "running nexus-processor..."
+
+        && python -m nexus_processor.cli
             --input_file ./input.nxs.h5 
             --output-dir output/ 
             --max-events-per-file $max_events_per_file
