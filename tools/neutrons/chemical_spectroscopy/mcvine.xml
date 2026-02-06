@@ -10,7 +10,7 @@
 		#end for
     ]]></command>
     <inputs>
-        <param name="inputs" type="data_collection" optional="false" collection_type="list" label="McVine Input"/>
+        <param name="inputs" type="data" optional="false" collection_type="list" label="McVine Input"/>
         <param name="nproc" type="integer" label="Number of Processes" value="1"/>
         <param name="ncount" type="integer" label="Number of counts" value="1"/>
     </inputs>
