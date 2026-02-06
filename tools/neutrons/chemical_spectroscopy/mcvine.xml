@@ -1,15 +1,13 @@
 <tool id="neutrons-mcvine" name="MCVine" version="0.1.0" profile="22.01">
     <description>MCVine Tool</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/sunny:0.1.0</container>
+    </requirements>
      <command><![CDATA[
-        #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no' or not $varExists('__job_resource.remote_resource_cloud_nersc') or $__job_resource.remote_resource_cloud_nersc=='orc' :
-            echo this tool must run on NERSC >(tee -a $output >&2) &&
-            exit(1)
-        #end if
   		#for $input in $inputs
 			#set $out_name = $input.element_identifier + ".h5"
 			echo $out_name >(tee -a $output >&2) &&
 		#end for
-
     ]]></command>
     <inputs>
         <param name="inputs" type="data_collection" optional="false" collection_type="list" label="McVine Input"/>
