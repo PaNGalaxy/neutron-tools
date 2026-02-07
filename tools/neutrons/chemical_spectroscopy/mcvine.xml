@@ -7,8 +7,7 @@
   		#for $input in $inputs
 			echo "podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -e OMPI_MCA_btl_tcp_if_include=lo -it -v $mmdir:$mmdir mcvine /app/run.sh --beam=$beam --results_folder=$results_folder --n_count=$ncount --n_proc=$nproc --input_file=$input" >> commands.sh  &&
 		#end for
-		cat commands.sh > $output &&
-        srun $mmdir/maiqmag/mcvine_nersc/driver.sh commands.sh $njobs >> $output &&
+        srun $mmdir/maiqmag/mcvine_nersc/driver.sh commands.sh $njobs > >(tee -a $output) 2> >(tee -a $output >&2) &&
         mkdir results &&
         #for $input in $inputs
             #set $prefix=Path(str($input)).stem
