@@ -1,21 +1,37 @@
 <tool id="neutrons-mcvine" name="MCVine" version="0.1.0" profile="22.01">
     <description>MCVine Tool</description>
-    <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/sunny:0.1.0</container>
-    </requirements>
      <command><![CDATA[
+        #from pathlib import Path
+        #set $mmdir="/global/cfs/cdirs/m1503"
+        #set $results_folder=str($mmdir)+"/maiqmag/"+str($output_folder)
   		#for $input in $inputs
-			#set $out_name = $input.element_identifier + ".h5"
-			echo $out_name >(tee -a $output >&2) &&
+			echo "podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -e OMPI_MCA_btl_tcp_if_include=lo -it -v $mmdir:$mmdir mcvine /app/run.sh --beam=$beam --results_folder=$results_folder --n_count=$ncount --n_proc=$nproc --input_file=$input" >> commands.sh  &&
 		#end for
+		cat commands.sh > $output &&
+        srun $mmdir/maiqmag/mcvine_nersc/driver.sh commands.sh $njobs >> $output &&
+        mkdir results &&
+        #for $input in $inputs
+            #set $prefix=Path(str($input)).stem
+            ln -s $results_folder/iqe_${prefix}.h5 results/iqe_${input.element_identifier}.h5 &&
+            ln -s $results_folder/sqe_${prefix}.h5 results/sqe_${input.element_identifier}.h5 &&
+		#end for
+		:
     ]]></command>
     <inputs>
-        <param name="inputs" type="data" optional="false" collection_type="list" label="McVine Input"/>
-        <param name="nproc" type="integer" label="Number of Processes" value="1"/>
-        <param name="ncount" type="integer" label="Number of counts" value="1"/>
+        <param name="inputs" type="data" multiple="true" label="McVine Input"/>
+        <param name="beam" type="select" label="Beam" optional="false">
+            <option value="/global/cfs/cdirs/m1503/maiqmag/beam_lib/beam-seq-100meV" selected="true">beam-seq-100meV</option>
+        </param>
+        <param name="output_folder" type="text" value="test/mcvine_results" optional="false" label="Output folder"/>
+        <param name="nproc" type="integer" label="Number of processes per job" value="10"/>
+        <param name="njobs" type="integer" label="Number of jobs per node" value="4"/>
+        <param name="ncount" type="integer" label="Number of counts" value="1000"/>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
+        <collection type="list" name="output_collection" label="MCVine Results">
+            <discover_datasets pattern="__designation_and_ext__" directory="results"/>
+        </collection>
     </outputs>
     <help><![CDATA[
         **MCVine**
