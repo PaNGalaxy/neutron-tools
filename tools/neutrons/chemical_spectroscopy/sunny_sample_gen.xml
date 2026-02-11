@@ -1,4 +1,4 @@
-<tool id="neutrons-sunny-sample-gen" name="Sunny Sample Generator" version="0.1.0" profile="22.01">
+<tool id="neutrons-sunny-sample-gen" name="Sunny Sample Generator" version="0.1.1" profile="22.01">
     <description>Sunny Tool</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/sunny:0.1.0</container>
@@ -11,6 +11,7 @@
             pixi run --as-is --manifest-path /app app --nproc $nproc --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #else
            module load julia/1.12.1 &&
+           export JULIA_DEPOT_PATH=/global/cfs/cdirs/m1503/maiqmag/julia_depot &&
            julia --project=/global/cfs/cdirs/m1503/maiqmag/sunny /global/cfs/cdirs/m1503/maiqmag/sunny/src/sunny/sunny.jl --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #end if
         mkdir outputs &&
