@@ -6,16 +6,17 @@
      <command><![CDATA[
         mkdir -p outputs &&
         #for $n in range(int($nfiles.value)):
-         echo $folder/$n > outputs/$n &&
+         echo $folder/$experiment/sunny_results/$n > outputs/$n &&
         #end for
         :
     ]]></command>
     <inputs>
-        <param name="folder" type="text" label="Folder" value=""/>
+        <param name="experiment" type="text" label="Experiment Name" optional="false" value="test"/>
+        <param name="folder" type="text" label="Storage Path" optional="false" value="/global/cfs/cdirs/m1503/maiqmag/simulations"/>
         <param name="nfiles" type="integer" label="Number of Files" value="100"/>
     </inputs>
     <outputs>
-        <collection type="list" name="output_collection" label="$nfiles batch(es)">
+        <collection type="list" name="output_collection" label="Folders - $experiment">
             <discover_datasets format="txt" pattern="__designation__" directory="outputs"/>
         </collection>
     </outputs>
