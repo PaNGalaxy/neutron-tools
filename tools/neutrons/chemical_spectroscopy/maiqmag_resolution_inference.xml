@@ -1,0 +1,35 @@
+<tool id="neutrons-maiqmag-resolution-inference" name="MaiqMag Resolution Inference" version="0.1.0" profile="22.01">
+    <description>A tool to predict high resolution data</description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash" >savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/maiqmag-ml:0.1.0</container>
+    </requirements>
+
+     <command><![CDATA[
+        mkdir input_data &&
+	#for $input in $input_data
+	    ln -s $input input_data/${input.element_identifier} &&
+	#end for
+        export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
+	pixi run --as-is --manifest-path /app python -m maiqmag_ml infer --ckpt $model --data_root input_data --save res.png
+	> >(tee -a $output) 2> >(tee -a $output >&2) &&
+	mv res.png $result
+    ]]></command>
+    <inputs>
+        <param name="input_data" type="data_collection" label="Input Data"/>
+        <param name="model" type="data" label="MaiqMag Resolution Model"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="MaiqMag Resolution Training Output"></data>
+        <data format="png" name="result" label="MaiqMag Inference Results"></data>
+    </outputs>
+    <help><![CDATA[
+        **MaiqMag Resolution Inference**
+
+        This is a Galaxy tool to predict data using the resolution model.
+
+    ]]></help>
+</tool>

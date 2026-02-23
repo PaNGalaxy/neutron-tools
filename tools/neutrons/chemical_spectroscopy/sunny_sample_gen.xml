@@ -8,7 +8,7 @@
         mkdir -p \$out_folder &&
         export out_folder=\$(realpath \$out_folder) &&
         #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no' or not $varExists('__job_resource.remote_resource_cloud_nersc') or $__job_resource.remote_resource_cloud_nersc=='orc' :
-            pixi run --as-is --manifest-path /app app --nproc $nproc --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
+            pixi run --as-is --manifest-path /app app --nproc 4 --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #else
            module load julia/1.12.1 &&
            export JULIA_DEPOT_PATH=/global/cfs/cdirs/m1503/maiqmag/julia_depot &&
@@ -18,13 +18,20 @@
         ln -s \$out_folder/* outputs
     ]]></command>
     <inputs>
-        <param name="output_folder" type="data" label="Output Folder" value="1"/>
-        <param name="nproc" type="integer" label="Number of Processes" value="1"/>
-        <param name="nsampl" type="integer" label="Number of Samples" value="1"/>
+        <param name="experiment" type="text" label="Experiment Name"/>
+        <param name="output_folder" type="data" label="Output Path"/>
+
+        <param name="script" type="data" label="Sunny Script"/>
+        <param name="method" type="select" label="Sampling Method" optional="false">
+            <option value="uniform" selected="true">Uniform</option>
+            <option value="gaussian" selected="true">Gaussian</option>
+        </param>
+        <param name="params" type="text" label="Sampling Parameters" value="[[a1,a2],[b1,b2],[c1,c2],[d1,d2]]"/>
+        <param name="nsampl" type="integer" label="Number of Samples" value="1000"/>
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="Console output"></data>
-        <collection type="list" name="output_collection" label="$output_folder.name - $nsampl sample(s)">
+        <data format="txt" name="output" label="SampleGen console output - $experiment"></data>
+        <collection type="list" name="output_collection" label="SampleGen results - $experiment">
             <discover_datasets pattern="__designation_and_ext__" directory="outputs"/>
         </collection>
     </outputs>

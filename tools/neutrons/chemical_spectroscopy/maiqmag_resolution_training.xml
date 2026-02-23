@@ -1,0 +1,33 @@
+<tool id="neutrons-maiqmag-resolution-training" name="MaiqMag Training" version="0.1.0" profile="22.01">
+    <description>A tool to train model for high resolution predictions</description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash" >savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/maiqmag-ml:0.1.0</container>
+    </requirements>
+
+     <command><![CDATA[
+        mkdir sim_data &&
+	#for $input in $sim_results
+	    ln -s $input sim_data/${input.element_identifier} &&
+	#end for
+        export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
+	pixi run --as-is --manifest-path /app python -m maiqmag_ml train --root-dir sim_data --output $model
+	> >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+        <param name="sim_results" type="data_collection" label="Simulation Results"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="MaiqMag Resolution Training Output"></data>
+        <data format="binary" name="model" label="MaiqMag Resolution Model"></data>
+    </outputs>
+    <help><![CDATA[
+        **MaiqMag Resolution Training**
+
+        This is a Galaxy tool to train the resolution model using Sunny/McVine digital twin simulations.
+
+    ]]></help>
+</tool>
