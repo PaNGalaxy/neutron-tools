@@ -30,8 +30,8 @@
         <param name="nsampl" type="integer" label="Number of Samples" value="1000"/>
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="SampleGen console output - $experiment"></data>
-        <collection type="list" name="output_collection" label="SampleGen results - $experiment">
+        <data format="txt" name="output" label="SampleGen console output"></data>
+        <collection type="list" name="output_collection" label="SampleGen results">
             <discover_datasets pattern="__designation_and_ext__" directory="outputs"/>
         </collection>
     </outputs>

@@ -1,5 +1,5 @@
-<tool id="neutrons-maiqmag-resolution-inference" name="MaiqMag Resolution Inference" version="0.1.0" profile="22.01">
-    <description>A tool to predict high resolution data</description>
+<tool id="neutrons-maiqmag-resolution-inference" name="MAIQMag Resolution Inference" version="0.1.0" profile="22.01">
+    <description>A tool to predict high resolution spectra</description>
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -9,27 +9,24 @@
     </requirements>
 
      <command><![CDATA[
-        mkdir input_data &&
-	#for $input in $input_data
-	    ln -s $input input_data/${input.element_identifier} &&
-	#end for
         export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
-	pixi run --as-is --manifest-path /app python -m maiqmag_ml infer --ckpt $model --data_root input_data --save res.png
-	> >(tee -a $output) 2> >(tee -a $output >&2) &&
-	mv res.png $result
+	    pixi run --as-is --manifest-path /app python -m maiqmag_ml infer_resolution --ckpt $model --inp_file $input_data --out_file $result --out_file_plots res.png
+	    > >(tee -a $output) 2> >(tee -a $output >&2)
+	    mv res.png $plots
     ]]></command>
     <inputs>
-        <param name="input_data" type="data_collection" label="Input Data"/>
-        <param name="model" type="data" label="MaiqMag Resolution Model"/>
+        <param name="input_data" type="data" label="Separated Measured Spectra"/>
+        <param name="model" type="data" label="MAIQMag Resolution Model"/>
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="MaiqMag Resolution Training Output"></data>
-        <data format="png" name="result" label="MaiqMag Inference Results"></data>
+        <data format="txt" name="output" label="MAIQMag Resolution Inference Output"></data>
+        <data format="binary" name="result" label="MAIQMag High-Res Spectra"></data>
+        <data format="png" name="plots" label="MAIQMag Spectra Plots"></data>
     </outputs>
     <help><![CDATA[
-        **MaiqMag Resolution Inference**
+        **MAIQMag Resolution Inference**
 
-        This is a Galaxy tool to predict data using the resolution model.
+        This is a Galaxy tool to predict high-resolution spectra using a vision transformer model.
 
     ]]></help>
 </tool>
