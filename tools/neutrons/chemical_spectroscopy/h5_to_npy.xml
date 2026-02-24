@@ -1,15 +1,27 @@
-<tool id="neutrons-h5-to-npy" name="H5 Converter" version="0.1.0" profile="22.01">
+<tool id="neutrons-h5-to-npy" name="MAIQMag H5 Converter" version="0.1.1" profile="22.01">
     <description>H5 to Numpy Tool</description>
      <command><![CDATA[
         #from pathlib import Path
         #set $mmdir="/global/cfs/cdirs/m1503"
         #set $results_folder=str($folder)+"/" + str($experiment)+"/npy_files"
         mkdir spec params &&
-  		#for $input in $mcvine_results
-			ln -s $input spec/${input.element_identifier}.h5 &&
+        #set $n_batches=0
+        #for $input_col in $mcvine_results
+            #set $n_batches+=1
+        #end for
+  		#for $input_col in $mcvine_results
+  		    #for $input in $input_col
+  		        #set $name=str($input.element_identifier).split("_")[0]
+  		        #set $n=str($input.element_identifier).split("_")[1]
+  		        #set $num=str(int(n)+$n_batches*int($input_col.element_identifier))
+			    ln -s $input spec/${name}_${num}.h5 &&
+		    #end for
 		#end for
-  		#for $input in $sunny_results
-			ln -s $input params/${input.element_identifier}.h5 &&
+  		#for $input_col in $sunny_results
+  		    #for $input in $input_col
+  		        #set $num=str(int($input.element_identifier)+$n_batches*int($input_col.element_identifier))
+			    ln -s $input params/${num}.h5 &&
+    	    #end for
 		#end for
 		export PODMANHPC_ADDITIONAL_STORES=/dvs_ro/cfs/cdirs/m1503/maiqmag/images &&
 		podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -it -v $mmdir:$mmdir h5_to_npy pixi run --as-is app --params \$(pwd)/params --spec \$(pwd)/spec --output $results_folder
