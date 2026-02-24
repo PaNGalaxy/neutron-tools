@@ -1,4 +1,4 @@
-<tool id="neutrons-h5-to-npy" name="H5 Converter" version="0.1.1" profile="22.01">
+<tool id="neutrons-h5-to-npy" name="MAIQMag H5 Converter" version="0.1.1" profile="22.01">
     <description>H5 to Numpy Tool</description>
      <command><![CDATA[
         #from pathlib import Path
