@@ -1,0 +1,31 @@
+<tool id="neutrons-maiqmag-inversion-inference" name="MAIQMag Inversion Inference" version="0.1.0" profile="22.01">
+    <description>A tool to predict Hamiltonian parameters</description>
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash" >savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/maiqmag-ml:0.1.0</container>
+    </requirements>
+
+     <command><![CDATA[
+        export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
+	    pixi run --as-is --manifest-path /app python -m maiqmag_ml infer_inversion --ckpt $model --inp_file $input_data --out_file res.png
+	    > >(tee -a $output) 2> >(tee -a $output >&2)
+	    mv res.png $result
+    ]]></command>
+    <inputs>
+        <param name="input_data" type="data" label="Hi-Res Spectra"/>
+        <param name="model" type="data" label="MAIQMag Inversion Model"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="MAIQMag Inversion Inference Output"></data>
+        <data format="png" name="result" label="MAIQMag Parameter Pair Plot"></data>
+    </outputs>
+    <help><![CDATA[
+        **MAIQMag Inversion Inference**
+
+        This is a Galaxy tool to predict Hamiltonian parameters using AI.
+
+    ]]></help>
+</tool>
