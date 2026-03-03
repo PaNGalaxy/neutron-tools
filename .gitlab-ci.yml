@@ -34,13 +34,7 @@ service-build:
   tags:
     - rse-multi-builder
 
-testing:
-  stage: test
-  variables:
-    ENVIRONMENT: "ndip-test"
-    GALAXY_URL: "https://ndip-test.ornl.gov"
-    API_KEY: $CALVERA_TEST_API_KEY
-    ADMIN_KEY: $CALVERA_TEST_ADMIN_KEY
+.testing: &testing
   script:
     - echo "Running tests for all tools."
     - cd `pwd`/tools/neutrons
@@ -52,8 +46,8 @@ testing:
       do
         docker run --user `id -u`:`id -g` -v `pwd`:`pwd` --workdir `pwd`/$FOLDER  $CONTAINER_URL \
           planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
-          --test_output_json `pwd`/test_output_${FOLDER}.json \
-          --test_output_junit `pwd`/test_output_${FOLDER}.xml \
+          --test_output_json `pwd`/test_output_${FOLDER}_${AUTH_MODE}.json \
+          --test_output_junit `pwd`/test_output_${FOLDER}_${AUTH_MODE}.xml \
           --galaxy_url  $GALAXY_URL \
           --galaxy_user_key $API_KEY \
           --galaxy_admin_key $ADMIN_KEY 2>&1 | tee docker_output.log || ERROR=1
@@ -74,6 +68,7 @@ testing:
           -e CI_PROJECT_URL \
           -e PROMETHEUS_URL \
           -e ENVIRONMENT \
+          -e AUTH_MODE \
           $CONTAINER_URL python3 scripts/push_to_gateway.py tools/neutrons
       fi
     - exit $GLOBAL_ERROR
@@ -83,6 +78,16 @@ testing:
       junit: tools/neutrons/test_output*.xml
   tags:
     - rse-multi-builder
+
+testing-ucams:
+  stage: test
+  variables:
+    ENVIRONMENT: "ndip-test"
+    GALAXY_URL: "https://ndip-test.ornl.gov"
+    API_KEY: $CALVERA_TEST_API_KEY
+    ADMIN_KEY: $CALVERA_TEST_ADMIN_KEY
+    AUTH_MODE: ucams
+  <<: *testing
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
       when: always
@@ -93,14 +98,30 @@ testing:
         API_KEY: $CALVERA_API_KEY
         ADMIN_KEY: $CALVERA_ADMIN_KEY
       when: always
-    - when: never
+    - when: manual
 
-interactive-tools-testing:
+testing-xcams:
   stage: test
   variables:
     ENVIRONMENT: "ndip-test"
     GALAXY_URL: "https://ndip-test.ornl.gov"
-    API_KEY: $ANDREW_API_KEY
+    API_KEY: $NDIP_XCAMS_TEST_API_KEY
+    ADMIN_KEY: $CALVERA_TEST_ADMIN_KEY
+    AUTH_MODE: xcams
+  <<: *testing
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      variables:
+        ENVIRONMENT: "ndip"
+        GALAXY_URL: "https://ndip.ornl.gov"
+        API_KEY: $NDIP_XCAMS_API_KEY
+        ADMIN_KEY: $CALVERA_ADMIN_KEY
+      when: always
+    - when: manual
+
+.interactive-tool-testing: &interactive-tool-testing
   script:
     - >
       docker build
@@ -113,10 +134,10 @@ interactive-tools-testing:
       if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
         docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY \
           --user `id -u`:`id -g` \
-          -e CI_PIPELINE_ID -e CI_PROJECT_URL -e PROMETHEUS_URL -e ENVIRONMENT \
+          -e CI_PIPELINE_ID -e CI_PROJECT_URL -e PROMETHEUS_URL -e ENVIRONMENT -e AUTH_MODE \
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py --push-metrics
       else
-        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e ENVIRONMENT \
+        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e ENVIRONMENT -e AUTH_MODE \
           --user `id -u`:`id -g` \
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py
       fi
@@ -126,12 +147,41 @@ interactive-tools-testing:
       - test_results/
   tags:
     - rse-multi-builder
+
+interactive-tools-testing-ucams:
+  stage: test
+  variables:
+    ENVIRONMENT: "ndip-test"
+    GALAXY_URL: "https://ndip-test.ornl.gov"
+    API_KEY: $ANDREW_API_KEY
+    AUTH_MODE: ucams
+  <<: *interactive-tool-testing
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
         ENVIRONMENT: "ndip"
         GALAXY_URL: "https://ndip.ornl.gov"
         API_KEY: $ANDREW_API_KEY_PROD
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - when: manual
+      allow_failure: true
+
+interactive-tools-testing-xcams:
+  stage: test
+  variables:
+    ENVIRONMENT: "ndip-test"
+    GALAXY_URL: "https://ndip-test.ornl.gov"
+    API_KEY: $NDIP_XCAMS_TEST_API_KEY
+    AUTH_MODE: xcams
+  <<: *interactive-tool-testing
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      variables:
+        ENVIRONMENT: "ndip"
+        GALAXY_URL: "https://ndip.ornl.gov"
+        API_KEY: $NDIP_XCAMS_API_KEY
       when: always
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
