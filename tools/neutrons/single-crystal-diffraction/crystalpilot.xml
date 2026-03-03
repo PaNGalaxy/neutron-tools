@@ -3,7 +3,7 @@
 
     <description>CrystalPilot - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/crystalpilot/prototypes:ec09b2e780ea179a3550c9dbcb335ad84995508f</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/crystalpilot/prototypes:180c4e087d3e44f63948249b233d396e0335446f</container>
     </requirements>
     <entry_points>
         <entry_point name="CrystalPilot" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -17,6 +17,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
+        cd /src &&
         supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <outputs>
