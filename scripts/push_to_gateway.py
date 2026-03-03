@@ -24,7 +24,8 @@ def collect_test_results(filename):
 
 def push_results_to_prometheus(test_results):
     pipeline_url = f"{os.environ.get('CI_PROJECT_URL')}/-/pipelines/{os.environ.get('CI_PIPELINE_ID')}"
-    env = os.getenv('ENVIRONMENT', 'unknown')
+    auth_mode = os.getenv("AUTH_MODE", "unknown")
+    env = os.getenv("ENVIRONMENT", "unknown")
 
     registry = CollectorRegistry()
     gauge_outcome = Gauge('planemo_tool_tests', 'Planemo tool tests outcome (pass/fail)',
@@ -34,8 +35,10 @@ def push_results_to_prometheus(test_results):
         outcome = int(result_info['outcome'])
         gauge_outcome.labels(tool_id, pipeline_url, env).set(outcome)
 
-    prometheus_url = os.getenv('PROMETHEUS_URL')
-    push_to_gateway(prometheus_url, job=f'planemo_tests_{env}', registry=registry)
+    prometheus_url = os.getenv("PROMETHEUS_URL")
+    push_to_gateway(
+        prometheus_url, job=f"planemo_tests_{env}_{auth_mode}", registry=registry
+    )
 
 
 def collect_pytest_test_results(filename=None):
@@ -114,7 +117,8 @@ def push_pytest_results_to_prometheus(pytest_results):
         pytest_results: Dictionary of pytest test results.
     """
     pipeline_url = f"{os.environ.get('CI_PROJECT_URL')}/-/pipelines/{os.environ.get('CI_PIPELINE_ID')}"
-    env = os.getenv('ENVIRONMENT', 'unknown')
+    auth_mode = os.getenv("AUTH_MODE", "unknown")
+    env = os.getenv("ENVIRONMENT", "unknown")
 
     prometheus_url = os.getenv('PROMETHEUS_URL')
     if not prometheus_url:
@@ -134,7 +138,11 @@ def push_pytest_results_to_prometheus(pytest_results):
                 'error_message': str(result_info['error_message'])[:1024] # Limit length
             })
     try:
-        push_to_gateway(prometheus_url, job=f'galaxy_tools_tests_{env}', registry=pytest_registry)
+        push_to_gateway(
+            prometheus_url,
+            job=f"galaxy_tools_tests_{env}_{auth_mode}",
+            registry=pytest_registry,
+        )
         print(f"Successfully pushed {len(pytest_results)} pytest results.")
     except Exception as e:
         print(f"Error pushing pytest results to Prometheus: {e}")
