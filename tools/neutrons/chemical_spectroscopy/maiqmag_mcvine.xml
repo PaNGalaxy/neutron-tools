@@ -1,0 +1,42 @@
+<tool id="neutrons-maiqmag-mcvine" name="MAIQMag MCVine (NERSC)" version="0.1.0" profile="22.01">
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <command><![CDATA[
+        #from pathlib import Path
+        #import re
+        #set $experiment = re.sub('[\w]', '_', str($experiment))
+        #set $results_folder=str($project_dir)+"/maiqmag/simulations/" + str($experiment)+"/macvine_results"
+        mkdir inputs &&
+        tar -xf $inputs -C inputs/ &&
+        for input in inputs/*; do
+	        echo "podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -e OMPI_MCA_btl_tcp_if_include=lo -it -v $project_dir:$project_dir mcvine /app/run.sh --beam=$beam --results_folder=$results_folder --n_count=$ncount --n_proc=$nproc --input_file=$input" >> commands.sh
+	    done &&
+        srun $project_dir/maiqmag/mcvine_nersc/driver.sh commands.sh $njobs > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        tar -cf $output_archive -C $results_folder .
+    ]]>
+    </command>
+    <inputs>
+        <param name="inputs" type="data" label="McVine Input"/>
+        <param name="beam" type="select" label="Beam" optional="false">
+            <option value="/global/cfs/cdirs/m1503/maiqmag/beam_lib/beam-seq-100meV" selected="true">beam-seq-100meV</option>
+        </param>
+        <param name="project_dir" type="text" label="Project Folder" optional="false" value="/global/cfs/cdirs/m1503"/>
+        <param name="experiment" type="text" label="Experiment Name" optional="false" value="test"/>
+        <param name="nproc" type="integer" label="Number of processes per job" value="10"/>
+        <param name="njobs" type="integer" label="Number of jobs per node" value="4"/>
+        <param name="q_e_binning" type="text" label="Q and E binning" value="0,0.4,80"/>
+        <param name="ncount" type="integer" label="Number of counts" value="1000"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+        <data format="tar" name="output_archive" label="MCVine Results"></data>
+    </outputs>
+    <help><![CDATA[
+        **MCVine**
+
+        This is a Galaxy tool to run MCVine simulations for MAIQMag project. It currently only runs on NERSC Perlmutter supercomputer.
+
+    ]]></help>
+</tool>

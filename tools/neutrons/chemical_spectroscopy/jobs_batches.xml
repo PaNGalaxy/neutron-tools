@@ -1,0 +1,27 @@
+<tool id="neutrons-job-batches" name="Job Batches" version="0.1.0" profile="22.01">
+    <creator>
+        <person name="Sergey Yakubov"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">regproxy.ornl.gov/hub_proxy/ubuntu:24.04</container>
+    </requirements>
+     <command><![CDATA[
+        mkdir -p outputs &&
+        #for $n in range(int($nbatches.value)):
+         echo $n > outputs/$n &&
+        #end for
+        :
+    ]]></command>
+    <inputs>
+        <param name="nbatches" type="integer" label="Number of Batches" value="100"/>
+    </inputs>
+    <outputs>
+        <collection type="list" name="output_collection" label="Folders - $experiment">
+            <discover_datasets format="txt" pattern="__designation__" directory="outputs"/>
+        </collection>
+    </outputs>
+    <help><![CDATA[
+        This is a Galaxy tool to create a collection with n files so that it can be used to submit jobs in parallel.
+    ]]></help>
+</tool>
