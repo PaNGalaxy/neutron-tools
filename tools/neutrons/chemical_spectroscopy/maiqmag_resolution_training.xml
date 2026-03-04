@@ -1,5 +1,4 @@
 <tool id="neutrons-maiqmag-resolution-training" name="MaiqMag Training" version="0.1.0" profile="22.01">
-    <description>A tool to train model for high resolution predictions</description>
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -10,15 +9,13 @@
 
      <command><![CDATA[
         mkdir sim_data &&
-	#for $input in $sim_results
-	    ln -s $input sim_data/${input.element_identifier} &&
-	#end for
+        tar -xf $sim_results -C sim_data/ &&
         export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
-	pixi run --as-is --manifest-path /app python -m maiqmag_ml train --root-dir sim_data --output $model
-	> >(tee -a $output) 2> >(tee -a $output >&2)
-    ]]></command>
+        pixi run --as-is --manifest-path /app python -m maiqmag_ml train --root-dir sim_data --output $model
+        > >(tee -a $output) 2> >(tee -a $output >&2)
+     ]]></command>
     <inputs>
-        <param name="sim_results" type="data_collection" label="Simulation Results"/>
+        <param name="sim_results" type="data" label="Simulation Results"/>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="MaiqMag Resolution Training Output"></data>
