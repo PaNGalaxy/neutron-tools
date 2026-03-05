@@ -1,0 +1,62 @@
+<tool id="neutrons-maiqmag-converter" name="MAIQMag Converter (NERSC)" version="0.2.0" profile="22.01">
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+     <command><![CDATA[
+        #import re
+        #set $experiment = re.sub('[\w]', '_', str($experiment))
+        #set $results_folder=str($project_dir)+"/maiqmag/simulations/" + str($experiment)+"/npy_files"
+        mkdir spec params &&
+        #set $n_batches=0
+        #for $input_col in $mcvine_results
+            #set $n_batches+=1
+        #end for
+  		#for $input_col in $mcvine_results
+  		    mkdir -p inputs && tar -xf $input_col -C inputs/ &&
+            for input_file in inputs/*; do
+                    base=\$(basename "$input_file")
+                    temp=\${base%.h5}
+                    prefix=\${temp%_*}
+                    n=\${temp#*_}
+                    num=\$(( n + $n_batches * $input_col.element_identifier ))
+                    ln -s \$(realpath $input_file) spec/\${name}_\${num}.h5
+            done &&
+            rm -rf inputs &&
+		#end for
+
+  		#for $input_col in $sunny_results
+  		    mkdir -p inputs && tar -xf $input_col -C inputs/ &&
+            for input_file in inputs/*; do
+                    base=\$(basename "$input_file")
+                    temp=\${base%.h5}
+                    prefix=\${temp%_*}
+                    n=\${temp#*_}
+                    num=\$(( n + $n_batches * $input_col.element_identifier ))
+                    ln -s \$(realpath $input_file) params/\${name}_\${num}.h5
+            done &&
+            rm -rf inputs &&
+		#end for
+		export PODMANHPC_ADDITIONAL_STORES="/dvs_ro/cfs/cdirs/m1503/maiqmag/images" &&
+		podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -it -v $project_dir:$project_dir h5_to_npy pixi run --as-is app --params \$(pwd)/params --spec \$(pwd)/spec --output $results_folder
+		> >(tee -a $output) 2> >(tee -a $output >&2) &&
+        tar -cf $output_archive -C $results_folder .
+    ]]></command>
+    <inputs>
+        <param name="mcvine_results" type="data_collection" label="McVine Results"/>
+        <param name="sunny_results" type="data_collection" label="Sunny Results"/>
+        <param name="experiment" type="text" label="Experiment Name" optional="false" value="test"/>
+        <param name="project_dir" type="text" label="Project Folder" optional="false" value="/global/cfs/cdirs/m1503"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="MAIQMag Converter output"></data>
+        <data format="tar" name="output_archive" label="Simulation Files"></data>
+    </outputs>
+    <help><![CDATA[
+        **MAIQMag Converter**
+
+        This is a Galaxy tool to convert Sunny and MCVine results into Numpy training data arrays.
+        It currently only runs on NERSC Perlmutter supercomputer.
+
+    ]]></help>
+</tool>

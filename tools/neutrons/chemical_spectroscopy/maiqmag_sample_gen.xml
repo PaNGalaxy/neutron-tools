@@ -1,12 +1,16 @@
-<tool id="neutrons-sunny-sample-gen" name="Sunny Sample Generator" version="0.1.1" profile="22.01">
-    <description>Sunny Tool</description>
+<tool id="neutrons-maiqmag-sample-gen" name="MAIQMag Sample Generator" version="0.1.1" profile="22.01">
+    <creator>
+        <person name="Yongqiang Cheng"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/sunny:0.1.0</container>
     </requirements>
      <command><![CDATA[
-        export out_folder=\$(cat $output_folder) &&
+        #set $experiment = re.sub('[\w]', '_', str($experiment))
+        #set $results_folder=str($project_dir)+"/maiqmag/simulations/" + str($experiment)+"/sunny_results"
+        export out_folder=$results_folder/\$(cat $output_folder) &&
         mkdir -p \$out_folder &&
-        export out_folder=\$(realpath \$out_folder) &&
         #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no' or not $varExists('__job_resource.remote_resource_cloud_nersc') or $__job_resource.remote_resource_cloud_nersc=='orc' :
             pixi run --as-is --manifest-path /app app --nproc 4 --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #else
@@ -14,13 +18,12 @@
            export JULIA_DEPOT_PATH=/global/cfs/cdirs/m1503/maiqmag/julia_depot &&
            julia --project=/global/cfs/cdirs/m1503/maiqmag/sunny /global/cfs/cdirs/m1503/maiqmag/sunny/src/sunny/sunny.jl --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #end if
-        mkdir outputs &&
-        ln -s \$out_folder/* outputs
+        tar -cf $output_archive -C \$out_folder .
     ]]></command>
     <inputs>
-        <param name="experiment" type="text" label="Experiment Name"/>
         <param name="output_folder" type="data" label="Output Path"/>
-
+        <param name="experiment" type="text" label="Experiment Name" optional="false" value="test"/>
+        <param name="project_dir" type="text" label="Project Folder" optional="false" value="/global/cfs/cdirs/m1503"/>
         <param name="script" type="data" label="Sunny Script"/>
         <param name="method" type="select" label="Sampling Method" optional="false">
             <option value="uniform" selected="true">Uniform</option>
@@ -31,9 +34,7 @@
     </inputs>
     <outputs>
         <data format="txt" name="output" label="SampleGen console output"></data>
-        <collection type="list" name="output_collection" label="SampleGen results">
-            <discover_datasets pattern="__designation_and_ext__" directory="outputs"/>
-        </collection>
+        <data format="tar" name="output_archive" label="SampleGen results"></data>
     </outputs>
     <help><![CDATA[
         **Sunny**
