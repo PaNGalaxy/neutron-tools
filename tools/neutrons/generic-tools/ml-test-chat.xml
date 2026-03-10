@@ -1,4 +1,4 @@
-<tool id="ml-test-chat-prototype" name="MLFlow Chat" version="0.1.3" profile="22.01">
+<tool id="ml-test-chat-prototype" name="MLFlow Chat" version="0.1.4" profile="22.01">
     <description>Chat with Gemini</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:f147cfa1edab5f8898b0f16fd7f8d2da75cc9781</container>
@@ -16,7 +16,6 @@
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        #set $gemini_api_key = $__user__.preferences.get( "gemini_api_key", "None" )
         mkdir model &&
         export MLFLOW_LOGGING_LEVEL=ERROR &&
         pixi run --as-is --manifest-path /src python -m ml_poc
