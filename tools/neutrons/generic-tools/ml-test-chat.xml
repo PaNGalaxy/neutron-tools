@@ -37,7 +37,7 @@
 
         This is a Galaxy tool that generates a Gemini response to your question.
 
-        **Note** Add your Gemini API key (Click on your name in top menu -> Preferences -> Manage Ingormation)
+        **Note** Add your Gemini API key before running the tool
 
         For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/ml-test
     ]]></help>
