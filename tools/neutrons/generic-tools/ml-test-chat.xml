@@ -17,16 +17,15 @@
         mkdir model &&
         export MLFLOW_LOGGING_LEVEL=ERROR &&
         pixi run --as-is --manifest-path /src python -m ml_poc
-                                --url $url
+                                --url \$GALAXY_URL/mlflow
                                 --experiment $experiment
-                            chat --prompt $request
+                            chat --prompt "$prompt"
                                  --gemini-api-key \$GEMINI_API_KEY
                                > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="url" type="text" value="http://10.64.193.19:5000" optional="false"  label="MLFlow tracking server url"/>
         <param name="experiment" type="text" value="gemini_chat" optional="false"  label="MLFlow experiment name"/>
-        <param name="request" type="text" optional="false" value="How you doin'?" label="Ask something"/>
+        <param name="prompt" type="text" optional="false" value="How you doin'?" label="Ask something"/>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Response"></data>
