@@ -1,7 +1,16 @@
-<tool id="ml-test-chat-prototype" name="MLFlow Chat" version="0.1.1" profile="22.01">
+<tool id="ml-test-chat-prototype" name="MLFlow Chat" version="0.1.2" profile="22.01">
     <description>Chat with Gemini</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/ml-test/prototypes:f147cfa1edab5f8898b0f16fd7f8d2da75cc9781</container>
+        <credentials name="gemini_credentials" version="1.0"
+                     label="Gemini Credentials"
+                     description="Credentials for accessing Gemini's API.">
+            <secret name="gemini_api_key"
+                    inject_as_env="GEMINI_API_KEY"
+                    optional="false"
+                    label="Gemini API Key"
+                    description="Your Gemini API key. Get it from your Gemini account dashboard."/>
+        </credentials>
     </requirements>
      <command><![CDATA[
         #set $gemini_api_key = $__user__.preferences.get( "gemini_api_key", "None" )
@@ -11,7 +20,7 @@
                                 --url $url
                                 --experiment $experiment
                             chat --prompt $request
-                                 --gemini-api-key $gemini_api_key
+                                 --gemini-api-key \$GEMINI_API_KEY
                                > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
