@@ -18,8 +18,10 @@
         #if $working_directory:
             export WORKING_DIR=$working_directory &&
         #else
-            export WORKING_DIR=/opt/run &&
+            export WORKING_DIR=/SNS/users/\${GALAXY_TOOL_USER}/discus-ndip &&
         #end if
+        mkdir -p WORKING_DIR &&
+        cp -r /opt/run/* $\{WORKING_DIR}/ &&
         jupyter notebook
             --allow-root
             --no-browser
