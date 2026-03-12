@@ -33,7 +33,7 @@
             > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="working_directory" type="text" value="/opt/run" label="Working directory for Jupyter" />
+        <param name="working_directory" type="text" value="" label="Working directory for Jupyter" />
     </inputs>
     <outputs>
         <data name="output" auto_format="true" label="DISCUS Console Output"></data>
