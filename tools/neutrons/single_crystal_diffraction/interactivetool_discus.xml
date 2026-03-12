@@ -18,15 +18,15 @@
         #if $working_directory:
             export WORKING_DIR=$working_directory &&
         #else
-            export WORKING_DIR=/SNS/users/\${GALAXY_TOOL_USER}/discus-ndip &&
+            export WORKING_DIR=/SNS/users/\${GALAXY_TOOL_USER} &&
         #end if
-        mkdir -p \${WORKING_DIR} &&
-        cp -r /opt/run/* \${WORKING_DIR}/ &&
+        mkdir -p \${WORKING_DIR}/discus-ndip &&
+        cp -r /opt/run/* \${WORKING_DIR}/discus-ndip/ &&
         jupyter notebook
             --allow-root
             --no-browser
             --ip=0.0.0.0
-            --root-dir=\${WORKING_DIR}
+            --notebook-dir=\${WORKING_DIR}
             --NotebookApp.token=''
             --NotebookApp.password=''
             --NotebookApp.base_url=\${EP_PATH}
