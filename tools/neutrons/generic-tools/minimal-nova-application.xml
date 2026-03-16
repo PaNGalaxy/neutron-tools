@@ -1,9 +1,9 @@
 
-<tool id="nova-minimal-nova-application-prototype" tool_type="interactive" name="Minimal NOVA Application" version="0.2.0" profile="22.01">
+<tool id="nova-minimal-nova-application-prototype" tool_type="interactive" name="Minimal NOVA Application" version="0.2.1" profile="22.01">
 
     <description>Minimal NOVA Application - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/minimal-nova-application/prototypes:0823f7a8c74f830698304a13cb3df76a368fc07</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/minimal-nova-application/prototypes:a1ee5e67300ef8636dee711a4af8b3c169293c88</container>
     </requirements>
     <entry_points>
         <entry_point name="Minimal NOVA Application" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -17,7 +17,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        pixi run -e production -m /src/pyproject.toml supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
 
     ]]></command>
     <outputs>
