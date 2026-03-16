@@ -1,7 +1,7 @@
-<tool id="nova-sans-data-analysis-prototype" tool_type="interactive" name="SANS Data Analysis" version="0.5.0" profile="22.01">
+<tool id="nova-sans-data-analysis-prototype" tool_type="interactive" name="SANS Data Analysis" version="0.5.1" profile="22.01">
     <description>SANS Data Analysis - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-data-analysis/prototypes:6abb2e0cd7d73fd0897b99cf30257fa6e9f173da</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-data-analysis/prototypes:5c9d44e33ef30bb514b71a081fd5a9a097fed78b</container>
     </requirements>
     <entry_points>
         <entry_point name="SANS Data Analysis" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -15,7 +15,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        pixi run -e production -m /src/pyproject.toml supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
 
     ]]></command>
     <outputs>
