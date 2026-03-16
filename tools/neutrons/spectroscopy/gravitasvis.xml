@@ -1,7 +1,7 @@
-<tool id="nova-gravitasvis-prototype" tool_type="interactive" name="gravitasvis" version="0.5.0" profile="22.01">
+<tool id="nova-gravitasvis-prototype" tool_type="interactive" name="gravitasvis" version="0.5.1" profile="22.01">
     <description>gravitasvis - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/spectroscopy/gravitas/gravitasvis/prototypes:2f67edf7e2cdb615cd5074e42aadf64f533c6254</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/spectroscopy/gravitas/gravitasvis/prototypes:5bb90c4300c2ed20837ccfb98f9c4c08db725ace</container>
     </requirements>
     <entry_points>
         <entry_point name="GravitasVis" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -15,7 +15,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        pixi run -e production -m /src/pyproject.toml supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
 
     ]]></command>
     <outputs>
