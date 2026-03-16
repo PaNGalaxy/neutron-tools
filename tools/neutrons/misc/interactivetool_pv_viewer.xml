@@ -1,7 +1,7 @@
-<tool id="nova-pvviewer" tool_type="interactive"  name="PVViewer" version="0.7.3" profile="22.01">
+<tool id="nova-pvviewer" tool_type="interactive"  name="PVViewer" version="0.7.4" profile="22.01">
     <description>PVViewer - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer:0.7.3</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/pv_viewer:0.7.4</container>
     </requirements>
     <entry_points>
         <entry_point name="PVViewer" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -16,7 +16,7 @@
     </environment_variables>
      <command><![CDATA[
         export TRAME_STARTUP_INPUT_PATH=$input_path &&
-        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
+        pixi run -e production -m /src/pyproject.toml supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="input_path" type="text" optional="true" label="Startup Input File"/>
