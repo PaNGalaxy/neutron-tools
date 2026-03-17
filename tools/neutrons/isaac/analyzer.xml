@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/aure:latest</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/sergeyyakubov/aure:sha-d0bd998</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
@@ -18,15 +18,14 @@
     <inputs>
         <param name="reflectivity_file" type="data" format="txt" label="Reflectivity File"/>
         <param name="prompt" type="text" value="Cu/Ti bilayer on Si in dTHF" label="Prompt"/>
-        <param name="llm_provider" type="text" value="OpenAI" label="LLM Provider"/>
-        <param name="llm_model" type="text" value="gpt-4o" label="LLM Model"/>
-        <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com" label="LLM Endpoint"/>
+        <param name="llm_provider" type="text" value="local" label="LLM Provider"/>
+        <param name="llm_model" type="text" value="gpt-4" label="LLM Model"/>
+        <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="Analyzer Console output"></data>
-	    <collection name="output_data" type="list" label="Analyzed Data">
-	        <discover_datasets pattern="__designation_and_ext__" directory="output" />
-	    </collection>
+        <data format="txt" name="output" label="Analyzer Console Output"></data>
+        <data name="output_model" label="Analyzer Model"></data>
+        <data name="out_gz" label="Analyzer Results"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         mkdir output &&
@@ -34,6 +33,9 @@
         export LLM_MODEL=$llm_model &&
         export LLM_BASE_URL=$llm_base_url &&
         aure analyze $reflectivity_file "$prompt" -o ./output
-                > >(tee -a $output) 2> >(tee -a $output >&2)
+                > >(tee -a $output) 2> >(tee -a $output >&2)&&
+        LAST_ITER=`ls -d output/refl1d_output/fit_iter*_dream | sort -V | tail -n 1` &&
+        cp \$LAST_ITER/problem-1-exp*.json $output_model &&
+        && tar -czvf $out_gz output
     ]]></command>
 </tool>
