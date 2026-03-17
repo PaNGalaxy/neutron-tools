@@ -33,9 +33,9 @@
         export LLM_MODEL=$llm_model &&
         export LLM_BASE_URL=$llm_base_url &&
         aure analyze $reflectivity_file "$prompt" -o ./output
-                > >(tee -a $output) 2> >(tee -a $output >&2)&&
+                > >(tee -a $output) 2> >(tee -a $output >&2) &&
         LAST_ITER=`ls -d output/refl1d_output/fit_iter*_dream | sort -V | tail -n 1` &&
         cp \$LAST_ITER/problem-1-exp*.json $output_model &&
-        && tar -czvf $out_gz output
+        tar -czvf $out_gz output
     ]]></command>
 </tool>
