@@ -1,0 +1,32 @@
+<tool id="neutrons_isaac_reduction" name="Reduction" version="0.1.0" profile="22.01">
+    <description>Nexus Processor CLI Tool</description>
+    <creator>
+        <person name="Mat Doucet"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/sergeyyakubov/analyzer:latest</container>
+    </requirements>
+
+    <inputs>
+        <param name="input_file" type="data" format="h5" label="Input NeXus File"/>
+        <param name="template_file" type="data" format="xml" label="Input Template File"/>
+        <param name="data_dir" type="text" value="/SNS/REF_L/IPTS-36119" label="Data directory"/>
+    </inputs>
+
+    <outputs>
+        <data format="txt" name="output" label="Reduction Console output"></data>
+	    <collection name="output_data" type="list" label="Reduced Data">
+	        <discover_datasets pattern="__designation_and_ext__" directory="output" />
+	    </collection>
+    </outputs>
+
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir output /app/data &&
+        ln -s $data_dir /app/data &&
+        echo "running reduction..." &&
+        simple-reduction --event-file $input_file --template $template_file --output-dir output
+                > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+</tool>
