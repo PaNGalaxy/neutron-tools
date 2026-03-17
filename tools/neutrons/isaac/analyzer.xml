@@ -1,0 +1,37 @@
+<tool id="neutrons_isaac_analyzer" name="Analyzer" version="0.1.0" profile="22.01">
+    <creator>
+        <person name="Mat Doucet"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/aure:latest</container>
+        <credentials name="llm_credentials" version="1.0"
+                     label="LLM Credentials"
+                     description="Credentials for accessing LLM API.">
+            <secret name="llm_api_key"
+                    inject_as_env="LLM_API_KEY"
+                    optional="false"
+                    label="LLM API Key"
+                    description="Your LLM API key."/>
+        </credentials>
+    </requirements>
+    <inputs>
+        <param name="reflectivity_file" type="data" format="txt" label="Reflectivity File"/>
+        <param name="prompt" type="text" value="Cu/Ti bilayer on Si in dTHF" label="Prompt"/>
+        <param name="llm_provider" type="text" value="OpenAI" label="LLM Provider"/>
+        <param name="llm_model" type="text" value="gpt-4o" label="LLM Model"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="Analyzer Console output"></data>
+	    <collection name="output_data" type="list" label="Analyzed Data">
+	        <discover_datasets pattern="__designation_and_ext__" directory="output" />
+	    </collection>
+    </outputs>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir output &&
+        export LLM_PROVIDER=$llm_provider &&
+        export LLM_MODEL=$llm_model &&
+        aure analyze $reflectivity_file "$prompt" -o ./output
+                > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+</tool>

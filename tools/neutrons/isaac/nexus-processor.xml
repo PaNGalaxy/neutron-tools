@@ -1,5 +1,4 @@
 <tool id="nexus_processor_prototype" name="Nexus Processor" version="0.4.0" profile="22.01">
-    <description>Nexus Processor CLI Tool</description>
     <creator>
         <person name="Marshall McDonnell"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>

@@ -12,7 +12,7 @@
     <inputs>
         <param name="input_file" type="data" format="h5" label="Input NeXus File"/>
         <param name="template_file" type="data" format="xml" label="Input Template File"/>
-        <param name="data_dir" type="text" value="/SNS/REF_L/IPTS-36119" label="Data directory"/>
+        <param name="data_dir" type="text" value="/SNS/REF_L/IPTS-34347/nexus" label="Data directory"/>
     </inputs>
 
     <outputs>
