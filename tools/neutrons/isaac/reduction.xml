@@ -6,7 +6,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/sergeyyakubov/analyzer:latest</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/sergeyyakubov/analyzer:sha-f922e54</container>
     </requirements>
 
     <inputs>
@@ -24,9 +24,9 @@
 
     <command detect_errors="exit_code"><![CDATA[
         mkdir output /app/data &&
-        ln -s $data_dir /app/data &&
+        ln -s $data_dir/ /app/data &&
         echo "running reduction..." &&
-        simple-reduction --event-file $input_file --template $template_file --output-dir output
+        pixi run --as-is --manifest-path /app simple-reduction --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
 </tool>
