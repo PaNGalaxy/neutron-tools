@@ -20,6 +20,7 @@
         <param name="prompt" type="text" value="Cu/Ti bilayer on Si in dTHF" label="Prompt"/>
         <param name="llm_provider" type="text" value="OpenAI" label="LLM Provider"/>
         <param name="llm_model" type="text" value="gpt-4o" label="LLM Model"/>
+        <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com" label="LLM Endpoint"/>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Analyzer Console output"></data>
@@ -31,6 +32,7 @@
         mkdir output &&
         export LLM_PROVIDER=$llm_provider &&
         export LLM_MODEL=$llm_model &&
+        export LLM_BASE_URL=$llm_base_url &&
         aure analyze $reflectivity_file "$prompt" -o ./output
                 > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
