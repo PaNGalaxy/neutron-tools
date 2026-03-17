@@ -24,8 +24,8 @@
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Analyzer Console Output"></data>
-        <data name="output_model" label="Analyzer Model"></data>
-        <data name="out_gz" label="Analyzer Results"></data>
+        <data name="output_model" format="txt" label="Analyzer Model"></data>
+        <data name="out_gz" format="gz" label="Analyzer Results"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         mkdir output &&
