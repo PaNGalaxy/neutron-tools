@@ -18,20 +18,23 @@
         #if $working_directory:
             export WORKING_DIR=$working_directory &&
         #else
-            export WORKING_DIR=/opt/run &&
+            export WORKING_DIR=/SNS/users/\${GALAXY_TOOL_USER} &&
         #end if
-        jupyter notebook
+        mkdir -p \${WORKING_DIR}/discus-ndip &&
+        cp -r /opt/run/* \${WORKING_DIR}/discus-ndip/ &&
+        jupyter server
             --allow-root
             --no-browser
             --ip=0.0.0.0
-            --notebook-dir=\${WORKING_DIR}
-            --NotebookApp.token=''
-            --NotebookApp.password=''
-            --NotebookApp.base_url=\${EP_PATH}
+            --ServerApp.root_dir=\${WORKING_DIR}
+            --ServerApp.token=''
+            --ServerApp.password=''
+            --ServerApp.base_url=\${EP_PATH}
+            --ServerApp.default_url=/tree/discus-ndip
             > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="working_directory" type="text" value="/opt/run" label="Working directory for Jupyter" />
+        <param name="working_directory" type="text" value="" label="Working directory for Jupyter" />
     </inputs>
     <outputs>
         <data name="output" auto_format="true" label="DISCUS Console Output"></data>
