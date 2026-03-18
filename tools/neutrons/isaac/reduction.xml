@@ -1,5 +1,4 @@
 <tool id="neutrons_isaac_reduction" name="Reduction" version="0.1.0" profile="22.01">
-    <description>Nexus Processor CLI Tool</description>
     <creator>
         <person name="Mat Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -17,7 +16,7 @@
 
     <outputs>
         <data format="txt" name="output" label="Reduction Console Output"></data>
-        <data format="txt" name="reflectivity" label="Reflectitivty File"></data>
+        <data format="txt" name="reflectivity" label="Reflectivity File"></data>
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[

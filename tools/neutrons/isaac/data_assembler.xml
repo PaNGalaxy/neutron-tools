@@ -1,0 +1,33 @@
+<tool id="nexus_data_assembler" name="Data Assembler" version="0.1.0" profile="22.01">
+    <creator>
+        <person name="Mat Doucet"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/sergeyyakubov/data-assembler:sha-e55c444</container>
+    </requirements>
+
+    <inputs>
+        <parame name="reflectivity" type="data" format="txt"  label="Reflectivity File"></parame>
+        <parame name="parquet" type="data" format="gz" label="Parquet files"></parame>
+        <parame name="model" type="data" format="txt" label="Analyzer Model"></parame>
+    </inputs>
+
+    <outputs>
+        <data format="txt" name="output" label="Data Assembler Console Output"></data>
+	    <collection name="output_data" type="list" label="Assembled Data">
+	        <discover_datasets pattern="__designation__" ext="txt" directory="output" />
+	    </collection>
+    </outputs>
+
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir output parquet &&
+        tar -xzvf $parquet -C parquet &&
+        data-assembler ingest
+                        -r $reflectivity
+                        -p parquet
+                        -m $model
+                        -o output
+                > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+</tool>

@@ -21,7 +21,7 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir -p output/
+        mkdir output
 
         && ln -s $input_file ./input.nxs.h5
 
