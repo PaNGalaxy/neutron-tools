@@ -40,9 +40,6 @@
             #if $max_events
               --max-events $max_events 
             #end if
-
-    
-        && tar -czvf $out_gz output/
-
+            && tar -czvf $out_gz -C output .
     ]]></command>
 </tool>
