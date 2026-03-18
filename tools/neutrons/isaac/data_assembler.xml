@@ -8,9 +8,9 @@
     </requirements>
 
     <inputs>
-        <parame name="reflectivity" type="data" format="txt"  label="Reflectivity File"></parame>
-        <parame name="parquet" type="data" format="gz" label="Parquet files"></parame>
-        <parame name="model" type="data" format="txt" label="Analyzer Model"></parame>
+        <param name="reflectivity" type="data" format="txt"  label="Reflectivity File"></param>
+        <param name="parquet" type="data" format="gz" label="Parquet files"></param>
+        <param name="model" type="data" format="txt" label="Analyzer Model"></param>
     </inputs>
 
     <outputs>
