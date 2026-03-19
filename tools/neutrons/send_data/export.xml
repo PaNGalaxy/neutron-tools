@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tool name="Export Datasets" id="neutrons_export" version="0.3.1" profile="22.05">
+<tool name="Export Datasets" id="neutrons_export" version="0.3.2" profile="22.05">
     <description>to SNS/HFIR storage</description>
     <creator>
         <person name="NDIP Team"/>
@@ -23,7 +23,7 @@
             #end for
           #else:
 	        #set $name = str($s.input_mode.export_path)
-            #set tags = '_'.join(["%s_%s" % (t.user_tname, t.user_value) if t.user_tname else str(t.user_value) for t in $s.input_mode.input.tags])
+            #set tags = '_'.join([str(t.user_value) for t in $s.input_mode.input.tags])
 	        #set $name = $name.replace('__TAG__', $tags)
             cp '${s.input_mode.input}' '$name' &&
             echo '$name'>> $output &&
