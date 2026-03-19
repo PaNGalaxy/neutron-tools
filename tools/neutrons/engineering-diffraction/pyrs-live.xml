@@ -1,10 +1,10 @@
-<tool id="nova-pyrs-live-prototype" tool_type="interactive" name="PyRS Live" version="0.2.2" profile="22.01">
+<tool id="nova-pyrs-live-prototype" tool_type="interactive" name="PyRS Live" version="0.3.0" profile="22.01">
     <description>PyRS Live - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/pyrs-live/prototypes:b127884876a7fb42948064fe4d007393c6bf0fe0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/pyrs-live/prototypes:356d88e494d4fed76450e3e34eb3fcbff7795806</container>
     </requirements>
     <entry_points>
-        <entry_point name="PyRS Live" label="app_entry" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="pyRS Live" label="app_entry" requires_domain="False" requires_path_in_url="True">
             <port>8081</port>
         </entry_point>
     </entry_points>
