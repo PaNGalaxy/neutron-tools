@@ -20,6 +20,7 @@
     <inputs>
         <repeat name="series" title="File to register">
             <param name="input" type="text" label="Filesystem path"/>
+            <param name="tags" type="text" value="" label="Output tag"/>
         </repeat>
     </inputs>
     <help><![CDATA[

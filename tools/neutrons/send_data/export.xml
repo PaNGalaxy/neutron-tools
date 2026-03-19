@@ -22,8 +22,11 @@
                echo '$s.input_mode.export_folder/$name' >> $output &&
             #end for
           #else:
-                cp '${s.input_mode.input}' '${s.input_mode.export_path}' &&
-                echo '${s.input_mode.export_path}'>> $output &&
+	        #set $name = str($s.input_mode.export_path)
+            #set tags = '_'.join(["%s_%s" % (t.user_tname, t.user_value) if t.user_tname else str(t.user_value) for t in $s.input_mode.input.tags])
+	        #set $name = $name.replace('__TAG__', $tags)
+            cp '${s.input_mode.input}' '$name' &&
+            echo '$name'>> $output &&
           #end if
         #end for
         echo "exported files:" &&
@@ -52,6 +55,6 @@
         <data name="output" auto_format="true" label="exported files"/>
     </outputs>
     <help><![CDATA[
-        Exports data to SNS/HFIR storage.
+        Exports data to SNS/HFIR storage. If the dataset has tags, you can use __TAGS__ placeholder to ingest those tags into the export path.
     ]]></help>
 </tool>
