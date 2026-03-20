@@ -28,7 +28,7 @@
               --galaxy-user-id $__user_id__
               --tag-run-number $tag_run_number
             #if $workflow.execute == "true"
-              --execute-workflow $workflow.name
+              --execute-workflow "$workflow.name"
               --workflow-input-label "$workflow.ingress_label"
               #for $i in $workflow.extra_inputs
                 --workflow-extra-input "$i.name":"$__app__.security.encode_id(i['file'].id)"
