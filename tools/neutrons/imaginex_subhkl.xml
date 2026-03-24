@@ -14,8 +14,8 @@
     ]]></command>
     <inputs>
     
-		<param format=".h5" name="peaks" type="data" label="Peak data file" />
-		<param format=".h5" name="stage" type="data" label="Stage 1 file" />
+		<param format="h5" name="peaks" type="data" label="Peak data file" />
+		<param format="h5" name="stage" type="data" label="Stage 1 file" />
 		<conditional name="metad">
 			<param name="metad" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
 			</param>
