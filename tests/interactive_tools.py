@@ -37,7 +37,6 @@ INTERACTIVE_TOOLS_BOTH = {
     "nova-neutrons-cp2k-gui": None
 }
 INTERACTIVE_TOOLS_TEST = {
-    "neutrons_airsans_demo": None,
     "neutrons_trame_garnet": None,
     "nova-interactive-tool-amira": None,
     "neutrons_ctr": None,
