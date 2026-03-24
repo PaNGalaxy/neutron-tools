@@ -8,12 +8,14 @@
 		#if $metad.metad == 'true':
 			python -m subhkl.io.parser indexer-using-file 8 $peaks out/out.h5 ;
 		#else:
-			python -m subhkl.io.parser indexer 8 $peaks $metad.goniometer out/out.h5 $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample ;
+			##python -m subhkl.io.parser indexer 8 $peaks $metad.goniometer out/out.h5 $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample ;
+			python -m subhkl.io.parser indexer $peaks $stage $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.space --wavelength-min $metad.wavelengthMin --wavelength-max $metad.wavelengthMax --n-runs=100 --popsize=100 --gens=200 --strategy=de --tolerance-deg=0.5 --loss-method $metad.loss --hkl-search-range 35 --batch-size=100
 		#end if
     ]]></command>
     <inputs>
     
-		<param format="csv" name="peaks" type="data" label="Peak data file" />
+		<param format=".h5" name="peaks" type="data" label="Peak data file" />
+		<param format=".h5" name="stage" type="data" label="Stage 1 file" />
 		<conditional name="metad">
 			<param name="metad" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
 			</param>
@@ -29,16 +31,13 @@
 				<param name="gamma" type="float" value="0.0" label="Gamma" /> 
 			    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
 				<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
-				<param name="sample" type="select" optional="false" value="P" label="Sample Centering" > 
-					<option value="P">Primitive</option>
-					<option value="I">Body Centered</option>
-					<option value="F">Face Centered</option>
-					<option value="A">Base Centered A</option>
-					<option value="B">Base Centered B</option>
-					<option value="C">Base Centered C</option>
-					<option value="R">Rhombohedral</option>
-					<option value="R_obv">Rhombohedral Observed</option>
+				<param name="loss" type="select" optional="false" value="gaussian" label="Loss Method" > 
+					<option value="cosine">Cosine</option>
+					<option value="direct">Direct</option>
+					<option value="gaussian">Gaussian</option>
+					<option value="sinkhorn">Sinkhorn</option>
 				</param>
+				<param name="space" type="text" value="Fdd2" label="Space Group" />
 			</when>
 		</conditional>
 
