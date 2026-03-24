@@ -1,10 +1,10 @@
-<tool id="neutrons_ingress" name="Live Neutron Data Monitor" profile="22.05" version="0.4.0">
+<tool id="neutrons_ingress" name="Live Neutron Data Monitor" profile="22.05" version="0.8.0">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/tool-sources/generic/ingress:0.6.0
+        <container shell="/bin/bash" type="docker">savannah.ornl.gov/ndip/tool-sources/generic/ingress:0.8.0
         </container>
     </requirements>
     <environment_variables>
@@ -26,8 +26,9 @@
               --galaxy-user-api-key \$API_KEY
               --galaxy-history-name "$history"
               --galaxy-user-id $__user_id__
+              --tag-run-number $tag_run_number
             #if $workflow.execute == "true"
-              --execute-workflow $workflow.name
+              --execute-workflow "$workflow.name"
               --workflow-input-label "$workflow.ingress_label"
               #for $i in $workflow.extra_inputs
                 --workflow-extra-input "$i.name":"$__app__.security.encode_id(i['file'].id)"
@@ -50,6 +51,7 @@
         <param name="ipts" type="text" label="IPTS" value="IPTS-" optional="false"/>
         <param name="live_monitor" type="boolean" checked="true" label="Live monitor and ingress new files"/>
         <param name="previous_data" type="boolean" checked="false" label="Ingress old files"/>
+        <param name="tag_run_number" type="boolean" checked="true" label="Add run number tag"/>
         <conditional name="data_type">
             <param name="mode" type="select" label="Data Type" value="raw" optional="false">
                 <option value="raw">Raw Data</option>
@@ -97,9 +99,14 @@ The "IPTS" field allows you to enter their IPTS number to specify which experime
 If you want to have multiple instruments, runs, or has experiments at both facilities, then you should
 simply lauch an instance of this tool for each individual run, with the appropriate parameters supplied.
 
+
 The "Live monitor and ingress new files" checkbox is the option that enables live data ingressing into Galaxy.
 You can also ingress old files from a finished experiment using the "Ingress old files" checkbox. If both of these 
 checkboxes are turned off (value of "No"), then the tool will fail. 
+
+The "Add run number tag" checkbox is the option that tries to extract run number from the file name and add it as a tag
+to the uploaded file. If a workflow is running after ingestion, this tag will be propagated to all workflow outputs
+(and can be used by tools to e.g. set filenames, etc.)
 
 The "Data Type" field lets you choose whether you want Raw Data, or you can filter out the raw data and only see reduced data.
 You can also choose a wildcard to filter your reduced data. For example, if you only want ".dat" file types in the top level experiment directory,
