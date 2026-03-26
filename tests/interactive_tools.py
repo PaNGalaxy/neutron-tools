@@ -31,7 +31,11 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
 
         try:
             print(d_tool._job.get_console_output(0, sys.maxsize - 1))
-            print(d_tool._job.galaxy_instance.jobs.get_metrics(d_tool._job.id))
+            print(
+                d_tool._job.galaxy_instance.jobs.show_job(
+                    d_tool._job.id, full_details=True
+                )
+            )
         except Exception:
             # We couldn't fetch any details about the tool, giving up completely :(
             pass
