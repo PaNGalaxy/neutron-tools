@@ -22,6 +22,7 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
                 params = Parameters()
             d_tool.run_interactive(d_store, params, wait=False)
             d_tool.get_url(check_url=True, max_tries=900)
+            raise Exception("testing error handlers")
             print(f"Tool {tool_id} started successfully.")
             stop_all_tools_in_store(d_store)
             return True
@@ -29,9 +30,8 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
         print(f"Tool {tool_id} failed to start: {str(e)}")
 
         try:
-            print(
-                d_tool._job.get_console_output(0, 1000000)
-            )  # TODO: how to set these properly
+            print(d_tool._job.get_console_output(0, 1000000))
+            print(d_tool._job.galaxy_instance.jobs.get_metrics(d_tool._job.id))
         except Exception:
             # We couldn't fetch any details about the tool, giving up completely :(
             pass
