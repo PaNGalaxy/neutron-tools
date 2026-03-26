@@ -21,9 +21,10 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
             if params is None:
                 params = Parameters()
             d_tool.run_interactive(d_store, params, wait=False)
-            d_tool.get_url(check_url=True, max_tries=900)
+            print(d_tool.get_url(check_url=True, max_tries=900))
             print(f"Tool {tool_id} started successfully.")
             stop_all_tools_in_store(d_store)
+            raise Exception("intentional failure")
             return True
     except Exception as e:
         print(f"Tool {tool_id} failed to start: {str(e)}")
