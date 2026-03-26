@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import pytest
 from typing import Optional, Dict, Any
 from nova.galaxy import Connection, Tool, Parameters
@@ -20,21 +21,19 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
             d_tool = Tool(id=tool_id)
             if params is None:
                 params = Parameters()
-            d_tool.run_interactive(d_store, params, wait=False)
-            print(d_tool.get_url(check_url=True, max_tries=900))
+            d_tool.run_interactive(d_store, params, max_tries=900)
             print(f"Tool {tool_id} started successfully.")
             stop_all_tools_in_store(d_store)
-            raise Exception("intentional failure")
             return True
     except Exception as e:
         print(f"Tool {tool_id} failed to start: {str(e)}")
 
         try:
+            # Give Galaxy time to record job metrics.
+            time.sleep(30)
             print(d_tool._job.get_console_output(0, sys.maxsize - 1))
             print(
-                d_tool._job.galaxy_instance.jobs.show_job(
-                    d_tool._job.id, full_details=True
-                )
+                d_tool._job.galaxy_instance.jobs.get_destination_params(d_tool._job.id)
             )
         except Exception:
             # We couldn't fetch any details about the tool, giving up completely :(
