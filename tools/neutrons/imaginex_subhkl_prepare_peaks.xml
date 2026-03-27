@@ -9,7 +9,7 @@
 		#set $FILE_LIST = ""
 		#for $Z in $input:
 		    #set $BN = str($Z.element_identifier)
-		    #set $filename = "out/" + str($BN) + ".reduce.h5
+		    #set $filename = "out/" + str($BN) + ".reduce.h5"
 		    python -m subhkl.io.parser reduce $Z $filename $instrument ;
 		    #set $FILE_LIST = $FILE_LIST + $filename + " "
 		#end for
