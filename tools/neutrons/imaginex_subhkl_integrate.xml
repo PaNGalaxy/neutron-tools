@@ -60,6 +60,6 @@
 		<data format="h5" name="output" from_work_dir="out/integrator.h5" />
     </outputs>
     <help><![CDATA[
-        Calculates peak indices in reciprocol space.
+        Integrate peaks.
     ]]></help>
 </tool>
