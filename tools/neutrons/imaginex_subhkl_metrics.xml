@@ -1,0 +1,18 @@
+<tool id="imaginex_subhkl_metrics" name="IMAGINE-X subhkl Metrics "  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+		mkdir out ; 
+
+		python -m subhkl.io.parser metrics $peaks ;
+    ]]></command>
+    <inputs>
+		<param format="h5" name="peaks" type="data" label="Peak data file" />
+    </inputs>
+    <outputs>
+    </outputs>
+    <help><![CDATA[
+        Calculates peak indices in reciprocol space.
+    ]]></help>
+</tool>

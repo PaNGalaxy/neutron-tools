@@ -1,0 +1,30 @@
+<tool id="imaginex_subhkl_predict" name="IMAGINE-X subhkl Peak Prediction"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+		mkdir out ; 
+
+		python -m subhkl.io.parser peak-predictor $scan $INSTRUMENT $INDEXER out/peak_predictor.h5 --wavel-min $wavelengthMin --wavel-max $wavelengthMax --d-min $dMin ;
+    ]]></command>
+    <inputs>
+    
+		<param format="h5" name="scan" type="data" label="Master scan file" />
+		<param format="h5" name="indexer" type="data" label="Indexer file" />
+		<param name="instrument" type="select" optional="false" value="IMAGINE" label="Instrument" > 
+			<option value="IMAGINE">IMAGINE</option>
+			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="MANDI">MANDI</option>
+		</param>
+	    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
+		<param name="wavelengthMax" type="float" value="8.5" label="Max Wavelength" /> 
+		<param name="dMin" type="float" value="1.1" label="Miinimum D" /> 
+
+    </inputs>
+    <outputs>
+		<data format="h5" name="output" from_work_dir="out/peak_predictor.h5" />
+    </outputs>
+    <help><![CDATA[
+        Calculates peak indices in reciprocol space.
+    ]]></help>
+</tool>

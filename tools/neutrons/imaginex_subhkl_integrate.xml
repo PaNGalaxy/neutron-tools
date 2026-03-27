@@ -1,0 +1,65 @@
+<tool id="imaginex_subhkl_integrate" name="IMAGINE-X subhkl Peak Integration"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+		mkdir out ; 
+
+		python -m subhkl.io.parser integrator $scan $instrument $predicted out/integrator.h5 --integration-method $method --found-peaks-file $found --region-growth-minimum-sigma $sigma --region-growth-maximum-pixel-radius $radius --peak-center-box-size $boxSize --peak-smoothing-window-size $windowSize --peak-minimum-pixels $pixels --peak-minimum-signal-to-noise $signal --peak-pixel-outlier-threshold $threshold --create-visualizations --show-progress
+    ]]></command>
+    <inputs>
+    
+		<param format="h5" name="scan" type="data" label="Master scan file" />
+		<param format="h5" name="predicted" type="data" label="Predicted peaks file" />
+		<param format="h5" name="found" type="data" label="Found peaks file" />
+		<param name="instrument" type="select" optional="false" value="IMAGINE" label="Instrument" > 
+			<option value="IMAGINE">IMAGINE</option>
+			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="MANDI">MANDI</option>
+		</param>
+		<param name="instrument" type="method" optional="false" value="gaussian" label="Integration Method" > 
+			<option value="gaussian_fit">Gaussian</option>
+			<option value="free_fit">Free Fit</option>
+		</param>
+		<param name="sigma" type="float" value="0.5" label="Region Growth Minimum Sigma" />
+		<param name="radius" type="integer" value="12" label="Region Growth Maximum Pixel Radius" />
+		<param name="boxSize" type="integer" value="3" label="Peak Center Box Size" />
+		<param name="windowSize" type="integer" value="5" label="Peak Smoothing Window Size" />
+		<param name="pixels" type="integer" value="40" label="Peak Minimum Pixels" />
+		<param name="signal" type="float" value="0.0" label="Peak Minimum Signal to Noise Ratio" />
+		<param name="threshold" type="integer" value="4" label="Peak Pixel Outlier Threshold" />
+		
+		<param format="h5" name="stage" type="data" label="Stage 1 file" />
+		<conditional name="metad">
+			<param name="metad" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
+			</param>
+			<when value="true">
+			</when>
+			<when value="false">
+				<param format="csv" name="goniometer" type="data" label="Goniometer data file" />
+				<param name="a" type="float" value="0.0" label="a" /> 
+				<param name="b" type="float" value="0.0" label="b" /> 
+				<param name="c" type="float" value="0.0" label="ac" /> 
+				<param name="alpha" type="float" value="0.0" label="Alpha" /> 
+				<param name="beta" type="float" value="0.0" label="Beta" /> 
+				<param name="gamma" type="float" value="0.0" label="Gamma" /> 
+			    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
+				<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
+				<param name="loss" type="select" optional="false" value="gaussian" label="Loss Method" > 
+					<option value="cosine">Cosine</option>
+					<option value="direct">Direct</option>
+					<option value="gaussian">Gaussian</option>
+					<option value="sinkhorn">Sinkhorn</option>
+				</param>
+				<param name="space" type="text" value="Fdd2" label="Space Group" />
+			</when>
+		</conditional>
+
+    </inputs>
+    <outputs>
+		<data format="h5" name="output" from_work_dir="out/integrator.h5" />
+    </outputs>
+    <help><![CDATA[
+        Calculates peak indices in reciprocol space.
+    ]]></help>
+</tool>
