@@ -5,33 +5,24 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 
-		python -m subhkl.io.parser integrator $scan $instrument $predicted out/integrator.h5 --integration-method $method --found-peaks-file $found --region-growth-minimum-sigma $sigma --region-growth-maximum-pixel-radius $radius --peak-center-box-size $boxSize --peak-smoothing-window-size $windowSize --peak-minimum-pixels $pixels --peak-minimum-signal-to-noise $signal --peak-pixel-outlier-threshold $threshold --create-visualizations --show-progress
+		python -m subhkl.io.parser peak-predictor $scan $INSTRUMENT $INDEXER out/peak_predictor.h5 --wavel-min $wavelengthMin --wavel-max $wavelengthMax --d-min $dMin ;
     ]]></command>
     <inputs>
     
 		<param format="h5" name="scan" type="data" label="Master scan file" />
-		<param format="h5" name="predicted" type="data" label="Predicted peaks file" />
-		<param format="h5" name="found" type="data" label="Found peaks file" />
+		<param format="h5" name="indexer" type="data" label="Indexer file" />
 		<param name="instrument" type="select" optional="false" value="IMAGINE" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
 			<option value="IMAGINEX">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>
-		<param name="instrument" type="method" optional="false" value="gaussian" label="Integration Method" > 
-			<option value="gaussian_fit">Gaussian</option>
-			<option value="free_fit">Free Fit</option>
-		</param>
-		<param name="sigma" type="float" value="0.5" label="Region Growth Minimum Sigma" />
-		<param name="radius" type="integer" value="12" label="Region Growth Maximum Pixel Radius" />
-		<param name="boxSize" type="integer" value="3" label="Peak Center Box Size" />
-		<param name="windowSize" type="integer" value="5" label="Peak Smoothing Window Size" />
-		<param name="pixels" type="integer" value="40" label="Peak Minimum Pixels" />
-		<param name="signal" type="float" value="0.0" label="Peak Minimum Signal to Noise Ratio" />
-		<param name="threshold" type="integer" value="4" label="Peak Pixel Outlier Threshold" />
+	    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
+		<param name="wavelengthMax" type="float" value="8.5" label="Max Wavelength" /> 
+		<param name="dMin" type="float" value="1.1" label="Miinimum D" /> 
 
     </inputs>
     <outputs>
-		<data format="h5" name="output" from_work_dir="out/integrator.h5" />
+		<data format="h5" name="output" from_work_dir="out/peak_predictor.h5" />
     </outputs>
     <help><![CDATA[
         Integrate peaks.
