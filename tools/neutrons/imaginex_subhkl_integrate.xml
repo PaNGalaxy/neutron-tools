@@ -5,7 +5,7 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 
-		python -m subhkl.io.parser peak-predictor $scan $INSTRUMENT $INDEXER out/peak_predictor.h5 --wavel-min $wavelengthMin --wavel-max $wavelengthMax --d-min $dMin ;
+		python -m subhkl.io.parser integrator $scan $instrument $predicted out/integrator.h5 --integration-method $method --found-peaks-file $found --region-growth-minimum-sigma $sigma --region-growth-maximum-pixel-radius $radius --peak-center-box-size $boxSize --peak-smoothing-window-size $windowSize --peak-minimum-pixels $pixels --peak-minimum-signal-to-noise $signal --peak-pixel-outlier-threshold $threshold --create-visualizations --show-progress ;
     ]]></command>
     <inputs>
     
