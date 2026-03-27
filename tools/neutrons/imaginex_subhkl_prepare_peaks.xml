@@ -6,19 +6,12 @@
 
 		mkdir out ; 
 
-		#set $FILE_LIST = []
-		#for $Z in $input:
-		    #set $BN = os.path.basename($Z)
-		    python -m subhkl.io.parser reduce "$Z" out/$BN.reduce.h5 $instrument ;
-		    #$FILE_LIST.append("out/$BN.reduce.h5")
-		#end for
-		
-		python -m subhkl.io.parser merge-images "$FILE_LIST" out/scan_master.h5 ;
+
 		
     ]]></command>
     <inputs>
     
-		<param format="h5" multiple="true" name="input" type="data" label="Files to reduce" />
+
 		
     </inputs>
     <outputs>
