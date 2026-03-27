@@ -18,7 +18,7 @@
     ]]></command>
     <inputs>
     
-		<param format=".h5" multiple="true" name="input" type="data" label="Files to reduce" />
+		<param format="h5" multiple="true" name="input" type="data" label="Files to reduce" />
 		
     </inputs>
     <outputs>
