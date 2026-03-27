@@ -19,6 +19,11 @@
     <inputs>
     
 		<param format="h5" multiple="true" name="input" type="data" label="Files to reduce" />
+		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
+			<option value="IMAGINE">IMAGINE</option>
+			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="MANDI">MANDI</option>
+		</param>
 		
     </inputs>
     <outputs>
