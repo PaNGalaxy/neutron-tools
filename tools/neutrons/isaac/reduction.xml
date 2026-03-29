@@ -5,7 +5,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/sergeyyakubov/analyzer</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer</container>
     </requirements>
 
     <inputs>
@@ -26,6 +26,6 @@
         echo "running reduction..." &&
         pixi run --as-is --manifest-path /app simple-reduction --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        cp output/*.txt $reflectivity
+        cp output/*combined_data_auto.txt $reflectivity
     ]]></command>
 </tool>
