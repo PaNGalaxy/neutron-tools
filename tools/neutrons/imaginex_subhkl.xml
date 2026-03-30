@@ -89,7 +89,7 @@
 		<param name="sampleBound" type="float" value="0.005" label="Sample Bound (Meters)" /> 
 		<param name="refinebeam" type="boolean" checked="false" label="Refine Beam" /> 
 		<param name="beamBound" type="float" value="0.05" label="Beam Bound (Degees)" /> 
-		<param format="bootstrap" name="peaks" type="data" optional="true" label="Bootstrap file to restart refinement from" />
+		<param format="h5" name="bootstrap" type="data" optional="true" label="Bootstrap file to restart refinement from" />
 		<param name="dMin" type="float" optional="true" value="" label="D Min" /> 
 		<param name="dMax" type="float" optional="true" value="" label="D Max" /> 
 		<param name="hkl" type="float" value="20" label="HKL Search Range" /> 
