@@ -4,46 +4,108 @@
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
-
-		#if $metad.metad == 'true':
-			python -m subhkl.io.parser indexer-using-file 8 $peaks out/out.h5 ;
-		#else:
-			##python -m subhkl.io.parser indexer 8 $peaks $metad.goniometer out/out.h5 $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.wavelengthMin $metad.wavelengthMax $metad.sample ;
-			python -m subhkl.io.parser indexer $peaks $stage $metad.a $metad.b $metad.c $metad.alpha $metad.beta $metad.gamma $metad.space --wavelength-min $metad.wavelengthMin --wavelength-max $metad.wavelengthMax --n-runs=100 --popsize=100 --gens=200 --strategy=de --tolerance-deg=0.5 --loss-method $metad.loss --hkl-search-range 35 --batch-size=100
+		
+		#set options = ""
+		
+		#if wavelengthMin:
+			#set options = options + " --wavelength-min " + sr($wavenlengthMin) + " " 
 		#end if
+		#if wavelengthMax:
+			#set options = options + " --wavelength-max " + sr($wavenlengthMax) + " " 
+		#end if
+		#if goniometer:
+			#set options = options + " --goniometer-csv-filename " + sr(goniometer) + " " 
+		#end if
+		#if nexus:
+			#set options = options + " --original_nexus_filename " + sr(nexus) + " " 
+		#end if
+		#if sigmaInit:
+			#set options = options + " --sigma-init " + sr(sigmaInit) + " " 
+		#end if
+		#if goniometerAxes:
+			#set options = options + " --refine-goniometer-axes " + sr(goniometerAxes) + " " 
+		#end if
+		#if bootstrap:
+			#set options = options + " --bootstrap " + sr(bootstrap) + " " 
+		#end if
+		#if dMin:
+			#set options = options + " --d-min " + sr(dMin) + " " 
+		#end if
+		#if dMax:
+			#set options = options + " --d-max " + sr(dMax) + " " 
+		#end if
+		#if batch:
+			#set options = options + " --batch-size " + sr(batch) + " " 
+		#end if
+		#if bSHarpen:
+			#set options = options + " --b-sharpen " + sr(bSharpen) + " " 
+		#end if
+
+		python -m subhkl.io.parser indexer $peaks $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=100 --popsize=100 --gens=200 --strategy=de --tolerance-deg=0.5 --loss-method $loss --hkl-search-range 35 --batch-size=100
+
     ]]></command>
     <inputs>
     
 		<param format="h5" name="peaks" type="data" label="Peak data file" />
-		<param format="h5" name="stage" type="data" label="Stage 1 file" />
-		<conditional name="metad">
-			<param name="metad" type="boolean" checked="true" label="Metadata is in peak file" help="Whether data such as alpha, wavelength min, and sample centering are included."> 
-			</param>
-			<when value="true">
-			</when>
-			<when value="false">
-				<param format="csv" name="goniometer" type="data" label="Goniometer data file" />
-				<param name="a" type="float" value="0.0" label="a" /> 
-				<param name="b" type="float" value="0.0" label="b" /> 
-				<param name="c" type="float" value="0.0" label="ac" /> 
-				<param name="alpha" type="float" value="0.0" label="Alpha" /> 
-				<param name="beta" type="float" value="0.0" label="Beta" /> 
-				<param name="gamma" type="float" value="0.0" label="Gamma" /> 
-			    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
-				<param name="wavelengthMax" type="float" value="3.5" label="Max Wavelength" /> 
-				<param name="loss" type="select" optional="false" value="gaussian" label="Loss Method" > 
-					<option value="cosine">Cosine</option>
-					<option value="direct">Direct</option>
-					<option value="gaussian">Gaussian</option>
-					<option value="sinkhorn">Sinkhorn</option>
-				</param>
-				<param name="space" type="text" value="Fdd2" label="Space Group" />
-			</when>
-		</conditional>
+		<param name="a" type="float" value="0.0" label="a" /> 
+		<param name="b" type="float" value="0.0" label="b" /> 
+		<param name="c" type="float" value="0.0" label="ac" /> 
+		<param name="alpha" type="float" value="0.0" label="Alpha" /> 
+		<param name="beta" type="float" value="0.0" label="Beta" /> 
+		<param name="gamma" type="float" value="0.0" label="Gamma" /> 
+	    <param name="wavelengthMin" type="float" optional="true" value="1.0" label="Min Wavelength" /> 
+		<param name="wavelengthMax" type="float" optional="true" value="3.5" label="Max Wavelength" /> 
+		<param name="loss" type="select" optional="false" value="gaussian" label="Loss Method" > 
+			<option value="cosine">Cosine</option>
+			<option value="direct">Direct</option>
+			<option value="gaussian">Gaussian</option>
+			<option value="sinkhorn">Sinkhorn</option>
+		</param>
+		<param name="space" type="text" value="Fdd2" label="Space Group" />
+		<param format="csv" name="goniometer" type="data" optional="true" label="Goniometer file" />
+		<param format="nxs.h5" name="nexus" type="data" optional="true" label="Original nexus file" />
+		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
+			<option value="IMAGINE">IMAGINE</option>
+			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="MANDI">MANDI</option>
+		</param>
+		<param name="strategy" type="select" optional="false" value="de" label="Strategy" > 
+			<option value="cma_es">CMA-ES</option>
+			<option value="de">Differential Equation</option>
+			<option value="pso">PSO</option>
+		</param>
+		<param name="sigmaInit" type="float" optional="true" value="" label="Sigma Init" /> 
+		<param name="runs" type="integer" value="1" label="# of Runs" /> 
+		<param name="pop" type="integer" value="1000" label="Population Size" /> 
+		<param name="generations" type="integer" value="100" label="Generations" /> 
+		<param name="seed" type="integer" value="0" label="Seed" /> 
+		<param name="tolerance" type="float" value="0.1" label="Tolerance Degrees" /> 
+		<param name="lattice" type="boolean" checked="false" label="Refine Lattice" /> 
+		<param name="latticeFrac" type="float" value="0.05" label="Lattice Bound Fraction" /> 
+		<param name="refineGoniometer" type="boolean" checked="false" label="Refine Goniometer" /> 
+		<param name="goniometerAxes" type="text" optional="true" value="" label="Goniometer Axes List" help="(Optional) Comma separated list of goniometer axes. Leave blank to not refine any axis." /> 
+		<param name="goniometerBound" type="float" value="0.5" label="Goniometer Refinement Bound" /> 
+		<param name="refineSample" type="boolean" checked="false" label="Refine Sample" /> 
+		<param name="sampleBound" type="float" value="0.005" label="Sample Bound (Meters)" /> 
+		<param name="refinebeam" type="boolean" checked="false" label="Refine Beam" /> 
+		<param name="beamBound" type="float" value="0.05" label="Beam Bound (Degees)" /> 
+		<param format="bootstrap" name="peaks" type="data" optional="true" label="Bootstrap file to restart refinement from" />
+		<param name="dMin" type="float" optional="true" value="" label="D Min" /> 
+		<param name="dMax" type="float" optional="true" value="" label="D Max" /> 
+		<param name="hkl" type="float" value="20" label="HKL Search Range" /> 
+		<param name="windowSize" type="float" value="512" label="Search Window Size" /> 
+		<param name="batch" type="integer" optional="true" value="" label="Batch Size" /> 
+		<param name="windowBatch" type="integer" value="32" label="Window Batch Size" /> 
+		<param name="chunk" type="integer" value="256" label="Chunk Size" /> 
+		<param name="iterations" type="integer" value="20" label="# of Iterations" /> 
+		<param name="topK" type="integer" value="32" label="Top K" /> 
+		<param name="bSharpen" type="float" optional="" value="" label="Wilson B-Factor" /> 
+
+
 
     </inputs>
     <outputs>
-		<data format="h5" name="output" from_work_dir="out/out.h5" />
+		<data format="h5" name="output" from_work_dir="out/indexer.h5" />
     </outputs>
     <help><![CDATA[
         Calculates peak indices in reciprocol space.

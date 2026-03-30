@@ -5,28 +5,84 @@
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir out ; 
-
-		#for $input in $inputs
-			#if "." in $input.element_identifier
-				#set $out_name = $input.element_identifier[0:-3] + "csv"
-			#else
-				#set $out_name = $input.element_identifier + ".csv"
+		    
+		#if $algod.algo == 'peak_local_max':
+      		python -m subhkl.io.parser finder $scan $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --peak-local-max-min-pixel-distance $algod.pixelDistance --peak-local-max-min-relative-intensity $algod.relativeIntensity --peak-local-max-normalization $algod.normalization
+      	#end if
+		#if $algod.algo == 'sparse_rbf':
+      		python -m subhkl.io.parser finder $scan $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --show-steps $algod.rbfShow --sparse-rbf-alpha $algod.alpha --sparse-rbf-gamma $algod.gamma --sparse-rbf-min-sigma $algod.minSigma --sparse-rbf-max-sigma $algod.maxSigma --sparse-rbf-max-peaks $algod.maxPeaks --sparse-rbf-chunk-size $algod.chunk --sparse-rbf-tile-rows $algod.tileRows --sparse-rbf-tile-cols $algod.tileCols
+      	#end if
+		#if $algod.algo == 'thresholding':
+			#if $algod.mask.useMask:
+      			python -m subhkl.io.parser finder $scan $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --thresholding-noise-cutoff-quantile $algod.noise --thresholding-min-peak-dist-pixels $algod.peakDist --thresholding-mask-rel-erosion-radius $algod.erosion --thresholding-blur-kernel-sigma $algod.blur --thresholding-open-kernel-size-pixels $algod.kernelSize --thresholding-mask-file $algod.mask.maskFile
+			#else:
+      			python -m subhkl.io.parser finder $scan $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --thresholding-noise-cutoff-quantile $algod.noise --thresholding-min-peak-dist-pixels $algod.peakDist --thresholding-mask-rel-erosion-radius $algod.erosion --thresholding-blur-kernel-sigma $algod.blur --thresholding-open-kernel-size_pixels $algod.kernelSize
 			#end if
-			
-			python -m subhkl.io.parser finder $input out/$out_name ;
-		#end for
+      	#end if
 
     ]]></command>
     <inputs>
     
-		<param format="tiff,png" multiple="true" name="inputs" type="data" label="Peak data file" />
-		
+		<param format="h5" multiple="true" name="scan" type="data" label="Master scan file" />
+		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
+			<option value="IMAGINE">IMAGINE</option>
+			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="MANDI">MANDI</option>
+		</param>	
+		<param name="peakBox" type="integer" value="3" label="Peak Center Box Size" /> 
+		<param name="peakMin" type="integer" value="40" label="Peak Minimum Pixels" /> 
+		<param name="peakSignal" type="float" value="0.0" label="Peak Minimum Signal to Noise Ratio" /> 
+		<param name="peakThreshold" type="float" value="4.0" label="Peak Pixel Outlier Threshold" /> 
+		<param name="peakWindow" type="integer" value="5" label="Peak Smoothing Window SIze" /> 
+		<param name="growthDistance" type="float" value="1.5" label="Region Growth Distance Threshold" /> 
+		<param name="growthIntensity" type="float" value="3.0" label="Region Growth Minimum Intensity" /> 
+		<param name="growthRadius" type="float" value="12.0" label="Region Growth Maximum Pixel Radius" /> 
+		<param name="growthSigma" type="float" value="-999.0" label="Region Growth Minimum Sigma" /> 
+		<param name="wavelengthMax" type="float" value="-999.0" label="Wavelength Max" /> 
+		<param name="wavelengthMin" type="float" value="999.0" label="Wavelength Min" /> 		
+		<conditional name="algod">
+			<param name="algo" type="select" optional="false" value="thresholding" label="Algorithm" > 
+				<option value="peak_local-max">Peak Local Max</option>
+				<option value="sparse_rbf">Sparse RBF</option>
+				<option value="thresholding">Thresholding</option>
+			</param>	
+			<when value="peak_local_max">
+				<param name="pixelDistance" type="integer" value="-1" label="Min Pixel Distance" help="Values less than 0 mean no minimum" /> 
+				<param name="relativeINtensity" type="integer" value="-1" label="Min Relative Intensity" help="Values less than 0 mean no minimum" /> 
+				<param name="normalization" type="boolean" checked="false" label="Normalization" />
+			</when>
+			<when value="sparse_rbf">
+				<param name="alpha" type="float" value="0.1" label="Alpha" /> 
+				<param name="chunk" type="integer" value="4096" label="Chunk Size" /> 
+				<param name="gamma" type="float" value="2.0" label="Gamma" /> 
+				<param name="maxPeaks" type="integer" value="500" label="Max Peaks" /> 
+				<param name="maxSigma" type="float" value="10.0" label="Max Sigma" /> 
+				<param name="minSigma" type="float" value="0.5" label="Min Sigma" /> 
+				<param name="rbfShow" type="boolean" checked="false" label="Show Steps" />
+				<param name="tileCols" type="integer" value="2" label="Tile Columns" /> 
+				<param name="tileRows" type="integer" value="2" label="Tile Rows" /> 
+			</when>
+			<when value="thresholding">
+				<param name="blur" type="integer" value="5" label="Blur Kernel Sigma" /> 
+				<param name="erosion" type="float" value="0.85" label="Mask Relative Erosion Radius" /> 
+				<param name="noise" type="float" value="0.99" label="Noise Curogg Quantile" /> 
+				<param name="kernelSize" type="integer" value="3" label="Open Kernel Size Pixels" /> 
+				<param name="peakDist" type="integer" value="0.1" label="Min Peak Distance Pixels" /> 
+				<param name="thresholdShow" type="boolean" checked="false" label="Show Steps" />
+				<conditional name="mask">
+					<param name="useMask" type="boolean" checked="false" label="Use Mask File" />
+					<when value="false">
+					</when>
+					<when value="true">
+						<param format="h5" name="maskFile" type="data" label="Mask file" />
+					</when>
+				</conditional>
+			</when>
+		</conditional>
     </inputs>
     <outputs>
-		<collection name="output_data" type="list" label="Output Data">
-		    <discover_datasets pattern="__designation__" ext="csv" directory="out/" />
-		</collection>
-    </outputs>
+		<data format="h5" name="output" from_work_dir="out/finder.h5" />
+    </outputs>>
     <help><![CDATA[
         Calculates peak indices.
     ]]></help>
