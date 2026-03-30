@@ -47,9 +47,9 @@
 				<option value="thresholding">Thresholding</option>
 			</param>	
 			<when value="peak_local_max">
-				<!--<param name="pixelDistance" type="integer" value="-1" label="Min Pixel Distance" help="Values less than 0 mean no minimum" /> 
+				<param name="pixelDistance" type="integer" value="-1" label="Min Pixel Distance" help="Values less than 0 mean no minimum" /> 
 				<param name="relativeINtensity" type="integer" value="-1" label="Min Relative Intensity" help="Values less than 0 mean no minimum" /> 
-				<param name="normalization" type="boolean" checked="false" label="Normalization" /> -->
+				<param name="normalization" type="boolean" checked="false" label="Normalization" />
 			</when>
 			<when value="sparse_rbf">
 				<!--<param name="alpha" type="float" value="0.1" label="Alpha" /> 
