@@ -69,14 +69,14 @@
 				<param name="kernelSize" type="integer" value="3" label="Open Kernel Size Pixels" /> 
 				<param name="peakDist" type="integer" value="-1" label="Min Peak Distance Pixels" /> 
 				<param name="thresholdShow" type="boolean" checked="false" label="Show Steps" />
-				<!--<conditional name="mask">
+				<conditional name="mask">
 					<param name="useMask" type="boolean" checked="false" label="Use Mask File" />
 					<when value="false">
 					</when>
 					<when value="true">
 						<param format="h5" name="maskFile" type="data" label="Mask file" />
 					</when>
-				</conditional>-->
+				</conditional>
 			</when>
 		</conditional> 
     </inputs>
