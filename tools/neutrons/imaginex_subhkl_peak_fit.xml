@@ -40,7 +40,7 @@
 		<param name="growthSigma" type="float" value="-999.0" label="Region Growth Minimum Sigma" /> 
 		<param name="wavelengthMax" type="float" value="-999.0" label="Wavelength Max" /> 
 		<param name="wavelengthMin" type="float" value="999.0" label="Wavelength Min" /> 		
-		<conditional name="algod">
+		<!-- <conditional name="algod">
 			<param name="algo" type="select" optional="false" value="thresholding" label="Algorithm" > 
 				<option value="peak_local-max">Peak Local Max</option>
 				<option value="sparse_rbf">Sparse RBF</option>
@@ -78,7 +78,7 @@
 					</when>
 				</conditional>
 			</when>
-		</conditional>
+		</conditional> -->
     </inputs>
     <outputs>
 		<data format="h5" name="output" from_work_dir="out/finder.h5" />
