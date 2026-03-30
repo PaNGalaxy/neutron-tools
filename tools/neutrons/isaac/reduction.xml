@@ -24,7 +24,7 @@
         export HOME=/root &&
         ln -s $data_dir /app/data &&
         echo "running reduction..." &&
-        pixi run --as-is --manifest-path /app simple-reduction --event-file $input_file --template $template_file --output-dir output
+        pixi run --as-is --manifest-path /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         ls output/ &&
         cp output/REFL*combined_data_auto.txt $reflectivity
