@@ -52,7 +52,7 @@
 				<param name="normalization" type="boolean" checked="false" label="Normalization" />
 			</when>
 			<when value="sparse_rbf">
-				<!--<param name="alpha" type="float" value="0.1" label="Alpha" /> 
+				<param name="alpha" type="float" value="0.1" label="Alpha" /> 
 				<param name="chunk" type="integer" value="4096" label="Chunk Size" /> 
 				<param name="gamma" type="float" value="2.0" label="Gamma" /> 
 				<param name="maxPeaks" type="integer" value="500" label="Max Peaks" /> 
@@ -60,7 +60,7 @@
 				<param name="minSigma" type="float" value="0.5" label="Min Sigma" /> 
 				<param name="rbfShow" type="boolean" checked="false" label="Show Steps" />
 				<param name="tileCols" type="integer" value="2" label="Tile Columns" /> 
-				<param name="tileRows" type="integer" value="2" label="Tile Rows" /> -->
+				<param name="tileRows" type="integer" value="2" label="Tile Rows" /> 
 			</when>
 			<when value="thresholding">
 				<!--<param name="blur" type="integer" value="5" label="Blur Kernel Sigma" /> 
