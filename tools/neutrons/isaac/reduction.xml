@@ -21,15 +21,15 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir local_output &&
-        ln -s $output_dir output &&
+        mkdir output &&
+        ln -s $output_dir sns_output &&
         export HOME=/root &&
         ln -s $data_dir /app/data &&
         echo "running reduction..." &&
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         ls output/ &&
-        cp output/REFL*.txt local_output &&
-        cp local_output/REFL*combined_data_auto.txt $reflectivity
+        cp output/* sns_output &&
+        cp output/REFL*combined_data_auto.txt $reflectivity
     ]]></command>
 </tool>
