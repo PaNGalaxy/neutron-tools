@@ -5,40 +5,40 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 		
-		#set options = ""
+		#set $options = ""
 		
 		#if wavelengthMin:
-			#set options = options + " --wavelength-min " + sr($wavenlengthMin) + " " 
+			#set $options = $options + " --wavelength-min " + sr($wavenlengthMin) + " " 
 		#end if
 		#if wavelengthMax:
-			#set options = options + " --wavelength-max " + sr($wavenlengthMax) + " " 
+			#set $options = $options + " --wavelength-max " + sr($wavenlengthMax) + " " 
 		#end if
 		#if goniometer:
-			#set options = options + " --goniometer-csv-filename " + sr(goniometer) + " " 
+			#set $options = $options + " --goniometer-csv-filename " + sr(goniometer) + " " 
 		#end if
 		#if nexus:
-			#set options = options + " --original_nexus_filename " + sr(nexus) + " " 
+			#set $options = $options + " --original_nexus_filename " + sr(nexus) + " " 
 		#end if
 		#if sigmaInit:
-			#set options = options + " --sigma-init " + sr(sigmaInit) + " " 
+			#set $options = $options + " --sigma-init " + sr(sigmaInit) + " " 
 		#end if
 		#if goniometerAxes:
-			#set options = options + " --refine-goniometer-axes " + sr(goniometerAxes) + " " 
+			#set $options = $options + " --refine-goniometer-axes " + sr(goniometerAxes) + " " 
 		#end if
 		#if bootstrap:
-			#set options = options + " --bootstrap " + sr(bootstrap) + " " 
+			#set $options = $options + " --bootstrap " + sr(bootstrap) + " " 
 		#end if
 		#if dMin:
-			#set options = options + " --d-min " + sr(dMin) + " " 
+			#set $options = $options + " --d-min " + sr(dMin) + " " 
 		#end if
 		#if dMax:
-			#set options = options + " --d-max " + sr(dMax) + " " 
+			#set $options = $options + " --d-max " + sr(dMax) + " " 
 		#end if
 		#if batch:
-			#set options = options + " --batch-size " + sr(batch) + " " 
+			#set $options = $options + " --batch-size " + sr(batch) + " " 
 		#end if
 		#if bSHarpen:
-			#set options = options + " --b-sharpen " + sr(bSharpen) + " " 
+			#set $options = $options + " --b-sharpen " + sr(bSharpen) + " " 
 		#end if
 
 		python -m subhkl.io.parser indexer $peaks $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=100 --popsize=100 --gens=200 --strategy=de --tolerance-deg=0.5 --loss-method $loss --hkl-search-range 35 --batch-size=100
@@ -105,7 +105,7 @@
 
     </inputs>
     <outputs>
-		<data format="h5" name="output" from_work_dir="out/indexer.h5" />
+		<data format="h5" label="indexer.h5" name="output" from_work_dir="out/indexer.h5" />
     </outputs>
     <help><![CDATA[
         Calculates peak indices in reciprocol space.
