@@ -7,7 +7,7 @@
 		
 		#set $options = ""
 		
-		#if $wavelengthMin:
+		#if $wavelengthMin != None:
 			#set $options = $options + " --wavelength-min " + str($wavenlengthMin) + " " 
 		#end if
 
