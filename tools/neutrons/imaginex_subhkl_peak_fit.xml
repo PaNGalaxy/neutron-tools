@@ -7,8 +7,6 @@
 		mkdir out ; 
 		    
 		## Rename all input files to correct extensions
-		mv $scan $scan.element_identifier ;    
-		
 
 		    
 		#if $algod.algo == 'peak_local_max':
