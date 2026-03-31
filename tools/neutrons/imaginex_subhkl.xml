@@ -58,7 +58,7 @@
 			#set $options = $options + " --refine-beam "
 		#end if
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$pop --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --batch-size=$batch --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
+		##python -m subhkl.io.parser indexer $peaks.element_identifier $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$pop --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --batch-size=$batch --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
 
     ]]></command>
     <inputs>
