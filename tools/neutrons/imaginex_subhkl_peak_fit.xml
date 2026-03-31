@@ -9,9 +9,7 @@
 		## Rename all input files to correct extensions
 		mv $scan $scan.element_identifier ;    
 		
-		#if $algod.mask.useMask:
-			mv $algod.mask.maskFile $algod.mask.maskFile.element_identifier ;
-		#end if
+
 		    
 		#if $algod.algo == 'peak_local_max':
       		python -m subhkl.io.parser finder $scan.element_identifier $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --peak-local-max-min-pixel-distance $algod.pixelDistance --peak-local-max-min-relative-intensity $algod.relativeIntensity --peak-local-max-normalization $algod.normalization
