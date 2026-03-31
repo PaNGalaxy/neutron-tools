@@ -7,6 +7,14 @@
 		mkdir out ; 
 
 		#set $FILE_LIST = ""
+		
+		#for $Z in $input:
+			#if $Z.endswith(".dat"):
+				#set $new_path = str($Z[:-3] + ".nxs.h5"])
+				mv $Z $new_path
+			#end if
+		#end for
+		
 		#for $Z in $input:
 		    #set $BN = str($Z.element_identifier)
 		    #set $filename = "out/" + str($BN) + ".reduce.h5"
@@ -14,7 +22,7 @@
 		    #set $FILE_LIST = $FILE_LIST + $filename + " "
 		#end for
 		
-		##python -m subhkl.io.parser merge-images $FILE_LIST out/scan_master.h5 ;
+		python -m subhkl.io.parser merge-images $FILE_LIST out/scan_master.h5 ;
 		
     ]]></command>
     <inputs>
