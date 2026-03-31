@@ -5,6 +5,8 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 		
+		mv "$peaks" "$peaks.element_identifier" ;  
+		
 		#set $options = ""
 		
 		#if $wavelengthMin:
@@ -14,10 +16,12 @@
 			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
 		#end if
 		#if $goniometer:
-			#set $options = $options + " --goniometer-csv-filename " + str($goniometer) + " " 
+			mv "$goniometer" "$goniometer.element_identifier" ;  
+			#set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
 		#end if
 		#if $nexus:
-			#set $options = $options + " --original_nexus_filename " + str($nexus) + " " 
+			mv "$nexus" "$nexus.element_identifier" ;  
+			#set $options = $options + " --original_nexus_filename " + str($nexus.element_identifier) + " " 
 		#end if
 		#if $sigmaInit:
 			#set $options = $options + " --sigma-init " + str($sigmaInit) + " " 
@@ -26,7 +30,8 @@
 			#set $options = $options + " --refine-goniometer-axes " + str($goniometerAxes) + " " 
 		#end if
 		#if $bootstrap:
-			#set $options = $options + " --bootstrap " + str($bootstrap) + " " 
+			mv "$bootstrap" "$bootstrap.element_identifier" ;  
+			#set $options = $options + " --bootstrap " + str($bootstrap.element_identifier) + " " 
 		#end if
 		#if $dMin:
 			#set $options = $options + " --d-min " + str($dMin) + " " 
@@ -52,11 +57,8 @@
 		#if $refineBeam:
 			#set $options = $options + " --refine-beam "
 		#end if
-		#if $bootstrap:
-			#set $options = $options + " --bootstrap "
-		#end if
 
-		python -m subhkl.io.parser indexer $peaks $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$pop --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --batch-size=$batch --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
+		##python -m subhkl.io.parser indexer $peaks.element_identifier $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$pop --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --batch-size=$batch --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
 
     ]]></command>
     <inputs>
