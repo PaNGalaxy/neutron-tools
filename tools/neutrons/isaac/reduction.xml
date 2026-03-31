@@ -28,6 +28,6 @@
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         ls output/ &&
         cp output/REFL*combined_data_auto.txt $reflectivity
-        cp output/* $data_dir/../shared/isaac
+        cp output/REFL*partial.txt $data_dir/../shared/isaac/
     ]]></command>
 </tool>
