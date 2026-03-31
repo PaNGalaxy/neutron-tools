@@ -37,7 +37,7 @@
 		#if $batch:
 			#set $options = $options + " --batch-size " + str($batch) + " " 
 		#end if
-		#if $bSHarpen:
+		#if $bSharpen:
 			#set $options = $options + " --b-sharpen " + str($bSharpen) + " " 
 		#end if
 
