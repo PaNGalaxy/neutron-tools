@@ -99,7 +99,7 @@
 		<param name="chunk" type="integer" value="256" label="Chunk Size" /> 
 		<param name="iterations" type="integer" value="20" label="# of Iterations" /> 
 		<param name="topK" type="integer" value="32" label="Top K" /> 
-		<param name="bSharpen" type="float" optional="" value="" label="Wilson B-Factor" /> 
+		<param name="bSharpen" type="float" optional="true" value="" label="Wilson B-Factor" /> 
 
 
 
