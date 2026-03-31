@@ -88,7 +88,7 @@
 		</conditional> 
     </inputs>
     <outputs>
-		<data format="h5" name="output" from_work_dir="out/finder.h5" />
+		<data format="h5" label="finder.h5" name="output" from_work_dir="out/finder.h5" />
     </outputs>>
     <help><![CDATA[
         Calculates peak indices.
