@@ -7,38 +7,38 @@
 		
 		#set $options = ""
 		
-		#if wavelengthMin:
+		#if $wavelengthMin:
 			#set $options = $options + " --wavelength-min " + str($wavenlengthMin) + " " 
 		#end if
-		#if wavelengthMax:
+		#if $wavelengthMax:
 			#set $options = $options + " --wavelength-max " + str($wavenlengthMax) + " " 
 		#end if
-		#if goniometer:
-			#set $options = $options + " --goniometer-csv-filename " + str(goniometer) + " " 
+		#if $goniometer:
+			#set $options = $options + " --goniometer-csv-filename " + str($goniometer) + " " 
 		#end if
-		#if nexus:
-			#set $options = $options + " --original_nexus_filename " + str(nexus) + " " 
+		#if $nexus:
+			#set $options = $options + " --original_nexus_filename " + str($nexus) + " " 
 		#end if
-		#if sigmaInit:
-			#set $options = $options + " --sigma-init " + str(sigmaInit) + " " 
+		#if $sigmaInit:
+			#set $options = $options + " --sigma-init " + str($sigmaInit) + " " 
 		#end if
-		#if goniometerAxes:
-			#set $options = $options + " --refine-goniometer-axes " + str(goniometerAxes) + " " 
+		#if $goniometerAxes:
+			#set $options = $options + " --refine-goniometer-axes " + str($goniometerAxes) + " " 
 		#end if
-		#if bootstrap:
-			#set $options = $options + " --bootstrap " + str(bootstrap) + " " 
+		#if $bootstrap:
+			#set $options = $options + " --bootstrap " + str($bootstrap) + " " 
 		#end if
-		#if dMin:
-			#set $options = $options + " --d-min " + str(dMin) + " " 
+		#if $dMin:
+			#set $options = $options + " --d-min " + str($dMin) + " " 
 		#end if
-		#if dMax:
-			#set $options = $options + " --d-max " + str(dMax) + " " 
+		#if $dMax:
+			#set $options = $options + " --d-max " + str($dMax) + " " 
 		#end if
-		#if batch:
-			#set $options = $options + " --batch-size " + str(batch) + " " 
+		#if $batch:
+			#set $options = $options + " --batch-size " + str($batch) + " " 
 		#end if
-		#if bSHarpen:
-			#set $options = $options + " --b-sharpen " + str(bSharpen) + " " 
+		#if $bSHarpen:
+			#set $options = $options + " --b-sharpen " + str($bSharpen) + " " 
 		#end if
 
 		python -m subhkl.io.parser indexer $peaks $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=100 --popsize=100 --gens=200 --strategy=de --tolerance-deg=0.5 --loss-method $loss --hkl-search-range 35 --batch-size=100
