@@ -5,7 +5,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-5f24d3c</container>
     </requirements>
 
     <inputs>
@@ -24,8 +24,9 @@
         export HOME=/root &&
         ln -s $data_dir /app/data &&
         echo "running reduction..." &&
-        pixi run --as-is --manifest-path /app simple-reduction --event-file $input_file --template $template_file --output-dir output
+        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        cp output/*combined_data_auto.txt $reflectivity
+        ls output/ &&
+        cp output/REFL*combined_data_auto.txt $reflectivity
     ]]></command>
 </tool>
