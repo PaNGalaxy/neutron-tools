@@ -41,7 +41,8 @@
 			#set $options = $options + " --b-sharpen " + str($bSharpen) + " " 
 		#end if
 
-		
+		python -m subhkl.io.parser indexer $peaks $stage $a $b $c $alpha $beta $gamma $space $options --n-runs=100 --popsize=100 --gens=200 --strategy=de --tolerance-deg=0.5 --loss-method $loss --hkl-search-range 35 --batch-size=100
+
     ]]></command>
     <inputs>
     
