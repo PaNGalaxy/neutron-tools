@@ -21,7 +21,7 @@
 
     <command detect_errors="exit_code"><![CDATA[
         # mkdir output &&
-        ln -s $data_dir/../shared/isaac /app/isaac
+        ln -s $data_dir/../shared/isaac /app/isaac &&
         export HOME=/root &&
         ln -s $data_dir /app/data &&
         echo "running reduction..." &&
