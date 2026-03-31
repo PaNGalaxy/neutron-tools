@@ -31,6 +31,6 @@
         <data format="txt" name="output" label="Console output" />
     </outputs>
     <help><![CDATA[
-        Starts the Trame version of NeuXtalViz.
+        Starts the noVNC version of NeuXtalViz.
     ]]></help>
 </tool>
