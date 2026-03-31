@@ -8,11 +8,8 @@
 
 		#set $FILE_LIST = ""
 		
-		#for $Z in $input:
-			#if $Z.endswith(".dat"):
-				#set $new_path = str($Z[:-3] + ".nxs.h5"])
-				mv $Z $new_path
-			#end if
+		#for $input_file in $input
+			mv $input_file $input_file.element_identifier ;
 		#end for
 		
 		#for $Z in $input:
