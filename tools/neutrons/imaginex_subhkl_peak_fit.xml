@@ -10,7 +10,7 @@
 		mv $scan $scan.element_identifier ;    
 		
 		#if $algod.mask.useMask:
-			mv $algod.mask.maskFile $algod.mask.maskFile.element_identifier
+			mv $algod.mask.maskFile $algod.mask.maskFile.element_identifier ;
 		#end if
 		    
 		#if $algod.algo == 'peak_local_max':
