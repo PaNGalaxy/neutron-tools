@@ -12,6 +12,7 @@
         <param name="input_file" type="data" format="h5" label="Input NeXus File"/>
         <param name="template_file" type="data" label="Input Template File"/>
         <param name="data_dir" type="text" value="/SNS/REF_L/IPTS-34347/nexus" label="Data directory"/>
+        <param name="output_dir" type="text" value="/SNS/REF_L/IPTS-34347/shared/isaac" label="Output directory"/>
     </inputs>
 
     <outputs>
@@ -21,12 +22,15 @@
 
     <command detect_errors="exit_code"><![CDATA[
         mkdir output &&
+        ln -s $output_dir sns_output &&
         export HOME=/root &&
         ln -s $data_dir /app/data &&
+        cp sns_output/*partial.txt output &&
         echo "running reduction..." &&
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         ls output/ &&
+        cp output/* sns_output &&
         cp output/REFL*combined_data_auto.txt $reflectivity
     ]]></command>
 </tool>
