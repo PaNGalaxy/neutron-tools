@@ -45,7 +45,7 @@ service-build:
       for FOLDER in $TEST_FOLDERS
       do
         docker run --user `id -u`:`id -g` -v `pwd`:`pwd` --workdir `pwd`/$FOLDER  $CONTAINER_URL \
-          planemo test --galaxy_root /galaxy --docker --no_conda_auto_init --update_test_data \
+          planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
           --test_output_json `pwd`/test_output_${FOLDER}_${AUTH_MODE}.json \
           --test_output_junit `pwd`/test_output_${FOLDER}_${AUTH_MODE}.xml \
           --galaxy_url  $GALAXY_URL \
