@@ -58,7 +58,8 @@
 			#set $options = $options + " --refine-beam "
 		#end if
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
+		nvidia-smi
+		##python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
 
     ]]></command>
     <inputs>
@@ -66,7 +67,7 @@
 		<param format="h5" name="peaks" type="data" label="Peak data file" />
 		<param name="a" type="float" value="0.0" label="a" /> 
 		<param name="b" type="float" value="0.0" label="b" /> 
-		<param name="c" type="float" value="0.0" label="ac" /> 
+		<param name="c" type="float" value="0.0" label="c" /> 
 		<param name="alpha" type="float" value="0.0" label="Alpha" /> 
 		<param name="beta" type="float" value="0.0" label="Beta" /> 
 		<param name="gamma" type="float" value="0.0" label="Gamma" /> 

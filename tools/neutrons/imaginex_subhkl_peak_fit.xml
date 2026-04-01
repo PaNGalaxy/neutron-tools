@@ -72,7 +72,7 @@
 			<when value="thresholding">
 				<param name="blur" type="integer" value="5" label="Blur Kernel Sigma" /> 
 				<param name="erosion" type="float" value="0.85" label="Mask Relative Erosion Radius" /> 
-				<param name="noise" type="float" value="0.99" label="Noise Curogg Quantile" /> 
+				<param name="noise" type="float" value="0.99" label="Noise Cutoff Quantile" /> 
 				<param name="kernelSize" type="integer" value="3" label="Open Kernel Size Pixels" /> 
 				<param name="peakDist" type="integer" value="-1" label="Min Peak Distance Pixels" /> 
 				<param name="thresholdShow" type="boolean" checked="false" label="Show Steps" />
