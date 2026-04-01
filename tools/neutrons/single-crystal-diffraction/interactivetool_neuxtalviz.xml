@@ -21,7 +21,6 @@
         #if $directory:
             export DEFAULT_DIR=$directory &&
         #end if
-        /setup.sh \$GALAXY_TOOL_USER &&
         /start.sh \$GALAXY_TOOL_USER
     ]]></command>
     <inputs>
