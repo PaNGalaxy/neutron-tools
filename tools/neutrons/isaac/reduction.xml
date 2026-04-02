@@ -5,7 +5,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-3bdf811</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-f6de80c</container>
     </requirements>
 
     <inputs>
@@ -30,6 +30,6 @@
         ls output/ &&
         run_number=\$(cat output/.last_reduced_set) &&
         echo \$run_number &&
-        cp output/REFL_\${run_number}_combined_data_auto.txt $reflectivity
+        cp output/reflectivity.txt $reflectivity
     ]]></command>
 </tool>
