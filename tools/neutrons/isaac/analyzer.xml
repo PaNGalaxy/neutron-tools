@@ -17,10 +17,12 @@
     </requirements>
     <inputs>
         <param name="reflectivity_file" type="data" format="txt" label="Reflectivity File"/>
-        <param name="prompt" type="text" value="Cu/Ti bilayer on Si in dTHF" label="Prompt"/>
+        <param name="prompt" type="text" value="45 to 60 nm Cu on 15 to 25 nm Ti on a silicon substrate, in dTHF (ambient medium). The incoming comes from the back (back reflection)." label="Prompt"/>
         <param name="llm_provider" type="text" value="local" label="LLM Provider"/>
         <param name="llm_model" type="text" value="gpt-4" label="LLM Model"/>
         <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
+        <param name="output_dir" type="text" value="/SNS/REF_L/IPTS-34347/shared/isaac" label="Output Directory"/>
+        <param name="identifier" type="text" value="aure" label="Dataset Identifier"/>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Analyzer Console Output"></data>
@@ -28,7 +30,8 @@
         <data name="out_gz" format="gz" label="Analyzer Results"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir output &&
+        mkdir $output_dir/$identifier
+        ln -s $output_dir/$identifier output &&
         export LLM_PROVIDER=$llm_provider &&
         export LLM_MODEL=$llm_model &&
         export LLM_BASE_URL=$llm_base_url &&
