@@ -21,14 +21,9 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        #regex="_([0-9]+)\.nxs\.h5$" &&
-        #if [[ $input_file =~ $regex ]]; then &&
-        #    run_number="${BASH_REMATCH[1]}" &&
-        #    echo "Run Number: $run_number" &&
-        #else &&
-        #    run_number="no_run_found" &&
-        #fi &&
-        run_number=218387
+        tmp="${input_file##*_}" &&
+        run_number="${tmp%.nxs.h5}"
+        echo "Run Number: $run_number" &&
         ln -s $output_dir output &&
         export HOME=/root &&
         ln -s $data_dir /app/data &&
