@@ -21,13 +21,13 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        ln -s $output_dir /app/output &&
+        ln -s $output_dir output &&
         export HOME=/root &&
         ln -s $data_dir /app/data &&
         echo "running reduction..." &&
-        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir /app/output
+        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        ls /app/output/ &&
-        cp /app/output/reflectivity.txt $reflectivity
+        cp output/reflectivity.txt . &&
+        cp reflectivity.txt $reflectivity
     ]]></command>
 </tool>
