@@ -21,7 +21,7 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        run_number=218387 &&
+        export run_number=218387 &&
         echo "Run Number: $run_number" &&
         ln -s $output_dir output &&
         export HOME=/root &&
