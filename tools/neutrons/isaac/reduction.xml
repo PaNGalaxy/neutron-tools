@@ -21,16 +21,20 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir output &&
-        ln -s $output_dir sns_output &&
+        regex="_([0-9]+)\.nxs\.h5$" &&
+        if [[ $input_file =~ $regex ]]; then &&
+            run_number="${BASH_REMATCH[1]}" &&
+            echo "Run Number: $run_number" &&
+        else &&
+            run_number="no_run_found" &&
+        fi &&
+        ln -s $output_dir output &&
         export HOME=/root &&
         ln -s $data_dir /app/data &&
-        cp sns_output/*partial.txt output &&
         echo "running reduction..." &&
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         ls output/ &&
-        cp output/* sns_output &&
-        cp output/REFL*combined_data_auto.txt $reflectivity
+        cp output/REFL_${run_number}_combined_data_auto.txt $reflectivity
     ]]></command>
 </tool>
