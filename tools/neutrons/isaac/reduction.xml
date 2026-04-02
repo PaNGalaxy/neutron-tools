@@ -22,7 +22,7 @@
 
     <command detect_errors="exit_code"><![CDATA[
         tmp="${input_file##*_}" &&
-        run_number="${tmp%.nxs.h5}"
+        run_number="${tmp%.nxs.h5}" &&
         echo "Run Number: $run_number" &&
         ln -s $output_dir output &&
         export HOME=/root &&
