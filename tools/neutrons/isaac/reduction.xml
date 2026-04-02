@@ -18,6 +18,7 @@
     <outputs>
         <data format="txt" name="output" label="Reduction Console Output"></data>
         <data format="txt" name="reflectivity" label="Reflectivity File"></data>
+        <data format="txt" name="identifier" label="Dataset Identifier"></data>
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
@@ -27,6 +28,7 @@
         echo "running reduction..." &&
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        cat output/.last_reduced_set > $identifier &&
         cat output/reflectivity.txt > $reflectivity
     ]]></command>
 </tool>
