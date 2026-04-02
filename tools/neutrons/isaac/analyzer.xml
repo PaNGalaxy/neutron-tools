@@ -30,7 +30,7 @@
         <data name="out_gz" format="gz" label="Analyzer Results"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir $output_dir/$identifier
+        mkdir $output_dir/$identifier &&
         ln -s $output_dir/$identifier output &&
         export LLM_PROVIDER=$llm_provider &&
         export LLM_MODEL=$llm_model &&
