@@ -28,6 +28,6 @@
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cp output/reflectivity.txt . &&
-        cat reflectivity.txt > $reflectivity &&
+        cat reflectivity.txt > $reflectivity
     ]]></command>
 </tool>
