@@ -33,6 +33,7 @@
         cp output/* sns_output &&
         run_number=\$(echo "$input_file" | sed -E 's/.*_([0-9]+)\.nxs\.h5\$/\1/') &&
         echo \$run_number &&
-        cp output/REFL_\${run_number}_combined_data_auto.txt $reflectivity
+        cat $input_file &&
+        cp output/REFL_*_combined_data_auto.txt $reflectivity
     ]]></command>
 </tool>
