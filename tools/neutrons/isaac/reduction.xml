@@ -25,15 +25,14 @@
         ln -s $output_dir sns_output &&
         export HOME=/root &&
         ln -s $data_dir /app/data &&
-        cp sns_output/*partial.txt output &&
+        #cp sns_output/*partial.txt output &&
         echo "running reduction..." &&
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         ls output/ &&
         cp output/* sns_output &&
-        run_number=\$(echo "$input_file" | sed -E 's/.*_([0-9]+)\.nxs\.h5\$/\1/') &&
+        run_number=\$(cat output/.last_reduced_set) &&
         echo \$run_number &&
-        cat $input_file &&
         cp output/REFL_*_combined_data_auto.txt $reflectivity
     ]]></command>
 </tool>
