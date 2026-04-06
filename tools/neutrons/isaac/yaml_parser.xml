@@ -1,0 +1,77 @@
+<tool id="your_local_yaml_parser" name="YAML to Collection Splitter" version="1.0.0" profile="22.01">
+    <description>Parses a master YAML file into a list collection of individual configs</description>
+    
+    <requirements>
+        <requirement type="package" version="6.0">pyyaml</requirement>
+    </requirements>
+
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir -p ./outputs &&
+        python '$__tool_directory__/split_yaml.py' '$input_yaml' ./outputs
+    ]]></command>
+
+    <configfiles>
+        <configfile name="split_yaml.py">
+import yaml
+import sys
+import os
+import json
+
+input_yaml = sys.argv[1]
+out_dir = sys.argv[2]
+
+with open(input_yaml, 'r') as f:
+    try:
+        data = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        print(f"Error parsing YAML: {e}")
+        sys.exit(1)
+
+if not isinstance(data, list):
+    print("Error: Expected the top level of the YAML to be a list of job configurations.")
+    sys.exit(1)
+
+for i, item in enumerate(data):
+    # Try to name the dataset intelligently based on 'run' or 'tag' keys, fallback to index
+    identifier = str(item.get('run', item.get('tag', f"run_{i:03d}")))
+    
+    # Galaxy's discover_datasets will pick up these files
+    out_file = os.path.join(out_dir, f"{identifier}.txt")
+    
+    with open(out_file, 'w') as out_f:
+        # We dump the individual item as JSON. It's safer and easier for your 
+        # downstream tools (Reduction, Analyzer) to parse standard JSON.
+        json.dump(item, out_f, indent=2)
+        </configfile>
+    </configfiles>
+
+    <inputs>
+        <param name="input_yaml" type="data" format="yaml,txt" label="Master Batch YAML" help="A YAML file where the top-level element is a list." />
+    </inputs>
+
+    <outputs>
+        <collection name="config_collection" type="list" label="Batch Configs from ${on_string}">
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.txt" directory="outputs" format="txt" />
+        </collection>
+    </outputs>
+
+    <tests>
+        </tests>
+
+    <help><![CDATA[
+**What it does**
+
+This tool takes a master YAML file containing a list of run configurations and splits it into a Galaxy **List Collection**. 
+
+**Expected Input Format:**
+
+- run: 34347
+  prompt: "45 to 60 nm Cu on 15 to 25 nm Ti..."
+  export_path: "/SNS/REF_L/IPTS-34347/shared/isaac/export_34347.gz"
+- run: 34348
+  prompt: "..."
+  export_path: "..."
+Outputs:
+A List Collection where each element is a text file (formatted as JSON for robust downstream parsing) containing exactly one configuration block.
+]]></help>
+</tool>
