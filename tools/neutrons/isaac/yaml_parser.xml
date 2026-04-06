@@ -1,4 +1,4 @@
-<tool id="your_local_yaml_parser" name="YAML to Collection Splitter" version="1.0.0" profile="22.01">
+<tool id="isaac_yaml_parser" name="YAML to Collection Splitter" version="1.0.0" profile="22.01">
     <description>Parses a master YAML file into a list collection of individual configs</description>
     
     <requirements>
@@ -7,7 +7,7 @@
 
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p ./outputs &&
-        python '$__tool_directory__/split_yaml.py' '$input_yaml' ./outputs
+        python 'split_yaml.py' '$input_yaml' ./outputs
     ]]></command>
 
     <configfiles>
