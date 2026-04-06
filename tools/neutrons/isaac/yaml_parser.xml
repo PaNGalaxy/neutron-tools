@@ -7,11 +7,11 @@
 
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p ./outputs &&
-        python 'split_yaml.py' '$input_yaml' ./outputs
+        python '$split_yaml_script' '$input_yaml' ./outputs
     ]]></command>
 
     <configfiles>
-        <configfile name="split_yaml.py">
+        <configfile name="split_yaml_script">
 import yaml
 import sys
 import os
