@@ -65,10 +65,10 @@ for i, item in enumerate(data):
 
     <outputs>
         <collection name="nexus_collection" type="list" label="NeXus Files from ${on_string}">
-            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.nxs\.h5" directory="nexus_outputs" format="h5" />
+            <discover_datasets pattern="__designation__" directory="nexus_outputs" format="h5" />
         </collection>
         <collection name="config_collection" type="list" label="Batch Configs from ${on_string}">
-            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.txt" directory="config_outputs" format="txt" />
+            <discover_datasets pattern="__designation__" directory="config_outputs" format="txt" />
         </collection>
         <data format="txt" name="output" label="Reduction Console Output"></data>
     </outputs>
