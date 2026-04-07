@@ -50,11 +50,7 @@ for i, item in enumerate(data):
     if event_file:
         nexus_file = os.path.join(nexus_dir, f"{identifier}.nxs.h5")
         if os.path.exists(event_file):
-            # Try to create a symlink first, fall back to copy if symlink fails
-            try:
-                os.symlink(event_file, nexus_file)
-            except (OSError, NotImplementedError):
-                shutil.copy2(event_file, nexus_file)
+            shutil.copy2(event_file, nexus_file)
         else:
             print(f"Warning: Event file not found: {event_file}")
     else:
