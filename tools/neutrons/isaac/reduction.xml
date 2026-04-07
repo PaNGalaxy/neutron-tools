@@ -24,6 +24,7 @@ with open(sys.argv[1]) as f:
 with open('_env.sh', 'w') as f:
     f.write('export EVENT_FILE="%s"\n' % d.get('event_file', ''))
     f.write('export TEMPLATE="%s"\n' % d.get('template_file', ''))
+    f.write('export REFLECTIVITY_FILE="%s"\n' % d.get('result_file', ''))
     f.write('export DATA_DIR="%s"\n' % d.get('data_directory', sys.argv[2]))
     f.write('export OUTPUT_DIR="%s"\n' % d.get('output_directory', sys.argv[3]))
         </configfile>
@@ -55,6 +56,6 @@ with open('_env.sh', 'w') as f:
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file \$EVENT_FILE --template \$TEMPLATE --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cat output/.last_reduced_set > $identifier &&
-        cat output/reflectivity.txt > $reflectivity
+        cat output/\$REFLECTIVITY_FILE > $reflectivity
     ]]></command>
 </tool>
