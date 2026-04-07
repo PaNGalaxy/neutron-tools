@@ -1,13 +1,13 @@
-<tool id="isaac_yaml_parser" name="YAML to Collection Splitter" version="1.0.0" profile="22.01">
-    <description>Parses a master YAML file into a list collection of individual configs</description>
+<tool id="isaac_yaml_parser" name="YAML to Collection Splitter" version="1.0.1" profile="22.01">
+    <description>Parses a master YAML file into two collections: NeXus files and individual configs</description>
     
     <requirements>
         <requirement type="package" version="6.0">pyyaml</requirement>
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir -p ./outputs &&
-        python '$split_yaml_script' '$input_yaml' ./outputs
+        mkdir -p ./nexus_outputs ./config_outputs &&
+        python '$split_yaml_script' '$input_yaml' ./nexus_outputs ./config_outputs
     ]]></command>
 
     <configfiles>
@@ -16,9 +16,11 @@ import yaml
 import sys
 import os
 import json
+import shutil
 
 input_yaml = sys.argv[1]
-out_dir = sys.argv[2]
+nexus_dir = sys.argv[2]
+config_dir = sys.argv[3]
 
 with open(input_yaml, 'r') as f:
     try:
@@ -35,13 +37,27 @@ for i, item in enumerate(data):
     # Try to name the dataset intelligently based on 'run' or 'tag' keys, fallback to index
     identifier = str(item.get('run', item.get('tag', f"run_{i:03d}")))
     
-    # Galaxy's discover_datasets will pick up these files
-    out_file = os.path.join(out_dir, f"{identifier}.txt")
-    
-    with open(out_file, 'w') as out_f:
+    # Create config file (JSON format)
+    config_file = os.path.join(config_dir, f"{identifier}.txt")
+    with open(config_file, 'w') as out_f:
         # We dump the individual item as JSON. It's safer and easier for your 
         # downstream tools (Reduction, Analyzer) to parse standard JSON.
         json.dump(item, out_f, indent=2)
+    
+    # Create or symlink the NeXus file
+    event_file = item.get('event_file')
+    if event_file:
+        nexus_file = os.path.join(nexus_dir, f"{identifier}.nxs.h5")
+        if os.path.exists(event_file):
+            # Try to create a symlink first, fall back to copy if symlink fails
+            try:
+                os.symlink(event_file, nexus_file)
+            except (OSError, NotImplementedError):
+                shutil.copy2(event_file, nexus_file)
+        else:
+            print(f"Warning: Event file not found: {event_file}")
+    else:
+        print(f"Warning: No event_file specified for item {identifier}")
         </configfile>
     </configfiles>
 
@@ -50,28 +66,15 @@ for i, item in enumerate(data):
     </inputs>
 
     <outputs>
+        <collection name="nexus_collection" type="list" label="NeXus Files from ${on_string}">
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.nxs\.h5" directory="nexus_outputs" format="h5" />
+        </collection>
         <collection name="config_collection" type="list" label="Batch Configs from ${on_string}">
-            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.txt" directory="outputs" format="txt" />
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.txt" directory="config_outputs" format="txt" />
         </collection>
     </outputs>
 
     <tests>
-        </tests>
+    </tests>
 
-    <help><![CDATA[
-**What it does**
-
-This tool takes a master YAML file containing a list of run configurations and splits it into a Galaxy **List Collection**. 
-
-**Expected Input Format:**
-
-- run: 34347
-  prompt: "45 to 60 nm Cu on 15 to 25 nm Ti..."
-  export_path: "/SNS/REF_L/IPTS-34347/shared/isaac/export_34347.gz"
-- run: 34348
-  prompt: "..."
-  export_path: "..."
-Outputs:
-A List Collection where each element is a text file (formatted as JSON for robust downstream parsing) containing exactly one configuration block.
-]]></help>
 </tool>
