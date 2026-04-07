@@ -24,11 +24,17 @@
 
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            echo "HERE" &&
-            export EVENT_FILE=\$(python -c "import json; d=json.load(open('$config_json')); print(d['event_file'])") &&
-            export TEMPLATE=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('template_file', ''))") &&
-            export DATA_DIR=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('data_directory', '$data_dir'))") &&
-            export OUTPUT_DIR=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('output_directory', '$output_dir'))") &&
+            python -c "
+import json, sys
+with open('$config_json') as f:
+    d = json.load(f)
+with open('_env.sh', 'w') as f:
+    f.write('export EVENT_FILE=\"%s\"\n' % d.get('event_file', ''))
+    f.write('export TEMPLATE=\"%s\"\n' % d.get('template_file', ''))
+    f.write('export DATA_DIR=\"%s\"\n' % d.get('data_directory', '$data_dir'))
+    f.write('export OUTPUT_DIR=\"%s\"\n' % d.get('output_directory', '$output_dir'))
+" &&
+            . _env.sh &&
         #else
             export EVENT_FILE='$input_file' &&
             export TEMPLATE='$template_file' &&
