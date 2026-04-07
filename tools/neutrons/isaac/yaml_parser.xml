@@ -7,8 +7,6 @@
 
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p ./nexus_outputs ./config_outputs &&
-        export HOME=/root &&
-        ln -s $data_dir /app/data &&
         python '$split_yaml_script' '$input_yaml' ./nexus_outputs ./config_outputs
     ]]></command>
 
