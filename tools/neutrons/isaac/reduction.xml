@@ -24,7 +24,7 @@
 
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            python -c "
+            pixi run --as-is --manifest-path /app python -c "
 import json, sys
 with open('$config_json') as f:
     d = json.load(f)
