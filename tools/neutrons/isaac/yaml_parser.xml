@@ -8,6 +8,7 @@
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p ./nexus_outputs ./config_outputs &&
         python '$split_yaml_script' '$input_yaml' ./nexus_outputs ./config_outputs
+        > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
 
     <configfiles>
@@ -73,6 +74,7 @@ for i, item in enumerate(data):
         <collection name="config_collection" type="list" label="Batch Configs from ${on_string}">
             <discover_datasets pattern="(?P&lt;designation&gt;.*)\.txt" directory="config_outputs" format="txt" />
         </collection>
+        <data format="txt" name="output" label="Reduction Console Output"></data>
     </outputs>
 
     <tests>
