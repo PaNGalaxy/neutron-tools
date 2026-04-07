@@ -1,0 +1,26 @@
+<tool id="isaac_yaml_parser_v2" name="YAML to Collection Splitter" version="2.0.0" profile="22.01">
+    <description>Parses a master YAML file into a collection of individual JSON configs</description>
+    
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/ndip-workflows:latest</container>
+    </requirements>
+
+    <command detect_errors="exit_code"><![CDATA[
+        yaml-parser '$input_yaml'
+            --config-dir './config_outputs'
+    ]]></command>
+
+    <inputs>
+        <param name="input_yaml" type="data" format="yaml,txt" label="Master Batch YAML" help="A YAML file where the top-level element is a list." />
+    </inputs>
+
+    <outputs>
+        <collection name="config_collection" type="list" label="Batch Configs from ${on_string}">
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.json" directory="config_outputs" format="json" />
+        </collection>
+    </outputs>
+
+    <tests>
+    </tests>
+
+</tool>
