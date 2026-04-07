@@ -24,6 +24,7 @@
 
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
+            echo "HERE" &&
             export EVENT_FILE=\$(python -c "import json; d=json.load(open('$config_json')); print(d['event_file'])") &&
             export TEMPLATE=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('template_file', ''))") &&
             export DATA_DIR=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('data_directory', '$data_dir'))") &&
