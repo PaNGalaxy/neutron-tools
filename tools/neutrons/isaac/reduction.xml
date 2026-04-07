@@ -45,6 +45,7 @@ with open('_env.sh', 'w') as f:
             export DATA_DIR='$data_dir' &&
             export OUTPUT_DIR='$output_dir' &&
         #end if
+        mkdir \$OUTPUT_DIR &&
         ln -s \$OUTPUT_DIR output &&
         export HOME=/root &&
         ln -s \$DATA_DIR /app/data &&
