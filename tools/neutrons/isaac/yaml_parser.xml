@@ -2,7 +2,7 @@
     <description>Parses a master YAML file into two collections: NeXus files and individual configs</description>
     
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/nexus-processor:v0.1.0</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/aure:sha-a7a7d76</container>
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
