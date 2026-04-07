@@ -7,6 +7,7 @@
 
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p ./nexus_outputs ./config_outputs &&
+        ln -s $data_dir /app/data &&
         python '$split_yaml_script' '$input_yaml' ./nexus_outputs ./config_outputs
     ]]></command>
 
@@ -63,6 +64,7 @@ for i, item in enumerate(data):
 
     <inputs>
         <param name="input_yaml" type="data" format="yaml,txt" label="Master Batch YAML" help="A YAML file where the top-level element is a list." />
+        <param name="data_dir" type="text" value="/SNS/REF_L/IPTS-34347/nexus" label="Data directory"/>
     </inputs>
 
     <outputs>
