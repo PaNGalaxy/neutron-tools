@@ -38,6 +38,8 @@
         export HOME=/root &&
         ln -s \$DATA_DIR /app/data &&
         echo "running reduction..." &&
+        echo \$EVENT_FILE &&
+        echo "---------" &&
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file \$EVENT_FILE --template \$TEMPLATE --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cat output/.last_reduced_set > $identifier &&
