@@ -16,15 +16,8 @@
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A JSON file with run parameters including input_file, template_file, data_directory, and output_directory. Overrides the individual parameters above when provided." />
     </inputs>
 
-    <outputs>
-        <data format="txt" name="output" label="Reduction Console Output"></data>
-        <data format="txt" name="reflectivity" label="Reflectivity File"></data>
-        <data format="txt" name="identifier" label="Dataset Identifier"></data>
-    </outputs>
-
-    <command detect_errors="exit_code"><![CDATA[
-        #if $config_json
-            cat > _parse_config.py << 'PYEOF'
+    <configfiles>
+        <configfile name="parse_config_script">
 import json, sys
 with open(sys.argv[1]) as f:
     d = json.load(f)
@@ -33,8 +26,18 @@ with open('_env.sh', 'w') as f:
     f.write('export TEMPLATE="%s"\n' % d.get('template_file', ''))
     f.write('export DATA_DIR="%s"\n' % d.get('data_directory', sys.argv[2]))
     f.write('export OUTPUT_DIR="%s"\n' % d.get('output_directory', sys.argv[3]))
-PYEOF
-            pixi run --as-is --manifest-path /app python _parse_config.py '$config_json' '$data_dir' '$output_dir' &&
+        </configfile>
+    </configfiles>
+
+    <outputs>
+        <data format="txt" name="output" label="Reduction Console Output"></data>
+        <data format="txt" name="reflectivity" label="Reflectivity File"></data>
+        <data format="txt" name="identifier" label="Dataset Identifier"></data>
+    </outputs>
+
+    <command detect_errors="exit_code"><![CDATA[
+        #if $config_json
+            pixi run --as-is --manifest-path /app python '$parse_config_script' '$config_json' '$data_dir' '$output_dir' &&
             . _env.sh &&
         #else
             export EVENT_FILE='$input_file' &&
