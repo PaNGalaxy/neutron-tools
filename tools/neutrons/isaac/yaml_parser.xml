@@ -9,6 +9,7 @@
         yaml-parser '$input_yaml'
             --nexus-dir './nexus_outputs'
             --config-dir './config_outputs'
+            > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
 
     <inputs>
@@ -22,6 +23,7 @@
         <collection name="config_collection" type="list" label="Batch Configs from ${on_string}">
             <discover_datasets pattern="(?P&lt;designation&gt;.*)\.json" directory="config_outputs" format="json" />
         </collection>
+        <data format="txt" name="output" label="Reduction Console Output"></data>
     </outputs>
 
     <tests>
