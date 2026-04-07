@@ -9,10 +9,11 @@
     </requirements>
 
     <inputs>
-        <param name="input_file" type="data" format="h5" label="Input NeXus File"/>
-        <param name="template_file" type="data" label="Input Template File"/>
+        <param name="input_file" type="data" format="h5" label="Input NeXus File" optional="true"/>
+        <param name="template_file" type="data" label="Input Template File" optional="true"/>
         <param name="data_dir" type="text" value="/SNS/REF_L/IPTS-34347/nexus" label="Data directory"/>
         <param name="output_dir" type="text" value="/SNS/REF_L/IPTS-34347/shared/isaac" label="Output directory"/>
+        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A JSON file with run parameters including input_file, template_file, data_directory, and output_directory. Overrides the individual parameters above when provided." />
     </inputs>
 
     <outputs>
@@ -22,11 +23,22 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        ln -s $output_dir output &&
+        #if $config_json
+            export EVENT_FILE=\$(python -c "import json; d=json.load(open('$config_json')); print(d['event_file'])") &&
+            export TEMPLATE=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('template_file', ''))") &&
+            export DATA_DIR=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('data_directory', '$data_dir'))") &&
+            export OUTPUT_DIR=\$(python -c "import json; d=json.load(open('$config_json')); print(d.get('output_directory', '$output_dir'))") &&
+        #else
+            export EVENT_FILE='$input_file' &&
+            export TEMPLATE='$template_file' &&
+            export DATA_DIR='$data_dir' &&
+            export OUTPUT_DIR='$output_dir' &&
+        #end if
+        ln -s \$OUTPUT_DIR output &&
         export HOME=/root &&
-        ln -s $data_dir /app/data &&
+        ln -s \$DATA_DIR /app/data &&
         echo "running reduction..." &&
-        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file $input_file --template $template_file --output-dir output
+        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file \$EVENT_FILE --template \$TEMPLATE --output-dir output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cat output/.last_reduced_set > $identifier &&
         cat output/reflectivity.txt > $reflectivity
