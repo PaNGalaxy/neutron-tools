@@ -21,7 +21,7 @@
 			#set $options = $options + " --space-group " + str($space) + " " 
 		#end if
 
-		python -m subhkl.io.parser peak-predictor $scan $instrument $indexer out/peak_predictor.h5 --d-min $dMin $options ;
+		python -m subhkl.io.parser peak-predictor "$scan.element_identifier" $instrument "$indexer.element_identifier" out/peak_predictor.h5 --d-min $dMin $options ;
     ]]></command>
     <inputs>
     
