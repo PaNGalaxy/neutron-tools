@@ -4,8 +4,20 @@
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
+		
+		#set $options = ""
+		
+		#if $wavelengthMin:
+			#set $options = $options + " --wavel-min " + str($wavelengthMin) + " " 
+		#end if
+		#if $wavelengthMax:
+			#set $options = $options + " --wavel-max " + str($wavelengthMax) + " " 
+		#end if
+		#if $space:
+			#set $options = $options + " --space-group " + str($space) + " " 
+		#end if
 
-		python -m subhkl.io.parser peak-predictor $scan $INSTRUMENT $INDEXER out/peak_predictor.h5 --wavel-min $wavelengthMin --wavel-max $wavelengthMax --d-min $dMin ;
+		python -m subhkl.io.parser peak-predictor $scan $instrument $indexer out/peak_predictor.h5 --d-min $dMin $options ;
     ]]></command>
     <inputs>
     
@@ -16,9 +28,10 @@
 			<option value="IMAGINEX">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>
-	    <param name="wavelengthMin" type="float" value="1.0" label="Min Wavelength" /> 
-		<param name="wavelengthMax" type="float" value="8.5" label="Max Wavelength" /> 
+	    <param name="wavelengthMin" type="float" value="1.0" optional="true" label="Min Wavelength" /> 
+		<param name="wavelengthMax" type="float" value="8.5" optional="true" label="Max Wavelength" /> 
 		<param name="dMin" type="float" value="1.1" label="Miinimum D" /> 
+		<param name="space" type="text" value="" optional="true" label="Space Group" /> 
 
     </inputs>
     <outputs>
