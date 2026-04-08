@@ -8,6 +8,7 @@
 		## Rename all input files to correct extensions
 		mv "$scan" "$scan.element_identifier" ;  
 		mv "$predicted" "$predicted.element_identifier" ; 
+		mv "$found" "$found.element_identifier" ; 
 
 		python -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --integration-method $method --found-peaks-file $found --region-growth-minimum-sigma $sigma --region-growth-maximum-pixel-radius $radius --peak-center-box-size $boxSize --peak-smoothing-window-size $windowSize --peak-minimum-pixels $pixels --peak-minimum-signal-to-noise $signal --peak-pixel-outlier-threshold $threshold --create-visualizations --show-progress ;
     ]]></command>
@@ -15,6 +16,7 @@
     
 		<param format="h5" name="scan" type="data" label="Master scan file" />
 		<param format="h5" name="predicted" type="data" label="Predicted peaks file" />
+		<param format="h5" name="found" type="data" label="Found peaks file" />
 		<param name="instrument" type="select" optional="false" value="IMAGINE" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
 			<option value="IMAGINEX">IMAGINE-X</option>
