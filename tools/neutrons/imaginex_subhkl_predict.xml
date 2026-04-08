@@ -5,6 +5,10 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 		
+		## Rename all input files to correct extensions
+		mv "$scan" "$scan.element_identifier" ;  
+		mv "$indexer" "$indexer.element_identifier" ;  
+		
 		#set $options = ""
 		
 		#if $wavelengthMin:
