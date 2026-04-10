@@ -13,7 +13,7 @@
         for input in \$(realpath sample_inputs/*); do
 	        echo "podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -e OMPI_MCA_btl_tcp_if_include=lo -it -v $project_dir:$project_dir mcvine /app/run.sh --beam=$beam --results_folder=$results_folder --n_count=$ncount --n_proc=$nproc --input_file=\$input" >> commands.sh
 	    ;done &&
-        srun $project_dir/maiqmag/mcvine_nersc/driver.sh commands.sh $njobs > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        $project_dir/maiqmag/mcvine_nersc/driver.sh commands.sh $njobs > >(tee -a $output) 2> >(tee -a $output >&2) &&
         rm -rf sample_inputs &&
         tar -cf $output_archive -C $results_folder .
     ]]>
