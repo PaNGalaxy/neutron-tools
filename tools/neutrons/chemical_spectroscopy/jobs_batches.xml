@@ -17,7 +17,7 @@
         <param name="nbatches" type="integer" label="Number of Batches" value="100"/>
     </inputs>
     <outputs>
-        <collection type="list" name="output_collection" label="Folders - $experiment">
+        <collection type="list" name="output_collection" label="$nbatches batches">
             <discover_datasets format="txt" pattern="__designation__" directory="outputs"/>
         </collection>
     </outputs>

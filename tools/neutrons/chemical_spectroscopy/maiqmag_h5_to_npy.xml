@@ -3,43 +3,40 @@
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
-     <command><![CDATA[
+    <command><![CDATA[
         #import re
-        #set $experiment = re.sub('[\w]', '_', str($experiment))
+        #set $experiment = re.sub('[\W]', '_', str($experiment))
         #set $results_folder=str($project_dir)+"/maiqmag/simulations/" + str($experiment)+"/npy_files"
+        mkdir -p $results_folder &&
         mkdir spec params &&
-        #set $n_batches=0
-        #for $input_col in $mcvine_results
-            #set $n_batches+=1
+        #for $input_col in $mcvine_results:
+            mkdir -p mcvine_inputs && tar -xf \$(readlink -f $input_col) -C mcvine_inputs/ &&
+            n_batches=\$(find mcvine_inputs -type f -name "iqe*" | wc -l) &&
+            for input_file in mcvine_inputs/*; do
+                    base=\$(basename "\$input_file");
+                    temp=\${base%.h5};
+                    prefix=\${temp%_*};
+                    n=\${temp\#*_};
+                    num=\$(( n + \$n_batches * $input_col.element_identifier ));
+                    mv \$input_file spec/\${prefix}_\${num}.h5;
+            done &&
+            rm -rf mcvine_inputs &&
         #end for
-  		#for $input_col in $mcvine_results
-  		    mkdir -p inputs && tar -xf $input_col -C inputs/ &&
-            for input_file in inputs/*; do
-                    base=\$(basename "$input_file")
-                    temp=\${base%.h5}
-                    prefix=\${temp%_*}
-                    n=\${temp#*_}
-                    num=\$(( n + $n_batches * $input_col.element_identifier ))
-                    ln -s \$(realpath $input_file) spec/\${name}_\${num}.h5
-            done &&
-            rm -rf inputs &&
-		#end for
 
-  		#for $input_col in $sunny_results
-  		    mkdir -p inputs && tar -xf $input_col -C inputs/ &&
-            for input_file in inputs/*; do
-                    base=\$(basename "$input_file")
-                    temp=\${base%.h5}
-                    prefix=\${temp%_*}
-                    n=\${temp#*_}
-                    num=\$(( n + $n_batches * $input_col.element_identifier ))
-                    ln -s \$(realpath $input_file) params/\${name}_\${num}.h5
+        #for $input_col in $sunny_results:
+            mkdir -p sunny_inputs && tar -xf \$(readlink -f $input_col) -C sunny_inputs/ &&
+            n_batches=\$(find sunny_inputs -type f -name "*.h5" | wc -l) &&
+            for input_file in sunny_inputs/*; do
+                    base=\$(basename "\$input_file");
+                    n=\${base%.h5};
+                    num=\$(( n + \$n_batches * $input_col.element_identifier ));
+                    mv \$input_file params/\${num}.h5;
             done &&
-            rm -rf inputs &&
-		#end for
-		export PODMANHPC_ADDITIONAL_STORES="/dvs_ro/cfs/cdirs/m1503/maiqmag/images" &&
-		podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -it -v $project_dir:$project_dir h5_to_npy pixi run --as-is app --params \$(pwd)/params --spec \$(pwd)/spec --output $results_folder
-		> >(tee -a $output) 2> >(tee -a $output >&2) &&
+            rm -rf sunny_inputs &&
+        #end for
+        export PODMANHPC_ADDITIONAL_STORES="/dvs_ro/cfs/cdirs/m1503/maiqmag/images" &&
+        podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -it -v $project_dir:$project_dir h5_to_npy pixi run --as-is app --params \$(pwd)/params --spec \$(pwd)/spec --output $results_folder
+        > >(tee -a $output) 2> >(tee -a $output >&2) &&
         tar -cf $output_archive -C $results_folder .
     ]]></command>
     <inputs>
