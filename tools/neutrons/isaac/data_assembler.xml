@@ -1,4 +1,5 @@
 <tool id="nexus_data_assembler" name="Data Assembler" version="0.1.0" profile="22.01">
+    <description>Assembles data from reflectivity, parquet files, and analyzer model into a single AI-ready output.</description>
     <creator>
         <person name="Mat Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -11,7 +12,18 @@
         <param name="reflectivity" type="data" format="txt"  label="Reflectivity File"></param>
         <param name="parquet" type="data" format="gz" label="Parquet files"></param>
         <param name="model" type="data" format="txt" label="Analyzer Model"></param>
+        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A JSON file with assembler options." />
     </inputs>
+
+    <configfiles>
+        <configfile name="parse_config_script">
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+with open('_env.sh', 'w') as f:
+    f.write('export OUTPUT_DIR="%s/assembled"\n' % d.get('output_directory', 'output'))
+        </configfile>
+    </configfiles>
 
     <outputs>
         <data format="txt" name="output" label="Data Assembler Console Output"></data>
@@ -19,7 +31,14 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir output parquet &&
+        #if $config_json
+            python '$parse_config_script' '$config_json' &&
+            . _env.sh &&
+        #else
+            export OUTPUT_DIR='output/assembled' &&
+        #end if
+        mkdir -p \$OUTPUT_DIR &&
+        mkdir parquet &&
         tar -xzvf $parquet -C parquet &&
         data-assembler ingest
                         -r $reflectivity
