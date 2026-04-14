@@ -1,4 +1,4 @@
-<tool id="nexus_processor_prototype" name="Nexus Processor" version="0.4.0" profile="22.01">
+<tool id="nexus_processor_prototype" name="Nexus Processor" version="0.5.0" profile="22.01">
     <creator>
         <person name="Marshall McDonnell"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -14,32 +14,48 @@
         <param name="include_users" type="boolean" label="Include Users"/>
         <param name="max_events" type="integer" optional="true" label="Max Events"/>
         <param name="max_events_per_file" type="integer" value="10000000" label="Max Events Per File"/>
+        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A JSON file with run parameters including input_file. Overrides the individual parameters above when provided." />
     </inputs>
+
+    <configfiles>
+        <configfile name="parse_config_script">
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+with open('_env.sh', 'w') as f:
+    f.write('export INPUT_FILE="%s"\n' % d.get('input_file', sys.argv[2]))
+    f.write('export INCLUDE_EVENTS="%s"\n' % str(d.get('include_events', sys.argv[3])).lower())
+    f.write('export INCLUDE_USERS="%s"\n' % str(d.get('include_users', sys.argv[4])).lower())
+    f.write('export MAX_EVENTS="%s"\n' % d.get('max_events', sys.argv[5]))
+    f.write('export MAX_EVENTS_PER_FILE="%s"\n' % d.get('max_events_per_file', sys.argv[6]))
+        </configfile>
+    </configfiles>
 
     <outputs>
         <data format="gz" name="out_gz" label="Gzip Parquet Output Directory"/>
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        mkdir output
-
-        && ln -s $input_file ./input.nxs.h5
-
-        && echo "running nexus-processor..."
-
-        && nexus-processor
-            ./input.nxs.h5 
-            --output-dir output/ 
-            --max-events-per-file $max_events_per_file
-            #if str($include_events) == "true"
-              --include-events 
-            #end if
-            #if str($include_users) == "true"
-              --include-users 
-            #end if
-            #if $max_events
-              --max-events $max_events 
-            #end if
-            && tar -czvf $out_gz -C output .
+        #if $config_json
+            python '$parse_config_script' '$config_json' '$input_file' '$include_events' '$include_users' '$max_events' '$max_events_per_file' &&
+            . _env.sh &&
+        #else
+            export INPUT_FILE='$input_file' &&
+            export INCLUDE_EVENTS='$include_events' &&
+            export INCLUDE_USERS='$include_users' &&
+            export MAX_EVENTS='$max_events' &&
+            export MAX_EVENTS_PER_FILE='$max_events_per_file' &&
+        #end if
+        mkdir output &&
+        ln -s "\$INPUT_FILE" ./input.nxs.h5 &&
+        echo "running nexus-processor..." &&
+        nexus-processor
+            ./input.nxs.h5
+            --output-dir output/
+            --max-events-per-file "\$MAX_EVENTS_PER_FILE"
+            \$([ "\$INCLUDE_EVENTS" = "true" ] && echo "--include-events" || true)
+            \$([ "\$INCLUDE_USERS" = "true" ] && echo "--include-users" || true)
+            \$([ -n "\$MAX_EVENTS" ] && [ "\$MAX_EVENTS" != "None" ] && echo "--max-events \$MAX_EVENTS" || true)
+        && tar -czvf '$out_gz' -C output .
     ]]></command>
 </tool>
