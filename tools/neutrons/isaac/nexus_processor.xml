@@ -33,7 +33,7 @@ import json, sys
 with open(sys.argv[1]) as f:
     d = json.load(f)
 with open('_env.sh', 'w') as f:
-    f.write('export INPUT_FILE="%s"\n' % d['input_file'])
+    f.write('export INPUT_FILE="%s"\n' % d['event_file'])
     f.write('export INCLUDE_EVENTS="%s"\n' % str(d.get('include_events', False)).lower())
     f.write('export INCLUDE_USERS="%s"\n' % str(d.get('include_users', False)).lower())
     f.write('export MAX_EVENTS="%s"\n' % d.get('max_events', ''))
