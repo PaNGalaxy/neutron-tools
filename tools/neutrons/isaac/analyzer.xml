@@ -59,6 +59,6 @@ with open('_env.sh', 'w') as f:
         aure analyze $reflectivity_file "\$PROMPT" -o ./output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         LAST_ITER=`ls -d output/refl1d_output/fit_iter*_dream | sort -V | tail -n 1` &&
-        cat output/models/model_final.json > $output_model &&
+        cat output/models/model_final.json > $output_model
     ]]></command>
 </tool>
