@@ -46,7 +46,7 @@ with open('_env.sh', 'w') as f:
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            pixi run --as-is --manifest-path /app python '$parse_config_script' '$config_json' '$output_dir' '$prompt' '$llm_provider' '$llm_model' '$llm_base_url' &&
+            python '$parse_config_script' '$config_json' '$output_dir' '$prompt' '$llm_provider' '$llm_model' '$llm_base_url' &&
             . _env.sh &&
         #else
             export OUTPUT_DIR='$output_dir' &&
