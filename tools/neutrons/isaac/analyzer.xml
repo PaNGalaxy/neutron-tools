@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/aure:sha-ecffe30</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/aure:sha-b6afe16</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
