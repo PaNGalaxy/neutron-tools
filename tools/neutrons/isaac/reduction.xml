@@ -1,4 +1,6 @@
 <tool id="neutrons_isaac_reduction" name="Reduction" version="0.1.0" profile="22.01">
+    <description>Runs a Mantid reduction script on a NeXus file to produce a reflectivity curve.</description>
+
     <creator>
         <person name="Mat Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
