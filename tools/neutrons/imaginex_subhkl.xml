@@ -5,6 +5,9 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 		
+		## This tool requires more than the default shared memory size. You can unset this if you configure Docker to launch shm-size=128gb
+		export CUDA_VISIBLE_DEVICES=0 ;
+		
 		mv "$peaks" "$peaks.element_identifier" ;  
 		
 		#set $options = ""
@@ -58,7 +61,6 @@
 			#set $options = $options + " --refine-beam "
 		#end if
 
-		python -c "import jax; print(jax.devices())" ;
 		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
 
     ]]></command>
