@@ -22,20 +22,42 @@
         <param name="llm_model" type="text" value="gpt-4" label="LLM Model"/>
         <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
         <param name="output_dir" type="text" value="/SNS/REF_L/IPTS-34347/shared/isaac" label="Output Directory"/>
-        <param name="identifier" type="text" value="aure" label="Dataset Identifier"/>
+        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A JSON file with run parameters including input_file, template_file, data_directory, and output_directory. Overrides the individual parameters above when provided." />
     </inputs>
+
+    <configfiles>
+        <configfile name="parse_config_script">
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+with open('_env.sh', 'w') as f:
+    f.write('export OUTPUT_DIR="%s"\n' % d.get('output_directory', sys.argv[2]))
+    f.write('export PROMPT="%s"\n' % d.get('prompt', sys.argv[3]))
+    f.write('export LLM_PROVIDER="%s"\n' % d.get('llm_provider', sys.argv[4]))
+    f.write('export LLM_MODEL="%s"\n' % d.get('llm_model', sys.argv[5]))
+    f.write('export LLM_BASE_URL="%s"\n' % d.get('llm_base_url', sys.argv[6]))
+        </configfile>
+    </configfiles>
+
     <outputs>
         <data format="txt" name="output" label="Analyzer Console Output"></data>
         <data name="output_model" format="txt" label="Analyzer Model"></data>
         <data name="out_gz" format="gz" label="Analyzer Results"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir $output_dir/$identifier &&
-        ln -s $output_dir/$identifier output &&
-        export LLM_PROVIDER=$llm_provider &&
-        export LLM_MODEL=$llm_model &&
-        export LLM_BASE_URL=$llm_base_url &&
-        aure analyze $reflectivity_file "$prompt" -o ./output
+        #if $config_json
+            pixi run --as-is --manifest-path /app python '$parse_config_script' '$config_json' '$output_dir' '$prompt' '$llm_provider' '$llm_model' '$llm_base_url' &&
+            . _env.sh &&
+        #else
+            export OUTPUT_DIR='$output_dir' &&
+            export PROMPT='$prompt' &&
+            export LLM_PROVIDER='$llm_provider' &&
+            export LLM_MODEL='$llm_model' &&
+            export LLM_BASE_URL='$llm_base_url' &&
+        #end if
+        mkdir -p \$OUTPUT_DIR &&
+        ln -s \$OUTPUT_DIR output &&
+        aure analyze $reflectivity_file "\$PROMPT" -o ./output
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         LAST_ITER=`ls -d output/refl1d_output/fit_iter*_dream | sort -V | tail -n 1` &&
         cp \$LAST_ITER/problem-1-exp*.json $output_model &&
