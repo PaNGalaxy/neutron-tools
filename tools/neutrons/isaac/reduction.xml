@@ -55,7 +55,7 @@ with open('_env.sh', 'w') as f:
         echo "running reduction..." &&
         echo \$REFLECTIVITY_FILE &&
         echo "---------" &&
-        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file \$EVENT_FILE --template \$TEMPLATE --output-dir output
+        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file \$EVENT_FILE --template \$TEMPLATE --output-dir output \
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cat output/.last_reduced_set > $identifier &&
         if [ -z "\$REFLECTIVITY_FILE" ]; then
