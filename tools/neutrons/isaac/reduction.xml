@@ -58,9 +58,7 @@ with open('_env.sh', 'w') as f:
         pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file \$EVENT_FILE --template \$TEMPLATE --output-dir output \
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cat output/.last_reduced_set > $identifier &&
-        if [ -z "\$REFLECTIVITY_FILE" ]; then
-            export REFLECTIVITY_FILE="REFL_\$(cat $identifier)_combined_data_auto.txt"
-        fi &&
+        export REFLECTIVITY_FILE="\${REFLECTIVITY_FILE:-REFL_\$(cat $identifier)_combined_data_auto.txt}" &&
         cat output/\$REFLECTIVITY_FILE > $reflectivity
     ]]></command>
 </tool>
