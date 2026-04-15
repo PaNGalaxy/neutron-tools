@@ -10,7 +10,7 @@
 		mv "$scan" "$scan.element_identifier" ;    
 		
 		#if $algod.algo == 'thresholding' 
-			if $algod.mask.useMask 
+			#if $algod.mask.useMask 
 				echo $algod.algo
 				##	mv "$algod.mask.maskFile" "$algod.mask.maskFile.element_identifier" ;
 			#end if
