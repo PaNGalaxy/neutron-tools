@@ -12,7 +12,7 @@
 
     <inputs>
         <param name="input_file" type="data" format="h5" label="Input NeXus File" optional="true"/>
-        <param name="template_file" type="data" label="Input Template File" optional="true"/>
+        <param name="template_file" type="data" format="xml" label="Input Template File" optional="true"/>
         <param name="data_dir" type="text" value="/SNS/REF_L/IPTS-34347/nexus" label="Data directory"/>
         <param name="output_dir" type="text" value="/SNS/REF_L/IPTS-34347/shared/isaac" label="Output directory"/>
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A JSON file with run parameters including input_file, template_file, data_directory, and output_directory. Overrides the individual parameters above when provided." />
