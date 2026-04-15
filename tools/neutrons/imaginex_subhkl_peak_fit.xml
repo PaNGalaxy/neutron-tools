@@ -8,11 +8,6 @@
 		    
 		## Rename all input files to correct extensions
 		mv "$scan" "$scan.element_identifier" ;    
-		
-		#if $algod.algo == 'thresholding' AND $algod.mask.useMask:
-			mv "$algod.mask.maskFile" "$algod.mask.maskFile.element_identifier" ;
-		#end if
-		    
 
 
     ]]></command>
