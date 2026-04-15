@@ -9,23 +9,23 @@
 		## Rename all input files to correct extensions
 		mv "$scan" "$scan.element_identifier" ;    
 		
-		#if $algod.algo == 'thresholding' :
-			if $algod.mask.useMask :
+		#if $algod.algo == 'thresholding' 
+			if $algod.mask.useMask 
 				echo $algod.algo
 				##	mv "$algod.mask.maskFile" "$algod.mask.maskFile.element_identifier" ;
 			#end if
 		#end if
 		    
-		###if $algod.algo == 'peak_local_max':
+		###if $algod.algo == 'peak_local_max'
       	##	python -m subhkl.io.parser finder "$scan.element_identifier" $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --peak-local-max-min-pixel-distance $algod.pixelDistance --peak-local-max-min-relative-intensity $algod.relativeIntensity --peak-local-max-normalization $algod.normalization
       	###end if
-		###if $algod.algo == 'sparse_rbf':
+		###if $algod.algo == 'sparse_rbf'
       	##	python -m subhkl.io.parser finder "$scan.element_identifier" $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --show-steps $algod.rbfShow --sparse-rbf-alpha $algod.alpha --sparse-rbf-gamma $algod.gamma --sparse-rbf-min-sigma $algod.minSigma --sparse-rbf-max-sigma $algod.maxSigma --sparse-rbf-max-peaks $algod.maxPeaks --sparse-rbf-chunk-size $algod.chunk --sparse-rbf-tile-rows $algod.tileRows --sparse-rbf-tile-cols $algod.tileCols
       	###end if
-		###if $algod.algo == 'thresholding':
-		##	#if $algod.mask.useMask:
+		###if $algod.algo == 'thresholding'
+		##	#if $algod.mask.useMask
       	##		python -m subhkl.io.parser finder "$scan.element_identifier" $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --thresholding-noise-cutoff-quantile $algod.noise --thresholding-min-peak-dist-pixels $algod.peakDist --thresholding-mask-rel-erosion-radius $algod.erosion --thresholding-blur-kernel-sigma $algod.blur --thresholding-open-kernel-size-pixels $algod.kernelSize --thresholding-mask-file "$algod.mask.maskFile.element_identifier"
-		##	#else:
+		##	#else
       	##		python -m subhkl.io.parser finder "$scan.element_identifier" $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --thresholding-noise-cutoff-quantile $algod.noise --thresholding-min-peak-dist-pixels $algod.peakDist --thresholding-mask-rel-erosion-radius $algod.erosion --thresholding-blur-kernel-sigma $algod.blur --thresholding-open-kernel-size-pixels $algod.kernelSize
 		##	#end if
       	###end if
@@ -58,7 +58,7 @@
 			</param>	
 			<when value="peak_local_max">
 				<param name="pixelDistance" type="integer" value="-1" label="Min Pixel Distance" help="Values less than 0 mean no minimum" /> 
-				<param name="relativeINtensity" type="integer" value="-1" label="Min Relative Intensity" help="Values less than 0 mean no minimum" /> 
+				<param name="relativeIntensity" type="integer" value="-1" label="Min Relative Intensity" help="Values less than 0 mean no minimum" /> 
 				<param name="normalization" type="boolean" checked="false" label="Normalization" />
 			</when>
 			<when value="sparse_rbf">
