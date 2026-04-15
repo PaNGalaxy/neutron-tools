@@ -9,9 +9,11 @@
 		## Rename all input files to correct extensions
 		mv "$scan" "$scan.element_identifier" ;    
 		
-		#if $algod.algo == 'thresholding' AND $algod.mask.useMask:
-			echo $algod.algo
-			##	mv "$algod.mask.maskFile" "$algod.mask.maskFile.element_identifier" ;
+		#if $algod.algo == 'thresholding' :
+			if $algod.mask.useMask :
+				echo $algod.algo
+				##	mv "$algod.mask.maskFile" "$algod.mask.maskFile.element_identifier" ;
+			#end if
 		#end if
 		    
 		###if $algod.algo == 'peak_local_max':
