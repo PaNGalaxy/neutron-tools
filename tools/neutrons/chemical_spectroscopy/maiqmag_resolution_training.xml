@@ -1,4 +1,4 @@
-<tool id="neutrons-maiqmag-resolution-training" name="MaiqMag Training" version="0.1.0" profile="22.01">
+<tool id="neutrons-maiqmag-resolution-training" name="MaiqMag Training" version="0.2.1" profile="22.01">
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -11,7 +11,14 @@
         mkdir sim_data &&
         tar -xf $sim_results -C sim_data/ &&
         export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
-        pixi run --as-is --manifest-path /app python -m maiqmag_ml train --root-dir sim_data --output $model
+        #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no' or not $varExists('__job_resource.remote_resource') or $__job_resource.remote_resource !='marble' :
+            #set $pixi_bin="pixi"
+            #set $pixi_manifest_path="/app"
+        #else
+            #set $pixi_bin="/lustre/orion/mat745/proj-shared/maiqmag/pixi/bin/pixi"
+            #set $pixi_manifest_path="/lustre/orion/mat745/proj-shared/maiqmag/maiqmag_train"
+        #end if
+        $pixi_bin run --as-is --manifest-path $pixi_manifest_path python -m maiqmag_ml train --root-dir sim_data --output $model
         > >(tee -a $output) 2> >(tee -a $output >&2)
      ]]></command>
     <inputs>
@@ -24,7 +31,7 @@
     <help><![CDATA[
         **MaiqMag Resolution Training**
 
-        This is a Galaxy tool to train the resolution model using Sunny/McVine digital twin simulations.
+        This is a Galaxy tool to train the resolution model using Sunny/McVine digital twin simulations. It can ron on a VM with GPU or on Frontier.
 
     ]]></help>
 </tool>
