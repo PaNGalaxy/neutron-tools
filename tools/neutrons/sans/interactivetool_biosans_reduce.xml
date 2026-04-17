@@ -24,7 +24,7 @@
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_AZURE} &&
-        if [ $USER_OIDC_TOKEN == "token-unavailable" ]; then export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_PINGFED}}; fi &&
+        if [ $USER_OIDC_TOKEN == "token-unavailable" ]; then export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_PINGFED}; fi &&
         #if $config:
             export CONFIG=$config &&
         #end if
