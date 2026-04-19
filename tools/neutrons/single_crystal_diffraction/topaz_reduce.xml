@@ -20,12 +20,12 @@
            #end if
            ln -s $el data/$filename &&
         #end for
-        python /app/update_config.py $config params.config
+        micromamba run -n mantid python /app/update_config.py $config params.config
                data_directory=\$(pwd)/data
                run_nums=data_directory
                output_directory=\$(pwd)/reduced
                max_processes=$tasks &&
-        python -u /app/topaz_reduction.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2)
+        micromamba run -n mantid python -u /app/topaz_reduction.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="input" type="data" format="h5" multiple="true" optional="false" label="Run files or collection"/>
