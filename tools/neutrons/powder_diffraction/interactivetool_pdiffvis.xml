@@ -17,7 +17,8 @@
         <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
     </environment_variables>
      <command><![CDATA[
-        export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_AZURE-\${OIDC_ID_TOKEN_PINGFED}} &&
+        export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_AZURE} &&
+        if [ \${USER_OIDC_TOKEN} == "token-unavailable" ]; then export USER_OIDC_TOKEN=\${OIDC_ID_TOKEN_PINGFED}; fi &&
         pixi run -e production -m /src/pyproject.toml supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
 
     ]]></command>
