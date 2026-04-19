@@ -20,8 +20,8 @@
            #set $input_list = $input_list + " " + $name
            cp -P '$el' 'reduced/${name}' &&
         #end for
-        python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced &&
-        python -u /app/topaz_reduction_combinefiles.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        micromamba run -n mantid python /app/update_config.py $input params.config output_directory=\$(pwd)/reduced &&
+        micromamba run -n mantid python -u /app/topaz_reduction_combinefiles.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cp $input reduced/config.txt &&
         cd reduced && rm ${input_list}
     ]]></command>
