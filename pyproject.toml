@@ -1,0 +1,16 @@
+[project]
+authors = [{name = "John Duggan", email = "dugganjw@ornl.gov"}]
+name = "galaxy-tools"
+version = "0.1.0"
+
+[tool.pixi.pypi-options]
+extra-index-urls = ["https://code.ornl.gov/api/v4/projects/11320/packages/pypi/simple"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64"]
+
+[tool.pixi.pypi-dependencies]
+galaxy-objectstore = "==25.1.dev7+ornl"
+planemo = "*"
+pytest = ">=9.0.3,<10"

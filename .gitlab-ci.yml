@@ -1,4 +1,5 @@
 stages:
+  - lint
   - build
   - push
   - test
@@ -20,6 +21,16 @@ after_script:
   - source rse-bash-modules.sh
   - func_rse_docker_cleanup
   - sudo chown -R gitlab-runner .
+
+lint-xml:
+  stage: lint
+  script:
+    - docker build -f dockerfiles/Dockerfile -t tool_linter .
+    - docker run --rm -v $PWD:/reports -u `id -u`:`id -g` pixi run pytest --junitxml=/reports/report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
 
 service-build:
   stage: build
