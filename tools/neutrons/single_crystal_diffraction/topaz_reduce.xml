@@ -39,6 +39,14 @@
         <data format="txt" name="output" label="Topaz reduction console output">
         </data>
     </outputs>
+    <tests>
+        <test>
+            <param name="input" value="" />
+            <param name="config" value="topaz.config" />
+            <param name="tasks" value="8" />
+            <assert>True</assert>
+        </test>
+    </tests>
     <help><![CDATA[
         Runs TOPAZ data reduction - reduce part.
     ]]></help>
