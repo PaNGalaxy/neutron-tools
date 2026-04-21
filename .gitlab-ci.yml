@@ -26,7 +26,7 @@ lint-xml:
   stage: lint
   script:
     - docker build -f dockerfiles/Dockerfile.linter -t tool_linter .
-    - docker run --rm -v $PWD:/reports -u `id -u`:`id -g` tool_linter pixi run pytest --junitxml=/reports/report.xml
+    - docker run --rm -v $PWD:/reports -u `id -u`:`id -g` tool_linter pytest --junitxml=/reports/report.xml
   artifacts:
     when: always
     reports:
