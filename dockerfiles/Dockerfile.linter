@@ -1,7 +1,7 @@
 FROM regproxy.ornl.gov/hub_proxy/ubuntu:noble
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-    curl
+    build-essential curl
 
 COPY . /opt/run
 WORKDIR /opt/run
