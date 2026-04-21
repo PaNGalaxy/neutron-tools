@@ -12,4 +12,4 @@ RUN pixi install
 SHELL [ "pixi", "run" ]
 ENTRYPOINT [ "pixi", "run" ]
 
-RUN chmod og+rwX -R /opt/run
+RUN chmod og+rwX -R /opt/run /.cache
