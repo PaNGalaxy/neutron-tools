@@ -41,10 +41,10 @@
     </outputs>
     <tests>
         <test>
-            <param name="input" value="" />
+            <param name="input" value="/SNS/TOPAZ/IPTS-12132/nexus/TOPAZ_40727.nxs.h5" />
             <param name="config" value="topaz.config" />
             <param name="tasks" value="8" />
-            <assert>True</assert>
+            <assert_stdout></assert_stdout>
         </test>
     </tests>
     <help><![CDATA[
