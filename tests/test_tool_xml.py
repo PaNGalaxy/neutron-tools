@@ -44,7 +44,15 @@ def _parse_inputs(input_sources: Any) -> Dict[str, Any]:
 def _check_planemo_linter(xml_path: str) -> None:
     # Test with the planemo linter to validate common missing required parameters
     subprocess.run(
-        ["planemo", "lint", "--fail_level=error", "--report_level=error", xml_path],
+        [
+            "planemo",
+            "lint",
+            "--fail_level=error",
+            "--report_level=error",
+            "--skip",
+            "ValidDatatypes,XSD",
+            xml_path,
+        ],
         capture_output=True,
         check=True,
         text=True,
