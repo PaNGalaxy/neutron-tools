@@ -16,7 +16,7 @@ def pytest_generate_tests(metafunc) -> None:
     for root, _, files in os.walk("tools"):
         for name in files:
             if name in skip_tests:
-                pass
+                continue
 
             fname = os.path.join(root, name)
             path = Path(fname)
