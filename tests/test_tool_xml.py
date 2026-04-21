@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 import pytest
 from galaxy.tool_util.parser import get_tool_source
-from galaxy.tool_util.parser.output_objects import ToolOutputCollection
+from galaxy.tool_util.parser.output_objects import ToolOutput, ToolOutputCollection
 from galaxy.util.template import fill_template
 
 
@@ -93,6 +93,8 @@ def _check_missing_output(xml_path: str) -> None:
     output_items = tool_source.parse_outputs(None)[0]
     outputs: List[str] = []
     for key, value in output_items.items():
+        if isinstance(value, ToolOutput) and value.from_work_dir:
+            continue
         if isinstance(value, ToolOutputCollection):
             continue
         outputs.append(key)
