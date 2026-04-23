@@ -1,9 +1,11 @@
-FROM savannah.ornl.gov/ndip/galaxy:24.1.dev3.ornl
+FROM savannah.ornl.gov/ndip/galaxy:25.1.dev7.ornl
 
 RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-24.0.2.tgz
 RUN tar zxvf docker-24.0.2.tgz && cp docker/docker /usr/bin/docker
 
 # Install dependencies for Planemo
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /etc/apt/keyrings/yarn-archive-keyring.gpg > /dev/null
+RUN echo "deb [signed-by=/etc/apt/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN apt-get update
 RUN apt-get install -y python3-pip
 
