@@ -4,7 +4,7 @@ RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-24.0.2.tg
 RUN tar zxvf docker-24.0.2.tgz && cp docker/docker /usr/bin/docker
 
 # Install dependencies for Planemo
-RUN gpg --keyserver keyserver.ubuntu.com --recv-keys 23E7166788B63E1E
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /etc/apt/keyrings/yarn-archive-keyring.gpg > /dev/null
 RUN apt-get update
 RUN apt-get install -y python3-pip
 
