@@ -1,0 +1,17 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.6.0
+  hooks:
+    - id: check-added-large-files
+      args: [--maxkb=8192]
+    - id: check-merge-conflict
+- repo: local
+  hooks:
+    - id: pytest
+      name: pytest
+      entry: pixi run pytest
+      language: system
+      types: [python]
+      verbose: true
+      always_run: true
+      pass_filenames: false

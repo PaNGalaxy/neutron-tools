@@ -7,8 +7,20 @@ This is the repo for Galaxy tools that we create within the neutrons project. At
 - _tools_ - folder with tools, content to be copied to galaxy _tools_ folder
 - _tool-data_ - folder with tools data, content to be copied to galaxy _tool-data_ folder
 
-
 ## Adding a new tool
+
+Before pushing, we provide some basic functionality for testing your XML file. You can run these tests with:
+
+```bash
+pixi run pytest
+```
+
+You can also configure these tests to run when you commit by using `pre-commit`:
+
+```bash
+pixi run pre-commit install
+```
+
 - put tool files - xml and code (e.g. a python script) to _tools/neutrons_
 - if needed, add tool data to _tool-data_ folder
 
@@ -19,5 +31,5 @@ This is the repo for Galaxy tools that we create within the neutrons project. At
  - copy `tool-data` content to `$GALAXY_ROOT/tool-data` (or to an alternative location of tool-data configured in galaxy.yml)
 
 ### Updating tool_conf.xml and tool_data_table.conf
-update Galaxy configuration files as needed to add tools from this repo 
-(manually or through deployment procedure you are using, e.g. Ansible) 
+update Galaxy configuration files as needed to add tools from this repo
+(manually or through deployment procedure you are using, e.g. Ansible)

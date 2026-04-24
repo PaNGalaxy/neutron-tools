@@ -13,4 +13,5 @@ platforms = ["linux-64", "osx-64"]
 [tool.pixi.pypi-dependencies]
 galaxy-objectstore = "==25.1.dev7+ornl"
 planemo = "*"
+pre-commit = "*"
 pytest = ">=9.0.3,<10"
