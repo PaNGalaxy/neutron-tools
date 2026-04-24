@@ -28,7 +28,7 @@
         micromamba run -n mantid python -u /app/topaz_reduction.py \$(pwd)/params.config > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="input" type="data" format="h5" multiple="true" optional="false" label="Run files or collection"/>
+        <param name="input" type="data" format="h5" multiple="true" optional="true" label="Run files or collection"/>
         <param name="config" type="data" optional="false" label="Config file"/>
         <param name="tasks" type="integer" value="8" optional="false" label="Number of Max Parallel Tasks" help=""/>
     </inputs>
@@ -41,7 +41,6 @@
     </outputs>
     <tests>
         <test>
-            <param name="input" value="" />
             <param name="config" value="topaz.config" />
             <param name="tasks" value="8" />
             <output name="output">
