@@ -44,7 +44,7 @@
             <param name="input" value="/SNS/TOPAZ/IPTS-12132/nexus/TOPAZ_40727.nxs.h5" />
             <param name="config" value="topaz.config" />
             <param name="tasks" value="8" />
-            <assert_stdout></assert_stdout>
+            <assert_stdout>****************************** All DONE **********************************************</assert_stdout>
         </test>
     </tests>
     <help><![CDATA[
