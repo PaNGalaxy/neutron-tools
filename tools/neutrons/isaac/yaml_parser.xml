@@ -1,4 +1,4 @@
-<tool id="isaac_yaml_parser" name="YAML to Collection Splitter" version="2.0.1" profile="22.01">
+<tool id="isaac_yaml_parser_v2" name="YAML to Collection Splitter" version="2.0.1" profile="22.01">
     <description>Parses a master YAML file into a collection of individual JSON configs</description>
     
     <requirements>
