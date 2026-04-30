@@ -7,6 +7,15 @@ from nova.galaxy import Connection, Tool, Parameters
 from nova.galaxy.tool import stop_all_tools_in_store
 
 
+def _display_elastic_search_logs(query: str) -> None:
+    print(query)
+    # TODO: draw the rest of this owl!
+    # I will want to query both Galaxy and Pulsar.
+    # We can either do it time based or job id based. Job id based seems to better isolate actual errors,
+    # but it won't pull as much info so we may miss important logs if the query isn't well thought out.
+    # We may also be able to filter to only show WARNINGS/ERRORS with a similar risk.
+
+
 def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
     """
     Runs an integration test for a given tool ID with provided parameters
@@ -27,6 +36,12 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
             return True
     except Exception as e:
         print(f"Tool {tool_id} failed to start: {str(e)}")
+
+        try:
+            _display_elastic_search_logs(str(d_tool._job.id))
+        except Exception:
+            # Elastic search isn't work, giving up on it for this tool
+            pass
 
         try:
             # Give Galaxy time to record job metrics.
