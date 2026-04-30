@@ -1,5 +1,6 @@
 stages:
   - build
+  - lint
   - test
 
 variables:
@@ -31,6 +32,18 @@ service-build:
     - docker push $CONTAINER_URL:latest
     - docker push $CONTAINER_URL:build-$CI_COMMIT_SHORT_SHA
   when: manual
+  tags:
+    - rse-multi-builder
+
+lint-xml:
+  stage: lint
+  script:
+    - docker build -f dockerfiles/Dockerfile.linter -t tool_linter .
+    - docker run --rm -v $PWD:/reports -u `id -u`:`id -g` tool_linter pytest --junitxml=/reports/report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
   tags:
     - rse-multi-builder
 
