@@ -1,3 +1,4 @@
+import re
 import subprocess
 import sys
 from itertools import chain
@@ -33,10 +34,15 @@ def _parse_inputs(input_sources: Any) -> Dict[str, Any]:
             else:
                 inputs[key] = _parse_inputs(nested_sources)
         if conditional_sources != []:
+            inner_params = _parse_inputs(conditional_sources)
             if inputs[key] == "__ndip_testing_value":
-                inputs[key] = _parse_inputs(conditional_sources)
+                inputs[key] = inner_params
             else:
-                inputs[key] = inputs[key] | _parse_inputs(conditional_sources)
+                inputs[key] = inputs[key] | inner_params
+
+            for inner_key, inner_value in inner_params.items():
+                if inner_key not in inputs:
+                    inputs[inner_key] = inner_value
 
     return inputs
 
@@ -62,8 +68,12 @@ def _check_planemo_linter(xml_path: str) -> None:
 def _check_tool_command(xml_path: str) -> None:
     tool_source = get_tool_source(xml_path)
 
-    # Parse tool command and outputs
-    command = tool_source.parse_command()
+    # Parse tool command
+    raw_command = tool_source.parse_command()
+    # $getVar() doesn't rely on defined inputs/outputs and is valid, so we need to ignore it.
+    filtered_command = re.sub(r"\$getVar\(.*\)", "'__ndip_test_value'", raw_command)
+
+    # Parse tool outputs
     outputs = tool_source.parse_outputs(None)[0].keys()
 
     # Parse tool inputs
@@ -73,19 +83,30 @@ def _check_tool_command(xml_path: str) -> None:
     # Parse config files
     config_files = tool_source.parse_template_configfiles()
     for file in config_files:
-        inputs[file.name] = file.content
+        if file.name:
+            inputs[file.name] = file.content
 
     # Test if we can build a valid command from the cheetah template
     try:
         fill_template(
-            command,
+            filtered_command,
             inputs | dict.fromkeys(outputs, "test"),
             retry=0,
         )
     except Exception as exc:
-        # These will get flagged but are expected for input files.
-        if "'element_identifier'" not in str(exc) and "'name'" not in str(exc):
-            raise
+        # These will get flagged but are generally safe.
+        for safe_field in [
+            "'__galaxy_url__'",
+            "'element_identifier'",
+            "'hid'",
+            "'name'",
+            "'tags'",
+            "'value'",
+        ]:
+            if safe_field in str(exc):
+                return
+
+        raise
 
 
 def _check_missing_output(xml_path: str) -> None:

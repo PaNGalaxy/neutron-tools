@@ -5,7 +5,6 @@ from pathlib import Path
 # TODO: I'm skipping old tools that didn't have these checks as many prototype tools don't pass these checks.
 # As tools are retired or moved out of prototype this list should trend to zero. :)
 skip_tests = [
-    "imaginex_subhkl_predict.xml",
     "nomad-montecarlo.xml",
     "snap_incident_beam.xml",
 ]
