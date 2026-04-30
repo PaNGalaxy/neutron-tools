@@ -27,7 +27,6 @@
         <param name="directory" type="text" optional="true" label="Default working directory" />
     </inputs>
     <outputs>
-        <data format="txt" name="output" label="Console output" />
     </outputs>
     <help><![CDATA[
         Starts the noVNC version of NeuXtalViz.
