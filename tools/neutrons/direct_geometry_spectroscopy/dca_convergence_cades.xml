@@ -17,7 +17,6 @@
     </inputs>
     <outputs>
         <data format="h5" name="data_output" label="DCA Convergence"/>
-        <data format="txt" name="output" label="DCA Convergence - console output"/>
     </outputs>
     <help><![CDATA[
         Runs DCA++ convergence in ORC cloud infrastructure.
