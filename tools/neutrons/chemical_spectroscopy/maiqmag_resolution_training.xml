@@ -1,21 +1,56 @@
-<tool id="neutrons-maiqmag-resolution-training" name="MaiqMag Training" version="0.1.0" profile="22.01">
+<tool id="neutrons-maiqmag-resolution-training" name="MaiqMag Resolution Training" version="0.3.0" profile="22.01">
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash" >savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/maiqmag-ml:0.1.0</container>
+        <container type="docker" shell="/bin/bash" >savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/maiqmag-ml:0.3.0</container>
+        <credentials name="amsc_credentials" version="1.0"
+                     label="AmSC Credentials"
+                     optional="true"
+                     description="Credentials for accessing AmSC Services.">
+            <secret name="mlflow_api_key"
+                    inject_as_env="MLFLOW_TRACKING_TOKEN"
+                    label="MLFlow API Key"
+                    description="Your MLFlow API key. Get it from https://profile.american-science-cloud.org"/>
+        </credentials>
     </requirements>
 
      <command><![CDATA[
         mkdir sim_data &&
         tar -xf $sim_results -C sim_data/ &&
         export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
-        pixi run --as-is --manifest-path /app python -m maiqmag_ml train --root-dir sim_data --output $model
+        #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no' or not $varExists('__job_resource.remote_resource') or $__job_resource.remote_resource !='marble' :
+            #set $pixi_bin="pixi"
+            #set $pixi_manifest_path="/app"
+        #else
+            #set $pixi_bin="/lustre/orion/mat745/proj-shared/maiqmag/pixi/bin/pixi"
+            #set $pixi_manifest_path="/lustre/orion/mat745/proj-shared/maiqmag/maiqmag_train"
+        #end if
+        $pixi_bin run --as-is --manifest-path $pixi_manifest_path python -m maiqmag_ml train --root-dir sim_data --output $model
+        #if str($mlflow.enabled) == 'true':
+            --mlflow
+            --mlflow-tracking-uri '$mlflow.tracking_uri'
+            --mlflow-experiment '$mlflow.experiment'
+            --mlflow-run-name '$mlflow.run_name'
+            #if $mlflow.upload_model:
+            --mlflow-upload-model
+            #end if
+        #end if
         > >(tee -a $output) 2> >(tee -a $output >&2)
      ]]></command>
     <inputs>
         <param name="sim_results" type="data" label="Simulation Results"/>
+        <conditional name="mlflow">
+            <param name="enabled" type="boolean" truevalue="true" falsevalue="false" checked="false"  label="Enable MLflow logging"/>
+            <when value="false"/>
+            <when value="true">
+                <param name="tracking_uri" type="text" value="https://mlflow.american-science-cloud.org/" label="MLflow tracking URI"/>
+                <param name="experiment" type="text" value="maiqmagml" label="MLflow experiment name"/>
+                <param name="run_name" type="text" value="train-resolution"  label="MLflow run name"/>
+                <param name="upload_model" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Upload model to MLflow"/>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="MaiqMag Resolution Training Output"></data>
@@ -24,7 +59,7 @@
     <help><![CDATA[
         **MaiqMag Resolution Training**
 
-        This is a Galaxy tool to train the resolution model using Sunny/McVine digital twin simulations.
+        This is a Galaxy tool to train the resolution model using Sunny/McVine digital twin simulations. It can ron on a VM with GPU or on Frontier.
 
     ]]></help>
 </tool>
