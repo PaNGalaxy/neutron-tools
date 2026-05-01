@@ -1,21 +1,70 @@
-<tool id="neutrons-maiqmag-inversion-inference" name="MAIQMag Inversion Inference" version="0.1.0" profile="22.01">
+<tool id="neutrons-maiqmag-inversion-inference" name="MAIQMag Inversion Inference" version="0.3.0" profile="22.01">
     <creator>
         <person name="Yongqiang Cheng"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash" >savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/maiqmag-ml:0.2.1</container>
+        <container type="docker" shell="/bin/bash" >savannah.ornl.gov/ndip/tool-sources/chemical-spectroscopy/maiqmag-ml:0.3.0</container>
+        <credentials name="amsc_credentials" version="1.0"
+                     label="AmSC Credentials"
+                     optional="true"
+                     description="Credentials for accessing AmSC Services.">
+            <secret name="mlflow_api_key"
+                    inject_as_env="MLFLOW_TRACKING_TOKEN"
+                    label="MLFlow API Key"
+                    description="Your MLFlow API key. Get it from https://profile.american-science-cloud.org"/>
+        </credentials>
     </requirements>
 
      <command><![CDATA[
         export TORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor &&
-	    pixi run --as-is --manifest-path /app python -m maiqmag_ml infer_inversion --ckpt $model --inp_file $input_data --out_file res.png
+	    pixi run --as-is --manifest-path /app python -m maiqmag_ml infer_inversion --inp_file $input_data --out_file res.png
+        #if str($mlflow.enabled) == 'true':
+            --mlflow-tracking-uri '$mlflow.tracking_uri'
+            #if str($mlflow.model_source.use_mlflow_model) == 'true':
+                --mlflow-model-uri '$mlflow.model_source.model_uri'
+            #else
+                --ckpt $mlflow.model_source.model
+            #end if
+            #if str($mlflow.logging.enabled) == 'true':
+                --mlflow-log-inference
+                --mlflow-experiment '$mlflow.logging.experiment'
+                --mlflow-run-name '$mlflow.logging.run_name'
+            #end if
+        #else
+            --ckpt $mlflow.model
+        #end if
 	    > >(tee -a $output) 2> >(tee -a $output >&2) &&
 	    mv res.png $result
     ]]></command>
     <inputs>
         <param name="input_data" type="data" label="Hi-Res Spectra"/>
-        <param name="model" type="data" label="MAIQMag Inversion Model"/>
+        <conditional name="mlflow">
+            <param name="enabled" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Use MLflow"/>
+            <when value="false">
+                <param name="model" type="data" label="MAIQMag Inversion Model"/>
+            </when>
+            <when value="true">
+                <param name="tracking_uri" type="text" optional="false" value="https://mlflow.american-science-cloud.org/" label="MLflow tracking URI"/>
+                <conditional name="model_source">
+                    <param name="use_mlflow_model" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Use model from MLflow"/>
+                    <when value="true">
+                        <param name="model_uri" type="text" optional="false" label="MLflow model URI"/>
+                    </when>
+                    <when value="false">
+                        <param name="model" type="data" optional="false" label="MAIQMag Inversion Model"/>
+                    </when>
+                </conditional>
+                <conditional name="logging">
+                    <param name="enabled" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Log results to MLflow"/>
+                    <when value="false"/>
+                    <when value="true">
+                        <param name="experiment" type="text" optional="false" value="maiqmagml" label="MLflow experiment name"/>
+                        <param name="run_name" type="text" optional="false" value="infer-inversion" label="MLflow run name"/>
+                    </when>
+                </conditional>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="MAIQMag Inversion Inference Output"></data>
