@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X subhkl Prepare Peaks"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
+    <container type="docker">ghcr.io/zjmorgan/subhkl:1.1.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 
@@ -12,14 +12,23 @@
 			mv $input_file $input_file.element_identifier ;
 		#end for
 		
+		#set $options = ""
+		
+		#if $wavelengthMin:
+			#set $options = $options + " " + str($wavelengthMin) 
+		#end if
+		#if $wavelengthMax:
+			#set $options = $options + " " + str($wavelengthMax)
+		#end if
+		
 		#for $Z in $input:
 		    #set $BN = str($Z.element_identifier)
 		    #set $filename = "out/" + str($BN) + ".reduce.h5"
-		    python -m subhkl.io.parser reduce $Z.element_identifier $filename $instrument ;
+		    python -m subhkl.io.parser reduce $Z.element_identifier $filename $instrument $options ;
 		    #set $FILE_LIST = $FILE_LIST + $filename + " "
 		#end for
 		
-		python -m subhkl.io.parser merge-images $FILE_LIST out/scan_master.h5 ;
+		python -m subhkl.io.parser merge-images $FILE_LIST out/scan_master.h5 $a $b $c $alpha $beta $gamma $spaceGroup ;
 		
     ]]></command>
     <inputs>
@@ -30,6 +39,15 @@
 			<option value="IMAGINEX">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>
+	    <param name="a" type="float" value="0" label="a"/> 
+	    <param name="b" type="float" value="0" label="b"/> 
+	    <param name="c" type="float" value="0" label="c"/> 
+	    <param name="alpha" type="float" value="0" label="alpha"/> 
+	    <param name="beta" type="float" value="0" label="beta"/> 
+	    <param name="gamma" type="float" value="0" label="gamma"/> 
+	    <param name="spaceGroup" type="text" value="P 1" label="Space Group"/> 
+	    <param name="wavelengthMin" type="float" optional="true" value="" label="Min Wavelength"/> 
+		<param name="wavelengthMax" type="float" optional="true" value="" label="Max Wavelength"/>
 		
     </inputs>
     <outputs>
