@@ -27,16 +27,16 @@
 		<param format="h5" multiple="true" name="input" type="data" label="Files to reduce" />
 		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
-			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="CG4D">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>
-	    <param name="a" type="float" value="0" label="a"/> 
-	    <param name="b" type="float" value="0" label="b"/> 
-	    <param name="c" type="float" value="0" label="c"/> 
-	    <param name="alpha" type="float" value="0" label="alpha"/> 
-	    <param name="beta" type="float" value="0" label="beta"/> 
-	    <param name="gamma" type="float" value="0" label="gamma"/> 
-	    <param name="spaceGroup" type="text" value="P1" label="Space Group"/> 
+	    <param name="a" type="float" value="18.39" label="a"/> 
+	    <param name="b" type="float" value="56.55" label="b"/> 
+	    <param name="c" type="float" value="6.54" label="c"/> 
+	    <param name="alpha" type="float" value="90" label="alpha"/> 
+	    <param name="beta" type="float" value="90" label="beta"/> 
+	    <param name="gamma" type="float" value="90" label="gamma"/> 
+	    <param name="spaceGroup" type="text" value="Fdd2" label="Space Group"/> 
 		
     </inputs>
     <outputs>
