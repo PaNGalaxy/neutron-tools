@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl_peak_fit" name="IMAGINE-X subhkl Peak Finding"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.1.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 
@@ -26,7 +26,14 @@
       		python -m subhkl.io.parser finder "$scan.element_identifier" $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --region-growth-minimum-intensity $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --peak-local-max-min-pixel-distance $algod.pixelDistance --peak-local-max-min-relative-intensity $algod.relativeIntensity $options
       	#end if
 		#if $algod.algo == 'sparse_rbf'
-      		python -m subhkl.io.parser finder "$scan.element_identifier" $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --region-growth-minimum-intensity $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --show-steps $algod.rbfShow --sparse-rbf-alpha $algod.alpha --sparse-rbf-gamma $algod.gamma --sparse-rbf-min-sigma $algod.minSigma --sparse-rbf-max-sigma $algod.maxSigma --sparse-rbf-max-peaks $algod.maxPeaks --sparse-rbf-chunk-size $algod.chunk --sparse-rbf-tile-rows $algod.tileRows --sparse-rbf-tile-cols $algod.tileCols
+			
+			#if $algod.tunSNR
+				#set $options = "--sparse-rbf-auto-tune-alpha" ;
+			#else
+				#set $options = "" ;
+			#end if
+		
+      		python -m subhkl.io.parser finder "$scan.element_identifier" $instrument --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --region-growth-minimum-intensity $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --show-steps $algod.rbfShow --sparse-rbf-alpha $algod.alpha --sparse-rbf-gamma $algod.gamma --sparse-rbf-min-sigma $algod.minSigma --sparse-rbf-max-sigma $algod.maxSigma --sparse-rbf-max-peaks $algod.maxPeaks --sparse-rbf-chunk-size $algod.chunk --sparse-rbf-loss $algod.loss $options --sparse-rbf-candidate-alphas $algod.alphaCand
       	#end if
 		#if $algod.algo == 'thresholding'
 			#if $algod.mask.useMask
@@ -42,7 +49,7 @@
 		<param format="h5" name="scan" type="data" label="Master scan file" />
 		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
-			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="CG4D">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>	
 		<param name="peakBox" type="integer" value="3" label="Peak Center Box Size" /> 
@@ -69,14 +76,15 @@
 			</when>
 			<when value="sparse_rbf">
 				<param name="alpha" type="float" value="0.1" label="Alpha" /> 
+				<param name="tuneSNR" type="boolean" checked="false" label="Auto-tune SNR threshold" />
+				<param name="alphaCand" type="text" value="3.0,5.0,10.0,15.0,20.0,25.0,30.0" label="Candidate SNR thresholds alpha for auto-tuning" help="In the format of a comma separated list of numbers" />
 				<param name="chunk" type="integer" value="4096" label="Chunk Size" /> 
 				<param name="gamma" type="float" value="2.0" label="Gamma" /> 
+				<param name="loss" type="text" value="gaussian" label="Loss Function" />>
 				<param name="maxPeaks" type="integer" value="500" label="Max Peaks" /> 
 				<param name="maxSigma" type="float" value="10.0" label="Max Sigma" /> 
 				<param name="minSigma" type="float" value="0.5" label="Min Sigma" /> 
 				<param name="rbfShow" type="boolean" checked="false" label="Show Steps" />
-				<param name="tileCols" type="integer" value="2" label="Tile Columns" /> 
-				<param name="tileRows" type="integer" value="2" label="Tile Rows" /> 
 			</when>
 			<when value="thresholding">
 				<param name="blur" type="integer" value="5" label="Blur Kernel Sigma" /> 
