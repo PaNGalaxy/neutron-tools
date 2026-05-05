@@ -45,7 +45,9 @@
 	    <param name="alpha" type="float" value="0" label="alpha"/> 
 	    <param name="beta" type="float" value="0" label="beta"/> 
 	    <param name="gamma" type="float" value="0" label="gamma"/> 
-	    <param name="spaceGroup" type="text" value="P 1" label="Space Group"/> 
+	    <param name="spaceGroup" type="text" value="P1" label="Space Group"/> 
+	    <param name="wavelengthMin" type="float" optional="true" value="1.1" label="Min Wavelength"/> 
+		<param name="wavelengthMax" type="float" optional="true" value="8.5" label="Max Wavelength"/>
 		
     </inputs>
     <outputs>
