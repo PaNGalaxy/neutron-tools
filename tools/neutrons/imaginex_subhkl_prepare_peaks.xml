@@ -12,19 +12,10 @@
 			mv $input_file $input_file.element_identifier ;
 		#end for
 		
-		#set $options = ""
-		
-		#if $wavelengthMin:
-			#set $options = $options + " " + str($wavelengthMin) 
-		#end if
-		#if $wavelengthMax:
-			#set $options = $options + " " + str($wavelengthMax)
-		#end if
-		
 		#for $Z in $input:
 		    #set $BN = str($Z.element_identifier)
 		    #set $filename = "out/" + str($BN) + ".reduce.h5"
-		    python -m subhkl.io.parser reduce $Z.element_identifier $filename $instrument $options ;
+		    python -m subhkl.io.parser reduce $Z.element_identifier $filename $instrument ;
 		    #set $FILE_LIST = $FILE_LIST + $filename + " "
 		#end for
 		
