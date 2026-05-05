@@ -56,16 +56,16 @@
 			<option value="MANDI">MANDI</option>
 		</param>	
 		<param name="peakBox" type="integer" value="3" label="Peak Center Box Size" /> 
-		<param name="peakMin" type="integer" value="40" label="Peak Minimum Pixels" /> 
+		<param name="peakMin" type="integer" value="3" label="Peak Minimum Pixels" /> 
 		<param name="peakSignal" type="float" value="0.0" label="Peak Minimum Signal to Noise Ratio" /> 
 		<param name="peakThreshold" type="float" value="4.0" label="Peak Pixel Outlier Threshold" /> 
 		<param name="peakWindow" type="integer" value="5" label="Peak Smoothing Window SIze" /> 
 		<param name="growthDistance" type="float" value="1.5" label="Region Growth Distance Threshold" /> 
 		<param name="growthIntensity" type="float" value="3.0" label="Region Growth Minimum Intensity" /> 
 		<param name="growthRadius" type="float" value="12.0" label="Region Growth Maximum Pixel Radius" /> 
-		<param name="growthSigma" type="float" value="-999.0" label="Region Growth Minimum Sigma" /> 
-		<param name="wavelengthMax" type="float" value="-999.0" label="Wavelength Max" /> 
-		<param name="wavelengthMin" type="float" value="999.0" label="Wavelength Min" /> 		
+		<param name="growthSigma" type="float" value="2.0" label="Region Growth Minimum Sigma" /> 
+		<param name="wavelengthMax" type="float" value="2.0" label="Wavelength Max" /> 
+		<param name="wavelengthMin" type="float" value="4.8" label="Wavelength Min" /> 		
 		<conditional name="algod">
 			<param name="algo" type="select" optional="false" value="thresholding" label="Algorithm" > 
 				<option value="peak_local_max">Peak Local Max</option>
@@ -79,15 +79,15 @@
 			</when>
 			<when value="sparse_rbf">
 				<param name="alpha" type="float" value="0.1" label="Alpha" /> 
-				<param name="tuneSNR" type="boolean" checked="false" label="Auto-tune SNR threshold" />
-				<param name="alphaCand" type="text" value="3.0,5.0,10.0,15.0,20.0,25.0,30.0" label="Candidate SNR thresholds alpha for auto-tuning" help="In the format of a comma separated list of numbers" />
+				<param name="tuneSNR" type="boolean" checked="true" label="Auto-tune SNR threshold" />
+				<param name="alphaCand" type="text" value="3.0,5.0,10.0,15.0,20.0,25.0,30" label="Candidate SNR thresholds alpha for auto-tuning" help="In the format of a comma separated list of numbers" />
 				<param name="chunk" type="integer" value="4096" label="Chunk Size" /> 
-				<param name="gamma" type="float" value="2.0" label="Gamma" /> 
-				<param name="loss" type="text" value="gaussian" label="Loss Function" />>
+				<param name="gamma" type="float" value="1.0" label="Gamma" /> 
+				<param name="loss" type="text" value="poisson" label="Loss Function" />>
 				<param name="maxPeaks" type="integer" value="500" label="Max Peaks" /> 
-				<param name="maxSigma" type="float" value="10.0" label="Max Sigma" /> 
+				<param name="maxSigma" type="float" value="5.0" label="Max Sigma" /> 
 				<param name="minSigma" type="float" value="0.5" label="Min Sigma" /> 
-				<param name="rbfShow" type="boolean" checked="false" label="Show Steps" />
+				<param name="rbfShow" type="boolean" checked="true" label="Show Steps" />
 			</when>
 			<when value="thresholding">
 				<param name="blur" type="integer" value="5" label="Blur Kernel Sigma" /> 
