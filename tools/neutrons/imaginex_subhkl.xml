@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl" name="IMAGINE-X subhkl Peak Indexing "  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.1.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
@@ -18,6 +18,9 @@
 		#if $wavelengthMax:
 			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
 		#end if
+		#if $kiVec:
+			#set $options = $options + " --ki-vector " + $kiVec + " "
+		#end if
 		#if $goniometer:
 			mv "$goniometer" "$goniometer.element_identifier" ;  
 			#set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
@@ -28,6 +31,9 @@
 		#end if
 		#if $sigmaInit:
 			#set $options = $options + " --sigma-init " + str($sigmaInit) + " " 
+		#end if
+		#if $freeze:
+			#set $options = $options + " --freeze-orientation "
 		#end if
 		#if $goniometerAxes:
 			#set $options = $options + " --refine-goniometer-axes " + str($goniometerAxes) + " " 
@@ -60,21 +66,28 @@
 		#if $refineBeam:
 			#set $options = $options + " --refine-beam "
 		#end if
+		#if $refineDetector:
+			#set $options = $options + " --refine-detector "
+		#end if
+		#if $refineDetectorBanks:
+			#set $options = $options + " --refine-detector-banks " + $refineDetectorBanks + " "
+		#end if 
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK  
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $degreeGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
     ]]></command>
     <inputs>
     
 		<param format="h5" name="peaks" type="data" label="Peak data file" />
-		<param name="a" type="float" value="0.0" label="a" /> 
-		<param name="b" type="float" value="0.0" label="b" /> 
-		<param name="c" type="float" value="0.0" label="c" /> 
-		<param name="alpha" type="float" value="0.0" label="Alpha" /> 
-		<param name="beta" type="float" value="0.0" label="Beta" /> 
-		<param name="gamma" type="float" value="0.0" label="Gamma" /> 
-	    <param name="wavelengthMin" type="float" optional="true" value="1.0" label="Min Wavelength" /> 
-		<param name="wavelengthMax" type="float" optional="true" value="3.5" label="Max Wavelength" /> 
+		<param name="a" type="float" value="18.39" label="a" /> 
+		<param name="b" type="float" value="56.55" label="b" /> 
+		<param name="c" type="float" value="6.54" label="c" /> 
+		<param name="alpha" type="float" value="90.0" label="Alpha" /> 
+		<param name="beta" type="float" value="90.0" label="Beta" /> 
+		<param name="gamma" type="float" value="90.0" label="Gamma" /> 
+	    <param name="wavelengthMin" type="float" optional="true" value="2.0" label="Min Wavelength" /> 
+		<param name="wavelengthMax" type="float" optional="true" value="4.5" label="Max Wavelength" /> 
+		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1'" /> 
 		<param name="loss" type="select" optional="false" value="gaussian" label="Loss Method" > 
 			<option value="cosine">Cosine</option>
 			<option value="direct">Direct</option>
@@ -83,10 +96,10 @@
 		</param>
 		<param name="space" type="text" value="Fdd2" label="Space Group" />
 		<param format="csv" name="goniometer" type="data" optional="true" label="Goniometer file" />
-		<param format="nxs.h5" name="nexus" type="data" optional="true" label="Original nexus file" />
+		<param format="h5" name="nexus" type="data" optional="true" label="Original nexus file" />
 		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
-			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="CG4D">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>
 		<param name="strategy" type="select" optional="false" value="de" label="Strategy" > 
@@ -100,6 +113,7 @@
 		<param name="generations" type="integer" value="100" label="Generations" /> 
 		<param name="seed" type="integer" value="0" label="Seed" /> 
 		<param name="tolerance" type="float" value="0.1" label="Tolerance Degrees" /> 
+		<param name="freeze" type="boolean" checked="false" label="Freeze Orientation" />
 		<param name="lattice" type="boolean" checked="false" label="Refine Lattice" /> 
 		<param name="latticeFrac" type="float" value="0.05" label="Lattice Bound Fraction" /> 
 		<param name="refineGoniometer" type="boolean" checked="false" label="Refine Goniometer" /> 
@@ -109,6 +123,15 @@
 		<param name="sampleBound" type="float" value="0.005" label="Sample Bound (Meters)" /> 
 		<param name="refineBeam" type="boolean" checked="false" label="Refine Beam" /> 
 		<param name="beamBound" type="float" value="0.05" label="Beam Bound (Degees)" /> 
+		<param name="refineDetector" type="boolean" checked="false" label="Refine Detector" />
+		<param name="refineDetectorBanks" type="text" optional="true" value="" label="Refine Detector Banks" help="As a comma-separated list of numerical bank IDs (eg 1,2,3)" />
+		<param name="detectorModes" type="text" value="independent" label="Detector modes" help="Comma-separated list of refinement modes (e.g. radial,global_rot,independent)" />
+		<param name="detectorTrans" type="float" value="0.005" label="Detector Trans Bound (Meters)" />
+		<param name="detectorGlobalTrans" type="float" value="0.01" label="Detector Global Trans Bound (Meters)" />
+		<param name="detectorRot" type="float" value="1.0" label="Detector Rot Bound (Degrees)" />
+		<param name="detectorGlobalRot" type="float" value="2.0" label="Detector Global Rot Bound (Degrees)" />
+		<param name="detectorAxis" type="text" value="0,1,0" label="Detector Global Rotation Axis" help="As a comma-separated list (eg 0,1,0)" />
+		<param name="detectorRadial" type="float" value="0.05" label="Detector Radial Bound Fraction" />
 		<param format="h5" name="bootstrap" type="data" optional="true" label="Bootstrap file to restart refinement from" />
 		<param name="dMin" type="float" optional="true" value="" label="D Min" /> 
 		<param name="dMax" type="float" optional="true" value="" label="D Max" /> 
@@ -120,6 +143,7 @@
 		<param name="iterations" type="integer" value="20" label="# of Iterations" /> 
 		<param name="topK" type="integer" value="32" label="Top K" /> 
 		<param name="bSharpen" type="float" optional="true" value="" label="Wilson B-Factor" /> 
+		<param name="candidates" type="integer" value="64" label="Number of Lambda Candidates" />
 
 
 
