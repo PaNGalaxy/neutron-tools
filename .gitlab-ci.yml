@@ -1,6 +1,7 @@
 stages:
   - build
   - push
+  - lint
   - test
 
 
@@ -49,10 +50,24 @@ push_dev_tools:
       sudo /root/update_prototype_tools.sh
       /srv/galaxy/local_tools/neutrons-dev
       /srv/galaxy/config/tool_conf_prototype.xml
+  allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       when: always
     - when: never
+  tags:
+    - rse-multi-builder
+
+lint-xml:
+  stage: lint
+  script:
+    - docker build -f dockerfiles/Dockerfile.linter -t tool_linter .
+    - docker run --rm -v $PWD:/reports -u `id -u`:`id -g` tool_linter pytest --junitxml=/reports/report.xml
+  allow_failure: true
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
   tags:
     - rse-multi-builder
 
