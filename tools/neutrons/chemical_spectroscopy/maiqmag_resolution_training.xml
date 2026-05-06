@@ -25,9 +25,11 @@
             #set $pixi_manifest_path="/app"
         #else
             #set $pixi_bin="/lustre/orion/mat745/proj-shared/maiqmag/pixi/bin/pixi"
-            #set $pixi_manifest_path="/lustre/orion/mat745/proj-shared/maiqmag/maiqmag_train"
+            #set $pixi_manifest_path="/lustre/orion/mat745/proj-shared/maiqmag/maiqmag-ml"
+            export http_proxy=http://proxy.ccs.ornl.gov:3128 &&
+            export https_proxy=http://proxy.ccs.ornl.gov:3128 &&
         #end if
-        $pixi_bin run --as-is --manifest-path $pixi_manifest_path python -m maiqmag_ml train --root-dir sim_data --output $model
+        $pixi_bin run --as-is --manifest-path $pixi_manifest_path python -m maiqmag_ml train_resolution --root-dir sim_data --output $model
         #if str($mlflow.enabled) == 'true':
             --mlflow
             --mlflow-tracking-uri '$mlflow.tracking_uri'
