@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-c9e3f51</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-6bc2439-slim</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
@@ -59,7 +59,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            pixi run python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' '$output_dir' &&
+            python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' '$output_dir' &&
             . _env.sh &&
         #else
             export LLM_PROVIDER='$llm_provider' &&
@@ -89,7 +89,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         echo "plan-data produced: \$JOB_YAML" | tee -a $output &&
         cat "\$JOB_YAML" | tee -a $output &&
 
-        PERFORM_ASSEMBLY=`pixi run python '$check_assembly_script' "\$JOB_YAML"` &&
+        PERFORM_ASSEMBLY=`python '$check_assembly_script' "\$JOB_YAML"` &&
 
         if [ "\$PERFORM_ASSEMBLY" = "1" ]; then
             echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
