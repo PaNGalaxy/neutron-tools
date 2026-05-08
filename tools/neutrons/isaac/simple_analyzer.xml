@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-6bc2439-slim</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-d4135e1-slim</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
@@ -43,6 +43,7 @@ with open('_env.sh', 'w') as f:
     f.write('export SEQUENCE_TOTAL="%s"\n' % d.get('sequence_total', sys.argv[5]))
     f.write('export CONTEXT_FILE="%s"\n' % d.get('context_file', sys.argv[6]))
     f.write('export OUTPUT_DIR="%s"\n' % d.get('output_directory', sys.argv[7]))
+    f.write('export REFLECTIVITY_FILE="%s"\n' % d.get('result_file', sys.argv[8]))
         </configfile>
         <configfile name="check_assembly_script">
 import sys, yaml
@@ -59,7 +60,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' '$output_dir' &&
+            python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' '$output_dir' '$reflectivity_file' &&
             . _env.sh &&
         #else
             export LLM_PROVIDER='$llm_provider' &&
@@ -68,6 +69,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
             export SEQUENCE_TOTAL='$sequence_total' &&
             export CONTEXT_FILE='$context_file' &&
             export OUTPUT_DIR='$output_dir' &&
+            export REFLECTIVITY_FILE='$reflectivity_file' &&
         #end if
 
         mkdir -p "\$OUTPUT_DIR"/plan "\$OUTPUT_DIR"/models "\$OUTPUT_DIR"/results "\$OUTPUT_DIR"/reports &&
@@ -76,8 +78,9 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         export ANALYZER_REPORTS_DIR="\$OUTPUT_DIR"/reports &&
 
         echo "=== plan-data ===" | tee -a $output &&
+        echo "Using reflectivity file: \$REFLECTIVITY_FILE" | tee -a $output &&
         echo "Using context file: \$CONTEXT_FILE" | tee -a $output &&
-        plan-data '$reflectivity_file' "\$CONTEXT_FILE"
+        plan-data "\$REFLECTIVITY_FILE" "\$CONTEXT_FILE"
                 --output-dir "\$OUTPUT_DIR"/plan
                 --sequence-total "\$SEQUENCE_TOTAL"
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
