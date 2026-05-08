@@ -26,6 +26,7 @@
         <param name="llm_provider" type="text" value="local" label="LLM Provider"/>
         <param name="llm_model" type="text" value="gpt-4" label="LLM Model"/>
         <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
+        <param name="output_dir" type="text" value="./output" label="Output Directory"/
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true"
                help="Optional JSON file overriding llm_provider / llm_model / llm_base_url."/>
     </inputs>
@@ -41,6 +42,7 @@ with open('_env.sh', 'w') as f:
     f.write('export LLM_BASE_URL="%s"\n' % d.get('llm_base_url', sys.argv[4]))
     f.write('export SEQUENCE_TOTAL="%s"\n' % d.get('sequence_total', sys.argv[5]))
     f.write('export CONTEXT_FILE="%s"\n' % d.get('context_file', sys.argv[6]))
+    f.write('export OUTPUT_DIR="%s"\n' % d.get('output_directory', sys.argv[7]))
         </configfile>
         <configfile name="check_assembly_script">
 import sys, yaml
@@ -57,7 +59,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' &&
+            pixi run python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' '$output_dir' &&
             . _env.sh &&
         #else
             export LLM_PROVIDER='$llm_provider' &&
@@ -65,20 +67,21 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
             export LLM_BASE_URL='$llm_base_url' &&
             export SEQUENCE_TOTAL='$sequence_total' &&
             export CONTEXT_FILE='$context_file' &&
+            export OUTPUT_DIR='$output_dir' &&
         #end if
 
-        mkdir -p ./output/plan ./output/models ./output/results ./output/reports &&
-        export ANALYZER_MODELS_DIR=`pwd`/output/models &&
-        export ANALYZER_RESULTS_DIR=`pwd`/output/results &&
-        export ANALYZER_REPORTS_DIR=`pwd`/output/reports &&
+        mkdir -p "\$OUTPUT_DIR"/plan "\$OUTPUT_DIR"/models "\$OUTPUT_DIR"/results "\$OUTPUT_DIR"/reports &&
+        export ANALYZER_MODELS_DIR="\$OUTPUT_DIR"/models &&
+        export ANALYZER_RESULTS_DIR="\$OUTPUT_DIR"/results &&
+        export ANALYZER_REPORTS_DIR="\$OUTPUT_DIR"/reports &&
 
         echo "=== plan-data ===" | tee -a $output &&
         plan-data '$reflectivity_file' "\$CONTEXT_FILE"
-                --output-dir ./output/plan
+                --output-dir "\$OUTPUT_DIR"/plan
                 --sequence-total "\$SEQUENCE_TOTAL"
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
 
-        JOB_YAML=`ls -t ./output/plan/job_*.yaml 2>/dev/null | head -n 1` &&
+        JOB_YAML=`ls -t "\$OUTPUT_DIR"/plan/job_*.yaml 2>/dev/null | head -n 1` &&
         if [ -z "\$JOB_YAML" ]; then
             echo "plan-data did not produce a job YAML" | tee -a $output >&2;
             exit 1;
@@ -86,7 +89,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         echo "plan-data produced: \$JOB_YAML" | tee -a $output &&
         cat "\$JOB_YAML" | tee -a $output &&
 
-        PERFORM_ASSEMBLY=`python '$check_assembly_script' "\$JOB_YAML"` &&
+        PERFORM_ASSEMBLY=`pixi run python '$check_assembly_script' "\$JOB_YAML"` &&
 
         if [ "\$PERFORM_ASSEMBLY" = "1" ]; then
             echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
@@ -96,7 +99,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
             echo "metadata.perform_assembly is false; skipping analyze-sample." | tee -a $output;
         fi &&
 
-        LATEST_MODEL=`ls -t ./output/models/*.py 2>/dev/null | head -n 1` &&
+        LATEST_MODEL=`ls -t "\$OUTPUT_DIR"/models/*.py 2>/dev/null | head -n 1` &&
         if [ -n "\$LATEST_MODEL" ]; then
             cat "\$LATEST_MODEL" > $output_model;
         else
