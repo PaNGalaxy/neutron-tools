@@ -7,7 +7,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-d4135e1</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-3d618a5</container>
     </requirements>
 
     <inputs>
@@ -83,18 +83,17 @@ with open(output_path, "w") as f:
             export DATA_DIR='$data_dir' &&
             export OUTPUT_DIR='$output_dir' &&
         #end if
-        mkdir -p \$OUTPUT_DIR &&
-        ln -s \$OUTPUT_DIR output &&
+        mkdir -p "\$OUTPUT_DIR" &&
         export HOME=/root &&
         ln -s \$DATA_DIR /app/data &&
-        REDUCTION_SUMMARY="output/reduction_summary_\${RANDOM}_\$(date +%s%N).json" &&
+        REDUCTION_SUMMARY="\$OUTPUT_DIR/reduction_summary_\${RANDOM}_\$(date +%s%N).json" &&
         pixi run --as-is --manifest-path /app simple-reduction
                 --event-file \$EVENT_FILE
                 --template \$TEMPLATE
-                --output-dir output
+                --output-dir "\$OUTPUT_DIR"
                 --json "\$REDUCTION_SUMMARY"
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
-        cat output/.last_reduced_set > $identifier &&
+        cat "\$OUTPUT_DIR/.last_reduced_set" > $identifier &&
         COMBINED_FILE=`pixi run --as-is --manifest-path /app python -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get('combined_file') or '')" "\$REDUCTION_SUMMARY"` &&
         if [ -z "\$COMBINED_FILE" ] || [ ! -f "\$COMBINED_FILE" ]; then
             echo "reducer did not report a usable combined_file in \$REDUCTION_SUMMARY" | tee -a $output >&2;
