@@ -7,7 +7,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-ecffe30</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-d4135e1</container>
     </requirements>
 
     <inputs>
@@ -30,12 +30,47 @@ with open('_env.sh', 'w') as f:
     f.write('export DATA_DIR="%s"\n' % d.get('data_directory', sys.argv[2]))
     f.write('export OUTPUT_DIR="%s"\n' % d.get('output_directory', sys.argv[3]))
         </configfile>
+        <configfile name="merge_config_script">
+"""Merge the input config_json with the reducer's --json summary.
+
+argv: input_config_json reduction_summary_json output_path
+
+The output mirrors the input config but with `result_file` replaced by
+`partial_file` from the reducer's summary. If no input config was given,
+write a minimal JSON containing only the partial/combined paths.
+"""
+import json, os, sys
+
+input_config_path = sys.argv[1] if sys.argv[1] else None
+summary_path = sys.argv[2]
+output_path = sys.argv[3]
+
+with open(summary_path) as f:
+    summary = json.load(f)
+
+partial_file = summary.get("partial_file")
+combined_file = summary.get("combined_file")
+
+if input_config_path and os.path.isfile(input_config_path):
+    with open(input_config_path) as f:
+        merged = json.load(f)
+else:
+    merged = {}
+
+merged["result_file"] = partial_file
+merged["partial_file"] = partial_file
+merged["combined_file"] = combined_file
+
+with open(output_path, "w") as f:
+    json.dump(merged, f, indent=2)
+        </configfile>
     </configfiles>
 
     <outputs>
         <data format="txt" name="output" label="Reduction Console Output"></data>
         <data format="txt" name="reflectivity" label="Reflectivity File"></data>
         <data format="txt" name="identifier" label="Dataset Identifier"></data>
+        <data format="json" name="updated_config" label="Updated JSON Configuration"></data>
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
@@ -52,10 +87,27 @@ with open('_env.sh', 'w') as f:
         ln -s \$OUTPUT_DIR output &&
         export HOME=/root &&
         ln -s \$DATA_DIR /app/data &&
-        pixi run --as-is --manifest-path /app python /app/scripts/mantid/simple_reduction.py --event-file \$EVENT_FILE --template \$TEMPLATE --output-dir output 
+        REDUCTION_SUMMARY="output/reduction_summary_\${RANDOM}_\$(date +%s%N).json" &&
+        pixi run --as-is --manifest-path /app simple-reduction
+                --event-file \$EVENT_FILE
+                --template \$TEMPLATE
+                --output-dir output
+                --json "\$REDUCTION_SUMMARY"
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
         cat output/.last_reduced_set > $identifier &&
-        export REFLECTIVITY_FILE="\${REFLECTIVITY_FILE:-REFL_\$(cat $identifier)_combined_data_auto.txt}" &&
-        cat output/\$REFLECTIVITY_FILE > $reflectivity
+        COMBINED_FILE=`pixi run --as-is --manifest-path /app python -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get('combined_file') or '')" "\$REDUCTION_SUMMARY"` &&
+        if [ -z "\$COMBINED_FILE" ] || [ ! -f "\$COMBINED_FILE" ]; then
+            echo "reducer did not report a usable combined_file in \$REDUCTION_SUMMARY" | tee -a $output >&2;
+            exit 1;
+        fi &&
+        cat "\$COMBINED_FILE" > $reflectivity &&
+        pixi run --as-is --manifest-path /app python '$merge_config_script'
+                #if $config_json
+                    '$config_json'
+                #else
+                    ''
+                #end if
+                "\$REDUCTION_SUMMARY"
+                '$updated_config'
     ]]></command>
 </tool>
