@@ -1,0 +1,106 @@
+<tool id="neutrons_isaac_simple_analyzer" name="Simple Analyzer" version="0.1.0" profile="22.01">
+    <description>Simple automated analysis tool for reflectivity data using LLM models.</description>
+    <creator>
+        <person name="Mat Doucet"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-c9e3f51</container>
+        <credentials name="llm_credentials" version="1.0"
+                     label="LLM Credentials"
+                     description="Credentials for accessing LLM API.">
+            <secret name="llm_api_key"
+                    inject_as_env="LLM_API_KEY"
+                    optional="false"
+                    label="LLM API Key"
+                    description="Your LLM API key."/>
+        </credentials>
+    </requirements>
+    <inputs>
+        <param name="reflectivity_file" type="data" format="txt" label="Reflectivity File"
+               help="A partial reflectivity file (REFL_{seq}_{part}_{run}_partial.txt)."/>
+        <param name="context_file" type="data" format="txt,markdown" label="Sample Context (Markdown)" optional="true"
+               help="Free-form Markdown note describing the sample stack, ambient medium, and any fitting hints. Consumed by plan-data."/>
+        <param name="sequence_total" type="integer" value="3" min="1" label="Parts per complete sequence"
+               help="Expected number of partial files in a complete sequence."/>
+        <param name="llm_provider" type="text" value="local" label="LLM Provider"/>
+        <param name="llm_model" type="text" value="gpt-4" label="LLM Model"/>
+        <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
+        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true"
+               help="Optional JSON file overriding llm_provider / llm_model / llm_base_url."/>
+    </inputs>
+
+    <configfiles>
+        <configfile name="parse_config_script">
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+with open('_env.sh', 'w') as f:
+    f.write('export LLM_PROVIDER="%s"\n' % d.get('llm_provider', sys.argv[2]))
+    f.write('export LLM_MODEL="%s"\n' % d.get('llm_model', sys.argv[3]))
+    f.write('export LLM_BASE_URL="%s"\n' % d.get('llm_base_url', sys.argv[4]))
+    f.write('export SEQUENCE_TOTAL="%s"\n' % d.get('sequence_total', sys.argv[5]))
+    f.write('export CONTEXT_FILE="%s"\n' % d.get('context_file', sys.argv[6]))
+        </configfile>
+        <configfile name="check_assembly_script">
+import sys, yaml
+with open(sys.argv[1]) as f:
+    cfg = yaml.safe_load(f) or {}
+meta = cfg.get('metadata') or {}
+sys.stdout.write('1' if meta.get('perform_assembly') else '0')
+        </configfile>
+    </configfiles>
+
+    <outputs>
+        <data format="txt" name="output" label="Analyzer Console Output"></data>
+        <data name="output_model" format="txt" label="Analyzer Model"></data>
+    </outputs>
+    <command detect_errors="exit_code"><![CDATA[
+        #if $config_json
+            python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' &&
+            . _env.sh &&
+        #else
+            export LLM_PROVIDER='$llm_provider' &&
+            export LLM_MODEL='$llm_model' &&
+            export LLM_BASE_URL='$llm_base_url' &&
+            export SEQUENCE_TOTAL='$sequence_total' &&
+            export CONTEXT_FILE='$context_file' &&
+        #end if
+
+        mkdir -p ./output/plan ./output/models ./output/results ./output/reports &&
+        export ANALYZER_MODELS_DIR=`pwd`/output/models &&
+        export ANALYZER_RESULTS_DIR=`pwd`/output/results &&
+        export ANALYZER_REPORTS_DIR=`pwd`/output/reports &&
+
+        echo "=== plan-data ===" | tee -a $output &&
+        plan-data '$reflectivity_file' "\$CONTEXT_FILE"
+                --output-dir ./output/plan
+                --sequence-total "\$SEQUENCE_TOTAL"
+                > >(tee -a $output) 2> >(tee -a $output >&2) &&
+
+        JOB_YAML=`ls -t ./output/plan/job_*.yaml 2>/dev/null | head -n 1` &&
+        if [ -z "\$JOB_YAML" ]; then
+            echo "plan-data did not produce a job YAML" | tee -a $output >&2;
+            exit 1;
+        fi &&
+        echo "plan-data produced: \$JOB_YAML" | tee -a $output &&
+        cat "\$JOB_YAML" | tee -a $output &&
+
+        PERFORM_ASSEMBLY=`python '$check_assembly_script' "\$JOB_YAML"` &&
+
+        if [ "\$PERFORM_ASSEMBLY" = "1" ]; then
+            echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
+            analyze-sample "\$JOB_YAML" --no-reduction-gate
+                    > >(tee -a $output) 2> >(tee -a $output >&2);
+        else
+            echo "metadata.perform_assembly is false; skipping analyze-sample." | tee -a $output;
+        fi &&
+
+        LATEST_MODEL=`ls -t ./output/models/*.py 2>/dev/null | head -n 1` &&
+        if [ -n "\$LATEST_MODEL" ]; then
+            cat "\$LATEST_MODEL" > $output_model;
+        else
+            cp "\$JOB_YAML" $output_model;
+        fi
+    ]]></command>
+</tool>
