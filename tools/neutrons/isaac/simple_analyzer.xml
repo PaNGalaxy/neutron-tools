@@ -26,7 +26,7 @@
         <param name="llm_provider" type="text" value="local" label="LLM Provider"/>
         <param name="llm_model" type="text" value="gpt-4" label="LLM Model"/>
         <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
-        <param name="output_dir" type="text" value="./output" label="Output Directory"/
+        <param name="output_dir" type="text" value="./output" label="Output Directory"/>
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true"
                help="Optional JSON file overriding llm_provider / llm_model / llm_base_url."/>
     </inputs>
