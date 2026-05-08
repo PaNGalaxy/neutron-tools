@@ -76,6 +76,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         export ANALYZER_REPORTS_DIR="\$OUTPUT_DIR"/reports &&
 
         echo "=== plan-data ===" | tee -a $output &&
+        echo "Using context file: \$CONTEXT_FILE" | tee -a $output &&
         plan-data '$reflectivity_file' "\$CONTEXT_FILE"
                 --output-dir "\$OUTPUT_DIR"/plan
                 --sequence-total "\$SEQUENCE_TOTAL"
