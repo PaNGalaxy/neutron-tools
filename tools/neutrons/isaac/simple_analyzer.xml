@@ -52,11 +52,43 @@ with open(sys.argv[1]) as f:
 meta = cfg.get('metadata') or {}
 sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         </configfile>
+        <configfile name="merge_config_script">
+"""Merge the input config_json with analyzer results.
+
+argv: input_config_json analyze_exit_code final_model_path output_path
+
+Adds two keys to the (possibly empty) input config:
+  - model_available: True if analyze-sample exited with code 0, else False.
+  - final_model: filesystem path to the analyzer's output_model dataset.
+"""
+import json, os, sys
+
+input_config_path = sys.argv[1] if sys.argv[1] else None
+try:
+    analyze_exit = int(sys.argv[2])
+except (ValueError, IndexError):
+    analyze_exit = 1
+final_model_path = sys.argv[3]
+output_path = sys.argv[4]
+
+if input_config_path and os.path.isfile(input_config_path):
+    with open(input_config_path) as f:
+        merged = json.load(f)
+else:
+    merged = {}
+
+merged["model_available"] = (analyze_exit == 0)
+merged["final_model"] = final_model_path
+
+with open(output_path, "w") as f:
+    json.dump(merged, f, indent=2)
+        </configfile>
     </configfiles>
 
     <outputs>
         <data format="txt" name="output" label="Analyzer Console Output"></data>
         <data name="output_model" format="txt" label="Analyzer Model"></data>
+        <data format="json" name="updated_config" label="Updated JSON Configuration"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
@@ -106,17 +138,17 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
             echo "ANALYZER_REPORTS_DIR=\$ANALYZER_REPORTS_DIR" | tee -a $output &&
             echo "--- analyze-sample stdout/stderr ---" | tee -a $output &&
             set -o pipefail;
-            analyze-sample "\$JOB_YAML" --no-reduction-gate
+            analyze-sample "\$JOB_YAML" --no-reduction-gate 
                     > >(tee -a $output) 2> >(tee -a $output >&2);
             ANALYZE_EXIT=\$?;
             set +o pipefail;
             echo "--- analyze-sample exit code: \$ANALYZE_EXIT ---" | tee -a $output;
             if [ "\$ANALYZE_EXIT" -ne 0 ]; then
-                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_EXIT" | tee -a $output >&2;
-                exit \$ANALYZE_EXIT;
+                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_EXIT (continuing to emit updated_config with model_available=false)" | tee -a $output >&2;
             fi;
         else
             echo "metadata.perform_assembly is false; skipping analyze-sample." | tee -a $output;
+            ANALYZE_EXIT=1;
         fi &&
 
         echo "=== post-run inventory ===" | tee -a $output &&
@@ -135,6 +167,17 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
             echo "WARNING: No model script (*.py) was produced in \$OUTPUT_DIR/models." | tee -a $output >&2;
             echo "         analyze-sample completed without writing a model. Falling back to job YAML as output_model." | tee -a $output >&2;
             cp "\$JOB_YAML" $output_model;
-        fi
+            ANALYZE_EXIT=1;
+        fi &&
+
+        python '$merge_config_script'
+                #if $config_json
+                    '$config_json'
+                #else
+                    ''
+                #end if
+                "\$ANALYZE_EXIT"
+                '$output_model'
+                '$updated_config'
     ]]></command>
 </tool>
