@@ -76,6 +76,8 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         export ANALYZER_MODELS_DIR="\$OUTPUT_DIR"/models &&
         export ANALYZER_RESULTS_DIR="\$OUTPUT_DIR"/results &&
         export ANALYZER_REPORTS_DIR="\$OUTPUT_DIR"/reports &&
+        export ANALYZER_PARTIAL_DATA_DIR="\$OUTPUT_DIR" &&
+        export ANALYZER_COMBINED_DATA_DIR="\$OUTPUT_DIR" &&
 
         echo "=== plan-data ===" | tee -a $output &&
         echo "Using reflectivity file: \$REFLECTIVITY_FILE" | tee -a $output &&
