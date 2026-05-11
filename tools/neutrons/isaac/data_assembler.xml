@@ -20,8 +20,15 @@
 import json, sys
 with open(sys.argv[1]) as f:
     d = json.load(f)
+_, _, default_output_dir, default_reflectivity, default_model = (sys.argv + [''] * 5)[:5]
+default_output_dir = default_output_dir or 'output'
 with open('_env.sh', 'w') as f:
-    f.write('export OUTPUT_DIR="%s/assembled"\n' % d.get('output_directory', 'output'))
+    f.write('export OUTPUT_DIR="%s/assembled"\n' % d.get('output_directory', default_output_dir))
+    f.write('export CFG_REFLECTIVITY="%s"\n' % (d.get('result_file') or default_reflectivity))
+    f.write('export CFG_FINAL_MODEL="%s"\n' % (d.get('final_model') or default_model))
+    # If model_available is missing, fall back to whether a model path is available.
+    model_available = d.get('model_available', bool(d.get('final_model') or default_model))
+    f.write('export CFG_MODEL_AVAILABLE="%s"\n' % ('1' if model_available else '0'))
         </configfile>
     </configfiles>
 
@@ -32,20 +39,51 @@ with open('_env.sh', 'w') as f:
 
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            python '$parse_config_script' '$config_json' &&
+            python '$parse_config_script' '$config_json' 'output' '$reflectivity' '$model' &&
             . _env.sh &&
         #else
             export OUTPUT_DIR='output/assembled' &&
+            export CFG_REFLECTIVITY='$reflectivity' &&
+            export CFG_FINAL_MODEL='$model' &&
+            export CFG_MODEL_AVAILABLE='1' &&
         #end if
+        REFLECTIVITY_INPUT="\$CFG_REFLECTIVITY" &&
+        if [ -z "\$REFLECTIVITY_INPUT" ] || [ ! -f "\$REFLECTIVITY_INPUT" ]; then
+            echo "Falling back to reflectivity tool input." | tee -a $output;
+            REFLECTIVITY_INPUT='$reflectivity';
+        else
+            echo "Using reflectivity: \$REFLECTIVITY_INPUT" | tee -a $output;
+        fi &&
+        MODEL_INPUT="\$CFG_FINAL_MODEL" &&
+        USE_MODEL=1 &&
+        if [ "\$CFG_MODEL_AVAILABLE" != "1" ]; then
+            echo "model_available=false; skipping -m option to data-assembler ingest." | tee -a $output;
+            USE_MODEL=0;
+        else
+            if [ -z "\$MODEL_INPUT" ] || [ ! -f "\$MODEL_INPUT" ]; then
+                echo "Falling back to model tool input." | tee -a $output;
+                MODEL_INPUT='$model';
+            else
+                echo "Using model: \$MODEL_INPUT" | tee -a $output;
+            fi;
+        fi &&
         mkdir -p \$OUTPUT_DIR &&
         mkdir parquet &&
         tar -xzvf $parquet -C parquet &&
-        data-assembler ingest
-                        -r $reflectivity
-                        -p parquet
-                        -m $model
-                        -o output
-                > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        if [ "\$USE_MODEL" = "1" ]; then
+            data-assembler ingest
+                            -r "\$REFLECTIVITY_INPUT"
+                            -p parquet
+                            -m "\$MODEL_INPUT"
+                            -o output
+                    > >(tee -a $output) 2> >(tee -a $output >&2);
+        else
+            data-assembler ingest
+                            -r "\$REFLECTIVITY_INPUT"
+                            -p parquet
+                            -o output
+                    > >(tee -a $output) 2> >(tee -a $output >&2);
+        fi &&
         tar -czvf $out_gz -C output .
 
     ]]></command>
