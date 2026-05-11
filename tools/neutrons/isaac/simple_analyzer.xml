@@ -106,7 +106,7 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
             echo "ANALYZER_REPORTS_DIR=\$ANALYZER_REPORTS_DIR" | tee -a $output &&
             echo "--- analyze-sample stdout/stderr ---" | tee -a $output &&
             set -o pipefail;
-            analyze-sample "\$JOB_YAML" --no-reduction-gate -v
+            analyze-sample "\$JOB_YAML" --no-reduction-gate
                     > >(tee -a $output) 2> >(tee -a $output >&2);
             ANALYZE_EXIT=\$?;
             set +o pipefail;
