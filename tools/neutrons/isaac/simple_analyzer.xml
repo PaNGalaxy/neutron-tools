@@ -96,19 +96,44 @@ sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         cat "\$JOB_YAML" | tee -a $output &&
 
         PERFORM_ASSEMBLY=`python '$check_assembly_script' "\$JOB_YAML"` &&
+        echo "metadata.perform_assembly resolved to: \$PERFORM_ASSEMBLY (1=run analyze-sample, 0=skip)" | tee -a $output &&
 
         if [ "\$PERFORM_ASSEMBLY" = "1" ]; then
             echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
-            analyze-sample "\$JOB_YAML" --no-reduction-gate
+            echo "Command: analyze-sample \$JOB_YAML --no-reduction-gate" | tee -a $output &&
+            echo "ANALYZER_MODELS_DIR=\$ANALYZER_MODELS_DIR" | tee -a $output &&
+            echo "ANALYZER_RESULTS_DIR=\$ANALYZER_RESULTS_DIR" | tee -a $output &&
+            echo "ANALYZER_REPORTS_DIR=\$ANALYZER_REPORTS_DIR" | tee -a $output &&
+            echo "--- analyze-sample stdout/stderr ---" | tee -a $output &&
+            set -o pipefail;
+            analyze-sample "\$JOB_YAML" --no-reduction-gate -v
                     > >(tee -a $output) 2> >(tee -a $output >&2);
+            ANALYZE_EXIT=\$?;
+            set +o pipefail;
+            echo "--- analyze-sample exit code: \$ANALYZE_EXIT ---" | tee -a $output;
+            if [ "\$ANALYZE_EXIT" -ne 0 ]; then
+                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_EXIT" | tee -a $output >&2;
+                exit \$ANALYZE_EXIT;
+            fi;
         else
             echo "metadata.perform_assembly is false; skipping analyze-sample." | tee -a $output;
         fi &&
 
+        echo "=== post-run inventory ===" | tee -a $output &&
+        echo "Contents of \$OUTPUT_DIR/models:" | tee -a $output &&
+        (ls -la "\$OUTPUT_DIR"/models 2>&1 || true) | tee -a $output &&
+        echo "Contents of \$OUTPUT_DIR/results:" | tee -a $output &&
+        (ls -la "\$OUTPUT_DIR"/results 2>&1 || true) | tee -a $output &&
+        echo "Contents of \$OUTPUT_DIR/reports:" | tee -a $output &&
+        (ls -la "\$OUTPUT_DIR"/reports 2>&1 || true) | tee -a $output &&
+
         LATEST_MODEL=`ls -t "\$OUTPUT_DIR"/models/*.py 2>/dev/null | head -n 1` &&
         if [ -n "\$LATEST_MODEL" ]; then
+            echo "Selected model script: \$LATEST_MODEL" | tee -a $output;
             cat "\$LATEST_MODEL" > $output_model;
         else
+            echo "WARNING: No model script (*.py) was produced in \$OUTPUT_DIR/models." | tee -a $output >&2;
+            echo "         analyze-sample completed without writing a model. Falling back to job YAML as output_model." | tee -a $output >&2;
             cp "\$JOB_YAML" $output_model;
         fi
     ]]></command>
