@@ -5,9 +5,8 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/sergeyyakubov/data-assembler:sha-e55c444</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/data-assembler:sha-90ea028</container>
     </requirements>
-
     <inputs>
         <param name="reflectivity" type="data" format="txt"  label="Reflectivity File"></param>
         <param name="parquet" type="data" format="gz" label="Parquet files"></param>
@@ -76,12 +75,16 @@ with open('_env.sh', 'w') as f:
                             -p parquet
                             -m "\$MODEL_INPUT"
                             -o output
+                    > >(tee -a $output) 2> >(tee -a $output >&2) &&
+            nr-isaac-format convert-ingest output
                     > >(tee -a $output) 2> >(tee -a $output >&2);
         else
             data-assembler ingest
                             -r "\$REFLECTIVITY_INPUT"
                             -p parquet
                             -o output
+                    > >(tee -a $output) 2> >(tee -a $output >&2) &&
+            nr-isaac-format convert-ingest output
                     > >(tee -a $output) 2> >(tee -a $output >&2);
         fi &&
         tar -czvf $out_gz -C output .
