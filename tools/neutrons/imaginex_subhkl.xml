@@ -73,7 +73,7 @@
 			#set $options = $options + " --refine-detector-banks " + str($refineDetectorBanks) + " "
 		#end if 
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --chunk-size $chunk --num-iters $iterations --top-k $topK --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --num-iters $iterations --top-k $topK --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
     ]]></command>
     <inputs>
@@ -130,7 +130,6 @@
 		<param name="dMin" type="float" optional="true" value="" label="D Min" /> 
 		<param name="dMax" type="float" optional="true" value="" label="D Max" /> 
 		<param name="batch" type="integer" optional="true" value="" label="Batch Size" /> 
-		<param name="chunk" type="integer" value="256" label="Chunk Size" /> 
 		<param name="iterations" type="integer" value="20" label="# of Iterations" /> 
 		<param name="topK" type="integer" value="32" label="Top K" /> 
 		<param name="bSharpen" type="float" optional="true" value="" label="Wilson B-Factor" /> 
