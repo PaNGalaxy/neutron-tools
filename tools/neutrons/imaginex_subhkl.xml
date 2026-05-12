@@ -19,13 +19,10 @@
 			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
 		#end if
 		#if $kiVec != "":
-			#set $options = $options + " --ki-vector " + $kiVec + " "
-		#end if
-		#if $goniometer != "":
 			#set $test = ""
-			##mv "$goniometer" "$goniometer.element_identifier" ;  
-			###set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
+			##set $options = $options + " --ki-vector " + $kiVec + " "
 		#end if
+
 
 
 
