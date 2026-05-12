@@ -69,7 +69,7 @@
 		#if $refineDetector:
 			#set $options = $options + " --refine-detector "
 		#end if
-		#if $refineDetectorBanks:
+		#if $refineDetectorBanks != "":
 			#set $options = $options + " --refine-detector-banks " + $refineDetectorBanks + " "
 		#end if 
 
