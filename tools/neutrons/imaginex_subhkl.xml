@@ -21,9 +21,10 @@
 		#if $kiVec != "":
 			#set $options = $options + " --ki-vector " + $kiVec + " "
 		#end if
-		#if $goniometer != "":
-			mv "$goniometer" "$goniometer.element_identifier" ;  
-			#set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
+		#if $goniometer:
+			#set $test = ""
+			##mv "$goniometer" "$goniometer.element_identifier" ;  
+			###set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
 		#end if
 
 
