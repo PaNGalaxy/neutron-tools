@@ -73,7 +73,7 @@
 			#set $options = $options + " --refine-detector-banks " + str($refineDetectorBanks) + " "
 		#end if 
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
     ]]></command>
     <inputs>
@@ -129,7 +129,6 @@
 		<param format="h5" name="bootstrap" type="data" optional="true" label="Bootstrap file to restart refinement from" />
 		<param name="dMin" type="float" optional="true" value="" label="D Min" /> 
 		<param name="dMax" type="float" optional="true" value="" label="D Max" /> 
-		<param name="hkl" type="integer" value="20" label="HKL Search Range" /> 
 		<param name="windowSize" type="integer" value="512" label="Search Window Size" /> 
 		<param name="batch" type="integer" optional="true" value="" label="Batch Size" /> 
 		<param name="windowBatch" type="integer" value="32" label="Window Batch Size" /> 
