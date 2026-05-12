@@ -15,6 +15,9 @@
 		#if $wavelengthMin:
 			#set $options = $options + " --wavelength-min " + str($wavelengthMin) + " " 
 		#end if
+		#if $wavelengthMax:
+			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
+		#end if
 
 
 
