@@ -73,7 +73,7 @@
 			#set $options = $options + " --refine-detector-banks " + str($refineDetectorBanks) + " "
 		#end if 
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
     ]]></command>
     <inputs>
