@@ -12,19 +12,6 @@
 		
 		#set $options = ""
 		
-		#if $wavelengthMin:
-			#set $options = $options + " --wavelength-min " + str($wavelengthMin) + " " 
-		#end if
-		#if $wavelengthMax:
-			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
-		#end if
-		#if $kiVec:
-			#set $options = $options + " --ki-vector " + $kiVec + " "
-		#end if
-		#if $goniometer:
-			mv "$goniometer" "$goniometer.element_identifier" ;  
-			#set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
-		#end if
 
 
 
