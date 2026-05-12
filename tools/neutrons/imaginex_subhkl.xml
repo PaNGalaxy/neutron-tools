@@ -18,7 +18,9 @@
 		#if $wavelengthMax:
 			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
 		#end if
-
+		#if $kiVec:
+			#set $options = $options + " --ki-vector " + $kiVec + " "
+		#end if
 
 
 
