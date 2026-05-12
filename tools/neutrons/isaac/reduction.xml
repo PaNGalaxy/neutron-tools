@@ -60,6 +60,8 @@ else:
 merged["result_file"] = partial_file
 merged["partial_file"] = partial_file
 merged["combined_file"] = combined_file
+if merged.get("event_file"):
+    merged["raw_data"] = merged["event_file"]
 
 with open(output_path, "w") as f:
     json.dump(merged, f, indent=2)
@@ -107,6 +109,7 @@ with open(output_path, "w") as f:
                     ''
                 #end if
                 "\$REDUCTION_SUMMARY"
-                '$updated_config'
+                '$updated_config' &&
+        rm -f "\$REDUCTION_SUMMARY"
     ]]></command>
 </tool>
