@@ -19,10 +19,59 @@
 			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
 		#end if
 		#if $kiVec != "":
-			#set $options = $options + " --ki-vector " + str($kiVec) + " "
+			#set $options = $options + " --ki-vector " + $kiVec + " "
 		#end if
-
-
+		#if $goniometer:
+			mv "$goniometer" "$goniometer.element_identifier" ;  
+			#set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
+		#end if
+		#if $nexus:
+			mv "$nexus" "$nexus.element_identifier" ;  
+			#set $options = $options + " --original_nexus_filename " + str($nexus.element_identifier) + " " 
+		#end if
+		#if $sigmaInit:
+			#set $options = $options + " --sigma-init " + str($sigmaInit) + " " 
+		#end if
+		#if $freeze:
+			#set $options = $options + " --freeze-orientation "
+		#end if
+		#if $goniometerAxes:
+			#set $options = $options + " --refine-goniometer-axes " + str($goniometerAxes) + " " 
+		#end if
+		#if $bootstrap:
+			mv "$bootstrap" "$bootstrap.element_identifier" ;  
+			#set $options = $options + " --bootstrap " + str($bootstrap.element_identifier) + " " 
+		#end if
+		#if $dMin:
+			#set $options = $options + " --d-min " + str($dMin) + " " 
+		#end if
+		#if $dMax:
+			#set $options = $options + " --d-max " + str($dMax) + " " 
+		#end if
+		#if $batch:
+			#set $options = $options + " --batch-size " + str($batch) + " " 
+		#end if
+		#if $bSharpen:
+			#set $options = $options + " --b-sharpen " + str($bSharpen) + " " 
+		#end if
+		#if $lattice:
+			#set $options = $options + " --refine-lattice "
+		#end if
+		#if $refineGoniometer:
+			#set $options = $options + " --refine-goniometer "
+		#end if
+		#if $refineSample:
+			#set $options = $options + " --refine-sample "
+		#end if
+		#if $refineBeam:
+			#set $options = $options + " --refine-beam "
+		#end if
+		#if $refineDetector:
+			#set $options = $options + " --refine-detector "
+		#end if
+		#if $refineDetectorBanks:
+			#set $options = $options + " --refine-detector-banks " + $refineDetectorBanks + " "
+		#end if 
 
 		##python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $degreeGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
@@ -38,7 +87,7 @@
 		<param name="gamma" type="float" value="90.0" label="Gamma" /> 
 	    <param name="wavelengthMin" type="float" optional="true" value="2.0" label="Min Wavelength" /> 
 		<param name="wavelengthMax" type="float" optional="true" value="4.5" label="Max Wavelength" /> 
-		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1')" /> 
+		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1'" /> 
 		<param name="loss" type="select" optional="false" value="gaussian" label="Loss Method" > 
 			<option value="cosine">Cosine</option>
 			<option value="direct">Direct</option>
