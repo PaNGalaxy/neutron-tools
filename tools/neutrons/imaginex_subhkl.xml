@@ -51,27 +51,7 @@
 		#if $batch:
 			#set $options = $options + " --batch-size " + str($batch) + " " 
 		#end if
-		#if $bSharpen:
-			#set $options = $options + " --b-sharpen " + str($bSharpen) + " " 
-		#end if
-		#if $lattice:
-			#set $options = $options + " --refine-lattice "
-		#end if
-		#if $refineGoniometer:
-			#set $options = $options + " --refine-goniometer "
-		#end if
-		#if $refineSample:
-			#set $options = $options + " --refine-sample "
-		#end if
-		#if $refineBeam:
-			#set $options = $options + " --refine-beam "
-		#end if
-		#if $refineDetector:
-			#set $options = $options + " --refine-detector "
-		#end if
-		#if $refineDetectorBanks != "":
-			#set $options = $options + " --refine-detector-banks " + $refineDetectorBanks + " "
-		#end if 
+
 
 		##python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $a $b $c $alpha $beta $gamma $space  $options --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --loss-method $loss --hkl-search-range $hkl --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --search-window-size $windowSize --window-batch-size $windowBatch --chunk-size $chunk --num-iters $iterations --top-k $topK --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans --detector-rot-bound-deg $detectorRot --detector-global-tor-bound-deg $degreeGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
