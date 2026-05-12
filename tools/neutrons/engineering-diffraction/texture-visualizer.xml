@@ -3,7 +3,7 @@
 
     <description>Texture Visualizer - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/texture-visualizer/prototypes:d39fa22b6f2e3c0ccc1488ecf034df918d176db6</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/texture-visualizer/prototypes:14b7f283d06d958c10811f638599e481fb323a9e</container>
     </requirements>
     <entry_points>
         <entry_point name="Texture Visualizer" label="app_entry" requires_domain="False" requires_path_in_url="True">
@@ -17,8 +17,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
-        supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
-
+        pixi run -e production -m /src/pyproject.toml supervisord > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
