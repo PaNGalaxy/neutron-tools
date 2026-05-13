@@ -3,7 +3,7 @@
 
     <description>Texture Visualizer - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/texture-visualizer/prototypes:14b7f283d06d958c10811f638599e481fb323a9e</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/texture-visualizer/prototypes:dcb0dbcd5d5cd17e69a53a3d79c1932ade9e91fb</container>
     </requirements>
     <entry_points>
         <entry_point name="Texture Visualizer" label="app_entry" requires_domain="False" requires_path_in_url="True">
