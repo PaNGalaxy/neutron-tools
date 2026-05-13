@@ -1,4 +1,4 @@
-<tool id="nexus_data_assembler" name="Data Assembler" version="0.1.1" profile="22.01">
+<tool id="nexus_data_assembler" name="Data Assembler" version="0.1.2" profile="22.01">
     <description>Assembles data from reflectivity, parquet files, and analyzer model into a single AI-ready output.</description>
     <creator>
         <person name="Mat Doucet"/>
@@ -95,7 +95,7 @@ with open('_env.sh', 'w') as f:
                 echo "Using model: \$MODEL_INPUT" | tee -a $output;
             fi;
         fi &&
-        mkdir -p \$OUTPUT_DIR &&
+        mkdir -p "\$OUTPUT_DIR" &&
         #if $parquet
             mkdir parquet &&
             tar -xzvf $parquet -C parquet &&
@@ -108,9 +108,9 @@ with open('_env.sh', 'w') as f:
                             #end if
                             -m "\$MODEL_INPUT"
                             --nexus-file "\$CFG_RAW_DATA"
-                            -o output
+                            -o "\$OUTPUT_DIR"
                     > >(tee -a $output) 2> >(tee -a $output >&2) &&
-            nr-isaac-format convert-ingest output
+            nr-isaac-format convert-ingest "\$OUTPUT_DIR"
                             --raw "\$CFG_RAW_DATA"
                     > >(tee -a $output) 2> >(tee -a $output >&2);
         else
@@ -120,13 +120,13 @@ with open('_env.sh', 'w') as f:
                                 -p parquet
                             #end if
                             --nexus-file "\$CFG_RAW_DATA"
-                            -o output
+                            -o "\$OUTPUT_DIR"
                     > >(tee -a $output) 2> >(tee -a $output >&2) &&
-            nr-isaac-format convert-ingest output
+            nr-isaac-format convert-ingest "\$OUTPUT_DIR"
                             --raw "\$CFG_RAW_DATA"
                     > >(tee -a $output) 2> >(tee -a $output >&2);
         fi &&
-        tar -czvf $out_gz -C output .
+        tar -czvf $out_gz -C "\$OUTPUT_DIR" .
 
     ]]></command>
 </tool>
