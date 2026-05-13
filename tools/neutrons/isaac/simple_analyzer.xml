@@ -163,10 +163,12 @@ with open(output_path, "w") as f:
         if [ -n "\$LATEST_MODEL" ]; then
             echo "Selected model script: \$LATEST_MODEL" | tee -a $output;
             cat "\$LATEST_MODEL" > $output_model;
+            FINAL_MODEL_PATH="\$LATEST_MODEL";
         else
             echo "WARNING: No model script (*.py) was produced in \$OUTPUT_DIR/models." | tee -a $output >&2;
             echo "         analyze-sample completed without writing a model. Falling back to job YAML as output_model." | tee -a $output >&2;
             cp "\$JOB_YAML" $output_model;
+            FINAL_MODEL_PATH="\$JOB_YAML";
             ANALYZE_EXIT=1;
         fi &&
 
@@ -177,7 +179,7 @@ with open(output_path, "w") as f:
                     ''
                 #end if
                 "\$ANALYZE_EXIT"
-                '$output_model'
+                "\$FINAL_MODEL_PATH"
                 '$updated_config'
     ]]></command>
 </tool>
