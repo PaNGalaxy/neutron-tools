@@ -52,6 +52,16 @@ with open(sys.argv[1]) as f:
 meta = cfg.get('metadata') or {}
 sys.stdout.write('1' if meta.get('perform_assembly') else '0')
         </configfile>
+        <configfile name="get_model_name_script">
+import sys, yaml
+with open(sys.argv[1]) as f:
+    cfg = yaml.safe_load(f) or {}
+name = cfg.get('model_name')
+if not name:
+    meta = cfg.get('metadata') or {}
+    name = meta.get('model_name')
+sys.stdout.write(name or '')
+        </configfile>
         <configfile name="merge_config_script">
 """Merge the input config_json with analyzer results.
 
@@ -159,14 +169,19 @@ with open(output_path, "w") as f:
         echo "Contents of \$OUTPUT_DIR/reports:" | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/reports 2>&1 || true) | tee -a $output &&
 
-        LATEST_MODEL=`ls -t "\$OUTPUT_DIR"/models/*.py 2>/dev/null | head -n 1` &&
-        if [ -n "\$LATEST_MODEL" ]; then
-            echo "Selected model script: \$LATEST_MODEL" | tee -a $output;
-            cat "\$LATEST_MODEL" > $output_model;
-            FINAL_MODEL_PATH="\$LATEST_MODEL";
+        MODEL_NAME=`python '$get_model_name_script' "\$JOB_YAML"` &&
+        echo "model_name from plan: \$MODEL_NAME" | tee -a $output &&
+        PROBLEM_JSON="" &&
+        if [ -n "\$MODEL_NAME" ] && [ -f "\$OUTPUT_DIR/results/\$MODEL_NAME/problem.json" ]; then
+            PROBLEM_JSON="\$OUTPUT_DIR/results/\$MODEL_NAME/problem.json";
+        fi &&
+        if [ -n "\$PROBLEM_JSON" ]; then
+            echo "Selected problem.json: \$PROBLEM_JSON" | tee -a $output;
+            cat "\$PROBLEM_JSON" > $output_model;
+            FINAL_MODEL_PATH="\$PROBLEM_JSON";
         else
-            echo "WARNING: No model script (*.py) was produced in \$OUTPUT_DIR/models." | tee -a $output >&2;
-            echo "         analyze-sample completed without writing a model. Falling back to job YAML as output_model." | tee -a $output >&2;
+            echo "WARNING: No problem.json was produced at \$OUTPUT_DIR/results/\$MODEL_NAME/problem.json." | tee -a $output >&2;
+            echo "         analyze-sample completed without writing a problem file. Falling back to job YAML as output_model." | tee -a $output >&2;
             cp "\$JOB_YAML" $output_model;
             FINAL_MODEL_PATH="\$JOB_YAML";
             ANALYZE_EXIT=1;
