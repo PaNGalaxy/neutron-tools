@@ -84,7 +84,7 @@ with open(env_path, "w") as f:
         <data format="json" name="updated_config" label="Updated JSON Configuration"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
-        #if $config_json
+        #if $config_json and str($config_json) != "None"
             python '$state_env' '$config_json' _env.sh &&
             . _env.sh &&
         #else
@@ -92,10 +92,25 @@ with open(env_path, "w") as f:
             export LLM_MODEL='$llm_model' &&
             export LLM_BASE_URL='$llm_base_url' &&
             export SEQUENCE_TOTAL='$sequence_total' &&
-            export CONTEXT_FILE='$context_file' &&
             export OUTPUT_DIR='$output_dir' &&
             export REFLECTIVITY_FILE='$reflectivity_file' &&
+            #if $context_file and str($context_file) != "None"
+                export CONTEXT_FILE='$context_file' &&
+            #else
+                export CONTEXT_FILE='' &&
+            #end if
         #end if
+
+        if [ -z "\$REFLECTIVITY_FILE" ] || [ "\$REFLECTIVITY_FILE" = "None" ] || [ ! -f "\$REFLECTIVITY_FILE" ]; then
+            echo "ERROR: reflectivity file is missing or unreadable: '\$REFLECTIVITY_FILE'" | tee -a $output >&2;
+            echo "       Connect a config_json with reduction.result_file set, or supply the Reflectivity File input." | tee -a $output >&2;
+            exit 1;
+        fi &&
+        if [ -z "\$CONTEXT_FILE" ] || [ "\$CONTEXT_FILE" = "None" ] || [ ! -f "\$CONTEXT_FILE" ]; then
+            echo "ERROR: context file is missing or unreadable: '\$CONTEXT_FILE'" | tee -a $output >&2;
+            echo "       Connect a config_json with paths.context_file set, or supply the Sample Context input." | tee -a $output >&2;
+            exit 1;
+        fi &&
 
         mkdir -p "\$OUTPUT_DIR"/plan "\$OUTPUT_DIR"/models "\$OUTPUT_DIR"/results "\$OUTPUT_DIR"/reports &&
         export ANALYZER_MODELS_DIR="\$OUTPUT_DIR"/models &&
@@ -112,7 +127,7 @@ with open(env_path, "w") as f:
         plan-data "\$REFLECTIVITY_FILE" "\$CONTEXT_FILE"
                 --output-dir "\$OUTPUT_DIR"/plan
                 --sequence-total "\$SEQUENCE_TOTAL"
-                #if $config_json
+                #if $config_json and str($config_json) != "None"
                     --state-in '$config_json'
                 #end if
                 --state-out "\$PLAN_STATE"
