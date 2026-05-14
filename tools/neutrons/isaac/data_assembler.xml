@@ -1,132 +1,112 @@
-<tool id="nexus_data_assembler" name="Data Assembler" version="0.1.2" profile="22.01">
+<tool id="nexus_data_assembler" name="Data Assembler" version="0.3.0" profile="22.01">
     <description>Assembles data from reflectivity, parquet files, and analyzer model into a single AI-ready output.</description>
     <creator>
         <person name="Mat Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/data-assembler:sha-a13727c</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/data-assembler:sha-d378fd8</container>
     </requirements>
     <inputs>
-        <param name="reflectivity" type="data" format="txt"  label="Reflectivity File" optional="true" help="Required unless provided via the JSON Configuration as 'result_file'."></param>
+        <param name="reflectivity" type="data" format="txt"  label="Reflectivity File" optional="true" help="Required unless provided via the v1 state JSON as 'reduction.result_file'."></param>
         <param name="parquet" type="data" format="gz" label="Parquet files" optional="true" help="Optional. When omitted, the -p flag is dropped from the data-assembler call."></param>
-        <param name="model" type="data" format="txt" label="Analyzer Model" optional="true" help="Required unless provided via the JSON Configuration as 'final_model', or unless 'model_available' is false."></param>
-        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A JSON file with assembler options." />
+        <param name="model" type="data" format="txt" label="Analyzer Model" optional="true" help="Required unless provided via the v1 state JSON as 'analysis.problem_json', or unless 'analysis.success' is false."></param>
+        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A v1 workflow state JSON." />
     </inputs>
 
     <configfiles>
-        <configfile name="parse_config_script">
-import json, sys
-with open(sys.argv[1]) as f:
-    d = json.load(f)
-_, _, default_output_dir, default_reflectivity, default_model = (sys.argv + [''] * 5)[:5]
-default_output_dir = default_output_dir or 'output'
-with open('_env.sh', 'w') as f:
-    f.write('export OUTPUT_DIR="%s/assembled"\n' % d.get('output_directory', default_output_dir))
-    f.write('export CFG_REFLECTIVITY="%s"\n' % (d.get('result_file') or default_reflectivity))
-    f.write('export CFG_FINAL_MODEL="%s"\n' % (d.get('final_model') or default_model))
-    f.write('export CFG_RAW_DATA="%s"\n' % d.get('raw_data', ''))
-    # If model_available is missing, fall back to whether a model path is available.
-    model_available = d.get('model_available', bool(d.get('final_model') or default_model))
-    f.write('export CFG_MODEL_AVAILABLE="%s"\n' % ('1' if model_available else '0'))
-        </configfile>
+        <configfile name="state_env">#raw
+"""Emit shell exports for tool-XML bash from a v1 (or v0) workflow-state JSON.
+
+Slim helper inlined in each tool so the container doesn't need ndip_state
+installed. Only emits the env vars the bash actually uses; merge logic is
+in the underlying CLIs (simple-reduction / plan-data / analyze-sample /
+data-assembler ingest / nr-isaac-format convert-ingest).
+"""
+import json, os, shlex, sys
+
+
+def _path(s, key, default=""):
+    p = s.get("paths") or {}
+    return p.get(key) or s.get(key) or default
+
+
+state_path, env_path = sys.argv[1], sys.argv[2]
+if state_path and os.path.isfile(state_path):
+    with open(state_path) as f:
+        s = json.load(f) or {}
+else:
+    s = {}
+
+llm = s.get("llm") or {}
+red = s.get("reduction") or {}
+seq = s.get("sequence_total")
+event_file = _path(s, "event_file") or _path(s, "input_file")
+
+exports = {
+    "OUTPUT_DIR": _path(s, "output_directory"),
+    "EVENT_FILE": event_file,
+    "TEMPLATE": _path(s, "template_file"),
+    "DATA_DIR": _path(s, "data_directory") or (os.path.dirname(event_file) if event_file else ""),
+    "CONTEXT_FILE": _path(s, "context_file"),
+    "REFLECTIVITY_FILE": red.get("result_file") or s.get("result_file", ""),
+    "SEQUENCE_TOTAL": "" if seq is None else str(seq),
+    "LLM_PROVIDER": llm.get("provider") or s.get("llm_provider", ""),
+    "LLM_MODEL": llm.get("model") or s.get("llm_model", ""),
+    "LLM_BASE_URL": llm.get("base_url") or s.get("llm_base_url", ""),
+}
+with open(env_path, "w") as f:
+    for k, v in exports.items():
+        f.write("export %s=%s\n" % (k, shlex.quote(str(v))))
+#end raw</configfile>
     </configfiles>
 
     <outputs>
         <data format="txt" name="output" label="Data Assembler Console Output"></data>
         <data format="gz" name="out_gz" label="Assembled Data"/>
+        <data format="json" name="updated_config" label="Updated JSON Configuration"></data>
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json
-            python '$parse_config_script' '$config_json' 'output'
-                    #if $reflectivity
-                        '$reflectivity'
-                    #else
-                        ''
-                    #end if
-                    #if $model
-                        '$model'
-                    #else
-                        ''
-                    #end if
-                    &&
+            python '$state_env' '$config_json' _env.sh &&
             . _env.sh &&
         #else
-            export OUTPUT_DIR='output/assembled' &&
-            #if $reflectivity
-                export CFG_REFLECTIVITY='$reflectivity' &&
-            #else
-                export CFG_REFLECTIVITY='' &&
-            #end if
-            #if $model
-                export CFG_FINAL_MODEL='$model' &&
-            #else
-                export CFG_FINAL_MODEL='' &&
-            #end if
-            export CFG_RAW_DATA='' &&
-            export CFG_MODEL_AVAILABLE='1' &&
+            export OUTPUT_DIR='output' &&
         #end if
-        REFLECTIVITY_INPUT="\$CFG_REFLECTIVITY" &&
-        if [ -z "\$REFLECTIVITY_INPUT" ] || [ ! -f "\$REFLECTIVITY_INPUT" ]; then
-            echo "Falling back to reflectivity tool input." | tee -a $output;
-            #if $reflectivity
-                REFLECTIVITY_INPUT='$reflectivity';
-            #else
-                REFLECTIVITY_INPUT='';
-            #end if
-        else
-            echo "Using reflectivity: \$REFLECTIVITY_INPUT" | tee -a $output;
-        fi &&
-        MODEL_INPUT="\$CFG_FINAL_MODEL" &&
-        USE_MODEL=1 &&
-        if [ "\$CFG_MODEL_AVAILABLE" != "1" ]; then
-            echo "model_available=false; skipping -m option to data-assembler ingest." | tee -a $output;
-            USE_MODEL=0;
-        else
-            if [ -z "\$MODEL_INPUT" ] || [ ! -f "\$MODEL_INPUT" ]; then
-                echo "Falling back to model tool input." | tee -a $output;
-                #if $model
-                    MODEL_INPUT='$model';
-                #else
-                    MODEL_INPUT='';
-                #end if
-            else
-                echo "Using model: \$MODEL_INPUT" | tee -a $output;
-            fi;
-        fi &&
-        mkdir -p "\$OUTPUT_DIR" &&
+
+        ASSEMBLED_DIR="\$OUTPUT_DIR/assembled" &&
+        mkdir -p "\$ASSEMBLED_DIR" &&
+
         #if $parquet
             mkdir parquet &&
             tar -xzvf $parquet -C parquet &&
         #end if
-        if [ "\$USE_MODEL" = "1" ]; then
-            data-assembler ingest
-                            -r "\$REFLECTIVITY_INPUT"
-                            #if $parquet
-                                -p parquet
-                            #end if
-                            -m "\$MODEL_INPUT"
-                            --nexus-file "\$CFG_RAW_DATA"
-                            -o "\$OUTPUT_DIR"
-                    > >(tee -a $output) 2> >(tee -a $output >&2) &&
-            nr-isaac-format convert-ingest "\$OUTPUT_DIR"
-                            --raw "\$CFG_RAW_DATA"
-                    > >(tee -a $output) 2> >(tee -a $output >&2);
-        else
-            data-assembler ingest
-                            -r "\$REFLECTIVITY_INPUT"
-                            #if $parquet
-                                -p parquet
-                            #end if
-                            --nexus-file "\$CFG_RAW_DATA"
-                            -o "\$OUTPUT_DIR"
-                    > >(tee -a $output) 2> >(tee -a $output >&2) &&
-            nr-isaac-format convert-ingest "\$OUTPUT_DIR"
-                            --raw "\$CFG_RAW_DATA"
-                    > >(tee -a $output) 2> >(tee -a $output >&2);
-        fi &&
-        tar -czvf $out_gz -C "\$OUTPUT_DIR" .
 
+        INGEST_STATE="\$ASSEMBLED_DIR/_ingest_state.json" &&
+
+        data-assembler ingest
+                -o "\$ASSEMBLED_DIR"
+                #if $config_json
+                    --state-in '$config_json'
+                #end if
+                --state-out "\$INGEST_STATE"
+                #if $reflectivity
+                    -r '$reflectivity'
+                #end if
+                #if $parquet
+                    -p parquet
+                #end if
+                #if $model
+                    -m '$model'
+                #end if
+                > >(tee -a $output) 2> >(tee -a $output >&2) &&
+
+        nr-isaac-format convert-ingest "\$ASSEMBLED_DIR"
+                --state-in "\$INGEST_STATE"
+                --state-out '$updated_config'
+                > >(tee -a $output) 2> >(tee -a $output >&2) &&
+
+        tar -czvf $out_gz -C "\$ASSEMBLED_DIR" .
     ]]></command>
 </tool>
