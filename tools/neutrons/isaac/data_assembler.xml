@@ -68,7 +68,7 @@ with open(env_path, "w") as f:
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        #if $config_json
+        #if $config_json and str($config_json) != "None"
             python '$state_env' '$config_json' _env.sh &&
             . _env.sh &&
         #else
@@ -87,7 +87,7 @@ with open(env_path, "w") as f:
 
         data-assembler ingest
                 -o "\$ASSEMBLED_DIR"
-                #if $config_json
+                #if $config_json and str($config_json) != "None"
                     --state-in '$config_json'
                 #end if
                 --state-out "\$INGEST_STATE"
