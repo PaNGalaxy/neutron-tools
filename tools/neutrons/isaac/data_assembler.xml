@@ -1,4 +1,4 @@
-<tool id="nexus_data_assembler" name="Data Assembler" version="0.3.0" profile="22.01">
+<tool id="nexus_data_assembler" name="Data Assembler" version="0.3.1" profile="22.01">
     <description>Assembles data from reflectivity, parquet files, and analyzer model into a single AI-ready output.</description>
     <creator>
         <person name="Mat Doucet"/>
