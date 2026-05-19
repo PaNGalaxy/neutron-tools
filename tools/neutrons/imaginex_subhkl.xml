@@ -87,7 +87,7 @@
 		<param name="gamma" type="float" value="90.0" label="Gamma" /> 
 	    <param name="wavelengthMin" type="float" optional="true" value="2.0" label="Min Wavelength" /> 
 		<param name="wavelengthMax" type="float" optional="true" value="4.5" label="Max Wavelength" /> 
-		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1'" /> >
+		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1'" />
 		<param name="space" type="text" value="Fdd2" label="Space Group" />
 		<param format="csv" name="goniometer" type="data" optional="true" label="Goniometer file" />
 		<param format="h5" name="nexus" type="data" optional="true" label="Original nexus file" />
