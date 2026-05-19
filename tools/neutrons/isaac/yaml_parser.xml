@@ -1,8 +1,8 @@
-<tool id="isaac_yaml_parser_v2" name="YAML to Collection Splitter" version="2.0.1" profile="22.01">
+<tool id="isaac_yaml_parser" name="YAML to Collection Splitter" version="1.0.0" profile="22.01">
     <description>Parses a master YAML file into a collection of individual JSON configs</description>
     
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/ndip-workflows:d9adc793891ffdfe0317fa65197e0ffe40345817</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/ndip-workflows:4b7a518e270f1561eb835b69db765971876598ae</container>
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[

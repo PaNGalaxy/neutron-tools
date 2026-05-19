@@ -1,11 +1,11 @@
-<tool id="neutrons_isaac_simple_analyzer" name="Simple Analyzer" version="0.1.0" profile="22.01">
+<tool id="neutrons_isaac_simple_analyzer" name="Simple Analyzer" version="0.3.0" profile="22.01">
     <description>Simple automated analysis tool for reflectivity data using LLM models.</description>
     <creator>
         <person name="Mat Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-0177465-slim</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-36d5c73-slim</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
@@ -28,61 +28,54 @@
         <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
         <param name="output_dir" type="text" value="./output" label="Output Directory"/>
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true"
-               help="Optional JSON file overriding llm_provider / llm_model / llm_base_url."/>
+               help="A v1 workflow state JSON. When provided, all path/env values come from the state and the individual parameters above are ignored."/>
     </inputs>
 
     <configfiles>
-        <configfile name="parse_config_script">
-import json, sys
-with open(sys.argv[1]) as f:
-    d = json.load(f)
-with open('_env.sh', 'w') as f:
-    f.write('export LLM_PROVIDER="%s"\n' % d.get('llm_provider', sys.argv[2]))
-    f.write('export LLM_MODEL="%s"\n' % d.get('llm_model', sys.argv[3]))
-    f.write('export LLM_BASE_URL="%s"\n' % d.get('llm_base_url', sys.argv[4]))
-    f.write('export SEQUENCE_TOTAL="%s"\n' % d.get('sequence_total', sys.argv[5]))
-    f.write('export CONTEXT_FILE="%s"\n' % d.get('context_file', sys.argv[6]))
-    f.write('export OUTPUT_DIR="%s"\n' % d.get('output_directory', sys.argv[7]))
-    f.write('export REFLECTIVITY_FILE="%s"\n' % d.get('result_file', sys.argv[8]))
-        </configfile>
-        <configfile name="check_assembly_script">
-import sys, yaml
-with open(sys.argv[1]) as f:
-    cfg = yaml.safe_load(f) or {}
-meta = cfg.get('metadata') or {}
-sys.stdout.write('1' if meta.get('perform_assembly') else '0')
-        </configfile>
-        <configfile name="merge_config_script">
-"""Merge the input config_json with analyzer results.
+        <configfile name="state_env">#raw
+"""Emit shell exports for tool-XML bash from a v1 (or v0) workflow-state JSON.
 
-argv: input_config_json analyze_exit_code final_model_path output_path
-
-Adds two keys to the (possibly empty) input config:
-  - model_available: True if analyze-sample exited with code 0, else False.
-  - final_model: filesystem path to the analyzer's output_model dataset.
+Slim helper inlined in each tool so the container doesn't need ndip_state
+installed. Only emits the env vars the bash actually uses; merge logic is
+in the underlying CLIs (simple-reduction / plan-data / analyze-sample /
+data-assembler ingest / nr-isaac-format convert-ingest).
 """
-import json, os, sys
+import json, os, shlex, sys
 
-input_config_path = sys.argv[1] if sys.argv[1] else None
-try:
-    analyze_exit = int(sys.argv[2])
-except (ValueError, IndexError):
-    analyze_exit = 1
-final_model_path = sys.argv[3]
-output_path = sys.argv[4]
 
-if input_config_path and os.path.isfile(input_config_path):
-    with open(input_config_path) as f:
-        merged = json.load(f)
+def _path(s, key, default=""):
+    p = s.get("paths") or {}
+    return p.get(key) or s.get(key) or default
+
+
+state_path, env_path = sys.argv[1], sys.argv[2]
+if state_path and os.path.isfile(state_path):
+    with open(state_path) as f:
+        s = json.load(f) or {}
 else:
-    merged = {}
+    s = {}
 
-merged["model_available"] = (analyze_exit == 0)
-merged["final_model"] = final_model_path
+llm = s.get("llm") or {}
+red = s.get("reduction") or {}
+seq = s.get("sequence_total")
+event_file = _path(s, "event_file") or _path(s, "input_file")
 
-with open(output_path, "w") as f:
-    json.dump(merged, f, indent=2)
-        </configfile>
+exports = {
+    "OUTPUT_DIR": _path(s, "output_directory"),
+    "EVENT_FILE": event_file,
+    "TEMPLATE": _path(s, "template_file"),
+    "DATA_DIR": _path(s, "data_directory") or (os.path.dirname(event_file) if event_file else ""),
+    "CONTEXT_FILE": _path(s, "context_file"),
+    "REFLECTIVITY_FILE": red.get("result_file") or s.get("result_file", ""),
+    "SEQUENCE_TOTAL": "" if seq is None else str(seq),
+    "LLM_PROVIDER": llm.get("provider") or s.get("llm_provider", ""),
+    "LLM_MODEL": llm.get("model") or s.get("llm_model", ""),
+    "LLM_BASE_URL": llm.get("base_url") or s.get("llm_base_url", ""),
+}
+with open(env_path, "w") as f:
+    for k, v in exports.items():
+        f.write("export %s=%s\n" % (k, shlex.quote(str(v))))
+#end raw</configfile>
     </configfiles>
 
     <outputs>
@@ -91,18 +84,33 @@ with open(output_path, "w") as f:
         <data format="json" name="updated_config" label="Updated JSON Configuration"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
-        #if $config_json
-            python '$parse_config_script' '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' '$sequence_total' '$context_file' '$output_dir' '$reflectivity_file' &&
+        #if $config_json and str($config_json) != "None"
+            python '$state_env' '$config_json' _env.sh &&
             . _env.sh &&
         #else
             export LLM_PROVIDER='$llm_provider' &&
             export LLM_MODEL='$llm_model' &&
             export LLM_BASE_URL='$llm_base_url' &&
             export SEQUENCE_TOTAL='$sequence_total' &&
-            export CONTEXT_FILE='$context_file' &&
             export OUTPUT_DIR='$output_dir' &&
             export REFLECTIVITY_FILE='$reflectivity_file' &&
+            #if $context_file and str($context_file) != "None"
+                export CONTEXT_FILE='$context_file' &&
+            #else
+                export CONTEXT_FILE='' &&
+            #end if
         #end if
+
+        if [ -z "\$REFLECTIVITY_FILE" ] || [ "\$REFLECTIVITY_FILE" = "None" ] || [ ! -f "\$REFLECTIVITY_FILE" ]; then
+            echo "ERROR: reflectivity file is missing or unreadable: '\$REFLECTIVITY_FILE'" | tee -a $output >&2;
+            echo "       Connect a config_json with reduction.result_file set, or supply the Reflectivity File input." | tee -a $output >&2;
+            exit 1;
+        fi &&
+        if [ -z "\$CONTEXT_FILE" ] || [ "\$CONTEXT_FILE" = "None" ] || [ ! -f "\$CONTEXT_FILE" ]; then
+            echo "ERROR: context file is missing or unreadable: '\$CONTEXT_FILE'" | tee -a $output >&2;
+            echo "       Connect a config_json with paths.context_file set, or supply the Sample Context input." | tee -a $output >&2;
+            exit 1;
+        fi &&
 
         mkdir -p "\$OUTPUT_DIR"/plan "\$OUTPUT_DIR"/models "\$OUTPUT_DIR"/results "\$OUTPUT_DIR"/reports &&
         export ANALYZER_MODELS_DIR="\$OUTPUT_DIR"/models &&
@@ -111,73 +119,65 @@ with open(output_path, "w") as f:
         export ANALYZER_PARTIAL_DATA_DIR="\$OUTPUT_DIR" &&
         export ANALYZER_COMBINED_DATA_DIR="\$OUTPUT_DIR" &&
 
+        PLAN_STATE="\$OUTPUT_DIR/plan_state.json" &&
+
         echo "=== plan-data ===" | tee -a $output &&
         echo "Using reflectivity file: \$REFLECTIVITY_FILE" | tee -a $output &&
         echo "Using context file: \$CONTEXT_FILE" | tee -a $output &&
         plan-data "\$REFLECTIVITY_FILE" "\$CONTEXT_FILE"
                 --output-dir "\$OUTPUT_DIR"/plan
                 --sequence-total "\$SEQUENCE_TOTAL"
+                #if $config_json and str($config_json) != "None"
+                    --state-in '$config_json'
+                #end if
+                --state-out "\$PLAN_STATE"
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
 
-        JOB_YAML=`ls -t "\$OUTPUT_DIR"/plan/job_*.yaml 2>/dev/null | head -n 1` &&
-        if [ -z "\$JOB_YAML" ]; then
-            echo "plan-data did not produce a job YAML" | tee -a $output >&2;
-            exit 1;
-        fi &&
-        echo "plan-data produced: \$JOB_YAML" | tee -a $output &&
-        cat "\$JOB_YAML" | tee -a $output &&
-
-        PERFORM_ASSEMBLY=`python '$check_assembly_script' "\$JOB_YAML"` &&
-        echo "metadata.perform_assembly resolved to: \$PERFORM_ASSEMBLY (1=run analyze-sample, 0=skip)" | tee -a $output &&
+        PERFORM_ASSEMBLY=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print('1' if (d.get('analysis') or {}).get('perform_assembly') else '0')" "\$PLAN_STATE"` &&
+        MODEL_NAME=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print((d.get('analysis') or {}).get('model_name') or '')" "\$PLAN_STATE"` &&
+        JOB_YAML=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print(((d.get('analysis') or {}).get('metadata') or {}).get('job_yaml') or '')" "\$PLAN_STATE"` &&
+        echo "analysis.model_name=\$MODEL_NAME  perform_assembly=\$PERFORM_ASSEMBLY" | tee -a $output &&
+        echo "analysis.metadata.job_yaml=\$JOB_YAML" | tee -a $output &&
 
         if [ "\$PERFORM_ASSEMBLY" = "1" ]; then
             echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
-            echo "Command: analyze-sample \$JOB_YAML --no-reduction-gate" | tee -a $output &&
-            echo "ANALYZER_MODELS_DIR=\$ANALYZER_MODELS_DIR" | tee -a $output &&
-            echo "ANALYZER_RESULTS_DIR=\$ANALYZER_RESULTS_DIR" | tee -a $output &&
-            echo "ANALYZER_REPORTS_DIR=\$ANALYZER_REPORTS_DIR" | tee -a $output &&
-            echo "--- analyze-sample stdout/stderr ---" | tee -a $output &&
             set -o pipefail;
-            analyze-sample "\$JOB_YAML" --no-reduction-gate 
+            analyze-sample --no-reduction-gate
+                    --state-in "\$PLAN_STATE"
+                    --state-out '$updated_config'
                     > >(tee -a $output) 2> >(tee -a $output >&2);
             ANALYZE_EXIT=\$?;
             set +o pipefail;
             echo "--- analyze-sample exit code: \$ANALYZE_EXIT ---" | tee -a $output;
             if [ "\$ANALYZE_EXIT" -ne 0 ]; then
-                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_EXIT (continuing to emit updated_config with model_available=false)" | tee -a $output >&2;
+                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_EXIT" | tee -a $output >&2;
             fi;
         else
-            echo "metadata.perform_assembly is false; skipping analyze-sample." | tee -a $output;
-            ANALYZE_EXIT=1;
+            echo "analysis.perform_assembly is false; skipping analyze-sample." | tee -a $output;
+        fi &&
+
+        if [ ! -f '$updated_config' ]; then
+            echo "analyze-sample did not write a state file; seeding updated_config from plan state." | tee -a $output >&2;
+            cp "\$PLAN_STATE" '$updated_config';
         fi &&
 
         echo "=== post-run inventory ===" | tee -a $output &&
-        echo "Contents of \$OUTPUT_DIR/models:" | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/models 2>&1 || true) | tee -a $output &&
-        echo "Contents of \$OUTPUT_DIR/results:" | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/results 2>&1 || true) | tee -a $output &&
-        echo "Contents of \$OUTPUT_DIR/reports:" | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/reports 2>&1 || true) | tee -a $output &&
 
-        LATEST_MODEL=`ls -t "\$OUTPUT_DIR"/models/*.py 2>/dev/null | head -n 1` &&
-        if [ -n "\$LATEST_MODEL" ]; then
-            echo "Selected model script: \$LATEST_MODEL" | tee -a $output;
-            cat "\$LATEST_MODEL" > $output_model;
+        PROBLEM_JSON=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print((d.get('analysis') or {}).get('problem_json') or '')" '$updated_config'` &&
+        if [ -n "\$PROBLEM_JSON" ] && [ -f "\$PROBLEM_JSON" ]; then
+            echo "Selected problem.json: \$PROBLEM_JSON" | tee -a $output;
+            cat "\$PROBLEM_JSON" > $output_model;
         else
-            echo "WARNING: No model script (*.py) was produced in \$OUTPUT_DIR/models." | tee -a $output >&2;
-            echo "         analyze-sample completed without writing a model. Falling back to job YAML as output_model." | tee -a $output >&2;
-            cp "\$JOB_YAML" $output_model;
-            ANALYZE_EXIT=1;
-        fi &&
-
-        python '$merge_config_script'
-                #if $config_json
-                    '$config_json'
-                #else
-                    ''
-                #end if
-                "\$ANALYZE_EXIT"
-                '$output_model'
-                '$updated_config'
+            echo "WARNING: No problem.json available; falling back to job YAML as output_model." | tee -a $output >&2;
+            if [ -n "\$JOB_YAML" ] && [ -f "\$JOB_YAML" ]; then
+                cp "\$JOB_YAML" $output_model;
+            else
+                echo "(no job YAML either; emitting empty output_model)" | tee -a $output >&2;
+                : > $output_model;
+            fi;
+        fi
     ]]></command>
 </tool>
