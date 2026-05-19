@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl_integrate" name="IMAGINE-X subhkl Peak Integration"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/zjmorgan/subhkl:main</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.1.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
@@ -9,8 +9,20 @@
 		mv "$scan" "$scan.element_identifier" ;  
 		mv "$predicted" "$predicted.element_identifier" ; 
 		mv "$found" "$found.element_identifier" ; 
+		
+		#set $options = ""
+		
+		#if $mask:
+			#set $options = $options + " --integration-mask-file " + str($mask) + " " 
+		#end if
+		#if $erosion:
+			#set $options = $options + " --integration-mask-relative-erostion-radius " + str($erostion) + " " 
+		#end if
+		#if $kiVec:
+			#set $options = $options + " --ki-vec " + str($kiVec) + " " 
+		#end if
 
-		python -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --integration-method $method --found-peaks-file $found --region-growth-minimum-sigma $sigma --region-growth-maximum-pixel-radius $radius --peak-center-box-size $boxSize --peak-smoothing-window-size $windowSize --peak-minimum-pixels $pixels --peak-minimum-signal-to-noise $signal --peak-pixel-outlier-threshold $threshold --create-visualizations --show-progress ;
+		python -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --integration-method $method --found-peaks-file $found --region-growth-distance-threshold $distance --region-growth-minimum-intensity $intensity --region-growth-minimum-sigma $sigma --region-growth-maximum-pixel-radius $radius --peak-center-box-size $boxSize --peak-smoothing-window-size $windowSize --peak-minimum-pixels $pixels --peak-minimum-signal-to-noise $signal --peak-pixel-outlier-threshold $threshold --create-visualizations --show-progress $options ;
     ]]></command>
     <inputs>
     
@@ -26,6 +38,10 @@
 			<option value="gaussian_fit">Gaussian</option>
 			<option value="free_fit">Free Fit</option>
 		</param>
+		<param format="h5" name="mask" type="data" optional="true" label="Mask file" />
+		<param name="erosion" type="float" optional="true" value="0.0" label="Mask Relative Erosion Radius" />
+		<param name="distance" type="float" value="1.5" label="Region Growth Distance Threshold" />
+		<param name="intensity" type="float" value="50.0" label="Region Growth Minimum Intensity" />
 		<param name="sigma" type="float" value="0.5" label="Region Growth Minimum Sigma" />
 		<param name="radius" type="integer" value="12" label="Region Growth Maximum Pixel Radius" />
 		<param name="boxSize" type="integer" value="3" label="Peak Center Box Size" />
@@ -33,6 +49,7 @@
 		<param name="pixels" type="integer" value="40" label="Peak Minimum Pixels" />
 		<param name="signal" type="float" value="0.0" label="Peak Minimum Signal to Noise Ratio" />
 		<param name="threshold" type="integer" value="4" label="Peak Pixel Outlier Threshold" />
+		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1'" />
 
     </inputs>
     <outputs>
