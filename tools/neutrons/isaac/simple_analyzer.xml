@@ -28,12 +28,12 @@
         <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
         <param name="output_dir" type="text" value="./output" label="Output Directory"/>
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true"
-               help="A v1 workflow state JSON. When provided, all path/env values come from the state and the individual parameters above are ignored."/>
+               help="A v1 workflow state JSON. When provided, populated values in the state take precedence; the LLM inputs above fill any fields missing from state.llm (so a yaml-parser seed with an empty llm block still picks up the endpoint configured here, and the result is recorded in updated_config)."/>
     </inputs>
 
     <configfiles>
         <configfile name="state_env">#raw
-"""Emit shell exports for tool-XML bash from a v1 (or v0) workflow-state JSON.
+"""Emit shell exports for tool-XML bash from a v1 workflow-state JSON.
 
 Slim helper inlined in each tool so the container doesn't need ndip_state
 installed. Only emits the env vars the bash actually uses; merge logic is
@@ -44,8 +44,7 @@ import json, os, shlex, sys
 
 
 def _path(s, key, default=""):
-    p = s.get("paths") or {}
-    return p.get(key) or s.get(key) or default
+    return (s.get("paths") or {}).get(key) or default
 
 
 state_path, env_path = sys.argv[1], sys.argv[2]
@@ -66,15 +65,40 @@ exports = {
     "TEMPLATE": _path(s, "template_file"),
     "DATA_DIR": _path(s, "data_directory") or (os.path.dirname(event_file) if event_file else ""),
     "CONTEXT_FILE": _path(s, "context_file"),
-    "REFLECTIVITY_FILE": red.get("result_file") or s.get("result_file", ""),
+    "REFLECTIVITY_FILE": red.get("partial_file", ""),
     "SEQUENCE_TOTAL": "" if seq is None else str(seq),
-    "LLM_PROVIDER": llm.get("provider") or s.get("llm_provider", ""),
-    "LLM_MODEL": llm.get("model") or s.get("llm_model", ""),
-    "LLM_BASE_URL": llm.get("base_url") or s.get("llm_base_url", ""),
+    "LLM_PROVIDER": llm.get("provider", ""),
+    "LLM_MODEL": llm.get("model", ""),
+    "LLM_BASE_URL": llm.get("base_url", ""),
 }
 with open(env_path, "w") as f:
     for k, v in exports.items():
         f.write("export %s=%s\n" % (k, shlex.quote(str(v))))
+#end raw</configfile>
+        <configfile name="apply_llm_defaults">#raw
+"""Fill missing fields in state.llm from the tool's Galaxy inputs.
+
+Populated values in --state-in take precedence; the Galaxy llm_provider /
+llm_model / llm_base_url inputs only fill blanks. The patched state is
+written to a working file so plan-data (which reads --state-in) sees the
+right endpoint and the values propagate into updated_config.
+"""
+import json, sys
+
+src, dst = sys.argv[1], sys.argv[2]
+provider, model, base_url = sys.argv[3], sys.argv[4], sys.argv[5]
+
+with open(src) as f:
+    s = json.load(f) or {}
+
+llm = s.get("llm") or {}
+llm["provider"] = llm.get("provider") or provider
+llm["model"]    = llm.get("model")    or model
+llm["base_url"] = llm.get("base_url") or base_url
+s["llm"] = llm
+
+with open(dst, "w") as f:
+    json.dump(s, f, indent=2)
 #end raw</configfile>
     </configfiles>
 
@@ -85,7 +109,8 @@ with open(env_path, "w") as f:
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         #if $config_json and str($config_json) != "None"
-            python '$state_env' '$config_json' _env.sh &&
+            python '$apply_llm_defaults' '$config_json' config_in.json '$llm_provider' '$llm_model' '$llm_base_url' &&
+            python '$state_env' config_in.json _env.sh &&
             . _env.sh &&
         #else
             export LLM_PROVIDER='$llm_provider' &&
@@ -103,7 +128,7 @@ with open(env_path, "w") as f:
 
         if [ -z "\$REFLECTIVITY_FILE" ] || [ "\$REFLECTIVITY_FILE" = "None" ] || [ ! -f "\$REFLECTIVITY_FILE" ]; then
             echo "ERROR: reflectivity file is missing or unreadable: '\$REFLECTIVITY_FILE'" | tee -a $output >&2;
-            echo "       Connect a config_json with reduction.result_file set, or supply the Reflectivity File input." | tee -a $output >&2;
+            echo "       Connect a config_json with reduction.partial_file set, or supply the Reflectivity File input." | tee -a $output >&2;
             exit 1;
         fi &&
         if [ -z "\$CONTEXT_FILE" ] || [ "\$CONTEXT_FILE" = "None" ] || [ ! -f "\$CONTEXT_FILE" ]; then
@@ -128,7 +153,7 @@ with open(env_path, "w") as f:
                 --output-dir "\$OUTPUT_DIR"/plan
                 --sequence-total "\$SEQUENCE_TOTAL"
                 #if $config_json and str($config_json) != "None"
-                    --state-in '$config_json'
+                    --state-in config_in.json
                 #end if
                 --state-out "\$PLAN_STATE"
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
