@@ -32,6 +32,63 @@
     </inputs>
 
     <configfiles>
+        <configfile name="canonicalize_paths">#raw
+"""Rewrite realpath'd output paths back to the operator-supplied prefix.
+
+plan-data / analyze-sample resolve their output directory through
+``os.path.realpath`` and embed the resolved path in the state JSON they
+write. On SNS hosts ``/SNS/&lt;INSTR&gt;`` is a symlink to
+``/gpfs/neutronsfs/instruments/&lt;INSTR&gt;``, so callers see gpfs paths in
+``analysis.metadata.*`` and ``analysis.problem_json`` even though they
+supplied ``/SNS/...``. This walks the JSON and substitutes the deepest
+common prefix back to the original ``OUTPUT_DIR`` prefix.
+"""
+import json, os, sys
+
+config_path, canonical = sys.argv[1], sys.argv[2]
+if not canonical or not os.path.isfile(config_path):
+    sys.exit(0)
+
+resolved = os.path.realpath(canonical)
+if resolved == canonical:
+    sys.exit(0)
+
+c_parts = canonical.split(os.sep)
+r_parts = resolved.split(os.sep)
+suffix = 0
+for i in range(1, min(len(c_parts), len(r_parts)) + 1):
+    if c_parts[-i] == r_parts[-i]:
+        suffix = i
+    else:
+        break
+if suffix == 0:
+    sys.exit(0)
+
+c_prefix = os.sep.join(c_parts[:-suffix]) or os.sep
+r_prefix = os.sep.join(r_parts[:-suffix]) or os.sep
+if c_prefix == r_prefix:
+    sys.exit(0)
+
+needle = r_prefix.rstrip(os.sep) + os.sep
+replacement = c_prefix.rstrip(os.sep) + os.sep
+
+
+def rewrite(obj):
+    if isinstance(obj, dict):
+        return {k: rewrite(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [rewrite(v) for v in obj]
+    if isinstance(obj, str) and obj.startswith(needle):
+        return replacement + obj[len(needle):]
+    return obj
+
+
+with open(config_path) as f:
+    data = json.load(f)
+data = rewrite(data)
+with open(config_path, "w") as f:
+    json.dump(data, f, indent=2)
+#end raw</configfile>
         <configfile name="state_env">#raw
 """Emit shell exports for tool-XML bash from a v1 workflow-state JSON.
 
@@ -185,6 +242,8 @@ with open(dst, "w") as f:
             echo "analyze-sample did not write a state file; seeding updated_config from plan state." | tee -a $output >&2;
             cp "\$PLAN_STATE" '$updated_config';
         fi &&
+
+        python '$canonicalize_paths' '$updated_config' "\$OUTPUT_DIR" &&
 
         echo "=== post-run inventory ===" | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/models 2>&1 || true) | tee -a $output &&
