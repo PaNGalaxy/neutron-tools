@@ -1,22 +1,79 @@
-<tool id="nexus_data_assembler" name="Data Assembler" version="0.3.1" profile="22.01">
+<tool id="nexus_data_assembler" name="Data Assembler" version="0.3.0" profile="22.01">
     <description>Assembles data from reflectivity, parquet files, and analyzer model into a single AI-ready output.</description>
     <creator>
         <person name="Mat Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/data-assembler:sha-d378fd8</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/data-assembler:sha-d27136e</container>
     </requirements>
     <inputs>
-        <param name="reflectivity" type="data" format="txt"  label="Reflectivity File" optional="true" help="Required unless provided via the v1 state JSON as 'reduction.result_file'."></param>
+        <param name="reflectivity" type="data" format="txt"  label="Reflectivity File" optional="true" help="Required unless provided via the v1 state JSON as 'reduction.partial_file'."></param>
         <param name="parquet" type="data" format="gz" label="Parquet files" optional="true" help="Optional. When omitted, the -p flag is dropped from the data-assembler call."></param>
         <param name="model" type="data" format="txt" label="Analyzer Model" optional="true" help="Required unless provided via the v1 state JSON as 'analysis.problem_json', or unless 'analysis.success' is false."></param>
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true" help="A v1 workflow state JSON." />
     </inputs>
 
     <configfiles>
+        <configfile name="canonicalize_paths">#raw
+"""Rewrite realpath'd output paths back to the operator-supplied prefix.
+
+plan-data / analyze-sample resolve their output directory through
+``os.path.realpath`` and embed the resolved path in the state JSON they
+write. On SNS hosts ``/SNS/&lt;INSTR&gt;`` is a symlink to
+``/gpfs/neutronsfs/instruments/&lt;INSTR&gt;``, so callers see gpfs paths in
+``analysis.metadata.*`` and ``analysis.problem_json`` even though they
+supplied ``/SNS/...``. This walks the JSON and substitutes the deepest
+common prefix back to the original ``OUTPUT_DIR`` prefix.
+"""
+import json, os, sys
+
+config_path, canonical = sys.argv[1], sys.argv[2]
+if not canonical or not os.path.isfile(config_path):
+    sys.exit(0)
+
+resolved = os.path.realpath(canonical)
+if resolved == canonical:
+    sys.exit(0)
+
+c_parts = canonical.split(os.sep)
+r_parts = resolved.split(os.sep)
+suffix = 0
+for i in range(1, min(len(c_parts), len(r_parts)) + 1):
+    if c_parts[-i] == r_parts[-i]:
+        suffix = i
+    else:
+        break
+if suffix == 0:
+    sys.exit(0)
+
+c_prefix = os.sep.join(c_parts[:-suffix]) or os.sep
+r_prefix = os.sep.join(r_parts[:-suffix]) or os.sep
+if c_prefix == r_prefix:
+    sys.exit(0)
+
+needle = r_prefix.rstrip(os.sep) + os.sep
+replacement = c_prefix.rstrip(os.sep) + os.sep
+
+
+def rewrite(obj):
+    if isinstance(obj, dict):
+        return {k: rewrite(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [rewrite(v) for v in obj]
+    if isinstance(obj, str) and obj.startswith(needle):
+        return replacement + obj[len(needle):]
+    return obj
+
+
+with open(config_path) as f:
+    data = json.load(f)
+data = rewrite(data)
+with open(config_path, "w") as f:
+    json.dump(data, f, indent=2)
+#end raw</configfile>
         <configfile name="state_env">#raw
-"""Emit shell exports for tool-XML bash from a v1 (or v0) workflow-state JSON.
+"""Emit shell exports for tool-XML bash from a v1 workflow-state JSON.
 
 Slim helper inlined in each tool so the container doesn't need ndip_state
 installed. Only emits the env vars the bash actually uses; merge logic is
@@ -27,8 +84,7 @@ import json, os, shlex, sys
 
 
 def _path(s, key, default=""):
-    p = s.get("paths") or {}
-    return p.get(key) or s.get(key) or default
+    return (s.get("paths") or {}).get(key) or default
 
 
 state_path, env_path = sys.argv[1], sys.argv[2]
@@ -49,11 +105,11 @@ exports = {
     "TEMPLATE": _path(s, "template_file"),
     "DATA_DIR": _path(s, "data_directory") or (os.path.dirname(event_file) if event_file else ""),
     "CONTEXT_FILE": _path(s, "context_file"),
-    "REFLECTIVITY_FILE": red.get("result_file") or s.get("result_file", ""),
+    "REFLECTIVITY_FILE": red.get("partial_file", ""),
     "SEQUENCE_TOTAL": "" if seq is None else str(seq),
-    "LLM_PROVIDER": llm.get("provider") or s.get("llm_provider", ""),
-    "LLM_MODEL": llm.get("model") or s.get("llm_model", ""),
-    "LLM_BASE_URL": llm.get("base_url") or s.get("llm_base_url", ""),
+    "LLM_PROVIDER": llm.get("provider", ""),
+    "LLM_MODEL": llm.get("model", ""),
+    "LLM_BASE_URL": llm.get("base_url", ""),
 }
 with open(env_path, "w") as f:
     for k, v in exports.items():
@@ -106,6 +162,8 @@ with open(env_path, "w") as f:
                 --state-in "\$INGEST_STATE"
                 --state-out '$updated_config'
                 > >(tee -a $output) 2> >(tee -a $output >&2) &&
+
+        python '$canonicalize_paths' '$updated_config' "\$OUTPUT_DIR" &&
 
         tar -czvf $out_gz -C "\$ASSEMBLED_DIR" .
     ]]></command>
