@@ -30,8 +30,8 @@ small bit of NDIP-schema logic the tool *wrapper* needs at runtime:
   - ``set-llm STATE PROVIDER MODEL BASE_URL OUT`` — fill blank
         ``inputs.operator.llm.*`` fields without overriding populated ones.
 
-Galaxy injects this file into the tool container via a ``<configfile>``, so the
-foreign image needs only ``python`` — not ``ndip_state``. It is **stdlib-only**
+Galaxy injects this file into the tool container via a configfile element, so
+the foreign image needs only ``python`` — not ``ndip_state``. It is **stdlib-only**
 and a faithful bundle of ``src/ndip_state/{state,projection,canonicalize,adapters}.py``;
 ``tests/test_ndip_shim.py`` asserts it stays in agreement with those modules.
 
