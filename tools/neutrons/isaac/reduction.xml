@@ -7,7 +7,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-82baab4</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-0a4c2f2</container>
     </requirements>
 
     <inputs>
