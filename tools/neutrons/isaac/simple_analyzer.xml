@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-82baab4-slim</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-0a4c2f2-slim</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
@@ -461,18 +461,17 @@ if __name__ == "__main__":
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
         SHIM='$ndip_shim' &&
-        RUN="pixi run --as-is --manifest-path /app" &&
 
         ## Fill any blank LLM fields in the state from the Galaxy inputs.
-        \$RUN python "\$SHIM" set-llm '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' _state_in.json &&
+        python "\$SHIM" set-llm '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' _state_in.json &&
 
         ## Export the resolved LLM endpoint so both plan-data and analyze-sample
         ## (which read LLM_* from the environment) pick it up.
-        export LLM_PROVIDER=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.llm.provider` &&
-        export LLM_MODEL=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.llm.model` &&
-        export LLM_BASE_URL=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.llm.base_url` &&
+        export LLM_PROVIDER=`python "\$SHIM" get _state_in.json inputs.operator.llm.provider` &&
+        export LLM_MODEL=`python "\$SHIM" get _state_in.json inputs.operator.llm.model` &&
+        export LLM_BASE_URL=`python "\$SHIM" get _state_in.json inputs.operator.llm.base_url` &&
 
-        OUTPUT_DIR=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.output_directory` &&
+        OUTPUT_DIR=`python "\$SHIM" get _state_in.json inputs.operator.output_directory` &&
         mkdir -p "\$OUTPUT_DIR"/plan "\$OUTPUT_DIR"/models "\$OUTPUT_DIR"/results "\$OUTPUT_DIR"/reports &&
         export ANALYZER_MODELS_DIR="\$OUTPUT_DIR"/models &&
         export ANALYZER_RESULTS_DIR="\$OUTPUT_DIR"/results &&
@@ -481,27 +480,27 @@ if __name__ == "__main__":
         export ANALYZER_COMBINED_DATA_DIR="\$OUTPUT_DIR" &&
 
         echo "=== plan-data ===" | tee -a $output &&
-        PLAN_ARGS=`\$RUN python "\$SHIM" project-out plan _state_in.json` &&
-        eval \$RUN plan-data \$PLAN_ARGS --result-out _plan_result.json
+        PLAN_ARGS=`python "\$SHIM" project-out plan _state_in.json` &&
+        eval plan-data \$PLAN_ARGS --result-out _plan_result.json
                 > >(tee -a $output) 2> >(tee -a $output >&2);
         PLAN_RC=\$? &&
-        \$RUN python "\$SHIM" merge-in plan _state_in.json _plan_result.json \$PLAN_RC _plan_state.json &&
+        python "\$SHIM" merge-in plan _state_in.json _plan_result.json \$PLAN_RC _plan_state.json &&
         if [ "\$PLAN_RC" -ne 0 ]; then
             cp _plan_state.json '$updated_config';
             echo "plan-data failed (exit \$PLAN_RC)" | tee -a $output >&2;
             exit \$PLAN_RC;
         fi &&
 
-        PERFORM_ASSEMBLY=`\$RUN python "\$SHIM" get _plan_state.json stages.analysis.params.perform_assembly` &&
+        PERFORM_ASSEMBLY=`python "\$SHIM" get _plan_state.json stages.analysis.params.perform_assembly` &&
         echo "perform_assembly=\$PERFORM_ASSEMBLY" | tee -a $output &&
 
         if [ "\$PERFORM_ASSEMBLY" = "True" ]; then
             echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output;
-            ANALYZE_ARGS=`\$RUN python "\$SHIM" project-out analyze _plan_state.json`;
-            eval \$RUN analyze-sample --no-reduction-gate \$ANALYZE_ARGS --result-out _analyze_result.json
+            ANALYZE_ARGS=`python "\$SHIM" project-out analyze _plan_state.json`;
+            eval analyze-sample --no-reduction-gate \$ANALYZE_ARGS --result-out _analyze_result.json
                     > >(tee -a $output) 2> >(tee -a $output >&2);
             ANALYZE_RC=\$?;
-            \$RUN python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config';
+            python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config';
             echo "--- analyze-sample exit code: \$ANALYZE_RC ---" | tee -a $output;
             if [ "\$ANALYZE_RC" -ne 0 ]; then
                 echo "ERROR: analyze-sample failed with exit code \$ANALYZE_RC" | tee -a $output >&2;
@@ -514,8 +513,8 @@ if __name__ == "__main__":
         echo "=== post-run inventory ===" | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/results 2>&1 || true) | tee -a $output &&
 
-        PROBLEM_JSON=`\$RUN python "\$SHIM" get '$updated_config' stages.analysis.artifacts.problem_json` &&
-        JOB_YAML=`\$RUN python "\$SHIM" get '$updated_config' stages.analysis.artifacts.job_yaml` &&
+        PROBLEM_JSON=`python "\$SHIM" get '$updated_config' stages.analysis.artifacts.problem_json` &&
+        JOB_YAML=`python "\$SHIM" get '$updated_config' stages.analysis.artifacts.job_yaml` &&
         if [ -n "\$PROBLEM_JSON" ] && [ -f "\$PROBLEM_JSON" ]; then
             echo "Selected problem.json: \$PROBLEM_JSON" | tee -a $output;
             cat "\$PROBLEM_JSON" > $output_model;
