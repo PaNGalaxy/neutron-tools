@@ -1,11 +1,11 @@
-<tool id="neutrons_isaac_simple_analyzer" name="Simple Analyzer" version="0.3.0" profile="22.01">
+<tool id="neutrons_isaac_simple_analyzer" name="Simple Analyzer" version="0.4.0" profile="22.01">
     <description>Simple automated analysis tool for reflectivity data using LLM models.</description>
     <creator>
         <person name="Mat Doucet"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-36d5c73-slim</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-82baab4-slim</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
@@ -17,145 +17,440 @@
         </credentials>
     </requirements>
     <inputs>
-        <param name="reflectivity_file" type="data" format="txt" label="Reflectivity File"
-               help="A partial reflectivity file (REFL_{seq}_{part}_{run}_partial.txt)."/>
-        <param name="context_file" type="data" format="txt,markdown" label="Sample Context (Markdown)" optional="true"
-               help="Free-form Markdown note describing the sample stack, ambient medium, and any fitting hints. Consumed by plan-data."/>
-        <param name="sequence_total" type="integer" value="3" min="1" label="Parts per complete sequence"
-               help="Expected number of partial files in a complete sequence."/>
-        <param name="llm_provider" type="text" value="local" label="LLM Provider"/>
-        <param name="llm_model" type="text" value="gpt-4" label="LLM Model"/>
-        <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint"/>
-        <param name="output_dir" type="text" value="./output" label="Output Directory"/>
-        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="true"
-               help="A v1 workflow state JSON. When provided, populated values in the state take precedence; the LLM inputs above fill any fields missing from state.llm (so a yaml-parser seed with an empty llm block still picks up the endpoint configured here, and the result is recorded in updated_config)."/>
+        <param name="config_json" type="data" format="json" label="JSON Configuration" optional="false"
+               help="A workflow-state JSON (from the reduction step). Provides the reflectivity file, context file, sequence total, and LLM endpoint."/>
+        <param name="llm_provider" type="text" value="local" label="LLM Provider" help="Fills state.inputs.operator.llm.provider only if the state leaves it blank."/>
+        <param name="llm_model" type="text" value="gpt-4" label="LLM Model" help="Fills state.inputs.operator.llm.model only if blank."/>
+        <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint" help="Fills state.inputs.operator.llm.base_url only if blank."/>
     </inputs>
 
     <configfiles>
-        <configfile name="canonicalize_paths">#raw
-"""Rewrite realpath'd output paths back to the operator-supplied prefix.
+        <configfile name="ndip_shim">#raw
+"""Self-contained orchestration shim inlined into the Galaxy tool XMLs.
 
-plan-data / analyze-sample resolve their output directory through
-``os.path.realpath`` and embed the resolved path in the state JSON they
-write. On SNS hosts ``/SNS/&lt;INSTR&gt;`` is a symlink to
-``/gpfs/neutronsfs/instruments/&lt;INSTR&gt;``, so callers see gpfs paths in
-``analysis.metadata.*`` and ``analysis.problem_json`` even though they
-supplied ``/SNS/...``. This walks the JSON and substitutes the deepest
-common prefix back to the original ``OUTPUT_DIR`` prefix.
+The pipeline tools run in foreign container images (analyzer, data-assembler)
+that intentionally know nothing about the NDIP workflow state. This shim is the
+small bit of NDIP-schema logic the tool *wrapper* needs at runtime:
+
+  - ``project-out STAGE STATE_JSON``
+        print the shell-quoted CLI args for a stage, built from the state.
+  - ``merge-in STAGE STATE_IN RESULT_JSON EXIT_CODE STATE_OUT [--output-prefix DIR]``
+        fold a tool's neutral ndip-tool-result/1 manifest back into the state.
+  - ``get STATE DOTTED.PATH``  — print a nested value (used by XML bash).
+  - ``set-llm STATE PROVIDER MODEL BASE_URL OUT`` — fill blank
+        ``inputs.operator.llm.*`` fields without overriding populated ones.
+
+Galaxy injects this file into the tool container via a configfile element, so
+the foreign image needs only ``python`` — not ``ndip_state``. It is **stdlib-only**
+and a faithful bundle of ``src/ndip_state/{state,projection,canonicalize,adapters}.py``;
+``tests/test_ndip_shim.py`` asserts it stays in agreement with those modules.
+
+Do not edit by hand in a way that diverges from src/ndip_state — the parity
+test will fail.
 """
-import json, os, sys
 
-config_path, canonical = sys.argv[1], sys.argv[2]
-if not canonical or not os.path.isfile(config_path):
-    sys.exit(0)
-
-resolved = os.path.realpath(canonical)
-if resolved == canonical:
-    sys.exit(0)
-
-c_parts = canonical.split(os.sep)
-r_parts = resolved.split(os.sep)
-suffix = 0
-for i in range(1, min(len(c_parts), len(r_parts)) + 1):
-    if c_parts[-i] == r_parts[-i]:
-        suffix = i
-    else:
-        break
-if suffix == 0:
-    sys.exit(0)
-
-c_prefix = os.sep.join(c_parts[:-suffix]) or os.sep
-r_prefix = os.sep.join(r_parts[:-suffix]) or os.sep
-if c_prefix == r_prefix:
-    sys.exit(0)
-
-needle = r_prefix.rstrip(os.sep) + os.sep
-replacement = c_prefix.rstrip(os.sep) + os.sep
+import argparse
+import hashlib
+import json
+import os
+import shlex
+import sys
 
 
-def rewrite(obj):
-    if isinstance(obj, dict):
-        return {k: rewrite(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [rewrite(v) for v in obj]
-    if isinstance(obj, str) and obj.startswith(needle):
-        return replacement + obj[len(needle):]
-    return obj
-
-
-with open(config_path) as f:
-    data = json.load(f)
-data = rewrite(data)
-with open(config_path, "w") as f:
-    json.dump(data, f, indent=2)
-#end raw</configfile>
-        <configfile name="state_env">#raw
-"""Emit shell exports for tool-XML bash from a v1 workflow-state JSON.
-
-Slim helper inlined in each tool so the container doesn't need ndip_state
-installed. Only emits the env vars the bash actually uses; merge logic is
-in the underlying CLIs (simple-reduction / plan-data / analyze-sample /
-data-assembler ingest / nr-isaac-format convert-ingest).
-"""
-import json, os, shlex, sys
-
-
-def _path(s, key, default=""):
-    return (s.get("paths") or {}).get(key) or default
-
-
-state_path, env_path = sys.argv[1], sys.argv[2]
-if state_path and os.path.isfile(state_path):
-    with open(state_path) as f:
-        s = json.load(f) or {}
-else:
-    s = {}
-
-llm = s.get("llm") or {}
-red = s.get("reduction") or {}
-seq = s.get("sequence_total")
-event_file = _path(s, "event_file") or _path(s, "input_file")
-
-exports = {
-    "OUTPUT_DIR": _path(s, "output_directory"),
-    "EVENT_FILE": event_file,
-    "TEMPLATE": _path(s, "template_file"),
-    "DATA_DIR": _path(s, "data_directory") or (os.path.dirname(event_file) if event_file else ""),
-    "CONTEXT_FILE": _path(s, "context_file"),
-    "REFLECTIVITY_FILE": red.get("partial_file", ""),
-    "SEQUENCE_TOTAL": "" if seq is None else str(seq),
-    "LLM_PROVIDER": llm.get("provider", ""),
-    "LLM_MODEL": llm.get("model", ""),
-    "LLM_BASE_URL": llm.get("base_url", ""),
+SCHEMA_VERSION = "2"
+_STAGES = ("reduction", "analysis", "assembly")
+_STATUS_FROM_MANIFEST = {
+    "ok": "ok",
+    "dry-run": "ok",
+    "skipped": "skipped",
+    "failed": "failed",
+    "needs-reprocessing": "failed",
 }
-with open(env_path, "w") as f:
-    for k, v in exports.items():
-        f.write("export %s=%s\n" % (k, shlex.quote(str(v))))
-#end raw</configfile>
-        <configfile name="apply_llm_defaults">#raw
-"""Fill missing fields in state.llm from the tool's Galaxy inputs.
 
-Populated values in --state-in take precedence; the Galaxy llm_provider /
-llm_model / llm_base_url inputs only fill blanks. The patched state is
-written to a working file so plan-data (which reads --state-in) sees the
-right endpoint and the values propagate into updated_config.
-"""
-import json, sys
 
-src, dst = sys.argv[1], sys.argv[2]
-provider, model, base_url = sys.argv[3], sys.argv[4], sys.argv[5]
+# --------------------------------------------------------------------------
+# state load / save  (mirrors src/ndip_state/state.py)
+# --------------------------------------------------------------------------
 
-with open(src) as f:
-    s = json.load(f) or {}
+def _empty_stage():
+    return {"status": "pending", "params": {}, "artifacts": {}, "info": {}}
 
-llm = s.get("llm") or {}
-llm["provider"] = llm.get("provider") or provider
-llm["model"]    = llm.get("model")    or model
-llm["base_url"] = llm.get("base_url") or base_url
-s["llm"] = llm
 
-with open(dst, "w") as f:
-    json.dump(s, f, indent=2)
+def empty_state():
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "workflow": {},
+        "inputs": {"operator": {}, "derived": {}},
+        "stages": {s: _empty_stage() for s in _STAGES},
+        "errors": [],
+    }
+
+
+def load_state(path):
+    if not path or not os.path.isfile(path):
+        return empty_state()
+    with open(path) as f:
+        d = json.load(f)
+    if not isinstance(d, dict):
+        return empty_state()
+    if str(d.get("schema_version")) != SCHEMA_VERSION:
+        raise ValueError(
+            "state document has schema_version=%r; expected %r"
+            % (d.get("schema_version"), SCHEMA_VERSION)
+        )
+    return d
+
+
+def save_state(state, path):
+    with open(path, "w") as f:
+        json.dump(state, f, indent=2)
+
+
+# --------------------------------------------------------------------------
+# merge_stage / record_error  (mirrors src/ndip_state/state.py)
+# --------------------------------------------------------------------------
+
+def record_error(state, stage, message, exit_code=None):
+    state.setdefault("errors", []).append({
+        "stage": stage, "message": message, "exit_code": exit_code,
+    })
+    return state
+
+
+def _manifest_to_stage_status(manifest, exit_code):
+    if exit_code not in (0, None):
+        return "failed"
+    return _STATUS_FROM_MANIFEST.get((manifest or {}).get("status"), "failed")
+
+
+def _first_error_message(manifest):
+    for m in (manifest or {}).get("messages") or []:
+        if isinstance(m, dict) and m.get("level") == "error" and m.get("text"):
+            return m["text"]
+    return None
+
+
+def merge_stage(state, stage, manifest, exit_code=0):
+    manifest = manifest or {}
+    block = state.setdefault("stages", {}).setdefault(stage, _empty_stage())
+    block["status"] = _manifest_to_stage_status(manifest, exit_code)
+    for key in ("params", "artifacts", "info"):
+        incoming = manifest.get(key)
+        if incoming:
+            block.setdefault(key, {}).update(incoming)
+    if block["status"] == "failed":
+        msg = _first_error_message(manifest) or "%s failed" % stage
+        record_error(state, stage, msg, manifest.get("exit_code", exit_code))
+    return state
+
+
+# --------------------------------------------------------------------------
+# projection  (mirrors src/ndip_state/projection.py)
+# --------------------------------------------------------------------------
+
+POSITIONAL = "__positional__"
+
+
+class ProjectionError(ValueError):
+    pass
+
+
+def _get(state, *keys):
+    node = state
+    for k in keys:
+        if not isinstance(node, dict):
+            return ""
+        node = node.get(k)
+    return node if node is not None else ""
+
+
+def _outdir(state):
+    return _get(state, "inputs", "operator", "output_directory")
+
+
+def _sub(state, name):
+    out = _outdir(state)
+    return os.path.join(out, name) if out else ""
+
+
+def _job_yaml(state):
+    return (
+        _get(state, "stages", "analysis", "artifacts", "job_yaml")
+        or _get(state, "stages", "analysis", "params", "job_yaml")
+    )
+
+
+def _model_if_analysis_ok(state):
+    if _get(state, "stages", "analysis", "status") == "ok":
+        return _get(state, "stages", "analysis", "artifacts", "problem_json")
+    return ""
+
+
+def _ingest_dir(state):
+    return (
+        _get(state, "stages", "assembly", "artifacts", "ingest_dir")
+        or _get(state, "stages", "assembly", "artifacts", "assembled_directory")
+    )
+
+
+def _seq_total(state):
+    v = _get(state, "inputs", "operator", "sequence_total")
+    return "" if v == "" else str(v)
+
+
+STAGE_PROJECTIONS = {
+    "reduction": [
+        ("--event-file", lambda s: _get(s, "inputs", "derived", "nexus_file"), True),
+        ("--template", lambda s: _get(s, "inputs", "operator", "template_file"), True),
+        ("--output-dir", _outdir, True),
+    ],
+    "plan": [
+        (POSITIONAL, lambda s: _get(s, "stages", "reduction", "artifacts", "partial_file"), True),
+        (POSITIONAL, lambda s: _get(s, "inputs", "operator", "context_file"), True),
+        ("--output-dir", lambda s: _sub(s, "plan"), True),
+        ("--sequence-total", _seq_total, False),
+        ("--llm-provider", lambda s: _get(s, "inputs", "operator", "llm", "provider"), False),
+        ("--llm-model", lambda s: _get(s, "inputs", "operator", "llm", "model"), False),
+        ("--llm-base-url", lambda s: _get(s, "inputs", "operator", "llm", "base_url"), False),
+    ],
+    "analyze": [
+        (POSITIONAL, _job_yaml, True),
+        ("--results-dir", lambda s: _sub(s, "results"), True),
+        ("--reports-dir", lambda s: _sub(s, "reports"), True),
+    ],
+    "ingest": [
+        ("-o", lambda s: _sub(s, "assembled"), True),
+        ("--reduced", lambda s: _get(s, "stages", "reduction", "artifacts", "partial_file"), False),
+        ("--nexus-file", lambda s: _get(s, "inputs", "derived", "nexus_file"), False),
+        ("--model", _model_if_analysis_ok, False),
+    ],
+    "convert": [
+        (POSITIONAL, _ingest_dir, True),
+        ("--raw", lambda s: _get(s, "inputs", "derived", "nexus_file"), False),
+        ("--reduced", lambda s: _get(s, "stages", "reduction", "artifacts", "partial_file"), False),
+    ],
+}
+
+
+def project_out(stage, state):
+    spec = STAGE_PROJECTIONS.get(stage)
+    if spec is None:
+        raise ProjectionError("unknown stage: %s" % stage)
+    args = []
+    for flag, getter, required in spec:
+        value = str(getter(state) or "")
+        if not value:
+            if required:
+                raise ProjectionError(
+                    "stage %r: missing required value for %s"
+                    % (stage, "positional arg" if flag == POSITIONAL else flag)
+                )
+            continue
+        if flag == POSITIONAL:
+            args.append(value)
+        else:
+            args.extend([flag, value])
+    return args
+
+
+def project_out_shell(stage, state):
+    return " ".join(shlex.quote(a) for a in project_out(stage, state))
+
+
+# --------------------------------------------------------------------------
+# canonicalize  (mirrors src/ndip_state/canonicalize.py)
+# --------------------------------------------------------------------------
+
+def _prefix_map(canonical):
+    if not canonical:
+        return None
+    resolved = os.path.realpath(canonical)
+    if resolved == canonical:
+        return None
+    c_parts = canonical.split(os.sep)
+    r_parts = resolved.split(os.sep)
+    suffix = 0
+    for i in range(1, min(len(c_parts), len(r_parts)) + 1):
+        if c_parts[-i] == r_parts[-i]:
+            suffix = i
+        else:
+            break
+    if suffix == 0:
+        return None
+    c_prefix = os.sep.join(c_parts[:-suffix]) or os.sep
+    r_prefix = os.sep.join(r_parts[:-suffix]) or os.sep
+    if c_prefix == r_prefix:
+        return None
+    return r_prefix.rstrip(os.sep) + os.sep, c_prefix.rstrip(os.sep) + os.sep
+
+
+def canonicalize_paths(obj, canonical):
+    mapping = _prefix_map(canonical)
+    if mapping is None:
+        return obj
+    needle, replacement = mapping
+
+    def rewrite(node):
+        if isinstance(node, dict):
+            return {k: rewrite(v) for k, v in node.items()}
+        if isinstance(node, list):
+            return [rewrite(v) for v in node]
+        if isinstance(node, str) and node.startswith(needle):
+            return replacement + node[len(needle):]
+        return node
+
+    return rewrite(obj)
+
+
+# --------------------------------------------------------------------------
+# merge-in / adapters  (mirrors src/ndip_state/adapters.py)
+# --------------------------------------------------------------------------
+
+_TARGET = {
+    "reduction": "reduction",
+    "plan": "analysis",
+    "analyze": "analysis",
+    "ingest": "assembly",
+    "convert": "assembly",
+}
+
+
+def _sha256(path):
+    try:
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except OSError:
+        return ""
+
+
+def _derived_params(stage, state):
+    out = {}
+    if stage == "reduction":
+        template = _get(state, "inputs", "operator", "template_file")
+        if template:
+            out["template_file"] = template
+            sha = _sha256(template)
+            if sha:
+                out["template_sha256"] = sha
+    elif stage in ("ingest", "convert"):
+        nexus = _get(state, "inputs", "derived", "nexus_file")
+        reduced = _get(state, "stages", "reduction", "artifacts", "partial_file")
+        if nexus:
+            out["nexus_input"] = nexus
+        if reduced:
+            out["reduced_input"] = reduced
+        if _get(state, "stages", "analysis", "status") == "ok":
+            model = _get(state, "stages", "analysis", "artifacts", "problem_json")
+            if model:
+                out["model_input"] = model
+    return out
+
+
+def merge_in(stage, state, manifest, exit_code=0, output_prefix=None):
+    if stage not in _TARGET:
+        raise ValueError("unknown stage: %s" % stage)
+    manifest = dict(manifest or {})
+    derived = _derived_params(stage, state)
+    if derived:
+        blended = dict(derived)
+        blended.update(manifest.get("params") or {})
+        manifest["params"] = blended
+    merge_stage(state, _TARGET[stage], manifest, exit_code)
+    if output_prefix:
+        canonical = canonicalize_paths(state, output_prefix)
+        if canonical is not state:
+            state.clear()
+            state.update(canonical)
+    return state
+
+
+# --------------------------------------------------------------------------
+# CLI
+# --------------------------------------------------------------------------
+
+def _cmd_project_out(args):
+    state = load_state(args.state)
+    sys.stdout.write(project_out_shell(args.stage, state))
+
+
+def _cmd_merge_in(args):
+    state = load_state(args.state_in)
+    manifest = {}
+    if args.result and os.path.isfile(args.result):
+        with open(args.result) as f:
+            loaded = json.load(f)
+        if isinstance(loaded, dict):
+            manifest = loaded
+    # Default the canonicalization prefix to the operator output directory.
+    prefix = args.output_prefix or _outdir(state) or None
+    merge_in(args.stage, state, manifest, args.exit_code, output_prefix=prefix)
+    save_state(state, args.state_out)
+
+
+def _cmd_get(args):
+    """Print a dotted-path value from the state, for tool bash."""
+    node = load_state(args.state)
+    for key in args.path.split("."):
+        node = node.get(key) if isinstance(node, dict) else None
+        if node is None:
+            break
+    sys.stdout.write("" if node is None else str(node))
+
+
+def _cmd_set_llm(args):
+    """Fill blank inputs.operator.llm.{provider,model,base_url} from arguments.
+
+    Values already present in the state win; the args only fill blanks.
+    """
+    state = load_state(args.state)
+    llm = state.setdefault("inputs", {}).setdefault("operator", {}).setdefault("llm", {})
+    for value, key in ((args.provider, "provider"), (args.model, "model"), (args.base_url, "base_url")):
+        if value and not llm.get(key):
+            llm[key] = value
+    save_state(state, args.out)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(prog="ndip-shim")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+    stages = ["reduction", "plan", "analyze", "ingest", "convert"]
+
+    p = sub.add_parser("project-out")
+    p.add_argument("stage", choices=stages)
+    p.add_argument("state")
+    p.set_defaults(func=_cmd_project_out)
+
+    p = sub.add_parser("merge-in")
+    p.add_argument("stage", choices=stages)
+    p.add_argument("state_in")
+    p.add_argument("result")
+    p.add_argument("exit_code", type=int)
+    p.add_argument("state_out")
+    p.add_argument("--output-prefix", default=None)
+    p.set_defaults(func=_cmd_merge_in)
+
+    p = sub.add_parser("get")
+    p.add_argument("state")
+    p.add_argument("path")
+    p.set_defaults(func=_cmd_get)
+
+    p = sub.add_parser("set-llm")
+    p.add_argument("state")
+    p.add_argument("provider")
+    p.add_argument("model")
+    p.add_argument("base_url")
+    p.add_argument("out")
+    p.set_defaults(func=_cmd_set_llm)
+
+    args = parser.parse_args(argv)
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
 #end raw</configfile>
     </configfiles>
 
@@ -165,35 +460,19 @@ with open(dst, "w") as f:
         <data format="json" name="updated_config" label="Updated JSON Configuration"></data>
     </outputs>
     <command detect_errors="exit_code"><![CDATA[
-        #if $config_json and str($config_json) != "None"
-            python '$apply_llm_defaults' '$config_json' config_in.json '$llm_provider' '$llm_model' '$llm_base_url' &&
-            python '$state_env' config_in.json _env.sh &&
-            . _env.sh &&
-        #else
-            export LLM_PROVIDER='$llm_provider' &&
-            export LLM_MODEL='$llm_model' &&
-            export LLM_BASE_URL='$llm_base_url' &&
-            export SEQUENCE_TOTAL='$sequence_total' &&
-            export OUTPUT_DIR='$output_dir' &&
-            export REFLECTIVITY_FILE='$reflectivity_file' &&
-            #if $context_file and str($context_file) != "None"
-                export CONTEXT_FILE='$context_file' &&
-            #else
-                export CONTEXT_FILE='' &&
-            #end if
-        #end if
+        SHIM='$ndip_shim' &&
+        RUN="pixi run --as-is --manifest-path /app" &&
 
-        if [ -z "\$REFLECTIVITY_FILE" ] || [ "\$REFLECTIVITY_FILE" = "None" ] || [ ! -f "\$REFLECTIVITY_FILE" ]; then
-            echo "ERROR: reflectivity file is missing or unreadable: '\$REFLECTIVITY_FILE'" | tee -a $output >&2;
-            echo "       Connect a config_json with reduction.partial_file set, or supply the Reflectivity File input." | tee -a $output >&2;
-            exit 1;
-        fi &&
-        if [ -z "\$CONTEXT_FILE" ] || [ "\$CONTEXT_FILE" = "None" ] || [ ! -f "\$CONTEXT_FILE" ]; then
-            echo "ERROR: context file is missing or unreadable: '\$CONTEXT_FILE'" | tee -a $output >&2;
-            echo "       Connect a config_json with paths.context_file set, or supply the Sample Context input." | tee -a $output >&2;
-            exit 1;
-        fi &&
+        ## Fill any blank LLM fields in the state from the Galaxy inputs.
+        \$RUN python "\$SHIM" set-llm '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' _state_in.json &&
 
+        ## Export the resolved LLM endpoint so both plan-data and analyze-sample
+        ## (which read LLM_* from the environment) pick it up.
+        export LLM_PROVIDER=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.llm.provider` &&
+        export LLM_MODEL=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.llm.model` &&
+        export LLM_BASE_URL=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.llm.base_url` &&
+
+        OUTPUT_DIR=`\$RUN python "\$SHIM" get _state_in.json inputs.operator.output_directory` &&
         mkdir -p "\$OUTPUT_DIR"/plan "\$OUTPUT_DIR"/models "\$OUTPUT_DIR"/results "\$OUTPUT_DIR"/reports &&
         export ANALYZER_MODELS_DIR="\$OUTPUT_DIR"/models &&
         export ANALYZER_RESULTS_DIR="\$OUTPUT_DIR"/results &&
@@ -201,67 +480,51 @@ with open(dst, "w") as f:
         export ANALYZER_PARTIAL_DATA_DIR="\$OUTPUT_DIR" &&
         export ANALYZER_COMBINED_DATA_DIR="\$OUTPUT_DIR" &&
 
-        PLAN_STATE="\$OUTPUT_DIR/plan_state.json" &&
-
         echo "=== plan-data ===" | tee -a $output &&
-        echo "Using reflectivity file: \$REFLECTIVITY_FILE" | tee -a $output &&
-        echo "Using context file: \$CONTEXT_FILE" | tee -a $output &&
-        plan-data "\$REFLECTIVITY_FILE" "\$CONTEXT_FILE"
-                --output-dir "\$OUTPUT_DIR"/plan
-                --sequence-total "\$SEQUENCE_TOTAL"
-                #if $config_json and str($config_json) != "None"
-                    --state-in config_in.json
-                #end if
-                --state-out "\$PLAN_STATE"
-                > >(tee -a $output) 2> >(tee -a $output >&2) &&
+        PLAN_ARGS=`\$RUN python "\$SHIM" project-out plan _state_in.json` &&
+        eval \$RUN plan-data \$PLAN_ARGS --result-out _plan_result.json
+                > >(tee -a $output) 2> >(tee -a $output >&2);
+        PLAN_RC=\$? &&
+        \$RUN python "\$SHIM" merge-in plan _state_in.json _plan_result.json \$PLAN_RC _plan_state.json &&
+        if [ "\$PLAN_RC" -ne 0 ]; then
+            cp _plan_state.json '$updated_config';
+            echo "plan-data failed (exit \$PLAN_RC)" | tee -a $output >&2;
+            exit \$PLAN_RC;
+        fi &&
 
-        PERFORM_ASSEMBLY=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print('1' if (d.get('analysis') or {}).get('perform_assembly') else '0')" "\$PLAN_STATE"` &&
-        MODEL_NAME=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print((d.get('analysis') or {}).get('model_name') or '')" "\$PLAN_STATE"` &&
-        JOB_YAML=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print(((d.get('analysis') or {}).get('metadata') or {}).get('job_yaml') or '')" "\$PLAN_STATE"` &&
-        echo "analysis.model_name=\$MODEL_NAME  perform_assembly=\$PERFORM_ASSEMBLY" | tee -a $output &&
-        echo "analysis.metadata.job_yaml=\$JOB_YAML" | tee -a $output &&
+        PERFORM_ASSEMBLY=`\$RUN python "\$SHIM" get _plan_state.json stages.analysis.params.perform_assembly` &&
+        echo "perform_assembly=\$PERFORM_ASSEMBLY" | tee -a $output &&
 
-        if [ "\$PERFORM_ASSEMBLY" = "1" ]; then
-            echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
-            set -o pipefail;
-            analyze-sample --no-reduction-gate
-                    --state-in "\$PLAN_STATE"
-                    --state-out '$updated_config'
+        if [ "\$PERFORM_ASSEMBLY" = "True" ]; then
+            echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output;
+            ANALYZE_ARGS=`\$RUN python "\$SHIM" project-out analyze _plan_state.json`;
+            eval \$RUN analyze-sample --no-reduction-gate \$ANALYZE_ARGS --result-out _analyze_result.json
                     > >(tee -a $output) 2> >(tee -a $output >&2);
-            ANALYZE_EXIT=\$?;
-            set +o pipefail;
-            echo "--- analyze-sample exit code: \$ANALYZE_EXIT ---" | tee -a $output;
-            if [ "\$ANALYZE_EXIT" -ne 0 ]; then
-                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_EXIT" | tee -a $output >&2;
+            ANALYZE_RC=\$?;
+            \$RUN python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config';
+            echo "--- analyze-sample exit code: \$ANALYZE_RC ---" | tee -a $output;
+            if [ "\$ANALYZE_RC" -ne 0 ]; then
+                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_RC" | tee -a $output >&2;
             fi;
         else
             echo "analysis.perform_assembly is false; skipping analyze-sample." | tee -a $output;
+            cp _plan_state.json '$updated_config';
         fi &&
-
-        if [ ! -f '$updated_config' ]; then
-            echo "analyze-sample did not write a state file; seeding updated_config from plan state." | tee -a $output >&2;
-            cp "\$PLAN_STATE" '$updated_config';
-        fi &&
-
-        python '$canonicalize_paths' '$updated_config' "\$OUTPUT_DIR" &&
 
         echo "=== post-run inventory ===" | tee -a $output &&
-        (ls -la "\$OUTPUT_DIR"/models 2>&1 || true) | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/results 2>&1 || true) | tee -a $output &&
-        (ls -la "\$OUTPUT_DIR"/reports 2>&1 || true) | tee -a $output &&
 
-        PROBLEM_JSON=`python -c "import json,sys; d=json.load(open(sys.argv[1])); print((d.get('analysis') or {}).get('problem_json') or '')" '$updated_config'` &&
+        PROBLEM_JSON=`\$RUN python "\$SHIM" get '$updated_config' stages.analysis.artifacts.problem_json` &&
+        JOB_YAML=`\$RUN python "\$SHIM" get '$updated_config' stages.analysis.artifacts.job_yaml` &&
         if [ -n "\$PROBLEM_JSON" ] && [ -f "\$PROBLEM_JSON" ]; then
             echo "Selected problem.json: \$PROBLEM_JSON" | tee -a $output;
             cat "\$PROBLEM_JSON" > $output_model;
+        elif [ -n "\$JOB_YAML" ] && [ -f "\$JOB_YAML" ]; then
+            echo "WARNING: No problem.json; using job YAML as output_model." | tee -a $output >&2;
+            cp "\$JOB_YAML" $output_model;
         else
-            echo "WARNING: No problem.json available; falling back to job YAML as output_model." | tee -a $output >&2;
-            if [ -n "\$JOB_YAML" ] && [ -f "\$JOB_YAML" ]; then
-                cp "\$JOB_YAML" $output_model;
-            else
-                echo "(no job YAML either; emitting empty output_model)" | tee -a $output >&2;
-                : > $output_model;
-            fi;
+            echo "(no problem.json or job YAML; emitting empty output_model)" | tee -a $output >&2;
+            : > $output_model;
         fi
     ]]></command>
 </tool>
