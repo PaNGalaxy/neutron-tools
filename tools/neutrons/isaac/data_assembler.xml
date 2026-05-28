@@ -461,7 +461,11 @@ if __name__ == "__main__":
 
         echo "=== data-assembler ingest ===" | tee -a $output &&
         INGEST_ARGS=`python "\$SHIM" project-out ingest '$config_json'` &&
-        eval data-assembler ingest \$INGEST_ARGS #if $parquet -p parquet #end if --result-out _ingest_result.json
+        eval data-assembler ingest \$INGEST_ARGS
+                #if $parquet
+                    -p parquet
+                #end if
+                --result-out _ingest_result.json
                 > >(tee -a $output) 2> >(tee -a $output >&2);
         INGEST_RC=\$? &&
         python "\$SHIM" merge-in ingest '$config_json' _ingest_result.json \$INGEST_RC _ingest_state.json &&
