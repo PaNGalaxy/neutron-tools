@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/aure:sha-839b1b8</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-177d9e5-slim</container>
         <credentials name="llm_credentials" version="1.0"
                      label="LLM Credentials"
                      description="Credentials for accessing LLM API.">
@@ -18,7 +18,7 @@
     </requirements>
     <inputs>
         <param name="config_json" type="data" format="json" label="JSON Configuration" optional="false"
-               help="A workflow-state JSON (from the reduction step). Provides the reduced reflectivity file, the analysis prompt, the output directory, and the LLM endpoint."/>
+               help="A workflow-state JSON (from the reduction step). Provides the reduced reflectivity file, the context file, the sequence total, the output directory, and the LLM endpoint."/>
         <param name="llm_provider" type="text" value="local" label="LLM Provider" help="Fills state.inputs.operator.llm.provider only if the state leaves it blank."/>
         <param name="llm_model" type="text" value="gpt-4" label="LLM Model" help="Fills state.inputs.operator.llm.model only if blank."/>
         <param name="llm_base_url" type="text" value="https://aoai-eastus-bead.openai.azure.com/openai/v1/" label="LLM Endpoint" help="Fills state.inputs.operator.llm.base_url only if blank."/>
@@ -168,9 +168,19 @@ def _outdir(state):
     return _get(state, "inputs", "operator", "output_directory")
 
 
-def _sub(state, name):
+def _rundir(state):
     out = _outdir(state)
-    return os.path.join(out, name) if out else ""
+    if not out:
+        return ""
+    run = _get(state, "workflow", "run")
+    if run in ("", None):
+        return out
+    return os.path.join(out, str(run))
+
+
+def _sub(state, name):
+    run_dir = _rundir(state)
+    return os.path.join(run_dir, name) if run_dir else ""
 
 
 def _job_yaml(state):
@@ -400,6 +410,16 @@ def _cmd_get(args):
     sys.stdout.write("" if node is None else str(node))
 
 
+def _cmd_rundir(args):
+    """Print the per-run output subdirectory (output_directory joined with run).
+
+    The tool XMLs build their plan/results/reports/assembled dirs off this so
+    they match what ``project-out`` passes to the foreign CLIs. Falls back to
+    the bare output directory when no run number is present.
+    """
+    sys.stdout.write(_rundir(load_state(args.state)))
+
+
 def _cmd_set_llm(args):
     """Fill blank inputs.operator.llm.{provider,model,base_url} from arguments.
 
@@ -437,6 +457,10 @@ def main(argv=None):
     p.add_argument("path")
     p.set_defaults(func=_cmd_get)
 
+    p = sub.add_parser("rundir")
+    p.add_argument("state")
+    p.set_defaults(func=_cmd_rundir)
+
     p = sub.add_parser("set-llm")
     p.add_argument("state")
     p.add_argument("provider")
@@ -459,55 +483,81 @@ if __name__ == "__main__":
         <data name="output_model" format="txt" label="Analyzer Model"></data>
         <data format="json" name="updated_config" label="Updated JSON Configuration"></data>
     </outputs>
-
     <command detect_errors="exit_code"><![CDATA[
         SHIM='$ndip_shim' &&
 
         ## Fill any blank LLM fields in the state from the Galaxy inputs.
         python "\$SHIM" set-llm '$config_json' '$llm_provider' '$llm_model' '$llm_base_url' _state_in.json &&
 
-        ## Export the resolved LLM endpoint; aure reads LLM_* from the environment.
+        ## Export the resolved LLM endpoint so both plan-data and aure analyze
+        ## (which read LLM_* from the environment) pick it up.
         export LLM_PROVIDER=`python "\$SHIM" get _state_in.json inputs.operator.llm.provider` &&
         export LLM_MODEL=`python "\$SHIM" get _state_in.json inputs.operator.llm.model` &&
         export LLM_BASE_URL=`python "\$SHIM" get _state_in.json inputs.operator.llm.base_url` &&
 
-        ## Pull the agentic-analysis inputs straight out of the workflow state.
         OUTPUT_DIR=`python "\$SHIM" get _state_in.json inputs.operator.output_directory` &&
-        PROMPT=`python "\$SHIM" get _state_in.json inputs.operator.prompt` &&
-        REFL=`python "\$SHIM" get _state_in.json stages.reduction.artifacts.combined_file` &&
-        if [ -z "\$REFL" ]; then
-            REFL=`python "\$SHIM" get _state_in.json stages.reduction.artifacts.partial_file`;
-        fi &&
-        if [ -z "\$REFL" ] || [ ! -f "\$REFL" ]; then
-            echo "no reduced reflectivity file found in state (stages.reduction.artifacts)" | tee -a $output >&2;
-            exit 1;
-        fi &&
+        ## Per-run subdir (<output_directory>/<run>) keeps analysis artifacts of
+        ## different runs from overwriting each other; reduction stays in OUTPUT_DIR.
+        RUN_DIR=`python "\$SHIM" rundir _state_in.json` &&
+        RESULTS_DIR="\$RUN_DIR/results" &&
+        mkdir -p "\$RUN_DIR"/plan "\$RESULTS_DIR" "\$RUN_DIR"/reports &&
 
-        mkdir -p "\$OUTPUT_DIR" &&
-        rm -f output && ln -s "\$OUTPUT_DIR" output &&
-
-        echo "=== aure analyze ===" | tee -a $output &&
-        aure analyze "\$REFL" "\$PROMPT" -o ./output
+        ## ---- plan-data: gate the (expensive) agentic fit on sequence completeness ----
+        ## The plan projection feeds plan-data the reduced partial file and the
+        ## scientist's context file, so the context is distilled into the job YAML
+        ## (describe / states / model_name) that aure consumes below.
+        echo "=== plan-data ===" | tee -a $output &&
+        PLAN_ARGS=`python "\$SHIM" project-out plan _state_in.json` &&
+        eval plan-data \$PLAN_ARGS --result-out _plan_result.json
                 > >(tee -a $output) 2> >(tee -a $output >&2);
-        RC=\$? &&
-        echo "--- aure analyze exit code: \$RC ---" | tee -a $output &&
-
-        ## aure does not emit an ndip-tool-result manifest, so synthesise a minimal
-        ## one pointing at the fitted model and let merge-in fold it into the state.
-        MODEL="\$OUTPUT_DIR/models/model_final.json" &&
-        if [ "\$RC" -eq 0 ] && [ -f "\$MODEL" ]; then
-            printf '{"status":"ok","artifacts":{"problem_json":"%s"}}' "\$MODEL" > _analyze_result.json;
-        else
-            printf '{"status":"failed","messages":[{"level":"error","text":"aure analyze did not produce model_final.json"}]}' > _analyze_result.json;
+        PLAN_RC=\$? &&
+        python "\$SHIM" merge-in plan _state_in.json _plan_result.json \$PLAN_RC _plan_state.json &&
+        if [ "\$PLAN_RC" -ne 0 ]; then
+            cp _plan_state.json '$updated_config';
+            echo "plan-data failed (exit \$PLAN_RC)" | tee -a $output >&2;
+            exit \$PLAN_RC;
         fi &&
-        python "\$SHIM" merge-in analyze _state_in.json _analyze_result.json \$RC '$updated_config' &&
 
-        if [ "\$RC" -eq 0 ] && [ -f "\$MODEL" ]; then
-            cat "\$MODEL" > $output_model;
+        PERFORM_ASSEMBLY=`python "\$SHIM" get _plan_state.json stages.analysis.params.perform_assembly` &&
+        echo "perform_assembly=\$PERFORM_ASSEMBLY" | tee -a $output &&
+
+        if [ "\$PERFORM_ASSEMBLY" = "True" ]; then
+            echo "=== aure analyze (agentic fit + refinement) ===" | tee -a $output;
+            JOB_YAML=`python "\$SHIM" get _plan_state.json stages.analysis.artifacts.job_yaml`;
+            ## aure resolves the basename `states` data paths against the setup
+            ## file's own directory, so stage the plan next to the reduced data.
+            JOB_LOCAL="\$OUTPUT_DIR/`basename "\$JOB_YAML"`";
+            cp "\$JOB_YAML" "\$JOB_LOCAL";
+            aure analyze -c "\$JOB_LOCAL" -o "\$RESULTS_DIR" -v
+                    > >(tee -a $output) 2> >(tee -a $output >&2);
+            ANALYZE_RC=\$?;
+            echo "--- aure analyze exit code: \$ANALYZE_RC ---" | tee -a $output;
+            ## aure copies the best-fit problem.json to the top of its output dir.
+            MODEL="\$RESULTS_DIR/problem.json";
+            if [ "\$ANALYZE_RC" -eq 0 ] && [ -f "\$MODEL" ]; then
+                printf '{"status":"ok","artifacts":{"problem_json":"%s"}}' "\$MODEL" > _analyze_result.json;
+            else
+                printf '{"status":"failed","messages":[{"level":"error","text":"aure analyze did not produce problem.json"}]}' > _analyze_result.json;
+            fi;
+            python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config';
+            if [ "\$ANALYZE_RC" -ne 0 ]; then
+                echo "ERROR: aure analyze failed with exit code \$ANALYZE_RC" | tee -a $output >&2;
+            fi;
         else
+            echo "analysis.perform_assembly is false; skipping aure analyze." | tee -a $output;
+            cp _plan_state.json '$updated_config';
+        fi &&
+
+        echo "=== post-run inventory ===" | tee -a $output &&
+        (ls -la "\$RESULTS_DIR" 2>&1 || true) | tee -a $output &&
+
+        PROBLEM_JSON=`python "\$SHIM" get '$updated_config' stages.analysis.artifacts.problem_json` &&
+        if [ -n "\$PROBLEM_JSON" ] && [ -f "\$PROBLEM_JSON" ]; then
+            echo "Selected problem.json: \$PROBLEM_JSON" | tee -a $output;
+            cat "\$PROBLEM_JSON" > $output_model;
+        else
+            echo "(no problem.json emitted; writing empty output_model)" | tee -a $output >&2;
             : > $output_model;
-            echo "aure analyze produced no model (exit \$RC); see console output." | tee -a $output >&2;
-            if [ "\$RC" -ne 0 ]; then exit \$RC; else exit 1; fi;
         fi
     ]]></command>
 </tool>
