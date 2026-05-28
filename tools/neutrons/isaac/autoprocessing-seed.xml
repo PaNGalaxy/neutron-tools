@@ -1,0 +1,54 @@
+<tool id="isaac_seed_config" name="Seed Workflow State" version="0.1.0" profile="22.01">
+    <description>Build the initial workflow-state JSON for a single run from a NeXus event file path and a minimal seed (JSON or YAML).</description>
+
+    <creator>
+        <person name="Mat Doucet"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/ndip-workflows:9e56017aafcd4694604243e055fa09d14346c8e7</container>
+    </requirements>
+
+    <inputs>
+        <param name="event_file" type="text" label="Event NeXus File Path"
+               help="Absolute path to the run's NeXus file, e.g. /SNS/REF_L/IPTS-36897/nexus/REF_L_226644.nxs.h5. Used to derive run, instrument, IPTS, and data_directory; relative seed paths resolve against the IPTS shared root parsed from this path."/>
+        <param name="seed" type="data" format="json,yaml" label="Seed Configuration"
+               help="JSON or YAML with the fields this tool cannot derive. Required: template_file, output_directory, context_file, sequence_total. Optional: prompt, llm_provider, llm_model, llm_base_url. Relative paths resolve to the IPTS shared root."/>
+    </inputs>
+
+    <outputs>
+        <data format="json" name="config_json" label="Initial Workflow State"/>
+    </outputs>
+
+    <command detect_errors="exit_code"><![CDATA[
+        seed-config '$event_file' '$seed' --output '$config_json'
+    ]]></command>
+
+    <help><![CDATA[
+**Seed Workflow State**
+
+Produces the v1 workflow-state JSON that ``reduction.xml`` consumes.
+You hand it:
+
+* the run's NeXus event file path (a string, not a Galaxy upload),
+* a small YAML or JSON seed describing the parts of the run that
+  cannot be derived from the event file path.
+
+A minimal seed::
+
+    template_file:     autoreduce/template_down.xml
+    output_directory:  isaac/reduction/sample5
+    context_file:      isaac/context.md
+    sequence_total:    3
+
+All three paths above are relative to the IPTS ``shared/`` directory
+discovered from the event file (e.g. ``/SNS/REF_L/IPTS-36897/shared``).
+Absolute paths in the seed are used as-is.
+
+The tool emits a single JSON dataset suitable for use as the
+``config_json`` input of the rest of the pipeline (reduction →
+simple_analyzer → data_assembler). See ``docs/state-schema.md`` and
+``docs/state-handling.md`` for the schema and an end-to-end walkthrough.
+    ]]></help>
+</tool>
