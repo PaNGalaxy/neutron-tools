@@ -494,35 +494,35 @@ if __name__ == "__main__":
         PERFORM_ASSEMBLY=`python "\$SHIM" get _plan_state.json stages.analysis.params.perform_assembly` &&
         echo "perform_assembly=\$PERFORM_ASSEMBLY" | tee -a $output &&
 
-        if [ "\$PERFORM_ASSEMBLY" = "True" ]; then
-            echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output;
-            ANALYZE_ARGS=`python "\$SHIM" project-out analyze _plan_state.json`;
-            eval analyze-sample --no-reduction-gate \$ANALYZE_ARGS --result-out _analyze_result.json
-                    > >(tee -a $output) 2> >(tee -a $output >&2);
-            ANALYZE_RC=\$?;
-            python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config';
-            echo "--- analyze-sample exit code: \$ANALYZE_RC ---" | tee -a $output;
-            if [ "\$ANALYZE_RC" -ne 0 ]; then
-                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_RC" | tee -a $output >&2;
-            fi;
-        else
+        if [ "\$PERFORM_ASSEMBLY" != "True" ]; then
             echo "analysis.perform_assembly is false; skipping analyze-sample." | tee -a $output;
             cp _plan_state.json '$updated_config';
+            : > $output_model;
+            exit 0;
+        fi &&
+
+        echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
+        ANALYZE_ARGS=`python "\$SHIM" project-out analyze _plan_state.json` &&
+        eval analyze-sample --no-reduction-gate \$ANALYZE_ARGS --result-out _analyze_result.json
+                > >(tee -a $output) 2> >(tee -a $output >&2);
+        ANALYZE_RC=\$? &&
+        python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config' &&
+        echo "--- analyze-sample exit code: \$ANALYZE_RC ---" | tee -a $output &&
+        if [ "\$ANALYZE_RC" -ne 0 ]; then
+            echo "ERROR: analyze-sample failed with exit code \$ANALYZE_RC" | tee -a $output >&2;
+            : > $output_model;
+            exit \$ANALYZE_RC;
         fi &&
 
         echo "=== post-run inventory ===" | tee -a $output &&
         (ls -la "\$OUTPUT_DIR"/results 2>&1 || true) | tee -a $output &&
 
         PROBLEM_JSON=`python "\$SHIM" get '$updated_config' stages.analysis.artifacts.problem_json` &&
-        JOB_YAML=`python "\$SHIM" get '$updated_config' stages.analysis.artifacts.job_yaml` &&
         if [ -n "\$PROBLEM_JSON" ] && [ -f "\$PROBLEM_JSON" ]; then
             echo "Selected problem.json: \$PROBLEM_JSON" | tee -a $output;
             cat "\$PROBLEM_JSON" > $output_model;
-        elif [ -n "\$JOB_YAML" ] && [ -f "\$JOB_YAML" ]; then
-            echo "WARNING: No problem.json; using job YAML as output_model." | tee -a $output >&2;
-            cp "\$JOB_YAML" $output_model;
         else
-            echo "(no problem.json or job YAML; emitting empty output_model)" | tee -a $output >&2;
+            echo "(no problem.json; emitting empty output_model)" | tee -a $output;
             : > $output_model;
         fi
     ]]></command>
