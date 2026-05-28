@@ -1,5 +1,5 @@
 <tool id="isaac_seed_config" name="Seed Workflow State" version="0.1.0" profile="22.01">
-    <description>Build the initial workflow-state JSON for a single run from a NeXus event file path and a minimal seed (JSON or YAML).</description>
+    <description>Build the initial v1 workflow-state JSON for a single run from a NeXus event file path and a minimal seed (JSON or YAML).</description>
 
     <creator>
         <person name="Mat Doucet"/>
@@ -11,7 +11,7 @@
     </requirements>
 
     <inputs>
-        <param name="event_file" type="text" label="Event NeXus File Path"
+        <param name="event_file" type="data" format="h5" label="Event NeXus File Path"
                help="Absolute path to the run's NeXus file, e.g. /SNS/REF_L/IPTS-36897/nexus/REF_L_226644.nxs.h5. Used to derive run, instrument, IPTS, and data_directory; relative seed paths resolve against the IPTS shared root parsed from this path."/>
         <param name="seed" type="data" format="json,yaml" label="Seed Configuration"
                help="JSON or YAML with the fields this tool cannot derive. Required: template_file, output_directory, context_file, sequence_total. Optional: prompt, llm_provider, llm_model, llm_base_url. Relative paths resolve to the IPTS shared root."/>
@@ -31,7 +31,7 @@
 Produces the v1 workflow-state JSON that ``reduction.xml`` consumes.
 You hand it:
 
-* the run's NeXus event file path (a string, not a Galaxy upload),
+* the run's NeXus event file path (a Galaxy dataset in HDF5 format),
 * a small YAML or JSON seed describing the parts of the run that
   cannot be derived from the event file path.
 
