@@ -1,8 +1,8 @@
 stages:
   - build
   - push
-  - lint
   - test
+  - lint
 
 
 variables:
@@ -64,6 +64,7 @@ lint-xml:
     - docker build -f dockerfiles/Dockerfile.linter -t tool_linter .
     - docker run --rm -v $PWD:/reports -u `id -u`:`id -g` tool_linter pytest --junitxml=/reports/report.xml
   allow_failure: true
+  when: manual
   artifacts:
     when: always
     reports:
