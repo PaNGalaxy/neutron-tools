@@ -168,9 +168,19 @@ def _outdir(state):
     return _get(state, "inputs", "operator", "output_directory")
 
 
-def _sub(state, name):
+def _rundir(state):
     out = _outdir(state)
-    return os.path.join(out, name) if out else ""
+    if not out:
+        return ""
+    run = _get(state, "workflow", "run")
+    if run in ("", None):
+        return out
+    return os.path.join(out, str(run))
+
+
+def _sub(state, name):
+    run_dir = _rundir(state)
+    return os.path.join(run_dir, name) if run_dir else ""
 
 
 def _job_yaml(state):
@@ -400,6 +410,16 @@ def _cmd_get(args):
     sys.stdout.write("" if node is None else str(node))
 
 
+def _cmd_rundir(args):
+    """Print the per-run output subdirectory (output_directory joined with run).
+
+    The tool XMLs build their plan/results/reports/assembled dirs off this so
+    they match what ``project-out`` passes to the foreign CLIs. Falls back to
+    the bare output directory when no run number is present.
+    """
+    sys.stdout.write(_rundir(load_state(args.state)))
+
+
 def _cmd_set_llm(args):
     """Fill blank inputs.operator.llm.{provider,model,base_url} from arguments.
 
@@ -437,6 +457,10 @@ def main(argv=None):
     p.add_argument("path")
     p.set_defaults(func=_cmd_get)
 
+    p = sub.add_parser("rundir")
+    p.add_argument("state")
+    p.set_defaults(func=_cmd_rundir)
+
     p = sub.add_parser("set-llm")
     p.add_argument("state")
     p.add_argument("provider")
@@ -472,10 +496,13 @@ if __name__ == "__main__":
         export LLM_BASE_URL=`python "\$SHIM" get _state_in.json inputs.operator.llm.base_url` &&
 
         OUTPUT_DIR=`python "\$SHIM" get _state_in.json inputs.operator.output_directory` &&
-        mkdir -p "\$OUTPUT_DIR"/plan "\$OUTPUT_DIR"/models "\$OUTPUT_DIR"/results "\$OUTPUT_DIR"/reports &&
-        export ANALYZER_MODELS_DIR="\$OUTPUT_DIR"/models &&
-        export ANALYZER_RESULTS_DIR="\$OUTPUT_DIR"/results &&
-        export ANALYZER_REPORTS_DIR="\$OUTPUT_DIR"/reports &&
+        ## Per-run subdir (<output_directory>/<run>) keeps analysis artifacts of
+        ## different runs from overwriting each other; reduction stays in OUTPUT_DIR.
+        RUN_DIR=`python "\$SHIM" rundir _state_in.json` &&
+        mkdir -p "\$RUN_DIR"/plan "\$RUN_DIR"/models "\$RUN_DIR"/results "\$RUN_DIR"/reports &&
+        export ANALYZER_MODELS_DIR="\$RUN_DIR"/models &&
+        export ANALYZER_RESULTS_DIR="\$RUN_DIR"/results &&
+        export ANALYZER_REPORTS_DIR="\$RUN_DIR"/reports &&
         export ANALYZER_PARTIAL_DATA_DIR="\$OUTPUT_DIR" &&
         export ANALYZER_COMBINED_DATA_DIR="\$OUTPUT_DIR" &&
 
@@ -494,35 +521,35 @@ if __name__ == "__main__":
         PERFORM_ASSEMBLY=`python "\$SHIM" get _plan_state.json stages.analysis.params.perform_assembly` &&
         echo "perform_assembly=\$PERFORM_ASSEMBLY" | tee -a $output &&
 
-        if [ "\$PERFORM_ASSEMBLY" != "True" ]; then
+        if [ "\$PERFORM_ASSEMBLY" = "True" ]; then
+            echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output;
+            ANALYZE_ARGS=`python "\$SHIM" project-out analyze _plan_state.json`;
+            eval analyze-sample --no-reduction-gate \$ANALYZE_ARGS --result-out _analyze_result.json
+                    > >(tee -a $output) 2> >(tee -a $output >&2);
+            ANALYZE_RC=\$?;
+            python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config';
+            echo "--- analyze-sample exit code: \$ANALYZE_RC ---" | tee -a $output;
+            if [ "\$ANALYZE_RC" -ne 0 ]; then
+                echo "ERROR: analyze-sample failed with exit code \$ANALYZE_RC" | tee -a $output >&2;
+            fi;
+        else
             echo "analysis.perform_assembly is false; skipping analyze-sample." | tee -a $output;
             cp _plan_state.json '$updated_config';
-            : > $output_model;
-            exit 0;
-        fi &&
-
-        echo "=== analyze-sample (reduction gate disabled) ===" | tee -a $output &&
-        ANALYZE_ARGS=`python "\$SHIM" project-out analyze _plan_state.json` &&
-        eval analyze-sample --no-reduction-gate \$ANALYZE_ARGS --result-out _analyze_result.json
-                > >(tee -a $output) 2> >(tee -a $output >&2);
-        ANALYZE_RC=\$? &&
-        python "\$SHIM" merge-in analyze _plan_state.json _analyze_result.json \$ANALYZE_RC '$updated_config' &&
-        echo "--- analyze-sample exit code: \$ANALYZE_RC ---" | tee -a $output &&
-        if [ "\$ANALYZE_RC" -ne 0 ]; then
-            echo "ERROR: analyze-sample failed with exit code \$ANALYZE_RC" | tee -a $output >&2;
-            : > $output_model;
-            exit \$ANALYZE_RC;
         fi &&
 
         echo "=== post-run inventory ===" | tee -a $output &&
-        (ls -la "\$OUTPUT_DIR"/results 2>&1 || true) | tee -a $output &&
+        (ls -la "\$RUN_DIR"/results 2>&1 || true) | tee -a $output &&
 
         PROBLEM_JSON=`python "\$SHIM" get '$updated_config' stages.analysis.artifacts.problem_json` &&
+        JOB_YAML=`python "\$SHIM" get '$updated_config' stages.analysis.artifacts.job_yaml` &&
         if [ -n "\$PROBLEM_JSON" ] && [ -f "\$PROBLEM_JSON" ]; then
             echo "Selected problem.json: \$PROBLEM_JSON" | tee -a $output;
             cat "\$PROBLEM_JSON" > $output_model;
+        elif [ -n "\$JOB_YAML" ] && [ -f "\$JOB_YAML" ]; then
+            echo "WARNING: No problem.json; using job YAML as output_model." | tee -a $output >&2;
+            cp "\$JOB_YAML" $output_model;
         else
-            echo "(no problem.json; emitting empty output_model)" | tee -a $output;
+            echo "(no problem.json or job YAML; emitting empty output_model)" | tee -a $output >&2;
             : > $output_model;
         fi
     ]]></command>
