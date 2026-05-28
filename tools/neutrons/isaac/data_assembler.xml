@@ -486,6 +486,7 @@ if __name__ == "__main__":
             exit \$CONVERT_RC;
         fi &&
 
+        cp '$updated_config' "\$ASSEMBLED_DIR/results.json" &&
         tar -czvf $out_gz -C "\$ASSEMBLED_DIR" .
     ]]></command>
 </tool>
