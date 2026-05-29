@@ -512,6 +512,9 @@ if __name__ == "__main__":
             exit \$CONVERT_RC;
         fi &&
 
+        ## Drop the final workflow state alongside the assembled artifacts so the
+        ## tarball is self-describing.
+        cp '$updated_config' "\$ASSEMBLED_DIR/results.json" &&
         tar -czvf $out_gz -C "\$ASSEMBLED_DIR" .
     ]]></command>
 </tool>
