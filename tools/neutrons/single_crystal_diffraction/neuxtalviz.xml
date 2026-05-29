@@ -1,0 +1,34 @@
+<tool id="nova-neutrons-neuxtalviz" tool_type="interactive" name="NeuXtalViz" profile="22.05" version="0.1.0.dev122">
+    <description></description>
+    <requirements>
+        <resource type="cuda_device_count_min">1</resource>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/neuxtalviz:0.1.0.dev122</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="NeuXtalViz" label="neuxtalviz" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">neuxtalviz</environment_variable>
+    </environment_variables>
+    <command detect_errors="exit_code"><![CDATA[
+        export GALAXY_WORKING_DIR=`pwd` &&
+        export DEFAULT_DIR="/SNS/users/\$GALAXY_TOOL_USER" &&
+        #if $directory:
+            export DEFAULT_DIR=$directory &&
+        #end if
+        /start.sh \$GALAXY_TOOL_USER
+    ]]></command>
+    <inputs>
+        <param name="directory" type="text" optional="true" label="Default working directory" />
+    </inputs>
+    <outputs>
+    </outputs>
+    <help><![CDATA[
+        Starts the noVNC version of NeuXtalViz.
+    ]]></help>
+</tool>
