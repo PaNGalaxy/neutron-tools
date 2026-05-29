@@ -1,5 +1,5 @@
 <tool id="isaac_seed_config" name="Seed Workflow State" version="0.1.0" profile="22.01">
-    <description>Build the initial v1 workflow-state JSON for a single run from a NeXus event file path and a minimal seed (JSON or YAML).</description>
+    <description>Build the initial v1 workflow-state JSON for a single run from a NeXus event file (run identity read from its contents) and a minimal seed (JSON or YAML).</description>
 
     <creator>
         <person name="Mat Doucet"/>
@@ -7,14 +7,16 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/ndip-workflows:0b9cecde11aa740736e7da96890df9d0272bf5e8</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/isaac-neutrons/ndip-workflows:14299e824ac1f9ae2bcbbd05fe7e526d85bd35cf</container>
     </requirements>
 
     <inputs>
         <param name="event_file" type="data" format="h5" label="Event NeXus File"
-               help="Absolute path to the run's NeXus file, e.g. /SNS/REF_L/IPTS-36897/nexus/REF_L_226644.nxs.h5. Used to derive run, instrument, IPTS, and data_directory; relative seed paths resolve against the IPTS shared root parsed from this path."/>
+               help="The run's NeXus file. run, instrument, and IPTS are read from the file CONTENTS with h5py (/entry/run_number, /entry/instrument/name, /entry/experiment_identifier) — the filename is ignored, so Galaxy's dataset_&lt;uuid&gt;.dat naming is fine. The canonical nexus_file / data_directory / ipts_shared_root paths are reconstructed under the facility root."/>
         <param name="seed" type="data" format="json,yaml" label="Seed Configuration"
                help="JSON or YAML with the fields this tool cannot derive. Required: template_file, output_directory, context_file, sequence_total. Optional: prompt, llm_provider, llm_model, llm_base_url. Relative paths resolve to the IPTS shared root."/>
+        <param name="facility_root" type="text" value="/SNS" label="Facility Data Root"
+               help="Mounted data root. Canonical paths are reconstructed as &lt;root&gt;/&lt;INSTRUMENT&gt;/&lt;IPTS&gt;/{nexus,shared}/..."/>
     </inputs>
 
     <outputs>
@@ -22,7 +24,7 @@
     </outputs>
 
     <command detect_errors="exit_code"><![CDATA[
-        seed-config '$event_file' '$seed' --output '$config_json'
+        seed-config '$event_file' '$seed' --facility-root '$facility_root' --output '$config_json'
     ]]></command>
 
     <help><![CDATA[
@@ -31,9 +33,11 @@
 Produces the v1 workflow-state JSON that ``reduction.xml`` consumes.
 You hand it:
 
-* the run's NeXus event file path (a Galaxy dataset in HDF5 format),
+* the run's NeXus event file (a Galaxy dataset in HDF5 format); its
+  run, instrument, and IPTS are read from the file *contents*, so the
+  Galaxy ``dataset_<uuid>.dat`` filename does not matter,
 * a small YAML or JSON seed describing the parts of the run that
-  cannot be derived from the event file path.
+  cannot be read from the event file.
 
 A minimal seed::
 
@@ -42,9 +46,9 @@ A minimal seed::
     context_file:      isaac/context.md
     sequence_total:    3
 
-All three paths above are relative to the IPTS ``shared/`` directory
-discovered from the event file (e.g. ``/SNS/REF_L/IPTS-36897/shared``).
-Absolute paths in the seed are used as-is.
+All three paths above are relative to the IPTS ``shared/`` directory,
+reconstructed as ``<facility_root>/<INSTRUMENT>/<IPTS>/shared`` (e.g.
+``/SNS/REF_L/IPTS-36897/shared``). Absolute paths in the seed are used as-is.
 
 The tool emits a single JSON dataset suitable for use as the
 ``config_json`` input of the rest of the pipeline (reduction →
