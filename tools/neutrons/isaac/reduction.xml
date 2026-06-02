@@ -7,7 +7,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/nr-analyzer:sha-57bd7fd</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/nr-analyzer:sha-aea1fa5</container>
     </requirements>
 
     <inputs>
