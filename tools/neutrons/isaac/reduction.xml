@@ -7,7 +7,7 @@
     </creator>
 
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/mdoucet/analyzer:sha-0a4c2f2</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/nr-analyzer:sha-57bd7fd</container>
     </requirements>
 
     <inputs>
@@ -158,9 +158,19 @@ def _outdir(state):
     return _get(state, "inputs", "operator", "output_directory")
 
 
-def _sub(state, name):
+def _rundir(state):
     out = _outdir(state)
-    return os.path.join(out, name) if out else ""
+    if not out:
+        return ""
+    run = _get(state, "workflow", "run")
+    if run in ("", None):
+        return out
+    return os.path.join(out, str(run))
+
+
+def _sub(state, name):
+    run_dir = _rundir(state)
+    return os.path.join(run_dir, name) if run_dir else ""
 
 
 def _job_yaml(state):
@@ -390,6 +400,16 @@ def _cmd_get(args):
     sys.stdout.write("" if node is None else str(node))
 
 
+def _cmd_rundir(args):
+    """Print the per-run output subdirectory (output_directory joined with run).
+
+    The tool XMLs build their plan/results/reports/assembled dirs off this so
+    they match what ``project-out`` passes to the foreign CLIs. Falls back to
+    the bare output directory when no run number is present.
+    """
+    sys.stdout.write(_rundir(load_state(args.state)))
+
+
 def _cmd_set_llm(args):
     """Fill blank inputs.operator.llm.{provider,model,base_url} from arguments.
 
@@ -426,6 +446,10 @@ def main(argv=None):
     p.add_argument("state")
     p.add_argument("path")
     p.set_defaults(func=_cmd_get)
+
+    p = sub.add_parser("rundir")
+    p.add_argument("state")
+    p.set_defaults(func=_cmd_rundir)
 
     p = sub.add_parser("set-llm")
     p.add_argument("state")
