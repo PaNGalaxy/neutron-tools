@@ -58,6 +58,32 @@ push_dev_tools:
   tags:
     - rse-multi-builder
 
+redeploy_k8s_galaxy:
+  stage: push
+  variables:
+    KUBE_NAMESPACE: ndip
+    GALAXY_DEPLOYMENT: galaxy
+  before_script: []
+  after_script: []
+  script:
+    - >
+      docker run --rm -e KUBECONFIG=/tmp/kubeconfig
+      -v "$KUBECONFIG":/tmp/kubeconfig:ro
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      rollout restart deployment/"$GALAXY_DEPLOYMENT" -n "$KUBE_NAMESPACE"
+    - >
+      docker run --rm -e KUBECONFIG=/tmp/kubeconfig
+      -v "$KUBECONFIG":/tmp/kubeconfig:ro
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      rollout status deployment/"$GALAXY_DEPLOYMENT" -n "$KUBE_NAMESPACE" --timeout=300s
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "prototype"
+      when: always
+    - when: never
+  tags:
+    - rse-multi-builder
+
 lint-xml:
   stage: lint
   script:
