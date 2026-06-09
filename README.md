@@ -9,8 +9,23 @@ This is the repo for Galaxy tools that we create within the neutrons project. At
 
 
 ## Adding a new tool
+
 - put tool files - xml and code (e.g. a python script) to _tools/neutrons_
 - if needed, add tool data to _tool-data_ folder
+
+Before pushing, we provide some some tests for your XML file. You can run these tests with:
+
+```bash
+pixi run pytest
+```
+
+You can also configure these tests to run when you commit by using `pre-commit`:
+
+```bash
+pixi run pre-commit install
+# If you run the tests on commit and other peoples prototype XML files are causing failures, then you can still commit with the following.
+git commit --no-verify
+```
 
 ## Installing to Galaxy
 

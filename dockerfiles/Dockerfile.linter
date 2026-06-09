@@ -1,0 +1,17 @@
+FROM regproxy.ornl.gov/hub_proxy/ubuntu:noble
+
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    build-essential curl liblzma-dev zlib1g-dev
+
+RUN mkdir -p /.cache
+
+COPY . /opt/run
+WORKDIR /opt/run
+
+RUN curl -fsSL https://pixi.sh/install.sh | sh
+ENV PATH="/root/.pixi/bin:${PATH}"
+RUN pixi install
+SHELL [ "pixi", "run" ]
+ENTRYPOINT [ "pixi", "run" ]
+
+RUN chmod og+rwX -R /opt/run /.cache

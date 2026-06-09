@@ -23,9 +23,6 @@
     ]]>
     </command>
     <outputs>
-        <data name="output_single" auto_format="true" label="Thinlinc Output. Stop to kill thinlinc.">
-            <filter>output_option == "1"</filter>
-        </data>
     </outputs>
     <help><![CDATA[
         Runs an interactive Thinlinc session.

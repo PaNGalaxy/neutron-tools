@@ -28,7 +28,6 @@
         <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
     </inputs>
     <outputs>
-        <data name="output_single" auto_format="true" label="ShelXle Console Output"></data>
     </outputs>
     <help><![CDATA[
         Starts ShelXle.

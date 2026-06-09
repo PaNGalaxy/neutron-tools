@@ -55,7 +55,6 @@ INTERACTIVE_TOOLS_BOTH = {
 INTERACTIVE_TOOLS_TEST = {
     "neutrons_trame_garnet": None,
     "nova-interactive-tool-amira": None,
-    "neutrons_ctr": None,
     "neutrons_gravitas_phonopy": None,
     "nova-neutrons-trame-time-resolved-vis": None,
 }
