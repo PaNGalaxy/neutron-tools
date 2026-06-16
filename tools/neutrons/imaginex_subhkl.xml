@@ -82,7 +82,7 @@
 			#set $options = $options + " --refine-goniometer "
 		#end if
 		#if $refineSample:
-			#set $options = $options + " --refine-sample "
+			#set $options = $options + " --refine-goniometer-trans "
 		#end if
 		#if $refineBeam:
 			#set $options = $options + " --refine-beam "
@@ -93,8 +93,16 @@
 		#if $refineDetectorBanks != "":
 			#set $options = $options + " --refine-detector-banks " + str($refineDetectorBanks) + " "
 		#end if 
+		#if $cylinder:
+			#set $options = $options + " --cylinder-axis " + str($cylinder) + " "
+		#end if
+		#if $index:
+			#set $options = $options + " --index "
+		#else:
+			#set $options = $options + " --no-index "
+		#end if
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --goniometer-trans-bound-meters $sampleBound --beam-bound-deg $beamBound --detector-area-bound-frac $detectorArea --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
     ]]></command>
     <inputs>
@@ -134,12 +142,13 @@
 		<param name="refineGoniometer" type="boolean" checked="false" label="Refine Goniometer" /> 
 		<param name="goniometerAxes" type="text" optional="true" value="" label="Goniometer Axes List" help="(Optional) Comma separated list of goniometer axes. Leave blank to not refine any axis." /> 
 		<param name="goniometerBound" type="float" value="0.5" label="Goniometer Refinement Bound" /> 
-		<param name="refineSample" type="boolean" checked="false" label="Refine Sample" /> 
-		<param name="sampleBound" type="float" value="0.005" label="Sample Bound (Meters)" /> 
+		<param name="refineSample" type="boolean" checked="false" label="Refine Goniometer Translation" /> 
+		<param name="sampleBound" type="float" value="0.005" label="Goniometer Translation Bound (Meters)" /> 
 		<param name="refineBeam" type="boolean" checked="false" label="Refine Beam" /> 
 		<param name="beamBound" type="float" value="0.05" label="Beam Bound (Degees)" /> 
 		<param name="refineDetector" type="boolean" checked="false" label="Refine Detector" />
 		<param name="refineDetectorBanks" type="text" optional="true" value="" label="Refine Detector Banks" help="As a comma-separated list of numerical bank IDs (eg 1,2,3)" />
+		<param name="detectorArea" type="float" value="0.05" labels="Detector Area Bound Fraction" />
 		<param name="detectorModes" type="text" value="independent" label="Detector modes" help="Comma-separated list of refinement modes (e.g. radial,global_rot,independent)" />
 		<param name="detectorTrans" type="float" value="0.005" label="Detector Trans Bound (Meters)" />
 		<param name="detectorGlobalTrans" type="float" value="0.01" label="Detector Global Trans Bound (Meters)" />
@@ -147,12 +156,14 @@
 		<param name="detectorGlobalRot" type="float" value="2.0" label="Detector Global Rot Bound (Degrees)" />
 		<param name="detectorAxis" type="text" value="0,1,0" label="Detector Global Rotation Axis" help="As a comma-separated list (eg 0,1,0)" />
 		<param name="detectorRadial" type="float" value="0.05" label="Detector Radial Bound Fraction" />
+		<param name="cylinder" type="text" value="" optional="true" label="Axis Vector for Global Rot Axis Mode" help="As a comma-separated list (eg 0,1,0)" />>
 		<param format="h5" name="bootstrap" type="data" optional="true" label="Bootstrap file to restart refinement from" />
 		<param name="dMin" type="float" optional="true" value="" label="D Min" /> 
 		<param name="dMax" type="float" optional="true" value="" label="D Max" /> 
 		<param name="batch" type="integer" optional="true" value="" label="Batch Size" /> 
 		<param name="bSharpen" type="float" optional="true" value="" label="Wilson B-Factor" /> 
 		<param name="candidates" type="integer" value="64" label="Number of Lambda Candidates" />
+		<param name="index" type="boolean" checked="false" label="Index" /> 
 
 
 
