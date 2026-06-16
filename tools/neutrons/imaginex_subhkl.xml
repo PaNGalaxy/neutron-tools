@@ -12,6 +12,24 @@
 		
 		#set $options = ""
 		
+		#if $a:
+			#set $options = $options + " --a " + str($a) + " " 
+		#end if
+		#if $b:
+			#set $options = $options + " --b " + str($b) + " " 
+		#end if
+		#if $c:
+			#set $options = $options + " --c " + str($c) + " " 
+		#end if
+		#if $alpha:
+			#set $options = $options + " --alpha " + str($alpha) + " " 
+		#end if
+		#if $beta:
+			#set $options = $options + " --beta " + str($beta) + " " 
+		#end if
+		#if $gamma:
+			#set $options = $options + " --gamma " + str($gamma) + " " 
+		#end if
 		#if $wavelengthMin:
 			#set $options = $options + " --wavelength-min " + str($wavelengthMin) + " " 
 		#end if
@@ -20,6 +38,9 @@
 		#end if
 		#if $kiVec != "":
 			#set $options = $options + " --ki-vec " + str($kiVec) + " "
+		#end if
+		#if $space != "":
+			#set $options = $options + " --space-group " + str($space) + " "
 		#end if
 		#if $goniometer:
 			mv "$goniometer" "$goniometer.element_identifier" ;  
@@ -73,22 +94,22 @@
 			#set $options = $options + " --refine-detector-banks " + str($refineDetectorBanks) + " "
 		#end if 
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 --a $a --b $b --c $c --alpha $alpha --beta $beta --gamma $gamma --space-group $space  $options --instrument $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --sample-bound-meters $sampleBound --beam-bound-deg $beamBound --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
 
     ]]></command>
     <inputs>
     
 		<param format="h5" name="peaks" type="data" label="Peak data file" />
-		<param name="a" type="float" value="18.39" label="a" /> 
-		<param name="b" type="float" value="56.55" label="b" /> 
-		<param name="c" type="float" value="6.54" label="c" /> 
-		<param name="alpha" type="float" value="90.0" label="Alpha" /> 
-		<param name="beta" type="float" value="90.0" label="Beta" /> 
-		<param name="gamma" type="float" value="90.0" label="Gamma" /> 
+		<param name="a" type="float" value="18.39" optional="true" label="a" /> 
+		<param name="b" type="float" value="56.55" optional="true"  label="b" /> 
+		<param name="c" type="float" value="6.54" optional="true"  label="c" /> 
+		<param name="alpha" type="float" value="90.0" optional="true"  label="Alpha" /> 
+		<param name="beta" type="float" value="90.0" optional="true"  label="Beta" /> 
+		<param name="gamma" type="float" value="90.0" optional="true"  label="Gamma" /> 
 	    <param name="wavelengthMin" type="float" optional="true" value="2.0" label="Min Wavelength" /> 
 		<param name="wavelengthMax" type="float" optional="true" value="4.5" label="Max Wavelength" /> 
 		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1'" />
-		<param name="space" type="text" value="Fdd2" label="Space Group" />
+		<param name="space" type="text" value="Fdd2" optional="true" label="Space Group" />
 		<param format="csv" name="goniometer" type="data" optional="true" label="Goniometer file" />
 		<param format="h5" name="nexus" type="data" optional="true" label="Original nexus file" />
 		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 

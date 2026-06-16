@@ -36,7 +36,7 @@
 				#set $options = $options + " --sparse-rbf-auto-tune-alpha" ;
 			#end if
 			
-			python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --region-growth-minimum-intensity $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --sparse-rbf-alpha $algod.alpha --sparse-rbf-gamma $algod.gamma --sparse-rbf-min-sigma $algod.minSigma --sparse-rbf-max-sigma $algod.maxSigma --sparse-rbf-max-peaks $algod.maxPeaks --sparse-rbf-chunk-size $algod.chunk --sparse-rbf-loss $algod.loss $options --sparse-rbf-candidate-alphas $algod.alphaCand "$scan.element_identifier" $instrument 
+			python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --region-growth-minimum-intensity $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --sparse-rbf-alpha $algod.alpha --sparse-rbf-gamma $algod.gamma --sparse-rbf-min-sigma $algod.minSigma --sparse-rbf-max-sigma $algod.maxSigma --sparse-rbf-chunk-size $algod.chunk --sparse-rbf-loss $algod.loss $options --sparse-rbf-candidate-alphas $algod.alphaCand "$scan.element_identifier" $instrument 
       	#end if
 		#if $algod.algo == 'thresholding'
 			#if $algod.mask.useMask
@@ -84,7 +84,6 @@
 				<param name="chunk" type="integer" value="4096" label="Chunk Size" /> 
 				<param name="gamma" type="float" value="1.0" label="Gamma" /> 
 				<param name="loss" type="text" value="poisson" label="Loss Function" />>
-				<param name="maxPeaks" type="integer" value="500" label="Max Peaks" /> 
 				<param name="maxSigma" type="float" value="5.0" label="Max Sigma" /> 
 				<param name="minSigma" type="float" value="0.5" label="Min Sigma" /> 
 				<param name="rbfShow" type="boolean" checked="true" label="Show Steps" />
