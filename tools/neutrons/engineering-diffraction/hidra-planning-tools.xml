@@ -3,7 +3,7 @@
 
     <description>HIDRA Planning Tools - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/hidra-planning-tools/prototypes:b31b7a9c077d92b26d8c729af05b7ac382e63a6e</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/hidra-planning-tools/prototypes:bf6faa03a619ada95f95194eac7a31d74cdaf90c</container>
     </requirements>
     <entry_points>
         <entry_point name="HIDRA Planning Tools" label="app_entry" requires_domain="False" requires_path_in_url="True">
