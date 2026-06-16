@@ -31,7 +31,7 @@
 		<param format="h5" name="found" type="data" label="Found peaks file" />
 		<param name="instrument" type="select" optional="false" value="IMAGINE" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
-			<option value="IMAGINEX">IMAGINE-X</option>
+			<option value="CG4D">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>
 		<param name="method" type="select" optional="false" value="gaussian_fit" label="Integration Method" > 
