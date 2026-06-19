@@ -2,12 +2,11 @@ import os
 import sys
 import time
 import pytest
-from typing import Optional, Dict, Any
-from nova.galaxy import Connection, Tool, Parameters
+from nova.galaxy import Connection, Tool
 from nova.galaxy.tool import stop_all_tools_in_store
 
 
-def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
+def test_interactive_tool(interactive_tool: str) -> bool:
     """
     Runs an integration test for a given tool ID with provided parameters
     """
@@ -16,17 +15,15 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
             galaxy_url=os.environ["GALAXY_URL"], galaxy_key=os.environ["API_KEY"]
         )
         with conn.connect() as connection:
-            d_store = connection.create_data_store(name=f"{tool_id}_test")
+            d_store = connection.create_data_store(name=f"{interactive_tool}_test")
             d_store.persist()
-            d_tool = Tool(id=tool_id)
-            if params is None:
-                params = Parameters()
-            d_tool.run_interactive(d_store, params, max_tries=900)
-            print(f"Tool {tool_id} started successfully.")
+            d_tool = Tool(id=interactive_tool)
+            d_tool.run_interactive(d_store, max_tries=900)
+            print(f"Tool {interactive_tool} started successfully.")
             stop_all_tools_in_store(d_store)
             return True
     except Exception as e:
-        print(f"Tool {tool_id} failed to start: {str(e)}")
+        print(f"Tool {interactive_tool} failed to start: {str(e)}")
 
         try:
             # Give Galaxy time to record job metrics.
@@ -40,45 +37,6 @@ def run_tool_test(tool_id: str, params: Optional[Parameters] = None) -> bool:
             pass
 
         return False
-
-
-# Dictionary of interactive tools to test
-INTERACTIVE_TOOLS_BOTH = {
-    "nova-interactive-tool-jana2020": None,
-    "interactive_tool_jupyter_notebook": None,
-    "nova-neutrons-trame-topaz": None,
-    "nova-interactive-tool-sasview": None,
-    "nova-neutrons-reflectometry-refl1d": None,
-    "neutrons_gravitas_sunny": None,
-    "nova-neutrons-cp2k-gui": None,
-}
-INTERACTIVE_TOOLS_TEST = {
-    "neutrons_trame_garnet": None,
-    "nova-interactive-tool-amira": None,
-    "neutrons_gravitas_phonopy": None,
-    "nova-neutrons-trame-time-resolved-vis": None,
-}
-
-# Probably will never need to test something in prod without also testing in test but it's here just in case.
-INTERACTIVE_TOOLS_PROD = {}
-
-if os.environ.get("ENVIRONMENT") == "ndip-test":
-    INTERACTIVE_TOOLS_BOTH.update(INTERACTIVE_TOOLS_TEST)
-elif os.environ.get("ENVIRONMENT") == "ndip":
-    INTERACTIVE_TOOLS_BOTH.update(INTERACTIVE_TOOLS_PROD)
-
-
-# Create a test function for each interactive tool
-@pytest.mark.parametrize("tool_id,params", list(INTERACTIVE_TOOLS_BOTH.items()))
-def test_interactive_tool(tool_id: str, params: Optional[Dict[str, Any]]):
-    """
-    Parameterized test function that tests each interactive tool
-    """
-    assert run_tool_test(tool_id, params), f"Tool {tool_id} failed to start"
-
-
-def pytest_configure(config):
-    pass
 
 
 if __name__ == "__main__":
