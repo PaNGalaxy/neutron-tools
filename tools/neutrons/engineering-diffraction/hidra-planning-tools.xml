@@ -1,9 +1,9 @@
 
-<tool id="nova-hidra-planning-tools-prototype" tool_type="interactive" name="HIDRA Planning Tools" version="0.2.2" profile="22.01">
+<tool id="nova-hidra-planning-tools-prototype" tool_type="interactive" name="HIDRA Planning Tools" version="0.3.0" profile="22.01">
 
     <description>HIDRA Planning Tools - A tool generated using the NOVA Application Template</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/hidra-planning-tools/prototypes:5c067bb1e709147644de2953a04325583babecc9</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/engineering-diffraction/hidra-planning-tools/prototypes:3fb5d69e07ebb0427d2a6beebc01f7036b603c4c</container>
     </requirements>
     <entry_points>
         <entry_point name="HIDRA Planning Tools" label="app_entry" requires_domain="False" requires_path_in_url="True">
