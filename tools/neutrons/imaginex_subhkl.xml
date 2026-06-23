@@ -163,7 +163,7 @@
 		<param name="batch" type="integer" optional="true" value="" label="Batch Size" /> 
 		<param name="bSharpen" type="float" optional="true" value="" label="Wilson B-Factor" /> 
 		<param name="candidates" type="integer" value="64" label="Number of Lambda Candidates" />
-		<param name="index" type="boolean" checked="false" label="Index" /> 
+		<param name="index" type="boolean" checked="true" label="Index" help="Only useable with bootstrap file."/> 
 
 
 
