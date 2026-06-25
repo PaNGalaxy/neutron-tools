@@ -70,7 +70,7 @@ redeploy_k8s_galaxy:
       docker run --rm -e KUBECONFIG=/tmp/kubeconfig
       -v "$KUBECONFIG":/tmp/kubeconfig:ro
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
-      rollout restart deployment/"$GALAXY_DEPLOYMENT" -n "$KUBE_NAMESPACE"
+      rollout restart deployment/galaxy -n ndip
     - >
       docker run --rm -e KUBECONFIG=/tmp/kubeconfig
       -v "$KUBECONFIG":/tmp/kubeconfig:ro
