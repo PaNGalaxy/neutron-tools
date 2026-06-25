@@ -66,14 +66,13 @@ redeploy_k8s_galaxy:
   before_script: []
   after_script: []
   script:
+    - echo "$KUBECONFIG" | base64 -d > kubeconfig
     - >
-      docker run --rm -e KUBECONFIG=/tmp/kubeconfig
-      -v "$KUBECONFIG":/tmp/kubeconfig:ro
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
       rollout restart deployment/galaxy -n ndip
     - >
-      docker run --rm -e KUBECONFIG=/tmp/kubeconfig
-      -v "$KUBECONFIG":/tmp/kubeconfig:ro
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
       rollout status deployment/galaxy -n ndip --timeout=300s
   allow_failure: true
