@@ -75,7 +75,7 @@ redeploy_k8s_galaxy:
       docker run --rm -e KUBECONFIG=/tmp/kubeconfig
       -v "$KUBECONFIG":/tmp/kubeconfig:ro
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
-      rollout status deployment/"$GALAXY_DEPLOYMENT" -n "$KUBE_NAMESPACE" --timeout=300s
+      rollout status deployment/galaxy -n ndip --timeout=300s
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
