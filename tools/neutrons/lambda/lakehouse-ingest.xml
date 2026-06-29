@@ -15,7 +15,7 @@
         </credentials>
     </requirements>
      <command><![CDATA[
-        pixi run --as-is ingest
+        pixi run --as-is --manifest-path /app ingest
           --input $input
           --catalog-type rest
           --uri $uri
