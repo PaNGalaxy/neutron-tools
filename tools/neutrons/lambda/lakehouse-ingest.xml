@@ -28,7 +28,7 @@
     <inputs>
         <param name="input" type="data" optional="false" label="Sample file"/>
         <param name="url" type="text" value="http://lambda-api-int/polaris/api/catalog" optional="false"  label="Lakehouse URI"/>
-        <param name="prompt" type="text" optional="false" value="How you doin'?" label="Ask something"/>
+        <param name="catalog" type="text" optional="false" value="quickstart_catalog" label="Catalog name"/>
     </inputs>
     <outputs>
         <data format="txt" name="output" label="Console Output"></data>
