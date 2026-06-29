@@ -29,7 +29,9 @@
                 #end for
                 --xmin $xmin
                 --xmax $xmax
-            --output-directory /tmp/portal)
+            --output-directory /tmp/portal) &&
+        mkdir -p ./portal &&
+        cp -R /tmp/portal/. ./portal/
         > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
