@@ -10,7 +10,7 @@
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set job_working_directory=os.getcwd()
+        export GALAXY_WORKING_DIR=`pwd` &&
         mkdir -p /tmp/portal &&
         touch $output &&
         ln -s $gsas_file ./input.gsa &&
@@ -20,10 +20,10 @@
         #end for
             (cd /GSAS-II/pixi && pixi run python -m gsas2_refinement.gsas2_refinement
                 #for $index, $cif_file in enumerate($cif_files)
-            --cif-filenames $job_working_directory/input_${index}.cif
+            --cif-filenames "$GALAXY_WORKING_DIR/input_${index}.cif"
                 #end for
-            --gsas-filename $job_working_directory/input.gsa
-            --instrument-params-filename $job_working_directory/input.instprm
+            --gsas-filename "$GALAXY_WORKING_DIR/input.gsa"
+            --instrument-params-filename "$GALAXY_WORKING_DIR/input.instprm"
                 #for $bank in $bank_ids
                 --bank-ids $bank.bank_id
                 #end for
