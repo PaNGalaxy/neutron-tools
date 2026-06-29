@@ -13,7 +13,14 @@
         export GALAXY_WORKING_DIR=`pwd` &&
         mkdir -p /tmp/portal &&
         touch $output &&
-        ln -s $gsas_file ./input.gsa &&
+        #set gsas_ext = os.path.splitext(str($gsas_file.element_identifier))[1]
+        #if not $gsas_ext
+        #set gsas_ext = os.path.splitext(str($gsas_file))[1]
+        #end if
+        #if not $gsas_ext
+        #set gsas_ext = '.gsa'
+        #end if
+        ln -s $gsas_file ./input$gsas_ext &&
         ln -s $prm_file ./input.instprm &&
         #for $index, $cif_file in enumerate($cif_files)
         ln -s $cif_file ./input_${index}.cif &&
@@ -22,7 +29,7 @@
                 #for $index, $cif_file in enumerate($cif_files)
             --cif-filenames "\$GALAXY_WORKING_DIR/input_${index}.cif"
                 #end for
-            --gsas-filename "\$GALAXY_WORKING_DIR/input.gsa"
+            --gsas-filename "\$GALAXY_WORKING_DIR/input$gsas_ext"
             --instrument-params-filename "\$GALAXY_WORKING_DIR/input.instprm"
                 #for $bank in $bank_ids
                 --bank-ids $bank.bank_id
