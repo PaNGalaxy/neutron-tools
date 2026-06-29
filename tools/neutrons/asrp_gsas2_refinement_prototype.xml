@@ -33,7 +33,7 @@
                 #if $num_cycles is not None
                 --num-cycles $num_cycles
                 #end if
-                #if $scale_factor is not None
+                #if str($scale_factor) != ''
                 --scale-factor $scale_factor
                 #end if
             --output-directory /tmp/portal) &&
