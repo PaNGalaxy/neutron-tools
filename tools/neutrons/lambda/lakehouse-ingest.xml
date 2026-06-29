@@ -1,7 +1,7 @@
-<tool id="lakehouse_ingest" name="Ingest Sample to the Lakehouse" version="0.1.0" profile="22.01">
+<tool id="lakehouse_ingest" name="Ingest Sample to the Lakehouse" version="0.1.0" profile="25.1">
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/lambda_ornl:0.1.0</container>
-        <credentials name="lakhouse_credentials" version="1.0">
+        <credentials name="lakehouse_credentials" version="1.0">
             <secret name="username"
                     inject_as_env="LAKEHOUSE_USERNAME"
                     optional="false"
@@ -18,16 +18,16 @@
         mkdir model &&
         export MLFLOW_LOGGING_LEVEL=ERROR &&
         pixi run --as-is ingest
-          --input $input
+          --input '$input'
           --catalog-type rest
-          --uri $uri
-          --warehouse $catalog
+          --uri '$uri'
+          --warehouse '$catalog'
           --credential "\$LAKEHOUSE_USERNAME:\$LAKEHOUSE_PASSWORD"
                               > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="input" type="data" optional="false" label="Sample file"/>
-        <param name="url" type="text" value="http://lambda-api-int/polaris/api/catalog" optional="false"  label="Lakehouse URI"/>
+        <param name="input" type="data" format="data" optional="false" label="Sample file"/>
+        <param name="uri" type="text" value="http://lambda-api-int/polaris/api/catalog" optional="false"  label="Lakehouse URI"/>
         <param name="catalog" type="text" optional="false" value="quickstart_catalog" label="Catalog name"/>
     </inputs>
     <outputs>
