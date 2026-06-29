@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.10.0">
+<tool id="neutrons_asrp_gsas2" name="GSAS2 Refinement" profile="22.05" version="0.7.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -10,29 +10,30 @@
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir -p /tmp/portal &&
+        cd /app &&
         touch $output &&
-        ln -s $gsas_file ./input.gsa &&
-        ln -s $prm_file ./input.instprm &&
+        #set gsas_filename=os.path.basename(str($gsas_file.element_identifier))
+        ln -s $gsas_file /app/$gsas_filename &&
+        ln -s $prm_file /app/input.instprm &&
         #for $index, $cif_file in enumerate($cif_files)
-        ln -s $cif_file ./input_${index}.cif &&
+        ln -s $cif_file /app/input_${index}.cif &&
         #end for
-            (cd /GSAS-II/pixi && pixi run python -m gsas2_refinement.gsas2_refinement
+        python -m gsas2_refinement.gsas2_refinement
                 #for $index, $cif_file in enumerate($cif_files)
-            --cif-filenames ../working/input_${index}.cif
+                --cif-filenames /app/input_${index}.cif
                 #end for
-            --gsas-filename ../working/input.gsa
-            --instrument-params-filename ../working/input.instprm
-                #for $bank in $bank_ids
-                --bank-ids $bank.bank_id
-                #end for
+                --gsas-filename /app/$gsas_filename
+                --instrument-params-filename /app/input.instprm
+            #for $bank in $bank_ids
+            --bank-ids $bank.bank_id
+            #end for
                 --xmin $xmin
                 --xmax $xmax
-            --output-directory /tmp/portal)
+                --output-directory ./portal
         > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="cif_files" type="data_collection" collection_type="list" format="cif" label="CIF Files"/>
+        <param name="cif_files" type="data_collection" collection_type="list" format="txt" label="CIF Files"/>
         <param name="gsas_file" type="data" format="txt" label="GSAS File"/>
         <param name="prm_file" type="data" format="txt" label="Instrument Parameter File"/>
         <repeat name="bank_ids" title="Bank IDs">
