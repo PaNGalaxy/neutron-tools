@@ -29,6 +29,13 @@
                 #end for
                 --xmin $xmin
                 --xmax $xmax
+                $refine_scale
+                #if $num_cycles is not None
+                --num-cycles $num_cycles
+                #end if
+                #if $scale_factor is not None
+                --scale-factor $scale_factor
+                #end if
             --output-directory /tmp/portal) &&
         mkdir -p ./portal &&
         cp -R /tmp/portal/. ./portal/
@@ -43,6 +50,9 @@
         </repeat>
         <param name="xmin" type="float" label="Left bound" value="0"/>
         <param name="xmax" type="float" label="Right bound" value="0"/>
+        <param name="num_cycles" type="integer" label="Number of cycles" optional="true"/>
+        <param name="refine_scale" type="boolean" label="Refine scale" truevalue="--refine-scale-on" falsevalue="--refine-scale-off" checked="true"/>
+        <param name="scale_factor" type="float" label="Scale factor" optional="true"/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection1" label="GSAS2 refinement output">
