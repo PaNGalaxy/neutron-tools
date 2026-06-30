@@ -22,8 +22,7 @@
 		#end if
 
 		python -m subhkl.io.parser peak-predictor "$scan.element_identifier" $instrument "$indexer.element_identifier" out/peak_predictor.h5 --create-visualizations --d-min $dMin $options ;
-    
-    	ls ;
+
     ]]></command>
     <inputs>
     
@@ -43,7 +42,7 @@
     <outputs>
 		<data format="h5" name="output" label="peak_predictor.h5" from_work_dir="out/peak_predictor.h5" />
 		<collection name="output_files" type="list" label="Output Images">
-		    <discover_datasets pattern="__designation__" ext="png" directory="" auto_format="true" format="png"/>
+		    <discover_datasets pattern="__designation__" ext="png" directory="out" auto_format="true" format="png"/>
 		</collection>
     </outputs>
     <help><![CDATA[
