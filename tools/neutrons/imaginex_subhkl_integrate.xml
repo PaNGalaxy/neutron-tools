@@ -23,6 +23,8 @@
 		#end if
 
 		python -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --integration-method $method --found-peaks-file $found --region-growth-distance-threshold $distance --region-growth-minimum-intensity $intensity --region-growth-minimum-sigma $sigma --region-growth-maximum-pixel-radius $radius --peak-center-box-size $boxSize --peak-smoothing-window-size $windowSize --peak-minimum-pixels $pixels --peak-minimum-signal-to-noise $signal --peak-pixel-outlier-threshold $threshold --create-visualizations --show-progress $options ;
+    
+    	ls ;
     ]]></command>
     <inputs>
     
@@ -54,6 +56,9 @@
     </inputs>
     <outputs>
 		<data format="h5" label="integrator.h5" name="output" from_work_dir="out/integrator.h5" />
+		<collection name="output_files" type="list" label="Output Images">
+		    <discover_datasets pattern="__designation__" ext="png" directory="out" auto_format="true" format="png"/>
+		</collection>
     </outputs>
     <help><![CDATA[
         Integrate peaks.
