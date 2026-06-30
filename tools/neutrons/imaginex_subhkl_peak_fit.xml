@@ -45,6 +45,8 @@
       			python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --thresholding-noise-cutoff-quantile $algod.noise --thresholding-min-peak-dist-pixels $algod.peakDist --thresholding-mask-rel-erosion-radius $algod.erosion --thresholding-blur-kernel-sigma $algod.blur --thresholding-open-kernel-size-pixels $algod.kernelSize "$scan.element_identifier" $instrument 
 			#end if
       	#end if
+      	
+      	ls out
 
     ]]></command>
     <inputs>
