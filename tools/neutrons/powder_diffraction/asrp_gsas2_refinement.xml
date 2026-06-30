@@ -6,39 +6,60 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/asrp/gsas2_refinement:0.7
+            savannah.ornl.gov/asrp/gsas2_refinement:0.10
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        cd /app &&
+        export GALAXY_WORKING_DIR=`pwd` &&
+        mkdir -p /tmp/portal &&
         touch $output &&
-        #set gsas_filename=os.path.basename(str($gsas_file.element_identifier))
-        ln -s $gsas_file /app/$gsas_filename &&
-        ln -s $prm_file /app/input.instprm &&
-        ln -s $cif_file /app/input.cif &&
-        python -m gsas2_refinement.gsas2_refinement
-                --cif-filename /app/input.cif
-                --gsas-filename /app/$gsas_filename
-                --instrument-params-filename /app/input.instprm
-                --scatter-type $scatter_type
-                --bank-id $bank_id
+        #set gsas_ext = os.path.splitext(str($gsas_file.element_identifier))[1]
+        #if not $gsas_ext
+        #set gsas_ext = os.path.splitext(str($gsas_file))[1]
+        #end if
+        #if not $gsas_ext
+        #set gsas_ext = '.gsa'
+        #end if
+        ln -s $gsas_file ./input$gsas_ext &&
+        ln -s $prm_file ./input.instprm &&
+        #for $index, $cif_file in enumerate($cif_files)
+        ln -s $cif_file ./input_${index}.cif &&
+        #end for
+        (cd /GSAS-II/pixi && pixi run python -m gsas2_refinement.gsas2_refinement
+                #for $index, $cif_file in enumerate($cif_files)
+                --cif-filenames "\$GALAXY_WORKING_DIR/input_${index}.cif"
+                #end for
+                --gsas-filename "\$GALAXY_WORKING_DIR/input$gsas_ext"
+                --instrument-params-filename "\$GALAXY_WORKING_DIR/input.instprm"
+            #for $bank in $bank_ids
+            --bank-ids $bank.bank_id
+            #end for
                 --xmin $xmin
                 --xmax $xmax
-                --output-directory ./portal
+                $refine_scale
+                #if $num_cycles is not None
+                --num-cycles $num_cycles
+                #end if
+                #if str($scale_factor) != ''
+                --scale-factor $scale_factor
+                #end if
+                --output-directory /tmp/portal) &&
+        mkdir -p ./portal &&
+        cp -R /tmp/portal/. ./portal/
         > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param name="cif_file" type="data" format="txt" label="CIF File"/>
+        <param name="cif_files" type="data_collection" collection_type="list" format="cif" label="CIF Files"/>
         <param name="gsas_file" type="data" format="txt" label="GSAS File"/>
         <param name="prm_file" type="data" format="txt" label="Instrument Parameter File"/>
-
-        <param name="scatter_type" type="select" label="Scatter Type" optional="false">
-            <option value="N" selected="false">Neutron</option>
-            <option value="X" selected="false">X-ray</option>
-        </param>
-        <param name="bank_id" type="integer" label="Bank ID" value="0"/>
+        <repeat name="bank_ids" title="Bank IDs">
+            <param name="bank_id" type="integer" label="Bank ID" value="0"/>
+        </repeat>
         <param name="xmin" type="float" label="Left bound" value="0"/>
         <param name="xmax" type="float" label="Right bound" value="0"/>
+        <param name="num_cycles" type="integer" label="Number of cycles" optional="true"/>
+        <param name="refine_scale" type="boolean" label="Refine scale" truevalue="--refine-scale-on" falsevalue="--refine-scale-off" checked="true"/>
+        <param name="scale_factor" type="float" label="Scale factor" optional="true"/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection1" label="GSAS2 refinement output">
