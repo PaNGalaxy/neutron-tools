@@ -46,7 +46,8 @@
 			#end if
       	#end if
       	
-      	ls out
+      	ls out ;
+      	ls ;
 
     ]]></command>
     <inputs>
