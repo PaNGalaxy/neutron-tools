@@ -22,6 +22,8 @@
 		#end if
 
 		python -m subhkl.io.parser peak-predictor "$scan.element_identifier" $instrument "$indexer.element_identifier" out/peak_predictor.h5 --create-visualizations --d-min $dMin $options ;
+    
+    	ls ;
     ]]></command>
     <inputs>
     
