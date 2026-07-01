@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.10.0">
+<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.11.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/asrp/gsas2_refinement:0.10
+            savannah.ornl.gov/asrp/gsas2_refinement:0.11
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -37,11 +37,30 @@
                 --xmin $xmin
                 --xmax $xmax
                 $refine_scale
+                $refine_background
+                #if str($background_type) != ''
+                --background-type $background_type
+                #end if
+                #if $background_num_coeffs is not None
+                --background-num-coeffs $background_num_coeffs
+                #end if
+                $refine_cell
+                $refine_fractional_occupancy
+                $refine_coordinates
+                $refine_uiso
+                $refine_size_strain
+                $refine_sample_displacement
+                #if str($sample_displacement_parameter) != ''
+                --sample-displacement-parameter $sample_displacement_parameter
+                #end if
                 #if $num_cycles is not None
                 --num-cycles $num_cycles
                 #end if
                 #if str($scale_factor) != ''
                 --scale-factor $scale_factor
+                #end if
+                #if str($refinement_recipe) != ''
+                --refinement-recipe $refinement_recipe
                 #end if
             --output-directory /tmp/portal) &&
         mkdir -p ./portal &&
@@ -58,12 +77,29 @@
         <param name="xmin" type="float" label="Left bound" value="0"/>
         <param name="xmax" type="float" label="Right bound" value="0"/>
         <param name="num_cycles" type="integer" label="Number of cycles" optional="true"/>
-        <param name="refine_scale" type="boolean" label="Refine scale" truevalue="--refine-scale-on" falsevalue="--refine-scale-off" checked="true"/>
-        <param name="scale_factor" type="float" label="Scale factor" optional="true"/>
+        <param name="refine_scale" type="boolean" label="Refine phase fraction / HAP scale" truevalue="--refine-scale-on" falsevalue="--refine-scale-off" checked="true"/>
+        <param name="scale_factor" type="float" label="Initial phase fraction / HAP scale" optional="true"/>
+        <param name="refine_background" type="boolean" label="Refine background" truevalue="--refine-background-on" falsevalue="--refine-background-off" checked="true"/>
+        <param name="background_type" type="text" label="Background model type" value="chebyschev"/>
+        <param name="background_num_coeffs" type="integer" label="Background coefficient count" value="6"/>
+        <param name="refine_cell" type="boolean" label="Refine cell parameters" truevalue="--refine-cell-on" falsevalue="--refine-cell-off" checked="true"/>
+        <param name="refine_fractional_occupancy" type="boolean" label="Refine fractional occupancy" truevalue="--refine-fractional-occupancy-on" falsevalue="--refine-fractional-occupancy-off" checked="false"/>
+        <param name="refine_coordinates" type="boolean" label="Refine atom coordinates" truevalue="--refine-coordinates-on" falsevalue="--refine-coordinates-off" checked="false"/>
+        <param name="refine_uiso" type="boolean" label="Refine Uiso values" truevalue="--refine-uiso-on" falsevalue="--refine-uiso-off" checked="true"/>
+        <param name="refine_size_strain" type="boolean" label="Refine crystallite size and microstrain" truevalue="--refine-size-strain-on" falsevalue="--refine-size-strain-off" checked="false"/>
+        <param name="refine_sample_displacement" type="boolean" label="Refine sample displacement" truevalue="--refine-sample-displacement-on" falsevalue="--refine-sample-displacement-off" checked="false"/>
+        <param name="sample_displacement_parameter" type="select" label="Sample displacement parameter">
+            <option value="DisplaceX" selected="true">DisplaceX</option>
+            <option value="Shift">Shift</option>
+        </param>
+        <param name="refinement_recipe" type="data" format="txt" label="Advanced refinement recipe JSON (escape hatch)" optional="true"/>
     </inputs>
     <outputs>
         <collection type="list" name="output_collection1" label="GSAS2 refinement output">
             <discover_datasets format="binary" pattern="__designation__" directory="portal"/>
+        </collection>
+        <collection type="list" name="refinement_plots" label="GSAS2 refinement plots">
+            <discover_datasets format="png" pattern="(?P&lt;designation&gt;.*\.png)" directory="portal" visible="true"/>
         </collection>
         <data format="txt" name="output" label="GSAS2 console output"></data>
     </outputs>
