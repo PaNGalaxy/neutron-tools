@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.13.0">
+<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.14.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
