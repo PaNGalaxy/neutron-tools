@@ -1,0 +1,71 @@
+<tool id="nexus_processor_prototype" name="ISAAC Nexus Processor" version="0.5.0" profile="22.01">
+    <creator>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons-ai/nexus-processor:v0.1.0</container>
+    </requirements>
+
+    <inputs>
+        <conditional name="input_mode">
+            <param name="input_source" type="select" label="Input Source">
+                <option value="direct" selected="true">Direct file upload</option>
+                <option value="json_config">JSON Configuration</option>
+            </param>
+            <when value="direct">
+                <param name="input_file" type="data" format="h5" label="Input NeXus File"/>
+                <param name="include_events" type="boolean" label="Include Events"/>
+                <param name="include_users" type="boolean" label="Include Users"/>
+                <param name="max_events" type="integer" optional="true" label="Max Events"/>
+                <param name="max_events_per_file" type="integer" value="10000000" label="Max Events Per File"/>
+            </when>
+            <when value="json_config">
+                <param name="config_json" type="data" format="json" label="JSON Configuration" help="A JSON file with run parameters including input_file, include_events, include_users, max_events, and max_events_per_file."/>
+            </when>
+        </conditional>
+    </inputs>
+
+    <configfiles>
+        <configfile name="parse_config_script">
+import json, sys
+with open(sys.argv[1]) as f:
+    d = json.load(f)
+with open('_env.sh', 'w') as f:
+    f.write('export INPUT_FILE="%s"\n' % d['event_file'])
+    f.write('export INCLUDE_EVENTS="%s"\n' % str(d.get('include_events', False)).lower())
+    f.write('export INCLUDE_USERS="%s"\n' % str(d.get('include_users', False)).lower())
+    f.write('export MAX_EVENTS="%s"\n' % d.get('max_events', ''))
+    f.write('export MAX_EVENTS_PER_FILE="%s"\n' % d.get('max_events_per_file', '10000000'))
+        </configfile>
+    </configfiles>
+
+    <outputs>
+        <data format="gz" name="out_gz" label="Gzip Parquet Output Directory"/>
+    </outputs>
+
+    <command detect_errors="exit_code"><![CDATA[
+        #if $input_mode.input_source == "json_config"
+            python '$parse_config_script' '$input_mode.config_json' &&
+            . _env.sh &&
+        #else
+            export INPUT_FILE='$input_mode.input_file' &&
+            export INCLUDE_EVENTS='$input_mode.include_events' &&
+            export INCLUDE_USERS='$input_mode.include_users' &&
+            export MAX_EVENTS='$input_mode.max_events' &&
+            export MAX_EVENTS_PER_FILE='$input_mode.max_events_per_file' &&
+        #end if
+        mkdir output &&
+        ln -s "\$INPUT_FILE" ./input.nxs.h5 &&
+        echo "running nexus-processor..." &&
+        nexus-processor
+            ./input.nxs.h5
+            --output-dir output/
+            --max-events-per-file "\$MAX_EVENTS_PER_FILE"
+            \$([ "\$INCLUDE_EVENTS" = "true" ] && echo "--include-events" || true)
+            \$([ "\$INCLUDE_USERS" = "true" ] && echo "--include-users" || true)
+            \$([ -n "\$MAX_EVENTS" ] && [ "\$MAX_EVENTS" != "None" ] && echo "--max-events \$MAX_EVENTS" || true)
+        && tar -czvf '$out_gz' -C output .
+    ]]></command>
+</tool>
