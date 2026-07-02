@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/asrp/gsas2_refinement:0.11
+            savannah.ornl.gov/asrp/gsas2_refinement:0.12
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
