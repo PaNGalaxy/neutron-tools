@@ -20,8 +20,15 @@
         #if not $gsas_ext
         #set gsas_ext = '.gsa'
         #end if
+        #set prm_ext = os.path.splitext(str($prm_file.element_identifier))[1]
+        #if not $prm_ext
+        #set prm_ext = os.path.splitext(str($prm_file))[1]
+        #end if
+        #if not $prm_ext
+        #set prm_ext = '.instprm'
+        #end if
         ln -s $gsas_file ./input$gsas_ext &&
-        ln -s $prm_file ./input.instprm &&
+        ln -s $prm_file ./input$prm_ext &&
         #for $index, $cif_file in enumerate($cif_files)
         ln -s $cif_file ./input_${index}.cif &&
         #end for
@@ -30,7 +37,7 @@
             --cif-filenames "\$GALAXY_WORKING_DIR/input_${index}.cif"
                 #end for
             --gsas-filename "\$GALAXY_WORKING_DIR/input$gsas_ext"
-            --instrument-params-filename "\$GALAXY_WORKING_DIR/input.instprm"
+            --instrument-params-filename "\$GALAXY_WORKING_DIR/input$prm_ext"
                 #for $bank in $bank_ids
                 --bank-ids $bank.bank_id
                 #end for
