@@ -29,6 +29,14 @@
         #for $index, $cif_file in enumerate($cif_files)
         ln -s $cif_file ./input_${index}.cif &&
         #end for
+        echo "=== DEBUG START ===" > /tmp/debug.txt &&
+        echo "prm_ext: $prm_ext" >> /tmp/debug.txt &&
+        echo "gsas_ext: $gsas_ext" >> /tmp/debug.txt &&
+        ls -la ./input* >> /tmp/debug.txt 2>&1 &&
+        echo "First 10 lines of PRM:" >> /tmp/debug.txt &&
+        head -10 ./input$prm_ext >> /tmp/debug.txt 2>&1 &&
+        echo "=== DEBUG END ===" >> /tmp/debug.txt &&
+        cat /tmp/debug.txt &&
             (cd /GSAS-II/pixi && pixi run python -m gsas2_refinement.gsas2_refinement
                 #for $index, $cif_file in enumerate($cif_files)
             --cif-filenames "\$GALAXY_WORKING_DIR/input_${index}.cif"
