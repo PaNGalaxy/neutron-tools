@@ -29,23 +29,20 @@
         #for $index, $cif_file in enumerate($cif_files)
         ln -s $cif_file ./input_${index}.cif &&
         #end for
-        echo "=== DEBUG START ===" > /tmp/debug.txt &&
-        echo "prm_ext: $prm_ext" >> /tmp/debug.txt &&
-        echo "gsas_ext: $gsas_ext" >> /tmp/debug.txt &&
-        ls -la ./input* >> /tmp/debug.txt 2>&1 &&
-        echo "First 10 lines of PRM:" >> /tmp/debug.txt &&
-        head -10 ./input$prm_ext >> /tmp/debug.txt 2>&1 &&
-        echo "=== DEBUG END ===" >> /tmp/debug.txt &&
-        cat /tmp/debug.txt &&
             (cd /GSAS-II/pixi && pixi run python -m gsas2_refinement.gsas2_refinement
                 #for $index, $cif_file in enumerate($cif_files)
             --cif-filenames "\$GALAXY_WORKING_DIR/input_${index}.cif"
                 #end for
             --gsas-filename "\$GALAXY_WORKING_DIR/input$gsas_ext"
             --instrument-params-filename "\$GALAXY_WORKING_DIR/input$prm_ext"
-                #for $bank in $bank_ids
+                #set bank_count = len($bank_ids)
+                #if $bank_count > 0
+                    #for $bank in $bank_ids
                 --bank-ids $bank.bank_id
-                #end for
+                    #end for
+                #else
+                --bank-ids 1
+                #end if
                 --xmin $xmin
                 --xmax $xmax
                 $refine_scale
@@ -83,8 +80,8 @@
         <param name="cif_files" type="data_collection" collection_type="list" format="cif" label="CIF Files"/>
         <param name="gsas_file" type="data" format="txt" label="GSAS File"/>
         <param name="prm_file" type="data" format="txt" label="Instrument Parameter File"/>
-        <repeat name="bank_ids" title="Bank IDs">
-            <param name="bank_id" type="integer" label="Bank ID" value="0"/>
+        <repeat name="bank_ids" title="Bank IDs" min="1" default="1">
+            <param name="bank_id" type="integer" label="Bank ID" value="1"/>
         </repeat>
         <param name="xmin" type="float" label="Left bound" value="0"/>
         <param name="xmax" type="float" label="Right bound" value="0"/>
