@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.14.1">
+<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.15.0">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/asrp/gsas2_refinement:0.12.1
+            savannah.ornl.gov/asrp/gsas2_refinement:0.13
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -43,8 +43,12 @@
                 #else
                 --bank-ids 1
                 #end if
+                #if $xmin is not None
                 --xmin $xmin
+                #end if
+                #if $xmax is not None
                 --xmax $xmax
+                #end if
                 $refine_scale
                 $refine_background
                 #if str($background_type) != ''
@@ -83,8 +87,8 @@
         <repeat name="bank_ids" title="Bank IDs" min="1" default="1">
             <param name="bank_id" type="integer" label="Bank ID" value="1"/>
         </repeat>
-        <param name="xmin" type="float" label="Left bound" value="0"/>
-        <param name="xmax" type="float" label="Right bound" value="0"/>
+        <param name="xmin" type="float" label="Left bound (optional - auto-determined if not provided)" optional="true"/>
+        <param name="xmax" type="float" label="Right bound (optional - auto-determined if not provided)" optional="true"/>
         <param name="num_cycles" type="integer" label="Number of cycles" optional="true"/>
         <param name="refine_scale" type="boolean" label="Refine phase fraction / HAP scale" truevalue="--refine-scale-on" falsevalue="--refine-scale-off" checked="true"/>
         <param name="scale_factor" type="float" label="Initial phase fraction / HAP scale" optional="true"/>
