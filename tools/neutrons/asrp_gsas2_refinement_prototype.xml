@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.15.0">
+<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.15.1">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/asrp/gsas2_refinement:0.13
+            savannah.ornl.gov/asrp/gsas2_refinement:0.13.0
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -43,10 +43,10 @@
                 #else
                 --bank-ids 1
                 #end if
-                #if $xmin is not None
+                #if $xmin is not None and str($xmin) != 'Not available.'
                 --xmin $xmin
                 #end if
-                #if $xmax is not None
+                #if $xmax is not None and str($xmax) != 'Not available.'
                 --xmax $xmax
                 #end if
                 $refine_scale
