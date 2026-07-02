@@ -22,23 +22,13 @@
         #end if
         #set prm_ext = os.path.splitext(str($prm_file.element_identifier))[1]
         #if not $prm_ext
-        #set prm_ext = os.path.splitext(str($prm_file))[1]
-        #end if
-        #if not $prm_ext
-        #set prm_ext = '.instprm'
+        #set prm_ext = '.PRM'
         #end if
         ln -s $gsas_file ./input$gsas_ext &&
         ln -s $prm_file ./input$prm_ext &&
         #for $index, $cif_file in enumerate($cif_files)
         ln -s $cif_file ./input_${index}.cif &&
         #end for
-        echo "DEBUG: Files in working directory:" &&
-        ls -la "$GALAXY_WORKING_DIR" &&
-        echo "DEBUG: gsas_ext=$gsas_ext, prm_ext=$prm_ext" &&
-        echo "DEBUG: Checking input files:" &&
-        file "$GALAXY_WORKING_DIR"/input* &&
-        echo "DEBUG: First 20 lines of PRM file:" &&
-        head -20 "$GALAXY_WORKING_DIR/input$prm_ext" &&
             (cd /GSAS-II/pixi && pixi run python -m gsas2_refinement.gsas2_refinement
                 #for $index, $cif_file in enumerate($cif_files)
             --cif-filenames "\$GALAXY_WORKING_DIR/input_${index}.cif"
