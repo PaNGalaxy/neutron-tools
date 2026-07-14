@@ -9,6 +9,7 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $gpu_str = "gpu" if $gpu else ""
+        touch $out_mcpl &&
         ln -s $input /inputs/input.txt &&
         mkdir outputs &&
         #if $input_mode.manual_input:
