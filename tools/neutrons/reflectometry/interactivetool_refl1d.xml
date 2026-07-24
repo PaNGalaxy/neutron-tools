@@ -5,26 +5,25 @@
         <organization url="https://www.ornl.gov/" name="ORNL" />
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/reflectometry/refl1d:build-c5a0ef0d</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/reflectometry/refl1d:build-451af999</container>
     </requirements>
     <entry_points>
         <entry_point name="Refl1D" label="refl1d" requires_domain="False" requires_path_in_url="True">
-            <port>8081</port>
+            <port>8080</port>
         </entry_point>
     </entry_points>
     <environment_variables>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">refl1d</environment_variable>
     </environment_variables>
     <command strict="false"><![CDATA[
-        bash /prepare_nginx.sh &&
         ls /SNS/users/\$GALAXY_TOOL_USER > /dev/null &&
-        python -m refl1d.webview.server --port 8080 --external --path /SNS/users/\$GALAXY_TOOL_USER > >(tee -a $output_console) 2>&1
+        pixi run python -m refl1d.webview.server --port 8080 --external --path /SNS/users/\$GALAXY_TOOL_USER > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]>
     </command>
     <inputs>
     </inputs>
     <outputs>
-        <data name="output_console" auto_format="true" label="Ref1D Console Output"/>
+        <data name="output" auto_format="true" label="Ref1D Console Output"/>
     </outputs>
     <help><![CDATA[
         Starts Refl1D interactive tool.
