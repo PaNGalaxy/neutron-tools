@@ -16,8 +16,14 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">refl1d</environment_variable>
     </environment_variables>
     <command strict="false"><![CDATA[
+        touch $output &&
         ls /SNS/users/\$GALAXY_TOOL_USER > /dev/null &&
-        pixi run python -m refl1d.webview.server --port 8080 --external --path /SNS/users/\$GALAXY_TOOL_USER > >(tee -a $output) 2> >(tee -a $output >&2)
+        pixi run --manifest-path /opt/run/pyproject.toml python
+            -m refl1d.webview.server
+            --port 8080
+            --external
+            --path /SNS/users/\$GALAXY_TOOL_USER
+            > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]>
     </command>
     <inputs>
