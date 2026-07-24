@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL" />
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/reflectometry/refl1d:build-0ad28c58</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/reflectometry/refl1d:1.0.1</container>
     </requirements>
     <entry_points>
         <entry_point name="Refl1D" label="refl1d" requires_domain="False" requires_path_in_url="True">
