@@ -6,10 +6,11 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.4.0
+            savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/sans-data-reduction/gpsans-reduction:0.4.0
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        touch $output &&
         mkdir reduced &&
         . /app/activate_env.sh &&
         ln -s $config_file /app/config.json &&
