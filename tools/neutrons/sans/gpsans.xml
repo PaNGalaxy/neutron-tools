@@ -1,4 +1,4 @@
-<tool id="neutrons_gpsans" name="GPSANS" profile="22.05" version="0.3.0">
+<tool id="neutrons_gpsans" name="GPSANS" profile="22.05" version="0.4.0">
     <description></description>
     <creator>
         <person name="Yingrui Shang"/>
@@ -6,7 +6,7 @@
     </creator>
     <requirements>
         <container type="docker" shell="/bin/bash">
-            savannah.ornl.gov/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.3.0
+            savannah.ornl.gov/ndip/tool-sources/sans-data-reduction/gpsans-reduction:0.4.0
         </container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
