@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.14.5">
+<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.14.6">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -24,9 +24,11 @@
         #if not $prm_ext
         #set prm_ext = '.PRM'
         #end if
+        rm -f ./input$gsas_ext ./input$prm_ext &&
         ln -s $gsas_file ./input$gsas_ext &&
         ln -s $prm_file ./input$prm_ext &&
         #for $index, $cif_file in enumerate($cif_files)
+        rm -f ./input_${index}.cif &&
         ln -s $cif_file ./input_${index}.cif &&
         #end for
             (cd /GSAS-II/pixi && pixi run python -m gsas2_refinement.gsas2_refinement
