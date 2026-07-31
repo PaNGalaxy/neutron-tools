@@ -1,4 +1,4 @@
-<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.15.1">
+<tool id="neutrons_asrp_gsas2_prototype" name="GSAS2 Refinement Prototype" profile="22.05" version="0.14.5">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -43,10 +43,10 @@
                 #else
                 --bank-ids 1
                 #end if
-                #if $xmin is not None and str($xmin) != 'Not available.'
+                #if str($xmin) and str($xmin) != 'None' and str($xmin) != 'Not available.'
                 --xmin $xmin
                 #end if
-                #if $xmax is not None and str($xmax) != 'Not available.'
+                #if str($xmax) and str($xmax) != 'None' and str($xmax) != 'Not available.'
                 --xmax $xmax
                 #end if
                 $refine_scale
@@ -54,7 +54,7 @@
                 #if str($background_type) != ''
                 --background-type $background_type
                 #end if
-                #if $background_num_coeffs is not None
+                #if $background_num_coeffs is not None and str($background_num_coeffs) != 'Not available.'
                 --background-num-coeffs $background_num_coeffs
                 #end if
                 $refine_cell
@@ -66,13 +66,13 @@
                 #if str($sample_displacement_parameter) != ''
                 --sample-displacement-parameter $sample_displacement_parameter
                 #end if
-                #if $num_cycles is not None
+                #if $num_cycles is not None and str($num_cycles) != 'Not available.'
                 --num-cycles $num_cycles
                 #end if
-                #if str($scale_factor) != ''
+                #if str($scale_factor) and str($scale_factor) != 'Not available.'
                 --scale-factor $scale_factor
                 #end if
-                #if str($refinement_recipe) != ''
+                #if str($refinement_recipe) != '' and str($refinement_recipe) != 'Not available.'
                 --refinement-recipe $refinement_recipe
                 #end if
             --output-directory /tmp/portal) &&
@@ -89,7 +89,7 @@
         </repeat>
         <param name="xmin" type="float" label="Left bound (optional - auto-determined if not provided)" optional="true"/>
         <param name="xmax" type="float" label="Right bound (optional - auto-determined if not provided)" optional="true"/>
-        <param name="num_cycles" type="integer" label="Number of cycles" optional="true"/>
+        <param name="num_cycles" type="integer" label="Number of cycles" value="10" optional="true"/>
         <param name="refine_scale" type="boolean" label="Refine phase fraction / HAP scale" truevalue="--refine-scale-on" falsevalue="--refine-scale-off" checked="true"/>
         <param name="scale_factor" type="float" label="Initial phase fraction / HAP scale" optional="true"/>
         <param name="refine_background" type="boolean" label="Refine background" truevalue="--refine-background-on" falsevalue="--refine-background-off" checked="true"/>
