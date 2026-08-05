@@ -1,0 +1,33 @@
+<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Compare Series" profile="22.05" version="0.1.0">
+    <description>compare normalized results from a mapped scan series</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">radar-pd-ndip:local</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -euo pipefail &&
+        mkdir -p summaries &&
+        #for $index, $summary in enumerate($summaries)
+        ln -s '$summary' 'summaries/summary_${index}.json' &&
+        #end for
+        python /opt/radar-pd/scripts/ndip_runner.py compare-series
+            --summary-dir summaries
+            --csv-output '$comparison_table'
+            --html-output '$comparison_report'
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+    ]]></command>
+    <inputs>
+        <param name="summaries" type="data_collection" collection_type="list" format="json" label="RADAR-PD normalized summaries" help="Connect the mapped summary output from RADAR-PD Analyze."/>
+    </inputs>
+    <outputs>
+        <data name="comparison_table" format="csv" label="RADAR-PD series comparison table"/>
+        <data name="comparison_report" format="html" label="RADAR-PD series comparison report"/>
+        <data name="console_output" format="txt" label="RADAR-PD series comparison log"/>
+    </outputs>
+    <help><![CDATA[
+Combines normalized RADAR-PD summaries from a Galaxy mapped collection into a compact comparison table and HTML report. It is intended for sequential scans, temperature or field series, and repeated live-acquisition reductions. Each upstream analysis remains independently reproducible in Galaxy history.
+    ]]></help>
+</tool>

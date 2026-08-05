@@ -1,0 +1,51 @@
+class: GalaxyWorkflow
+label: RADAR-PD - Mapped Scan Series
+doc: Map one RADAR-PD configuration across a collection of reduced patterns and compare results.
+inputs:
+  configuration:
+    type: data
+  diffraction_series:
+    type: collection
+    collection_type: list
+  instrument_profile:
+    type: data
+  main_phase_cif:
+    type: data
+    optional: true
+steps:
+  analyze_series:
+    tool_id: neutrons_radar_pd_analyze_prototype
+    state:
+      input_source:
+        source_kind: history
+        instrument_source:
+          instrument_kind: upload
+      configuration:
+        config_kind: existing
+      database:
+        database_kind: builtin
+    in:
+      input_source|data:
+        source: diffraction_series
+      input_source|instrument_source|instrument:
+        source: instrument_profile
+      configuration|config_file:
+        source: configuration
+      main_cif:
+        source: main_phase_cif
+  compare_series:
+    tool_id: neutrons_radar_pd_compare_series_prototype
+    in:
+      summaries:
+        source: analyze_series/summary
+outputs:
+  mapped_reports:
+    outputSource: analyze_series/report
+  mapped_summaries:
+    outputSource: analyze_series/summary
+  mapped_gpx_projects:
+    outputSource: analyze_series/gpx_projects
+  series_table:
+    outputSource: compare_series/comparison_table
+  series_report:
+    outputSource: compare_series/comparison_report

@@ -1,0 +1,36 @@
+<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD GSAS-II Project Handoff" profile="22.05" version="0.1.0">
+    <description>select and preserve a RADAR-PD refinement checkpoint for GSAS-II</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">radar-pd-ndip:local</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -euo pipefail &&
+        python /opt/radar-pd/scripts/ndip_gpx_handoff.py
+            --project '$gpx_project'
+            --project-name '$gpx_project.element_identifier'
+            #if str($gpx_index) not in ('', 'None', 'Not available.')
+            --index '$gpx_index'
+            #end if
+            --output-project '$output_project'
+            --metadata '$handoff_metadata'
+            --report '$handoff_report'
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+    ]]></command>
+    <inputs>
+        <param name="gpx_project" type="data" format="gpx,binary" label="RADAR-PD GSAS-II project" help="Choose one checkpoint from the GPX collection returned by RADAR-PD Analyze."/>
+        <param name="gpx_index" type="data" format="json" optional="true" label="RADAR-PD GPX index" help="Adds pipeline-stage and checkpoint-status provenance."/>
+    </inputs>
+    <outputs>
+        <data name="output_project" format="gpx" label="GSAS-II project ready for interactive handoff"/>
+        <data name="handoff_metadata" format="json" label="GSAS-II project handoff metadata"/>
+        <data name="handoff_report" format="html" label="GSAS-II project handoff report"/>
+        <data name="console_output" format="txt" label="GSAS-II project handoff log"/>
+    </outputs>
+    <help><![CDATA[
+Selects one GPX checkpoint from a RADAR-PD run, preserves it as a first-class Galaxy dataset, and attaches pipeline provenance. This is the workflow boundary for a future NDIP interactive GSAS-II GPX opener. It deliberately does not send an existing GPX to the current batch GSAS2 Refinement tool because that tool starts a new project from data, instrument, and CIF inputs.
+    ]]></help>
+</tool>

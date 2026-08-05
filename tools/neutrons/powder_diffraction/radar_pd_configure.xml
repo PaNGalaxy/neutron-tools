@@ -1,0 +1,105 @@
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.0">
+    <description>create a reusable Full or Rapid analysis configuration</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">radar-pd-ndip:local</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -euo pipefail &&
+        python /opt/radar-pd/scripts/ndip_runner.py configure
+            --mode '$analysis_mode'
+            --radiation '$radiation'
+            --instrument-mode '$instrument_mode'
+            --allowed-elements '$sample_elements'
+            --environment-elements '$environment_elements'
+            #if str($pattern.limit_start) not in ('', 'None', 'Not available.')
+            --limit-start '$pattern.limit_start'
+            #end if
+            #if str($pattern.limit_end) not in ('', 'None', 'Not available.')
+            --limit-end '$pattern.limit_end'
+            #end if
+            #for $region in $pattern.excluded_regions
+            --exclude-region '${region.start}:${region.end}'
+            #end for
+            --background-mode '$background.background_mode'
+            --background-type '$background.background_type'
+            --background-terms '$background.background_terms'
+            --max-passes '$budgets.max_passes'
+            --min-phase-percent '$budgets.min_phase_percent'
+            --phases-per-hypothesis '$budgets.phases_per_hypothesis'
+            --gsas-validation-limit '$budgets.gsas_validation_limit'
+            $advanced.magnetic_precheck
+            $advanced.main_prenudge
+            $advanced.main_shadow_filter
+            $advanced.main_cleanup
+            $advanced.refine_uiso
+            $advanced.refine_positions
+            --output '$config_output'
+            --report '$config_report'
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+    ]]></command>
+    <inputs>
+        <param name="analysis_mode" type="select" label="Analysis mode">
+            <option value="rapid" selected="true">Rapid Hypothesis Mode</option>
+            <option value="full">Full RADAR-PD</option>
+        </param>
+        <param name="radiation" type="select" label="Measurement type">
+            <option value="neutron" selected="true">Neutron powder diffraction</option>
+            <option value="xray">X-ray powder diffraction</option>
+        </param>
+        <param name="instrument_mode" type="select" label="Pattern geometry">
+            <option value="auto" selected="true">Auto detect</option>
+            <option value="tof">Time-of-flight</option>
+            <option value="cw">Constant wavelength</option>
+        </param>
+        <param name="sample_elements" type="text" label="Sample elements" help="Comma- or space-separated element symbols, for example Cu, P, Pb, O, S."/>
+        <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements" help="Elements that may occur as pure environment phases but should not be freely mixed into sample chemistry."/>
+        <section name="pattern" title="Pattern regions" expanded="false">
+            <param name="limit_start" type="float" optional="true" label="Fit range start"/>
+            <param name="limit_end" type="float" optional="true" label="Fit range end"/>
+            <repeat name="excluded_regions" title="Ignored regions">
+                <param name="start" type="float" label="Start"/>
+                <param name="end" type="float" label="End"/>
+            </repeat>
+        </section>
+        <section name="background" title="Background correction" expanded="false">
+            <param name="background_mode" type="select" label="Correction mode">
+                <option value="auto_fixed_points" selected="true">Automatic fixed points</option>
+                <option value="polynomial">Polynomial refinement</option>
+            </param>
+            <param name="background_type" type="select" label="Background function">
+                <option value="chebyschev-1" selected="true">Chebyshev-1</option>
+                <option value="chebyschev">Chebyshev</option>
+                <option value="cosine">Cosine series</option>
+                <option value="lin interpolate">Linear interpolation</option>
+                <option value="log interpolate">Log interpolation</option>
+            </param>
+            <param name="background_terms" type="integer" min="1" max="36" value="6" label="Background terms"/>
+        </section>
+        <section name="budgets" title="Search controls" expanded="false">
+            <param name="max_passes" type="integer" min="1" max="20" value="3" label="Full mode impurity discovery passes"/>
+            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
+            <param name="phases_per_hypothesis" type="integer" min="1" max="8" value="3" label="Rapid mode candidate phases per hypothesis"/>
+            <param name="gsas_validation_limit" type="integer" min="0" max="100" value="10" label="Final refinement shortlist size" help="Set to zero to stop after pattern scoring."/>
+        </section>
+        <section name="advanced" title="Scientific safeguards" expanded="false">
+            <param name="magnetic_precheck" type="boolean" checked="false" truevalue="--magnetic-precheck" falsevalue="--no-magnetic-precheck" label="Check whether residual peaks support commensurate magnetic ordering"/>
+            <param name="main_prenudge" type="boolean" checked="true" truevalue="--main-prenudge" falsevalue="--no-main-prenudge" label="Automatically anchor a supplied main-phase cell"/>
+            <param name="main_shadow_filter" type="boolean" checked="true" truevalue="--main-shadow-filter" falsevalue="--no-main-shadow-filter" label="Filter candidates explained only by strong main-phase peaks"/>
+            <param name="main_cleanup" type="boolean" checked="false" truevalue="--main-cleanup" falsevalue="--no-main-cleanup" label="Refine supplied main-CIF internal parameters after lattice anchoring"/>
+            <param name="refine_uiso" type="boolean" checked="false" truevalue="--refine-uiso" falsevalue="--no-refine-uiso" label="Refine main-phase Uiso during cleanup"/>
+            <param name="refine_positions" type="boolean" checked="false" truevalue="--refine-positions" falsevalue="--no-refine-positions" label="Refine main-phase atomic positions during cleanup"/>
+        </section>
+    </inputs>
+    <outputs>
+        <data name="config_output" format="yaml" label="RADAR-PD configuration"/>
+        <data name="config_report" format="json" label="RADAR-PD configuration validation"/>
+        <data name="console_output" format="txt" label="RADAR-PD configuration log"/>
+    </outputs>
+    <help><![CDATA[
+Creates a portable RADAR-PD configuration that contains scientific settings but no machine-specific file paths. Use it with the RADAR-PD Analyze tool for either uploaded/history datasets or optional SNS IPTS resolution. The same configuration can be reused in mapped Galaxy workflows and with the hosted RADAR-PD API.
+    ]]></help>
+</tool>

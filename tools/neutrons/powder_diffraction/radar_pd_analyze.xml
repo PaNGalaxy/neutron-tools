@@ -1,0 +1,212 @@
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.1.0">
+    <description>run Full RADAR-PD or Rapid Hypothesis Mode on uploaded or IPTS data</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">radar-pd-ndip:local</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $config_path = 'generated_config.yaml'
+        #set $analysis_data = 'resolved_input/pattern.dat'
+        #set $analysis_instrument = 'resolved_input/instrument.instprm'
+        #if str($configuration.config_kind) == 'existing'
+            #set $config_path = str($configuration.config_file)
+        #end if
+        #if str($input_source.source_kind) == 'history'
+            #set $analysis_data = str($input_source.data)
+            #if str($input_source.instrument_source.instrument_kind) == 'upload'
+                #set $analysis_instrument = str($input_source.instrument_source.instrument)
+            #end if
+        #end if
+        set -euo pipefail &&
+        mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
+        #if str($configuration.config_kind) == 'guided'
+        python /opt/radar-pd/scripts/ndip_runner.py configure
+            --mode '$configuration.analysis_mode'
+            --radiation '$configuration.radiation'
+            --instrument-mode '$configuration.instrument_mode'
+            --allowed-elements '$configuration.sample_elements'
+            --environment-elements '$configuration.environment_elements'
+            --background-mode '$configuration.background_mode'
+            --background-type '$configuration.background_type'
+            --background-terms '$configuration.background_terms'
+            --max-passes '$configuration.max_passes'
+            --min-phase-percent '$configuration.min_phase_percent'
+            --phases-per-hypothesis '$configuration.phases_per_hypothesis'
+            --gsas-validation-limit '$configuration.gsas_validation_limit'
+            $configuration.magnetic_precheck
+            $configuration.main_prenudge
+            $configuration.main_shadow_filter
+            --output '$config_path' &&
+        #end if
+        #if str($input_source.source_kind) == 'ipts'
+        python /opt/radar-pd/scripts/ndip_runner.py resolve-ipts
+            #if str($input_source.ipts_lookup.lookup_kind) == 'event'
+            --event-file '$input_source.ipts_lookup.event_file'
+            #else
+            --instrument '$input_source.ipts_lookup.instrument'
+            --ipts '$input_source.ipts_lookup.ipts'
+            --run '$input_source.ipts_lookup.run_number'
+            #end if
+            #if str($input_source.ipts_lookup.bank) not in ('', 'None', 'Not available.')
+            --bank '$input_source.ipts_lookup.bank'
+            #end if
+            --facility-root '$input_source.facility_root'
+            --pattern-output '$analysis_data'
+            --instrument-output '$analysis_instrument'
+            --metadata-output 'resolved_input/metadata.json' &&
+        #else
+        printf '%s\n' '{"source":"Galaxy history upload"}' > resolved_input/metadata.json &&
+        #end if
+        python /opt/radar-pd/scripts/ndip_runner.py analyze
+            --config '$config_path'
+            --data '$analysis_data'
+            #if str($input_source.source_kind) == 'history' and str($input_source.instrument_source.instrument_kind) == 'builtin_cuka'
+            --instrument-preset xray_lab_cuka
+            #else
+            --instrument '$analysis_instrument'
+            #end if
+            #if str($main_cif) not in ('', 'None', 'Not available.')
+            --main-cif '$main_cif'
+            #end if
+            #if str($database.database_kind) == 'custom'
+            --db-pack '$database.database_archive'
+            #end if
+            #if str($run_name) not in ('', 'None', 'Not available.')
+            --run-name '$run_name'
+            #end if
+            --mode auto
+            --input-source '$input_source.source_kind'
+            --work-dir work
+            --output-dir portal
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+    ]]></command>
+    <inputs>
+        <conditional name="input_source">
+            <param name="source_kind" type="select" label="Diffraction data source">
+                <option value="history" selected="true">Upload or choose datasets from Galaxy history</option>
+                <option value="ipts">Resolve reduced data from an SNS IPTS</option>
+            </param>
+            <when value="history">
+                <param name="data" type="data" format="data" label="Powder diffraction data" help="Supports RADAR-PD text patterns and XRDML inputs."/>
+                <conditional name="instrument_source">
+                    <param name="instrument_kind" type="select" label="Instrument profile">
+                        <option value="upload" selected="true">Upload or choose an instrument parameter file</option>
+                        <option value="builtin_cuka">Use the built-in laboratory Cu K-alpha profile</option>
+                    </param>
+                    <when value="upload">
+                        <param name="instrument" type="data" format="txt" label="Instrument parameter file"/>
+                    </when>
+                    <when value="builtin_cuka"/>
+                </conditional>
+            </when>
+            <when value="ipts">
+                <conditional name="ipts_lookup">
+                    <param name="lookup_kind" type="select" label="IPTS lookup method">
+                        <option value="event" selected="true">Read instrument, IPTS, and run from a NeXus event file</option>
+                        <option value="manual">Enter instrument, IPTS, run, and bank</option>
+                    </param>
+                    <when value="event">
+                        <param name="event_file" type="data" format="h5" label="NeXus event file"/>
+                        <param name="bank" type="text" value="" optional="true" label="Reduced-data bank override" help="Set this when the run has more than one reduced bank; leave blank only when the mounted reduction is unambiguous."/>
+                    </when>
+                    <when value="manual">
+                        <param name="instrument" type="text" label="Instrument" help="For example HB2A."/>
+                        <param name="ipts" type="text" label="IPTS" help="For example IPTS-32001."/>
+                        <param name="run_number" type="text" label="Run number"/>
+                        <param name="bank" type="text" value="1" label="Bank"/>
+                    </when>
+                </conditional>
+                <param name="facility_root" type="text" value="/SNS" label="Mounted facility data root" help="NDIP deployment must mount the read-only SNS tree at this path."/>
+            </when>
+        </conditional>
+        <conditional name="configuration">
+            <param name="config_kind" type="select" label="Scientific configuration">
+                <option value="existing" selected="true">Use a RADAR-PD configuration dataset</option>
+                <option value="guided">Configure this run here</option>
+            </param>
+            <when value="existing">
+                <param name="config_file" type="data" format="yaml" label="RADAR-PD configuration"/>
+            </when>
+            <when value="guided">
+                <param name="analysis_mode" type="select" label="Analysis mode">
+                    <option value="rapid" selected="true">Rapid Hypothesis Mode</option>
+                    <option value="full">Full RADAR-PD</option>
+                </param>
+                <param name="radiation" type="select" label="Measurement type">
+                    <option value="neutron" selected="true">Neutron</option>
+                    <option value="xray">X-ray</option>
+                </param>
+                <param name="instrument_mode" type="select" label="Pattern geometry">
+                    <option value="auto" selected="true">Auto detect</option>
+                    <option value="tof">Time-of-flight</option>
+                    <option value="cw">Constant wavelength</option>
+                </param>
+                <param name="sample_elements" type="text" label="Sample elements"/>
+                <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements"/>
+                <param name="background_mode" type="select" label="Background correction">
+                    <option value="auto_fixed_points" selected="true">Automatic fixed points</option>
+                    <option value="polynomial">Polynomial refinement</option>
+                </param>
+                <param name="background_type" type="select" label="Background function">
+                    <option value="chebyschev-1" selected="true">Chebyshev-1</option>
+                    <option value="chebyschev">Chebyshev</option>
+                    <option value="cosine">Cosine series</option>
+                    <option value="lin interpolate">Linear interpolation</option>
+                    <option value="log interpolate">Log interpolation</option>
+                </param>
+                <param name="background_terms" type="integer" min="1" max="36" value="6" label="Background terms"/>
+                <param name="max_passes" type="integer" min="1" max="20" value="3" label="Full mode impurity discovery passes"/>
+                <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
+                <param name="phases_per_hypothesis" type="integer" min="1" max="8" value="3" label="Rapid candidate phases per hypothesis"/>
+                <param name="gsas_validation_limit" type="integer" min="0" max="100" value="10" label="Final refinement shortlist size"/>
+                <param name="magnetic_precheck" type="boolean" checked="false" truevalue="--magnetic-precheck" falsevalue="--no-magnetic-precheck" label="Check commensurate magnetic ordering first"/>
+                <param name="main_prenudge" type="boolean" checked="true" truevalue="--main-prenudge" falsevalue="--no-main-prenudge" label="Automatically anchor supplied main-phase cell"/>
+                <param name="main_shadow_filter" type="boolean" checked="true" truevalue="--main-shadow-filter" falsevalue="--no-main-shadow-filter" label="Filter main-phase-shadow candidates"/>
+            </when>
+        </conditional>
+        <param name="main_cif" type="data" format="cif" optional="true" label="Known/main phase CIF (optional)"/>
+        <conditional name="database">
+            <param name="database_kind" type="select" label="Candidate library">
+                <option value="builtin" selected="true">NDIP built-in MP/COD catalog</option>
+                <option value="custom">Portable custom CIF library archive</option>
+            </param>
+            <when value="builtin"/>
+            <when value="custom">
+                <param name="database_archive" type="data" format="zip" label="RADAR-PD custom library archive"/>
+            </when>
+        </conditional>
+        <param name="run_name" type="text" optional="true" label="Run name" help="Defaults to the diffraction dataset name."/>
+    </inputs>
+    <outputs>
+        <data name="console_output" format="txt" label="RADAR-PD console log"/>
+        <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD report"/>
+        <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD normalized summary"/>
+        <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state"/>
+        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD resolved configuration"/>
+        <data name="input_manifest" format="json" from_work_dir="portal/input_manifest.json" label="RADAR-PD input manifest"/>
+        <data name="gpx_index" format="json" from_work_dir="portal/gpx_index.json" label="RADAR-PD GSAS-II project index"/>
+        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD complete results"/>
+        <data name="input_resolution_metadata" format="json" from_work_dir="resolved_input/metadata.json" label="RADAR-PD input resolution metadata"/>
+        <collection type="list" name="plots" label="RADAR-PD plots">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/plots" visible="true"/>
+        </collection>
+        <collection type="list" name="tables" label="RADAR-PD result tables">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/tables" visible="true"/>
+        </collection>
+        <collection type="list" name="phases" label="RADAR-PD phase CIFs">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/phases" visible="true"/>
+        </collection>
+        <collection type="list" name="gpx_projects" label="RADAR-PD GSAS-II projects">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/gpx" visible="true"/>
+        </collection>
+        <collection type="list" name="diagnostics" label="RADAR-PD diagnostics">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/diagnostics" visible="false"/>
+        </collection>
+    </outputs>
+    <help><![CDATA[
+Runs the existing RADAR-PD scientific pipeline inside an ephemeral Galaxy job. Direct Galaxy history input is the default and does not require an IPTS. The optional IPTS route resolves one unambiguous reduced pattern and matching instrument profile from a read-only SNS mount. Every GPX checkpoint produced by Full or Rapid mode is returned as a collection, along with plots, tables, phase CIFs, a normalized machine-readable summary, and a complete results archive.
+    ]]></help>
+</tool>

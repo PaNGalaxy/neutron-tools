@@ -1,0 +1,49 @@
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD CIF Library Builder" profile="22.05" version="0.1.0">
+    <description>build a reusable mini or augmented candidate library</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">radar-pd-ndip:local</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -euo pipefail &&
+        mkdir -p cif_inputs library_output &&
+        #for $index, $cif_file in enumerate($cif_files)
+        ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
+        #end for
+        python /opt/radar-pd/scripts/ndip_runner.py build-library
+            --cif-dir cif_inputs
+            --library-mode '$library_mode'
+            --radiation '$radiation'
+            #if str($library_mode) == 'augmented'
+            --base-db-root "${RADAR_PD_DB_ROOT}/database_${radiation}"
+            #end if
+            --output-root library_output
+            --manifest-output '$library_manifest'
+            --archive '$library_archive'
+            $overwrite
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+    ]]></command>
+    <inputs>
+        <param name="cif_files" type="data_collection" collection_type="list" format="cif" label="Candidate CIF files"/>
+        <param name="library_mode" type="select" label="Library type">
+            <option value="mini" selected="true">Only my CIFs</option>
+            <option value="augmented">Built-in MP/COD catalog + my CIFs</option>
+        </param>
+        <param name="radiation" type="select" label="Measurement type">
+            <option value="neutron" selected="true">Neutron</option>
+            <option value="xray">X-ray</option>
+        </param>
+        <param name="overwrite" type="boolean" checked="false" truevalue="--overwrite" falsevalue="" label="Overwrite an existing build directory"/>
+    </inputs>
+    <outputs>
+        <data name="library_archive" format="zip" label="RADAR-PD portable custom library"/>
+        <data name="library_manifest" format="json" label="RADAR-PD custom library manifest"/>
+        <data name="console_output" format="txt" label="RADAR-PD library build log"/>
+    </outputs>
+    <help><![CDATA[
+Builds a portable RADAR-PD library from a Galaxy list collection of CIF files. "Only my CIFs" creates a compact standalone library. "Built-in + my CIFs" requires the NDIP deployment to mount the matching built-in catalog read-only in the RADAR-PD container. The resulting ZIP can be selected as the candidate library in RADAR-PD Analyze and preserved in Galaxy history for reuse.
+    ]]></help>
+</tool>

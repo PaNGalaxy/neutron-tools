@@ -1,0 +1,44 @@
+class: GalaxyWorkflow
+label: RADAR-PD - SNS IPTS Event Metadata Analysis
+doc: Resolve a reduced powder pattern from SNS NeXus metadata and run RADAR-PD without manually uploading the reduced files.
+inputs:
+  configuration:
+    type: data
+  nexus_event_file:
+    type: data
+  main_phase_cif:
+    type: data
+    optional: true
+steps:
+  analyze:
+    tool_id: neutrons_radar_pd_analyze_prototype
+    state:
+      input_source:
+        source_kind: ipts
+        ipts_lookup:
+          lookup_kind: event
+        facility_root: /SNS
+      configuration:
+        config_kind: existing
+      database:
+        database_kind: builtin
+    in:
+      input_source|ipts_lookup|event_file:
+        source: nexus_event_file
+      configuration|config_file:
+        source: configuration
+      main_cif:
+        source: main_phase_cif
+outputs:
+  input_resolution_metadata:
+    outputSource: analyze/input_resolution_metadata
+  report:
+    outputSource: analyze/report
+  summary:
+    outputSource: analyze/summary
+  plots:
+    outputSource: analyze/plots
+  gpx_projects:
+    outputSource: analyze/gpx_projects
+  results_archive:
+    outputSource: analyze/results_archive
