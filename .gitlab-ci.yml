@@ -99,6 +99,15 @@ diagnose_k8s_galaxy:
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
       get events -n "$KUBE_NAMESPACE" --field-selector type=Warning
       --sort-by=.lastTimestamp
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      describe deployment/galaxy -n "$KUBE_NAMESPACE"
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      logs deployment/galaxy -n "$KUBE_NAMESPACE" -c galaxy
+      --since=20m --timestamps --tail=2000
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
