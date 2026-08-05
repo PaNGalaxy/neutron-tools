@@ -53,6 +53,8 @@ push_dev_tools:
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
+      changes:
+        - "tools/neutrons/**/*"
       when: always
     - when: never
   tags:
@@ -78,6 +80,8 @@ redeploy_k8s_galaxy:
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
+      changes:
+        - "tools/neutrons/**/*"
       when: always
     - when: never
   tags:
