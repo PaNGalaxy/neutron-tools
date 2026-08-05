@@ -111,7 +111,9 @@ diagnose_k8s_galaxy:
       docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
       logs deployment/galaxy -n "$KUBE_NAMESPACE" -c galaxy
-      --since=20m --timestamps --tail=2000
+      --since=20m --timestamps
+      | grep -Ev 'uvicorn\.access|GET /api/|GET /history/'
+      | tail -n 2000
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
