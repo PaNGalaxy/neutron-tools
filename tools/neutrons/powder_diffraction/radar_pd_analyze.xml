@@ -5,7 +5,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-31a8c8fc27573d413c35d17a094662d205a5ee0a</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-31a8c8f</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $config_path = 'generated_config.yaml'
