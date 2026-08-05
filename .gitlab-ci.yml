@@ -82,6 +82,30 @@ redeploy_k8s_galaxy:
     - when: never
   tags:
     - rse-multi-builder
+diagnose_k8s_galaxy:
+  stage: test
+  variables:
+    KUBE_NAMESPACE: ndip
+  before_script: []
+  after_script: []
+  script:
+    - echo "$KUBECONFIG" | base64 -d > kubeconfig
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      get deployments,pods -n "$KUBE_NAMESPACE" -o wide
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      get events -n "$KUBE_NAMESPACE" --field-selector type=Warning
+      --sort-by=.lastTimestamp
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "prototype"
+      when: always
+    - when: never
+  tags:
+    - rse-multi-builder
 
 lint-xml:
   stage: lint
