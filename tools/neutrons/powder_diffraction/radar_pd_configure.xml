@@ -55,7 +55,9 @@
             <option value="tof">Time-of-flight</option>
             <option value="cw">Constant wavelength</option>
         </param>
-        <param name="sample_elements" type="text" label="Sample elements" help="Comma- or space-separated element symbols, for example Cu, P, Pb, O, S."/>
+        <param name="sample_elements" type="text" label="Sample elements" help="Comma- or space-separated element symbols, for example Cu, P, Pb, O, S.">
+            <validator type="empty_field" message="Enter at least one sample element."/>
+        </param>
         <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements" help="Elements that may occur as pure environment phases but should not be freely mixed into sample chemistry."/>
         <section name="pattern" title="Pattern regions" expanded="false">
             <param name="limit_start" type="float" optional="true" label="Fit range start"/>

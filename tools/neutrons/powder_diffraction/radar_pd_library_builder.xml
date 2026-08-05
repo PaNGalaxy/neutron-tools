@@ -13,17 +13,17 @@
         #for $index, $cif_file in enumerate($cif_files)
         ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
         #end for
-        python /opt/radar-pd/scripts/ndip_runner.py build-library
-            --cif-dir cif_inputs
-            --library-mode '$library_mode'
-            --radiation '$radiation'
+        python /opt/radar-pd/scripts/ndip_runner.py build-library \
+            --cif-dir cif_inputs \
+            --library-mode '$library_mode' \
+            --radiation '$radiation' \
             #if str($library_mode) == 'augmented'
-            --base-db-root "${RADAR_PD_DB_ROOT}/database_${radiation}"
+            --base-db-root "${RADAR_PD_DB_ROOT}/database_${radiation}" \
             #end if
-            --output-root library_output
-            --manifest-output '$library_manifest'
-            --archive '$library_archive'
-            $overwrite
+            --output-root library_output \
+            --manifest-output '$library_manifest' \
+            --archive '$library_archive' \
+            $overwrite \
             > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>

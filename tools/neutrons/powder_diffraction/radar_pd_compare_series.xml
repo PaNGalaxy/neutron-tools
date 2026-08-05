@@ -13,10 +13,10 @@
         #for $index, $summary in enumerate($summaries)
         ln -s '$summary' 'summaries/summary_${index}.json' &&
         #end for
-        python /opt/radar-pd/scripts/ndip_runner.py compare-series
-            --summary-dir summaries
-            --csv-output '$comparison_table'
-            --html-output '$comparison_report'
+        python /opt/radar-pd/scripts/ndip_runner.py compare-series \
+            --summary-dir summaries \
+            --csv-output '$comparison_table' \
+            --html-output '$comparison_report' \
             > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>

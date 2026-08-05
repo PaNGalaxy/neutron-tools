@@ -9,15 +9,15 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         set -euo pipefail &&
-        python /opt/radar-pd/scripts/ndip_gpx_handoff.py
-            --project '$gpx_project'
-            --project-name '$gpx_project.element_identifier'
+        python /opt/radar-pd/scripts/ndip_gpx_handoff.py \
+            --project '$gpx_project' \
+            --project-name '$gpx_project.element_identifier' \
             #if str($gpx_index) not in ('', 'None', 'Not available.')
-            --index '$gpx_index'
+            --index '$gpx_index' \
             #end if
-            --output-project '$output_project'
-            --metadata '$handoff_metadata'
-            --report '$handoff_report'
+            --output-project '$output_project' \
+            --metadata '$handoff_metadata' \
+            --report '$handoff_report' \
             > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
