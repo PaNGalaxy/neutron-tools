@@ -106,6 +106,28 @@ diagnose_k8s_galaxy:
     - >
       docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      get jobs -n "$KUBE_NAMESPACE" -o wide
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      exec pod/galaxy-postgresql-0 -n "$KUBE_NAMESPACE" -- sh -lc
+      "export PGPASSWORD=\$(cat \"\$POSTGRES_PASSWORD_FILE\");
+      psql -X -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DATABASE\" -P pager=off -c
+      \"SELECT jsonb_build_object('id', j.id, 'created', j.create_time,
+      'updated', j.update_time, 'state', j.state, 'tool_id', j.tool_id,
+      'runner_name', to_jsonb(j)->>'runner_name',
+      'destination_id', to_jsonb(j)->>'destination_id',
+      'handler', to_jsonb(j)->>'handler',
+      'job_runner_name', to_jsonb(j)->>'job_runner_name',
+      'job_runner_external_id', to_jsonb(j)->>'job_runner_external_id',
+      'exit_code', to_jsonb(j)->>'exit_code',
+      'info', left(coalesce(to_jsonb(j)->>'info', ''), 1000),
+      'traceback', left(coalesce(to_jsonb(j)->>'traceback', ''), 1000))
+      FROM job j WHERE j.tool_id LIKE 'neutrons_radar_pd%'
+      ORDER BY j.id DESC LIMIT 10;\""
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
       describe deployment/galaxy -n "$KUBE_NAMESPACE"
     - >
       docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
