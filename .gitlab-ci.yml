@@ -112,7 +112,7 @@ diagnose_k8s_galaxy:
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
       exec pod/galaxy-postgresql-0 -n "$KUBE_NAMESPACE" -- sh -lc
       "export PGPASSWORD=\$(cat \"\$POSTGRES_PASSWORD_FILE\");
-      psql -X -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DATABASE\" -P pager=off -c
+      /opt/bitnami/postgresql/bin/psql -X -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DATABASE\" -P pager=off -c
       \"SELECT jsonb_build_object('id', j.id, 'created', j.create_time,
       'updated', j.update_time, 'state', j.state, 'tool_id', j.tool_id,
       'runner_name', to_jsonb(j)->>'runner_name',
