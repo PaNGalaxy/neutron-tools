@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.3">
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.4">
     <description>create a reusable Full or Rapid analysis configuration</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -9,41 +9,20 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$config_output' '$config_report' '$console_output' &&
-        set -euo pipefail &&
-        args=(
-            python /opt/radar-pd/scripts/ndip_runner.py configure
-            --mode '$analysis_mode'
-            --radiation '$radiation'
-            --instrument-mode '$instrument_mode'
-            --allowed-elements '$sample_elements'
-            --environment-elements '$environment_elements'
-            --background-mode '$background.background_mode'
-            --background-type '$background.background_type'
-            --background-terms '$background.background_terms'
-            --max-passes '$budgets.max_passes'
-            --min-phase-percent '$budgets.min_phase_percent'
-            --phases-per-hypothesis '$budgets.phases_per_hypothesis'
-            --gsas-validation-limit '$budgets.gsas_validation_limit'
-            '$advanced.magnetic_precheck'
-            '$advanced.main_prenudge'
-            '$advanced.main_shadow_filter'
-            '$advanced.main_cleanup'
-            '$advanced.refine_uiso'
-            '$advanced.refine_positions'
-            --output '$config_output'
-            --report '$config_report'
-        )
+        set -eu &&
+        limit_start_arg='' &&
             #if str($pattern.limit_start) not in ('', 'None', 'Not available.')
-        args+=(--limit-start '$pattern.limit_start')
+        limit_start_arg='--limit-start $pattern.limit_start' &&
             #end if
+        limit_end_arg='' &&
             #if str($pattern.limit_end) not in ('', 'None', 'Not available.')
-        args+=(--limit-end '$pattern.limit_end')
+        limit_end_arg='--limit-end $pattern.limit_end' &&
             #end if
+        excluded_args='' &&
             #for $region in $pattern.excluded_regions
-        args+=(--exclude-region '${region.start}:${region.end}')
+        excluded_args="\$excluded_args --exclude-region ${region.start}:${region.end}" &&
             #end for
-        "\${args[@]}" \
-            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+        python /opt/radar-pd/scripts/ndip_runner.py configure --mode '$analysis_mode' --radiation '$radiation' --instrument-mode '$instrument_mode' --allowed-elements '$sample_elements' --environment-elements '$environment_elements' \$limit_start_arg \$limit_end_arg \$excluded_args --background-mode '$background.background_mode' --background-type '$background.background_type' --background-terms '$background.background_terms' --max-passes '$budgets.max_passes' --min-phase-percent '$budgets.min_phase_percent' --phases-per-hypothesis '$budgets.phases_per_hypothesis' --gsas-validation-limit '$budgets.gsas_validation_limit' $advanced.magnetic_precheck $advanced.main_prenudge $advanced.main_shadow_filter $advanced.main_cleanup $advanced.refine_uiso $advanced.refine_positions --output '$config_output' --report '$config_report' > '$console_output' 2>&1
     ]]></command>
     <inputs>
         <param name="analysis_mode" type="select" label="Analysis mode">
