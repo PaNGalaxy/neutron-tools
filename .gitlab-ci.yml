@@ -128,6 +128,28 @@ diagnose_k8s_galaxy:
     - >
       docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      exec pod/galaxy-postgresql-0 -n "$KUBE_NAMESPACE" -- sh -lc
+      "export PGPASSWORD=\$(cat \"\$POSTGRES_PASSWORD_FILE\");
+      /opt/bitnami/postgresql/bin/psql -X -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DATABASE\" -P pager=off -c
+      \"SELECT jsonb_build_object('id', j.id, 'created', j.create_time,
+      'state', j.state, 'tool_id', j.tool_id,
+      'destination_id', to_jsonb(j)->>'destination_id',
+      'job_runner_name', to_jsonb(j)->>'job_runner_name',
+      'exit_code', to_jsonb(j)->>'exit_code',
+      'info', left(coalesce(to_jsonb(j)->>'info', ''), 500))
+      FROM job j WHERE j.id BETWEEN 218240 AND 218280
+      ORDER BY j.id DESC;\""
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      exec deployment/galaxy -n "$KUBE_NAMESPACE" -c galaxy -- sh -lc
+      "find /galaxy/server/config /etc/galaxy -maxdepth 3 -type f
+      \( -name 'job_conf*' -o -name 'tool_destinations*' \) -print 2>/dev/null;
+      grep -R -n -E 'pulsar_sns_gpu_node01|neutrons_radar_pd'
+      /galaxy/server/config /etc/galaxy 2>/dev/null || true"
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
       describe deployment/galaxy -n "$KUBE_NAMESPACE"
     - >
       docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
