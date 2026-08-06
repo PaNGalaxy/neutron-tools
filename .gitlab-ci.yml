@@ -86,6 +86,37 @@ redeploy_k8s_galaxy:
     - when: never
   tags:
     - rse-multi-builder
+diagnose_job_routes:
+  stage: test
+  variables:
+    KUBE_NAMESPACE: ndip
+  before_script: []
+  after_script: []
+  script:
+    - echo "$KUBECONFIG" | base64 -d > kubeconfig
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      exec deployment/galaxy -n "$KUBE_NAMESPACE" -c galaxy -- sh -lc
+      "sed -n '55,65p;205,235p' /galaxy/config/job_conf.yml"
+    - >
+      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      exec pod/galaxy-postgresql-0 -n "$KUBE_NAMESPACE" -- sh -lc
+      "export PGPASSWORD=\$(cat \"\$POSTGRES_PASSWORD_FILE\");
+      /opt/bitnami/postgresql/bin/psql -X -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DATABASE\" -P pager=off -c
+      \"SELECT j.tool_id, j.state, count(*) AS jobs, max(j.create_time) AS latest
+      FROM job j WHERE to_jsonb(j)->>'destination_id' = 'pulsar_sns_gpu_node01'
+      AND j.create_time > now() - interval '7 days'
+      GROUP BY j.tool_id, j.state ORDER BY latest DESC LIMIT 40;\""
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "prototype"
+      when: always
+    - when: never
+  tags:
+    - rse-multi-builder
+
 lint-xml:
   stage: lint
   script:
