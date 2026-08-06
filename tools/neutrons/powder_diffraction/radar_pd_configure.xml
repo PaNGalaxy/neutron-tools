@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.1">
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.2">
     <description>create a reusable Full or Rapid analysis configuration</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -10,36 +10,39 @@
     <command detect_errors="exit_code"><![CDATA[
         touch '$config_output' '$config_report' '$console_output' &&
         set -euo pipefail &&
-        python /opt/radar-pd/scripts/ndip_runner.py configure \
-            --mode '$analysis_mode' \
-            --radiation '$radiation' \
-            --instrument-mode '$instrument_mode' \
-            --allowed-elements '$sample_elements' \
-            --environment-elements '$environment_elements' \
+        args=(
+            python /opt/radar-pd/scripts/ndip_runner.py configure
+            --mode '$analysis_mode'
+            --radiation '$radiation'
+            --instrument-mode '$instrument_mode'
+            --allowed-elements '$sample_elements'
+            --environment-elements '$environment_elements'
+            --background-mode '$background.background_mode'
+            --background-type '$background.background_type'
+            --background-terms '$background.background_terms'
+            --max-passes '$budgets.max_passes'
+            --min-phase-percent '$budgets.min_phase_percent'
+            --phases-per-hypothesis '$budgets.phases_per_hypothesis'
+            --gsas-validation-limit '$budgets.gsas_validation_limit'
+            '$advanced.magnetic_precheck'
+            '$advanced.main_prenudge'
+            '$advanced.main_shadow_filter'
+            '$advanced.main_cleanup'
+            '$advanced.refine_uiso'
+            '$advanced.refine_positions'
+            --output '$config_output'
+            --report '$config_report'
+        )
             #if str($pattern.limit_start) not in ('', 'None', 'Not available.')
-            --limit-start '$pattern.limit_start' \
+        args+=(--limit-start '$pattern.limit_start')
             #end if
             #if str($pattern.limit_end) not in ('', 'None', 'Not available.')
-            --limit-end '$pattern.limit_end' \
+        args+=(--limit-end '$pattern.limit_end')
             #end if
             #for $region in $pattern.excluded_regions
-            --exclude-region '${region.start}:${region.end}' \
+        args+=(--exclude-region '${region.start}:${region.end}')
             #end for
-            --background-mode '$background.background_mode' \
-            --background-type '$background.background_type' \
-            --background-terms '$background.background_terms' \
-            --max-passes '$budgets.max_passes' \
-            --min-phase-percent '$budgets.min_phase_percent' \
-            --phases-per-hypothesis '$budgets.phases_per_hypothesis' \
-            --gsas-validation-limit '$budgets.gsas_validation_limit' \
-            $advanced.magnetic_precheck \
-            $advanced.main_prenudge \
-            $advanced.main_shadow_filter \
-            $advanced.main_cleanup \
-            $advanced.refine_uiso \
-            $advanced.refine_positions \
-            --output '$config_output' \
-            --report '$config_report' \
+        "${args[@]}" \
             > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
