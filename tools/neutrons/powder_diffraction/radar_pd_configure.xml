@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.2">
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.3">
     <description>create a reusable Full or Rapid analysis configuration</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -42,7 +42,7 @@
             #for $region in $pattern.excluded_regions
         args+=(--exclude-region '${region.start}:${region.end}')
             #end for
-        "${args[@]}" \
+        "\${args[@]}" \
             > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
