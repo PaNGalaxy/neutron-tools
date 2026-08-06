@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Result Explorer" profile="22.05" version="0.1.0">
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Result Explorer" profile="22.05" version="0.1.1">
     <description>inspect reports and scientific artifacts in an interactive NDIP session</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -20,6 +20,7 @@
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         #import re
+        touch '$session_log' &&
         set -euo pipefail &&
         mkdir -p site/{plots,tables,phases,gpx} &&
         cp '$report' site/index.html &&

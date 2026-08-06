@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Compare Series" profile="22.05" version="0.1.0">
+<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Compare Series" profile="22.05" version="0.1.1">
     <description>compare normalized results from a mapped scan series</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -8,6 +8,7 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3f7d899-v2s2</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        touch '$comparison_table' '$comparison_report' '$console_output' &&
         set -euo pipefail &&
         mkdir -p summaries &&
         #for $index, $summary in enumerate($summaries)

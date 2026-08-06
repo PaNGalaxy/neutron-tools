@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.1.0">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.1.1">
     <description>run Full RADAR-PD or Rapid Hypothesis Mode on uploaded or IPTS data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -20,8 +20,18 @@
                 #set $analysis_instrument = str($input_source.instrument_source.instrument)
             #end if
         #end if
-        set -euo pipefail &&
         mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
+        touch \
+            '$console_output' \
+            portal/report.html \
+            portal/summary.json \
+            portal/state.json \
+            portal/resolved_config.yaml \
+            portal/input_manifest.json \
+            portal/gpx_index.json \
+            portal/results.zip \
+            resolved_input/metadata.json &&
+        set -euo pipefail &&
         #if str($configuration.config_kind) == 'guided'
         python /opt/radar-pd/scripts/ndip_runner.py configure \
             --mode '$configuration.analysis_mode' \

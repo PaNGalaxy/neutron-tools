@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD GSAS-II Project Handoff" profile="22.05" version="0.1.0">
+<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD GSAS-II Project Handoff" profile="22.05" version="0.1.1">
     <description>select and preserve a RADAR-PD refinement checkpoint for GSAS-II</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -8,6 +8,7 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3f7d899-v2s2</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        touch '$output_project' '$handoff_metadata' '$handoff_report' '$console_output' &&
         set -euo pipefail &&
         python /opt/radar-pd/scripts/ndip_gpx_handoff.py \
             --project '$gpx_project' \

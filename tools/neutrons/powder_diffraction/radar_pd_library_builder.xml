@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD CIF Library Builder" profile="22.05" version="0.1.0">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD CIF Library Builder" profile="22.05" version="0.1.1">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -8,6 +8,7 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3f7d899-v2s2</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        touch '$library_archive' '$library_manifest' '$console_output' &&
         set -euo pipefail &&
         mkdir -p cif_inputs library_output &&
         #for $index, $cif_file in enumerate($cif_files)
