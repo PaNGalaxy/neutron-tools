@@ -150,13 +150,9 @@ diagnose_k8s_galaxy:
     - >
       docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
-      exec deployment/galaxy -n "$KUBE_NAMESPACE" -c galaxy -- python -c
-      "import json,yaml; c=yaml.safe_load(open('/galaxy/config/job_conf.yml'));
-      e=c.get('execution', {});
-      print(json.dumps({'default': e.get('default'),
-      'radar_tools': {k:v for k,v in e.get('tools', {}).items() if 'radar' in k.lower()},
-      'environment_runners': {k:(v.get('runner') if isinstance(v,dict) else v)
-      for k,v in e.get('environments', {}).items()}}, indent=2))"
+      exec deployment/galaxy -n "$KUBE_NAMESPACE" -c galaxy -- sh -lc
+      "grep -n -E '^execution:|^  default:|^  environments:|^    [A-Za-z0-9_-]+:|^      runner:|^  tools:|neutrons_radar'
+      /galaxy/config/job_conf.yml"
     - >
       docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
       regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
