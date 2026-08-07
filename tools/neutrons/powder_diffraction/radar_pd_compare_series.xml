@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Compare Series" profile="22.05" version="0.1.1">
+<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Compare Series" profile="22.05" version="0.1.2">
     <description>compare normalized results from a mapped scan series</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3f7d899-v2s2</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-34037c3</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$comparison_table' '$comparison_report' '$console_output' &&
