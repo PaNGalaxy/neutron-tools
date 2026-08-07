@@ -1,4 +1,4 @@
-<tool id="nova-mantid-workbench" tool_type="interactive"  name="Mantid Workbench" version="0.5.0" profile="22.01">
+<tool id="nova-mantid-workbench" tool_type="interactive"  name="Mantid Workbench" version="0.5.1" profile="22.01">
     <description>Mantid Workbench - A tool for running the Mantid Workbench</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/mantid-workbench:0.5.0</container>
