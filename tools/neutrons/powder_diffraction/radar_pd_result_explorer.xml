@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Result Explorer" profile="22.05" version="0.1.2">
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.1.3">
     <description>inspect reports and scientific artifacts in an interactive NDIP session</description>
     <creator>
         <person name="Lalit Yadav"/>

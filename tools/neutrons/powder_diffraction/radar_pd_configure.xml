@@ -1,5 +1,5 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Configure" profile="22.05" version="0.1.6">
-    <description>create a reusable Full or Rapid analysis configuration</description>
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.1.7">
+    <description>advanced: create YAML for mapped, batch, or automated workflows</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
