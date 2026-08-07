@@ -1,0 +1,37 @@
+<tool id="nova-mantid-workbench" tool_type="interactive"  name="Mantid Workbench" version="0.5.0" profile="22.01">
+    <description>Mantid Workbench - A tool for running the Mantid Workbench</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/mantid-workbench:0.5.0</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Mantid Workbench" label="mantidworkbench" requires_domain="False" requires_path_in_url="True">
+            <port>8081</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">mantidworkbench</environment_variable>
+    </environment_variables>
+    <command detect_errors="exit_code"><![CDATA[
+        export GALAXY_WORKING_DIR=`pwd` &&
+        export DEFAULT_DIR="/SNS/users/\$GALAXY_TOOL_USER" &&
+        #if $directory:
+            export DEFAULT_DIR=$directory &&
+        #end if
+        /start.sh \$GALAXY_TOOL_USER
+    ]]></command>
+    <inputs>
+        <param name="directory" type="text" optional="true" label="Default working directory" />
+    </inputs>
+    <outputs>
+    </outputs>
+    <help><![CDATA[
+        **Mantid Workbench**
+
+        This is a Galaxy tool for Mantid Workbench.
+
+        For more information, see the repository: https://code.ornl.gov/ndip/tool-sources/generic/mantid-workbench
+    ]]></help>
+</tool>
