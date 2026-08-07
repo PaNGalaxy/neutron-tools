@@ -20,12 +20,13 @@
         #if $directory:
             export DEFAULT_DIR=$directory &&
         #end if
-        /start.sh \$GALAXY_TOOL_USER
+        /start.sh \$GALAXY_TOOL_USER > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <param name="directory" type="text" optional="true" label="Default working directory" />
     </inputs>
     <outputs>
+        <data name="output" auto_format="true" label="Mantid Workbench Console Output"></data>
     </outputs>
     <help><![CDATA[
         **Mantid Workbench**
