@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.7">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.8">
     <description>START HERE: configure and analyze uploaded or SNS powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -82,12 +82,13 @@
         analyze_args+=(--run-name '$run_name') &&
             #end if
         analyze_args+=(--mode auto --input-source '$input_source.source_kind' --work-dir work --output-dir portal) &&
-        set +e
-        "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
-        run_status=\$?
-        set -e
+        if "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2); then
+            chmod -R a+rX '$console_output' portal resolved_input
+        else
+            chmod -R a+rX '$console_output' portal resolved_input
+            exit 1
+        fi
         chmod -R a+rX '$console_output' portal resolved_input
-        exit "\$run_status"
     ]]></command>
     <inputs>
         <conditional name="input_source">

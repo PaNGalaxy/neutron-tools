@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.1.6">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.1.7">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -22,12 +22,13 @@
             #if str($overwrite) not in ('', 'None', 'False')
         library_args+=($overwrite) &&
             #end if
-        set +e
-        "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
-        run_status=\$?
-        set -e
+        if "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2); then
+            chmod a+r '$library_archive' '$library_manifest' '$console_output'
+        else
+            chmod a+r '$library_archive' '$library_manifest' '$console_output'
+            exit 1
+        fi
         chmod a+r '$library_archive' '$library_manifest' '$console_output'
-        exit "\$run_status"
     ]]></command>
     <inputs>
         <param name="cif_files" type="data_collection" collection_type="list" format="cif" label="Candidate CIF files"/>
