@@ -1,0 +1,40 @@
+<tool id="lammps-frontier" name="LAMMPS (Frontier)" version="0.1.0" profile="22.01">
+    <creator>
+        <person name="Alan Hicks" />
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+    </requirements>
+     <command><![CDATA[
+        module load PrgEnv-cray &&
+        module load craype-accel-amd-gfx90a &&
+        module load cray-fftw &&
+        module load cpe &&
+        module load rocm &&
+
+        ln -s $lmp input.lmp &&
+        ln -s $xyz input.xyz &&
+
+        export INSTDIR="/lustre/orion/bip280/proj-shared/LAMMPS_Stable_KOKKOSwfcut/lammps/install/bin" &&
+        export OMP_NUM_THREADS=1 &&
+        export MPICH_GPU_SUPPORT_ENABLED=1 &&
+
+        \${INSTDIR}/lmp_frontier -k on g 1 -sf kk -pk kokkos -in input.lmp
+            > >(tee -a $output) 2> >(tee -a $output >&2)
+     ]]></command>
+    <inputs>
+        <param name="lmp" type="data" format="txt" optional="false" label="*.lmp file" />
+        <param name="xyz" type="data" format="txt" optional="false" label="*.xyz file" />
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="LAMMPS Console Output"></data>
+        <collection type="list" name="output_collection" label="LAMMPS Output Files">
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(out|profile)" />
+        </collection>
+    </outputs>
+    <help><![CDATA[
+        **LAMMPS (Frontier)**
+
+        This is a Galaxy tool to run LAMMPS on Frontier.
+    ]]></help>
+</tool>
