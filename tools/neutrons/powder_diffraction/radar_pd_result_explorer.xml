@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.1.4">
-    <description>inspect reports and scientific artifacts in an interactive NDIP session</description>
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.2.0">
+    <description>open the integrated scientific dashboard, plots, tables, CIFs, and GPX checkpoints</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-34037c3</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-266dadea-catalog-20260617</container>
     </requirements>
     <entry_points>
         <entry_point name="RADAR-PD Result Explorer" label="RADAR-PD results" requires_domain="False" requires_path_in_url="True">
@@ -23,7 +23,7 @@
         touch '$session_log' &&
         chmod a+r '$session_log' &&
         set -euo pipefail &&
-        mkdir -p site/{plots,tables,phases,gpx} &&
+        mkdir -p site/{plots,tables,phases,gpx,diagnostics} &&
         cp '$report' site/index.html &&
         cp '$summary' site/summary.json &&
         #if str($plots) not in ('', 'None', 'Not available.')
@@ -50,6 +50,12 @@
         cp '$item' 'site/gpx/$name' &&
             #end for
         #end if
+        #if str($diagnostics) not in ('', 'None', 'Not available.')
+            #for $item in $diagnostics
+                #set $name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
+        cp '$item' 'site/diagnostics/$name' &&
+            #end for
+        #end if
         printf '%s\n' 'RADAR-PD interactive result explorer started on port 8080.' > '$session_log' &&
         python -m http.server 8080 --bind 0.0.0.0 --directory site
     ]]></command>
@@ -60,11 +66,12 @@
         <param name="tables" type="data_collection" collection_type="list" optional="true" label="RADAR-PD tables"/>
         <param name="phases" type="data_collection" collection_type="list" optional="true" label="RADAR-PD phase CIFs"/>
         <param name="gpx_projects" type="data_collection" collection_type="list" optional="true" label="RADAR-PD GSAS-II projects"/>
+        <param name="diagnostics" type="data_collection" collection_type="list" optional="true" label="RADAR-PD diagnostics and logs"/>
     </inputs>
     <outputs>
         <data name="session_log" format="txt" label="RADAR-PD result explorer session"/>
     </outputs>
     <help><![CDATA[
-Starts an NDIP interactive session containing the normalized RADAR-PD report and selected artifact collections. Galaxy remains the system of record for datasets and provenance. This explorer is for inspection and download; editing a GPX project requires the separate interactive GSAS-II handoff tool planned for NDIP deployment.
+Open this after a RADAR-PD analysis to inspect the integrated scientific dashboard. It presents final hypotheses or phases, fit quality, phase fractions, stage timing, warnings, plots, result tables, CIF files, and GSAS-II checkpoints without making you open each History dataset separately. Galaxy remains the system of record. To continue a refinement, send a selected GPX checkpoint through **RADAR-PD Utility: GSAS-II Project Handoff** and open it in the hosted GSAS-II tool.
     ]]></help>
 </tool>

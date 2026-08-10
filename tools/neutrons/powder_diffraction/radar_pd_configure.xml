@@ -1,66 +1,165 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.1.8">
-    <description>advanced: create YAML for mapped, batch, or automated workflows</description>
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.2.0">
+    <description>create a portable configuration for mapped, batch, or automated analyses</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-34037c3</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-266dadea-catalog-20260617</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$config_output' '$config_report' '$console_output' &&
-        set -eu &&
-        environment_elements_value='' &&
-            #if str($environment_elements) not in ('', 'None', 'Not available.')
-        environment_elements_value='$environment_elements' &&
+        trap "chmod a+r '$config_output' '$config_report' '$console_output' >/dev/null 2>&1 || true" EXIT &&
+        set -euo pipefail &&
+        config_args=(
+            python /opt/radar-pd/scripts/ndip_runner.py configure
+            --mode '$measurement.strategy.analysis_mode'
+            --radiation '$measurement.radiation'
+            --instrument-mode '$measurement.instrument_mode'
+            --allowed-elements '$chemistry.sample_elements'
+            --background-mode '$background.background_mode'
+            --background-type '$background.background_type'
+            --background-terms '$background.background_terms'
+            --output '$config_output'
+            --report '$config_report'
+        ) &&
+        #if str($chemistry.environment_elements) not in ('', 'None', 'Not available.')
+        config_args+=(--environment-elements '$chemistry.environment_elements') &&
+        #end if
+        #if str($pattern.limit_start) not in ('', 'None', 'Not available.')
+        config_args+=(--limit-start '$pattern.limit_start') &&
+        #end if
+        #if str($pattern.limit_end) not in ('', 'None', 'Not available.')
+        config_args+=(--limit-end '$pattern.limit_end') &&
+        #end if
+        #for $region in $pattern.excluded_regions
+        config_args+=(--exclude-region '${region.start}:${region.end}') &&
+        #end for
+        #for $preset in $pattern.reference_masks.presets
+        config_args+=(--reference-mask-preset '$preset') &&
+        #end for
+        config_args+=($pattern.reference_masks.include_kbeta) &&
+        #if str($measurement.strategy.analysis_mode) == 'rapid'
+        config_args+=(
+            --phases-per-hypothesis '$measurement.strategy.phases_per_hypothesis'
+            --rapid-stage-output-limit '$measurement.strategy.stage_output_limit'
+            --gsas-validation-limit '$measurement.strategy.gsas_validation_limit'
+            --rapid-workers '$measurement.strategy.parallel_workers'
+            $measurement.strategy.family_variants
+            $measurement.strategy.final_polish
+        ) &&
+        #else
+        config_args+=(--runtime-profile '$measurement.strategy.full_profile.profile_kind') &&
+            #if str($measurement.strategy.full_profile.profile_kind) == 'custom'
+        config_args+=(
+            --max-passes '$measurement.strategy.full_profile.max_passes'
+            --min-phase-percent '$measurement.strategy.full_profile.min_phase_percent'
+            --full-top-n-ml '$measurement.strategy.full_profile.top_n_ml'
+            --full-nudge-candidates '$measurement.strategy.full_profile.nudge_candidates'
+            --full-cell-length-tolerance '$measurement.strategy.full_profile.cell_length_tolerance'
+            --full-cell-angle-tolerance '$measurement.strategy.full_profile.cell_angle_tolerance'
+            --full-nudge-samples '$measurement.strategy.full_profile.nudge_samples'
+            --full-nudge-representatives '$measurement.strategy.full_profile.nudge_representatives'
+            --full-compare-candidates '$measurement.strategy.full_profile.compare_candidates'
+            --full-compare-cycles '$measurement.strategy.full_profile.compare_cycles'
+            --full-rwp-improvement-threshold '$measurement.strategy.full_profile.rwp_improvement_threshold'
+        ) &&
             #end if
-        limit_start_arg='' &&
-            #if str($pattern.limit_start) not in ('', 'None', 'Not available.')
-        limit_start_arg='--limit-start $pattern.limit_start' &&
-            #end if
-        limit_end_arg='' &&
-            #if str($pattern.limit_end) not in ('', 'None', 'Not available.')
-        limit_end_arg='--limit-end $pattern.limit_end' &&
-            #end if
-        excluded_args='' &&
-            #for $region in $pattern.excluded_regions
-        excluded_args="\$excluded_args --exclude-region ${region.start}:${region.end}" &&
-            #end for
-        python /opt/radar-pd/scripts/ndip_runner.py configure --mode '$analysis_mode' --radiation '$radiation' --instrument-mode '$instrument_mode' --allowed-elements '$sample_elements' --environment-elements "\$environment_elements_value" \$limit_start_arg \$limit_end_arg \$excluded_args --background-mode '$background.background_mode' --background-type '$background.background_type' --background-terms '$background.background_terms' --max-passes '$budgets.max_passes' --min-phase-percent '$budgets.min_phase_percent' --phases-per-hypothesis '$budgets.phases_per_hypothesis' --gsas-validation-limit '$budgets.gsas_validation_limit' $advanced.magnetic_precheck $advanced.main_prenudge $advanced.main_shadow_filter $advanced.main_cleanup $advanced.refine_uiso $advanced.refine_positions --output '$config_output' --report '$config_report' > '$console_output' 2>&1 &&
-        chmod a+r '$config_output' '$config_report' '$console_output'
+        #end if
+        #if str($magnetic.magnetic_check.enabled) == 'yes'
+        config_args+=(--magnetic-precheck --magnetic-q-max '$magnetic.magnetic_check.q_max' --magnetic-denominators '$magnetic.magnetic_check.denominators') &&
+        #else
+        config_args+=(--no-magnetic-precheck) &&
+        #end if
+        config_args+=(
+            $safeguards.main_prenudge
+            $safeguards.main_shadow_filter
+            $safeguards.cleanup.main_cleanup
+            $safeguards.cleanup.refine_uiso
+            $safeguards.cleanup.refine_positions
+        ) &&
+        "\${config_args[@]}" > '$console_output' 2>&1
     ]]></command>
     <inputs>
-        <param name="analysis_mode" type="select" label="Analysis mode">
-            <option value="rapid" selected="true">Rapid Hypothesis Mode</option>
-            <option value="full">Full RADAR-PD</option>
-        </param>
-        <param name="radiation" type="select" label="Measurement type">
-            <option value="neutron" selected="true">Neutron powder diffraction</option>
-            <option value="xray">X-ray powder diffraction</option>
-        </param>
-        <param name="instrument_mode" type="select" label="Pattern geometry">
-            <option value="auto" selected="true">Auto detect</option>
-            <option value="tof">Time-of-flight</option>
-            <option value="cw">Constant wavelength</option>
-        </param>
-        <param name="sample_elements" type="text" label="Sample elements" help="Comma- or space-separated element symbols, for example Cu, P, Pb, O, S.">
-            <validator type="empty_field" message="Enter at least one sample element."/>
-        </param>
-        <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements" help="Elements that may occur as pure environment phases but should not be freely mixed into sample chemistry."/>
-        <section name="pattern" title="Pattern regions" expanded="false">
+        <section name="measurement" title="1. Measurement and analysis route" expanded="true">
+            <param name="radiation" type="select" label="Diffraction source">
+                <option value="neutron" selected="true">Neutron powder diffraction</option>
+                <option value="xray">X-ray powder diffraction (PXRD)</option>
+            </param>
+            <param name="instrument_mode" type="select" label="Pattern geometry">
+                <option value="auto" selected="true">Auto detect</option>
+                <option value="tof">Time-of-flight</option>
+                <option value="cw">Constant wavelength</option>
+            </param>
+            <conditional name="strategy">
+                <param name="analysis_mode" type="select" label="Analysis route">
+                    <option value="rapid" selected="true">Rapid Hypothesis Mode</option>
+                    <option value="full">Full RADAR-PD</option>
+                </param>
+                <when value="rapid">
+                    <param name="phases_per_hypothesis" type="integer" min="1" max="5" value="3" label="Candidate phases in each hypothesis"/>
+                    <param name="stage_output_limit" type="integer" min="3" max="50" value="10" label="Hypotheses retained for inspection"/>
+                    <param name="gsas_validation_limit" type="integer" min="0" max="20" value="10" label="Final refinement checks" help="Zero stops after lattice-aware pattern scoring."/>
+                    <param name="parallel_workers" type="integer" min="1" max="8" value="4" label="Parallel refinement workers"/>
+                    <param name="family_variants" type="boolean" checked="true" truevalue="--rapid-family-variants" falsevalue="--no-rapid-family-variants" label="Keep alternate members of near-stoichiometric families"/>
+                    <param name="final_polish" type="boolean" checked="false" truevalue="--rapid-final-polish" falsevalue="--no-rapid-final-polish" label="Run deeper final cell polish"/>
+                </when>
+                <when value="full">
+                    <conditional name="full_profile">
+                        <param name="profile_kind" type="select" label="Search profile">
+                            <option value="balanced" selected="true">Balanced first pass (recommended)</option>
+                            <option value="quick">Quick diagnostic</option>
+                            <option value="thorough">Thorough search</option>
+                            <option value="custom">Custom research budget</option>
+                        </param>
+                        <when value="balanced"/>
+                        <when value="quick"/>
+                        <when value="thorough"/>
+                        <when value="custom">
+                            <param name="max_passes" type="integer" min="1" max="10" value="2" label="Impurity discovery rounds"/>
+                            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
+                            <param name="top_n_ml" type="integer" min="5" max="200" value="35" label="ML candidates retained per round"/>
+                            <param name="nudge_candidates" type="integer" min="1" max="50" value="7" label="Candidates sent to lattice nudging per round"/>
+                            <param name="cell_length_tolerance" type="float" min="0.1" max="5" value="1.0" label="Cell-length search window (%)"/>
+                            <param name="cell_angle_tolerance" type="float" min="0.1" max="10" value="3.0" label="Cell-angle search window (degrees)"/>
+                            <param name="nudge_samples" type="integer" min="100" max="100000" value="5000" label="Lattice samples per candidate"/>
+                            <param name="nudge_representatives" type="integer" min="5" max="500" value="50" label="Nudge representatives retained"/>
+                            <param name="compare_candidates" type="integer" min="1" max="10" value="2" label="Candidates compared in each commit cycle"/>
+                            <param name="compare_cycles" type="integer" min="1" max="20" value="6" label="Maximum joint-refinement cycles"/>
+                            <param name="rwp_improvement_threshold" type="float" min="0" max="1" value="0.06" label="Stop when Rwp improvement falls below"/>
+                        </when>
+                    </conditional>
+                </when>
+            </conditional>
+        </section>
+        <section name="chemistry" title="2. Chemistry policy" expanded="true">
+            <param name="sample_elements" type="text" label="Elements expected in the sample" help="Comma- or space-separated symbols.">
+                <validator type="empty_field" message="Enter at least one sample element."/>
+            </param>
+            <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements"/>
+        </section>
+        <section name="pattern" title="3. Pattern treatment" expanded="false">
             <param name="limit_start" type="float" optional="true" label="Fit range start"/>
             <param name="limit_end" type="float" optional="true" label="Fit range end"/>
-            <repeat name="excluded_regions" title="Ignored regions">
+            <repeat name="excluded_regions" title="Ignored region" min="0" max="20" default="0">
                 <param name="start" type="float" label="Start"/>
                 <param name="end" type="float" label="End"/>
             </repeat>
+            <section name="reference_masks" title="Automatic can/reference peak masks" expanded="false">
+                <param name="presets" type="select" multiple="true" optional="true" label="Structures to mask">
+                    <option value="Al_fcc">Al (fcc)</option>
+                    <option value="Cu_fcc">Cu (fcc)</option>
+                    <option value="V_bcc">V (bcc)</option>
+                </param>
+                <param name="include_kbeta" type="boolean" checked="false" truevalue="--reference-mask-include-kbeta" falsevalue="--no-reference-mask-include-kbeta" label="Also mask Cu K-beta companion positions"/>
+            </section>
         </section>
-        <section name="background" title="Background correction" expanded="false">
-            <param name="background_mode" type="select" label="Correction mode">
-                <option value="auto_fixed_points" selected="true">Automatic fixed points</option>
-                <option value="polynomial">Polynomial refinement</option>
+        <section name="background" title="4. Background correction" expanded="false">
+            <param name="background_mode" type="select" label="Correction strategy">
+                <option value="auto_fixed_points" selected="true">Automatic fixed points (recommended)</option>
+                <option value="polynomial">Refined analytical background</option>
             </param>
-            <param name="background_type" type="select" label="Background function">
+            <param name="background_type" type="select" label="GSAS-II background function">
                 <option value="chebyschev-1" selected="true">Chebyshev-1</option>
                 <option value="chebyschev">Chebyshev</option>
                 <option value="cosine">Cosine series</option>
@@ -69,27 +168,35 @@
             </param>
             <param name="background_terms" type="integer" min="1" max="36" value="6" label="Background terms"/>
         </section>
-        <section name="budgets" title="Search controls" expanded="false">
-            <param name="max_passes" type="integer" min="1" max="20" value="3" label="Full mode impurity discovery passes"/>
-            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
-            <param name="phases_per_hypothesis" type="integer" min="1" max="8" value="3" label="Rapid mode candidate phases per hypothesis"/>
-            <param name="gsas_validation_limit" type="integer" min="0" max="100" value="10" label="Final refinement shortlist size" help="Set to zero to stop after pattern scoring."/>
+        <section name="magnetic" title="5. Optional magnetic-ordering precheck" expanded="false">
+            <conditional name="magnetic_check">
+                <param name="enabled" type="select" label="Run commensurate magnetic peak precheck">
+                    <option value="no" selected="true">No</option>
+                    <option value="yes">Yes</option>
+                </param>
+                <when value="no"/>
+                <when value="yes">
+                    <param name="q_max" type="float" min="1" max="20" value="6.0" label="Maximum Q (1/angstrom)"/>
+                    <param name="denominators" type="text" value="2,3" label="Commensurate denominators"/>
+                </when>
+            </conditional>
         </section>
-        <section name="advanced" title="Scientific safeguards" expanded="false">
-            <param name="magnetic_precheck" type="boolean" checked="false" truevalue="--magnetic-precheck" falsevalue="--no-magnetic-precheck" label="Check whether residual peaks support commensurate magnetic ordering"/>
+        <section name="safeguards" title="6. Known-main-phase safeguards" expanded="false">
             <param name="main_prenudge" type="boolean" checked="true" truevalue="--main-prenudge" falsevalue="--no-main-prenudge" label="Automatically anchor a supplied main-phase cell"/>
-            <param name="main_shadow_filter" type="boolean" checked="true" truevalue="--main-shadow-filter" falsevalue="--no-main-shadow-filter" label="Filter candidates explained only by strong main-phase peaks"/>
-            <param name="main_cleanup" type="boolean" checked="false" truevalue="--main-cleanup" falsevalue="--no-main-cleanup" label="Refine supplied main-CIF internal parameters after lattice anchoring"/>
-            <param name="refine_uiso" type="boolean" checked="false" truevalue="--refine-uiso" falsevalue="--no-refine-uiso" label="Refine main-phase Uiso during cleanup"/>
-            <param name="refine_positions" type="boolean" checked="false" truevalue="--refine-positions" falsevalue="--no-refine-positions" label="Refine main-phase atomic positions during cleanup"/>
+            <param name="main_shadow_filter" type="boolean" checked="true" truevalue="--main-shadow-filter" falsevalue="--no-main-shadow-filter" label="Filter candidates supported only by strong main-phase peaks"/>
+            <section name="cleanup" title="Optional internal-structure cleanup" expanded="false">
+                <param name="main_cleanup" type="boolean" checked="false" truevalue="--main-cleanup" falsevalue="--no-main-cleanup" label="Refine supplied main-CIF internal parameters"/>
+                <param name="refine_uiso" type="boolean" checked="false" truevalue="--refine-uiso" falsevalue="--no-refine-uiso" label="Refine Uiso"/>
+                <param name="refine_positions" type="boolean" checked="false" truevalue="--refine-positions" falsevalue="--no-refine-positions" label="Refine atomic positions"/>
+            </section>
         </section>
     </inputs>
     <outputs>
-        <data name="config_output" format="yaml" label="RADAR-PD configuration"/>
-        <data name="config_report" format="json" label="RADAR-PD configuration validation"/>
-        <data name="console_output" format="txt" label="RADAR-PD configuration log"/>
+        <data name="config_output" format="yaml" label="RADAR-PD reusable configuration"/>
+        <data name="config_report" format="json" label="RADAR-PD configuration summary"/>
+        <data name="console_output" format="txt" label="RADAR-PD configuration log" hidden="true"/>
     </outputs>
     <help><![CDATA[
-Creates a portable RADAR-PD configuration that contains scientific settings but no machine-specific file paths. Use it with the RADAR-PD Analyze tool for either uploaded/history datasets or optional SNS IPTS resolution. The same configuration can be reused in mapped Galaxy workflows and with the hosted RADAR-PD API.
+Creates a path-independent scientific configuration for RADAR-PD. Use this utility when the same settings will be applied to a mapped scan series, an automated Galaxy workflow, or repeated measurements. For a normal one-off analysis, use the primary **RADAR-PD** tool, which generates and returns the same configuration automatically.
     ]]></help>
 </tool>

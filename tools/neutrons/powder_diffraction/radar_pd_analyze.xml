@@ -1,233 +1,352 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.2.0">
-    <description>START HERE: configure and analyze uploaded or SNS powder diffraction data</description>
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.3.0">
+    <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-34037c3-catalog-20260617</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-266dadea-catalog-20260617</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $config_path = 'generated_config.yaml'
         #set $analysis_data = 'resolved_input/pattern.dat'
         #set $analysis_instrument = 'resolved_input/instrument.instprm'
         #set $analysis_main_cif = 'resolved_input/main.cif'
-        #if str($configuration.config_kind) == 'existing'
-            #set $config_path = str($configuration.config_file)
-        #end if
-        #if str($input_source.source_kind) == 'history'
-            #if str($input_source.data.element_identifier).lower().endswith('.xrdml')
-                #set $analysis_data = 'resolved_input/pattern.xrdml'
-            #end if
+        #set $source_kind = str($data_inputs.input_source.source_kind)
+        #set $input_source_label = 'ipts' if $source_kind.startswith('ipts_') else 'history'
+        #if $source_kind.startswith('history_') and str($data_inputs.input_source.data.element_identifier).lower().endswith('.xrdml')
+            #set $analysis_data = 'resolved_input/pattern.xrdml'
         #end if
         mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
         touch '$console_output' portal/report.html portal/summary.json portal/state.json portal/resolved_config.yaml portal/input_manifest.json portal/gpx_index.json portal/results.zip resolved_input/metadata.json &&
         trap "chmod -R a+rX '$console_output' portal resolved_input >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
-        #if str($input_source.source_kind) == 'history'
-        cp '$input_source.data' '$analysis_data' &&
-            #if str($input_source.instrument_source.instrument_kind) == 'upload'
-        cp '$input_source.instrument_source.instrument' '$analysis_instrument' &&
+        #if $source_kind.startswith('history_')
+        cp '$data_inputs.input_source.data' '$analysis_data' &&
+            #if $source_kind == 'history_instrument'
+        cp '$data_inputs.input_source.instrument' '$analysis_instrument' &&
             #end if
         #end if
-        #if str($main_cif) not in ('', 'None', 'Not available.')
-        cp '$main_cif' '$analysis_main_cif' &&
+        #if str($data_inputs.main_cif) not in ('', 'None', 'Not available.')
+        cp '$data_inputs.main_cif' '$analysis_main_cif' &&
         #end if
-        #if str($configuration.config_kind) == 'guided'
-        environment_elements_value='' &&
-            #if str($configuration.environment_elements) not in ('', 'None', 'Not available.')
-        environment_elements_value='$configuration.environment_elements' &&
+        #if str($reproducibility.configuration_override.config_kind) == 'existing'
+            #set $config_path = str($reproducibility.configuration_override.config_file)
+        #else
+        config_args=(
+            python /opt/radar-pd/scripts/ndip_runner.py configure
+            --mode '$measurement.strategy.analysis_mode'
+            --radiation '$measurement.radiation'
+            --instrument-mode '$measurement.instrument_mode'
+            --allowed-elements '$chemistry.sample_elements'
+            --background-mode '$background.background_mode'
+            --background-type '$background.background_type'
+            --background-terms '$background.background_terms'
+            --output '$config_path'
+        ) &&
+            #if str($chemistry.environment_elements) not in ('', 'None', 'Not available.')
+        config_args+=(--environment-elements '$chemistry.environment_elements') &&
             #end if
-        limit_start_arg='' &&
-            #if str($configuration.pattern.limit_start) not in ('', 'None', 'Not available.')
-        limit_start_arg='--limit-start $configuration.pattern.limit_start' &&
+            #if str($pattern.limit_start) not in ('', 'None', 'Not available.')
+        config_args+=(--limit-start '$pattern.limit_start') &&
             #end if
-        limit_end_arg='' &&
-            #if str($configuration.pattern.limit_end) not in ('', 'None', 'Not available.')
-        limit_end_arg='--limit-end $configuration.pattern.limit_end' &&
+            #if str($pattern.limit_end) not in ('', 'None', 'Not available.')
+        config_args+=(--limit-end '$pattern.limit_end') &&
             #end if
-        excluded_args='' &&
-            #for $region in $configuration.pattern.excluded_regions
-        excluded_args="\$excluded_args --exclude-region ${region.start}:${region.end}" &&
+            #for $region in $pattern.excluded_regions
+        config_args+=(--exclude-region '${region.start}:${region.end}') &&
             #end for
-        python /opt/radar-pd/scripts/ndip_runner.py configure --mode '$configuration.analysis_mode' --radiation '$configuration.radiation' --instrument-mode '$configuration.instrument_mode' --allowed-elements '$configuration.sample_elements' --environment-elements "\$environment_elements_value" \$limit_start_arg \$limit_end_arg \$excluded_args --background-mode '$configuration.background.background_mode' --background-type '$configuration.background.background_type' --background-terms '$configuration.background.background_terms' --max-passes '$configuration.budgets.max_passes' --min-phase-percent '$configuration.budgets.min_phase_percent' --phases-per-hypothesis '$configuration.budgets.phases_per_hypothesis' --gsas-validation-limit '$configuration.budgets.gsas_validation_limit' $configuration.advanced.magnetic_precheck $configuration.advanced.main_prenudge $configuration.advanced.main_shadow_filter $configuration.advanced.main_cleanup $configuration.advanced.refine_uiso $configuration.advanced.refine_positions --output '$config_path' &&
-        #end if
-        #if str($input_source.source_kind) == 'ipts'
-        resolve_args=(python /opt/radar-pd/scripts/ndip_runner.py resolve-ipts) &&
-            #if str($input_source.ipts_lookup.lookup_kind) == 'event'
-        resolve_args+=(--event-file '$input_source.ipts_lookup.event_file') &&
+            #for $preset in $pattern.reference_masks.presets
+        config_args+=(--reference-mask-preset '$preset') &&
+            #end for
+        config_args+=($pattern.reference_masks.include_kbeta) &&
+            #if str($measurement.strategy.analysis_mode) == 'rapid'
+        config_args+=(
+            --phases-per-hypothesis '$measurement.strategy.phases_per_hypothesis'
+            --rapid-stage-output-limit '$measurement.strategy.stage_output_limit'
+            --gsas-validation-limit '$measurement.strategy.gsas_validation_limit'
+            --rapid-workers '$measurement.strategy.parallel_workers'
+            $measurement.strategy.family_variants
+            $measurement.strategy.final_polish
+        ) &&
             #else
-        resolve_args+=(--instrument '$input_source.ipts_lookup.instrument' --ipts '$input_source.ipts_lookup.ipts' --run '$input_source.ipts_lookup.run_number') &&
+        config_args+=(--runtime-profile '$measurement.strategy.full_profile.profile_kind') &&
+                #if str($measurement.strategy.full_profile.profile_kind) == 'custom'
+        config_args+=(
+            --max-passes '$measurement.strategy.full_profile.max_passes'
+            --min-phase-percent '$measurement.strategy.full_profile.min_phase_percent'
+            --full-top-n-ml '$measurement.strategy.full_profile.top_n_ml'
+            --full-nudge-candidates '$measurement.strategy.full_profile.nudge_candidates'
+            --full-cell-length-tolerance '$measurement.strategy.full_profile.cell_length_tolerance'
+            --full-cell-angle-tolerance '$measurement.strategy.full_profile.cell_angle_tolerance'
+            --full-nudge-samples '$measurement.strategy.full_profile.nudge_samples'
+            --full-nudge-representatives '$measurement.strategy.full_profile.nudge_representatives'
+            --full-compare-candidates '$measurement.strategy.full_profile.compare_candidates'
+            --full-compare-cycles '$measurement.strategy.full_profile.compare_cycles'
+            --full-rwp-improvement-threshold '$measurement.strategy.full_profile.rwp_improvement_threshold'
+        ) &&
+                #end if
             #end if
-            #if str($input_source.ipts_lookup.bank) not in ('', 'None', 'Not available.')
-        resolve_args+=(--bank '$input_source.ipts_lookup.bank') &&
+            #if str($magnetic.magnetic_check.enabled) == 'yes'
+        config_args+=(
+            --magnetic-precheck
+            --magnetic-q-max '$magnetic.magnetic_check.q_max'
+            --magnetic-denominators '$magnetic.magnetic_check.denominators'
+        ) &&
+            #else
+        config_args+=(--no-magnetic-precheck) &&
             #end if
-        resolve_args+=(--facility-root '$input_source.facility_root' --pattern-output '$analysis_data' --instrument-output '$analysis_instrument' --metadata-output resolved_input/metadata.json) &&
+        config_args+=(
+            $safeguards.main_prenudge
+            $safeguards.main_shadow_filter
+            $safeguards.cleanup.main_cleanup
+            $safeguards.cleanup.refine_uiso
+            $safeguards.cleanup.refine_positions
+        ) &&
+        "\${config_args[@]}" &&
+        #end if
+        #if $source_kind.startswith('ipts_')
+        resolve_args=(python /opt/radar-pd/scripts/ndip_runner.py resolve-ipts) &&
+            #if $source_kind == 'ipts_event'
+        resolve_args+=(--event-file '$data_inputs.input_source.event_file') &&
+            #else
+        resolve_args+=(--instrument '$data_inputs.input_source.instrument' --ipts '$data_inputs.input_source.ipts' --run '$data_inputs.input_source.run_number') &&
+            #end if
+            #if str($data_inputs.input_source.bank) not in ('', 'None', 'Not available.')
+        resolve_args+=(--bank '$data_inputs.input_source.bank') &&
+            #end if
+        resolve_args+=(--facility-root /SNS --pattern-output '$analysis_data' --instrument-output '$analysis_instrument' --metadata-output resolved_input/metadata.json) &&
         "\${resolve_args[@]}" &&
         #else
-        printf '%s\n' '{"source":"Galaxy history upload"}' > resolved_input/metadata.json &&
+        printf '%s\n' '{"source":"Galaxy history dataset"}' > resolved_input/metadata.json &&
         #end if
         analyze_args=(python /opt/radar-pd/scripts/ndip_runner.py analyze --config '$config_path' --data '$analysis_data') &&
-            #if str($input_source.source_kind) == 'history' and str($input_source.instrument_source.instrument_kind) == 'builtin_cuka'
+            #if $source_kind == 'history_cuka'
         analyze_args+=(--instrument-preset xray_lab_cuka) &&
             #else
         analyze_args+=(--instrument '$analysis_instrument') &&
             #end if
-            #if str($main_cif) not in ('', 'None', 'Not available.')
+            #if str($data_inputs.main_cif) not in ('', 'None', 'Not available.')
         analyze_args+=(--main-cif '$analysis_main_cif') &&
             #end if
-            #if str($database.database_kind) == 'custom'
-        analyze_args+=(--db-pack '$database.database_archive') &&
+            #if str($library.database.database_kind) == 'custom'
+        analyze_args+=(--db-pack '$library.database.database_archive') &&
             #end if
-            #if str($run_name) not in ('', 'None', 'Not available.')
-        analyze_args+=(--run-name '$run_name') &&
+            #if str($reproducibility.run_name) not in ('', 'None', 'Not available.')
+        analyze_args+=(--run-name '$reproducibility.run_name') &&
             #end if
-        analyze_args+=(--mode auto --input-source '$input_source.source_kind' --work-dir work --output-dir portal) &&
+        analyze_args+=(--mode auto --input-source '$input_source_label' --work-dir work --output-dir portal) &&
         "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
-        <conditional name="input_source">
-            <param name="source_kind" type="select" label="Diffraction data source">
-                <option value="history" selected="true">Upload or choose datasets from Galaxy history</option>
-                <option value="ipts">Resolve reduced data from an SNS IPTS</option>
+        <section name="measurement" title="1. Measurement and analysis route" expanded="true">
+            <param name="radiation" type="select" label="Diffraction source" help="Choose this first. It selects the neutron or X-ray candidate catalog and the appropriate pattern treatment.">
+                <option value="neutron" selected="true">Neutron powder diffraction</option>
+                <option value="xray">X-ray powder diffraction (PXRD)</option>
             </param>
-            <when value="history">
-                <param name="data" type="data" format="data" label="Powder diffraction data" help="Supports RADAR-PD text patterns and XRDML inputs."/>
-                <conditional name="instrument_source">
-                    <param name="instrument_kind" type="select" label="Instrument profile">
-                        <option value="upload" selected="true">Upload or choose an instrument parameter file</option>
-                        <option value="builtin_cuka">Use the built-in laboratory Cu K-alpha profile</option>
-                    </param>
-                    <when value="upload">
-                        <param name="instrument" type="data" format="txt" label="Instrument parameter file"/>
-                    </when>
-                    <when value="builtin_cuka"/>
-                </conditional>
-            </when>
-            <when value="ipts">
-                <conditional name="ipts_lookup">
-                    <param name="lookup_kind" type="select" label="IPTS lookup method">
-                        <option value="event" selected="true">Read instrument, IPTS, and run from a NeXus event file</option>
-                        <option value="manual">Enter instrument, IPTS, run, and bank</option>
-                    </param>
-                    <when value="event">
-                        <param name="event_file" type="data" format="h5" label="NeXus event file"/>
-                        <param name="bank" type="text" value="" optional="true" label="Reduced-data bank override" help="Set this when the run has more than one reduced bank; leave blank only when the mounted reduction is unambiguous."/>
-                    </when>
-                    <when value="manual">
-                        <param name="instrument" type="text" label="Instrument" help="For example HB2A."/>
-                        <param name="ipts" type="text" label="IPTS" help="For example IPTS-32001."/>
-                        <param name="run_number" type="text" label="Run number"/>
-                        <param name="bank" type="text" value="1" label="Bank"/>
-                    </when>
-                </conditional>
-                <param name="facility_root" type="text" value="/SNS" label="Mounted facility data root" help="NDIP deployment must mount the read-only SNS tree at this path."/>
-            </when>
-        </conditional>
-        <conditional name="configuration">
-            <param name="config_kind" type="select" label="Scientific configuration">
-                <option value="guided" selected="true">Set analysis parameters here (recommended)</option>
-                <option value="existing">Use a saved RADAR-PD YAML configuration (advanced workflows)</option>
+            <param name="instrument_mode" type="select" label="Pattern geometry" help="Auto detect is recommended unless the file metadata are incomplete or ambiguous.">
+                <option value="auto" selected="true">Auto detect from data and instrument profile</option>
+                <option value="tof">Time-of-flight</option>
+                <option value="cw">Constant wavelength</option>
             </param>
-            <when value="existing">
-                <param name="config_file" type="data" format="yaml" label="RADAR-PD configuration"/>
-            </when>
-            <when value="guided">
-                <param name="analysis_mode" type="select" label="Analysis mode">
+            <conditional name="strategy">
+                <param name="analysis_mode" type="select" label="Analysis route" help="Rapid ranks multi-phase hypotheses before focused refinements. Full RADAR-PD performs sequential residual-aware impurity discovery.">
                     <option value="rapid" selected="true">Rapid Hypothesis Mode</option>
                     <option value="full">Full RADAR-PD</option>
                 </param>
-                <param name="radiation" type="select" label="Measurement type">
-                    <option value="neutron" selected="true">Neutron powder diffraction</option>
-                    <option value="xray">X-ray powder diffraction</option>
+                <when value="rapid">
+                    <param name="phases_per_hypothesis" type="integer" min="1" max="5" value="3" label="Candidate phases in each hypothesis" help="With a supplied main CIF, this is the maximum number of impurity candidates. Without a main CIF, it is the total number of phases in a hypothesis."/>
+                    <param name="stage_output_limit" type="integer" min="3" max="50" value="10" label="Hypotheses retained for inspection" help="Controls how many ranked combinations remain visible at each Rapid stage; it does not alter diffraction physics."/>
+                    <param name="gsas_validation_limit" type="integer" min="0" max="20" value="10" label="Final refinement checks" help="Number of shortlisted hypotheses sent to guarded GSAS-II refinement. Zero stops after lattice-aware pattern scoring."/>
+                    <param name="parallel_workers" type="integer" min="1" max="8" value="4" label="Parallel refinement workers" help="Independent final hypotheses are refined in parallel. Four is the production default."/>
+                    <param name="family_variants" type="boolean" checked="true" truevalue="--rapid-family-variants" falsevalue="--no-rapid-family-variants" label="Keep alternate members of near-stoichiometric phase families" help="Preserves scientifically comparable CIF variants for later inspection while ranking one preferred representative."/>
+                    <param name="final_polish" type="boolean" checked="false" truevalue="--rapid-final-polish" falsevalue="--no-rapid-final-polish" label="Run deeper final cell polish" help="Normally leave off. Enable only when the focused final refinement requires an additional guarded cell-polish stage."/>
+                </when>
+                <when value="full">
+                    <conditional name="full_profile">
+                        <param name="profile_kind" type="select" label="Search profile" help="Balanced is recommended for a first scientific run. Quick is diagnostic; Thorough broadens the search after unexplained peaks remain.">
+                            <option value="balanced" selected="true">Balanced first pass (recommended)</option>
+                            <option value="quick">Quick diagnostic</option>
+                            <option value="thorough">Thorough search</option>
+                            <option value="custom">Custom research budget</option>
+                        </param>
+                        <when value="balanced"/>
+                        <when value="quick"/>
+                        <when value="thorough"/>
+                        <when value="custom">
+                            <param name="max_passes" type="integer" min="1" max="10" value="2" label="Impurity discovery rounds"/>
+                            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
+                            <param name="top_n_ml" type="integer" min="5" max="200" value="35" label="ML candidates retained per round"/>
+                            <param name="nudge_candidates" type="integer" min="1" max="50" value="7" label="Candidates sent to lattice nudging per round"/>
+                            <param name="cell_length_tolerance" type="float" min="0.1" max="5" value="1.0" label="Cell-length search window (%)"/>
+                            <param name="cell_angle_tolerance" type="float" min="0.1" max="10" value="3.0" label="Cell-angle search window (degrees)"/>
+                            <param name="nudge_samples" type="integer" min="100" max="100000" value="5000" label="Lattice samples per candidate"/>
+                            <param name="nudge_representatives" type="integer" min="5" max="500" value="50" label="Nudge representatives retained"/>
+                            <param name="compare_candidates" type="integer" min="1" max="10" value="2" label="Candidates compared in each commit cycle"/>
+                            <param name="compare_cycles" type="integer" min="1" max="20" value="6" label="Maximum joint-refinement cycles"/>
+                            <param name="rwp_improvement_threshold" type="float" min="0" max="1" value="0.06" label="Stop when Rwp improvement falls below"/>
+                        </when>
+                    </conditional>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="library" title="2. Candidate phase library" expanded="true">
+            <conditional name="database">
+                <param name="database_kind" type="select" label="Library source" help="The built-in MP/COD-derived catalog is the normal choice. A custom archive is produced by the RADAR-PD CIF Library Builder.">
+                    <option value="builtin" selected="true">Built-in MP/COD catalog</option>
+                    <option value="custom">Use a custom RADAR-PD CIF library</option>
                 </param>
-                <param name="instrument_mode" type="select" label="Pattern geometry">
-                    <option value="auto" selected="true">Auto detect</option>
-                    <option value="tof">Time-of-flight</option>
-                    <option value="cw">Constant wavelength</option>
+                <when value="builtin"/>
+                <when value="custom">
+                    <param name="database_archive" type="data" format="zip" label="Custom library archive" help="Select the ZIP produced by RADAR-PD CIF Library Builder."/>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="data_inputs" title="3. Diffraction data and known phase" expanded="true">
+            <conditional name="input_source">
+                <param name="source_kind" type="select" label="Data source" help="Choose datasets directly from Galaxy history, or resolve a reduced run from the mounted SNS IPTS tree.">
+                    <option value="history_instrument" selected="true">Galaxy history: data and instrument files</option>
+                    <option value="history_cuka">Galaxy history: data with built-in Cu K-alpha profile</option>
+                    <option value="ipts_event">SNS IPTS: resolve from a NeXus event file</option>
+                    <option value="ipts_manual">SNS IPTS: enter instrument, IPTS, run, and bank</option>
                 </param>
-                <param name="sample_elements" type="text" label="Sample elements" help="Comma- or space-separated element symbols, for example Cu, P, Pb, O, S.">
-                    <validator type="empty_field" message="Enter at least one sample element."/>
-                </param>
-                <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements" help="Elements that may occur as pure environment phases but should not be freely mixed into sample chemistry."/>
-                <section name="pattern" title="Pattern regions" expanded="false">
-                    <param name="limit_start" type="float" optional="true" label="Fit range start"/>
-                    <param name="limit_end" type="float" optional="true" label="Fit range end"/>
-                    <repeat name="excluded_regions" title="Ignored regions">
-                        <param name="start" type="float" label="Start"/>
-                        <param name="end" type="float" label="End"/>
-                    </repeat>
-                </section>
-                <section name="background" title="Background correction" expanded="false">
-                    <param name="background_mode" type="select" label="Correction mode">
-                        <option value="auto_fixed_points" selected="true">Automatic fixed points</option>
-                        <option value="polynomial">Polynomial refinement</option>
-                    </param>
-                    <param name="background_type" type="select" label="Background function">
-                        <option value="chebyschev-1" selected="true">Chebyshev-1</option>
-                        <option value="chebyschev">Chebyshev</option>
-                        <option value="cosine">Cosine series</option>
-                        <option value="lin interpolate">Linear interpolation</option>
-                        <option value="log interpolate">Log interpolation</option>
-                    </param>
-                    <param name="background_terms" type="integer" min="1" max="36" value="6" label="Background terms"/>
-                </section>
-                <section name="budgets" title="Search controls" expanded="false">
-                    <param name="max_passes" type="integer" min="1" max="20" value="3" label="Full mode impurity discovery passes"/>
-                    <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
-                    <param name="phases_per_hypothesis" type="integer" min="1" max="8" value="3" label="Rapid mode candidate phases per hypothesis"/>
-                    <param name="gsas_validation_limit" type="integer" min="0" max="100" value="10" label="Final refinement shortlist size" help="Set to zero to stop after pattern scoring."/>
-                </section>
-                <section name="advanced" title="Scientific safeguards" expanded="false">
-                    <param name="magnetic_precheck" type="boolean" checked="false" truevalue="--magnetic-precheck" falsevalue="--no-magnetic-precheck" label="Check whether residual peaks support commensurate magnetic ordering"/>
-                    <param name="main_prenudge" type="boolean" checked="true" truevalue="--main-prenudge" falsevalue="--no-main-prenudge" label="Automatically anchor a supplied main-phase cell"/>
-                    <param name="main_shadow_filter" type="boolean" checked="true" truevalue="--main-shadow-filter" falsevalue="--no-main-shadow-filter" label="Filter candidates explained only by strong main-phase peaks"/>
-                    <param name="main_cleanup" type="boolean" checked="false" truevalue="--main-cleanup" falsevalue="--no-main-cleanup" label="Refine supplied main-CIF internal parameters after lattice anchoring"/>
-                    <param name="refine_uiso" type="boolean" checked="false" truevalue="--refine-uiso" falsevalue="--no-refine-uiso" label="Refine main-phase Uiso during cleanup"/>
-                    <param name="refine_positions" type="boolean" checked="false" truevalue="--refine-positions" falsevalue="--no-refine-positions" label="Refine main-phase atomic positions during cleanup"/>
-                </section>
-            </when>
-        </conditional>
-        <param name="main_cif" type="data" format="cif" optional="true" label="Known/main phase CIF (optional)"/>
-        <conditional name="database">
-            <param name="database_kind" type="select" label="Candidate library">
-                <option value="builtin" selected="true">NDIP built-in MP/COD catalog</option>
-                <option value="custom">Portable custom CIF library archive</option>
+                <when value="history_instrument">
+                    <param name="data" type="data" format="data" label="Powder diffraction data" help="Select the measured pattern. Supported inputs include common RADAR-PD text patterns and XRDML."/>
+                    <param name="instrument" type="data" format="txt" label="GSAS-II instrument parameter file" help="Verify this selected file matches the data, bank, geometry, and wavelength."/>
+                </when>
+                <when value="history_cuka">
+                    <param name="data" type="data" format="data" label="Powder diffraction data" help="Use for laboratory PXRD measured with a conventional Cu K-alpha source."/>
+                </when>
+                <when value="ipts_event">
+                    <param name="event_file" type="data" format="h5" label="NeXus event file" help="RADAR-PD uses its instrument, IPTS, and run metadata to locate one reduced powder pattern and matching instrument profile."/>
+                    <param name="bank" type="text" value="" optional="true" label="Reduced-data bank override" help="Required only when more than one matching reduced bank exists."/>
+                </when>
+                <when value="ipts_manual">
+                    <param name="instrument" type="text" label="Instrument" help="For example HB2A."/>
+                    <param name="ipts" type="text" label="IPTS" help="For example IPTS-32001."/>
+                    <param name="run_number" type="text" label="Run number"/>
+                    <param name="bank" type="text" value="1" label="Bank"/>
+                </when>
+            </conditional>
+            <param name="main_cif" type="data" format="cif" optional="true" label="Known/main phase CIF (optional)" help="Supply this when the dominant structural phase is known. RADAR-PD anchors and protects this phase before searching its residual signal."/>
+        </section>
+
+        <section name="chemistry" title="4. Chemistry policy" expanded="true">
+            <param name="sample_elements" type="text" label="Elements expected in the sample" help="Comma- or space-separated symbols, for example Cu, P, Pb, O, S. Leave out sample-can elements unless they are chemically part of the specimen.">
+                <validator type="empty_field" message="Enter at least one sample element."/>
             </param>
-            <when value="builtin"/>
-            <when value="custom">
-                <param name="database_archive" type="data" format="zip" label="RADAR-PD custom library archive"/>
-            </when>
-        </conditional>
-        <param name="run_name" type="text" optional="true" label="Run name" help="Defaults to the diffraction dataset name."/>
+            <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements" help="These may appear as pure environment phases but are not freely combined with the sample chemistry. Examples include Al or V."/>
+        </section>
+
+        <section name="pattern" title="5. Pattern regions and can/reference masks" expanded="false">
+            <param name="limit_start" type="float" optional="true" label="Fit range start" help="Native x-axis units: degrees 2-theta for CW/PXRD or microseconds for TOF."/>
+            <param name="limit_end" type="float" optional="true" label="Fit range end" help="Both fit-range values must be supplied together."/>
+            <repeat name="excluded_regions" title="Ignored region" min="0" max="20" default="0" help="Exclude known artifacts or unreliable intervals from refinement and residual analysis.">
+                <param name="start" type="float" label="Start"/>
+                <param name="end" type="float" label="End"/>
+            </repeat>
+            <section name="reference_masks" title="Automatic sample-can / reference peak masks" expanded="false">
+                <param name="presets" type="select" multiple="true" optional="true" label="Structures to mask" help="RADAR-PD calculates Bragg positions and creates instrument-aware ignored windows. This is separate from the environment-element chemistry policy.">
+                    <option value="Al_fcc">Al (fcc)</option>
+                    <option value="Cu_fcc">Cu (fcc)</option>
+                    <option value="V_bcc">V (bcc)</option>
+                </param>
+                <param name="include_kbeta" type="boolean" checked="false" truevalue="--reference-mask-include-kbeta" falsevalue="--no-reference-mask-include-kbeta" label="Also mask Cu K-beta companion positions" help="Relevant to Cu-anode laboratory PXRD."/>
+            </section>
+        </section>
+
+        <section name="background" title="6. Background correction" expanded="false">
+            <param name="background_mode" type="select" label="Correction strategy" help="Automatic fixed points is the scale-aware default used to seed GSAS-II background refinement.">
+                <option value="auto_fixed_points" selected="true">Automatic fixed points (recommended)</option>
+                <option value="polynomial">Refined analytical background</option>
+            </param>
+            <param name="background_type" type="select" label="GSAS-II background function">
+                <option value="chebyschev-1" selected="true">Chebyshev-1</option>
+                <option value="chebyschev">Chebyshev</option>
+                <option value="cosine">Cosine series</option>
+                <option value="lin interpolate">Linear interpolation</option>
+                <option value="log interpolate">Log interpolation</option>
+            </param>
+            <param name="background_terms" type="integer" min="1" max="36" value="6" label="Background terms"/>
+        </section>
+
+        <section name="magnetic" title="7. Optional magnetic-ordering precheck" expanded="false">
+            <conditional name="magnetic_check">
+                <param name="enabled" type="select" label="Run commensurate magnetic peak precheck" help="Use only for neutron data with a supplied main CIF. It tests whether residual peaks are systematically indexed by a propagation vector; it does not solve a magnetic structure.">
+                    <option value="no" selected="true">No</option>
+                    <option value="yes">Yes, inspect residual peaks before phase search</option>
+                </param>
+                <when value="no"/>
+                <when value="yes">
+                    <param name="q_max" type="float" min="1" max="20" value="6.0" label="Maximum Q for the precheck (1/angstrom)"/>
+                    <param name="denominators" type="text" value="2,3" label="Commensurate denominators" help="Comma-separated positive integers, normally 2,3."/>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="safeguards" title="8. Known-main-phase safeguards" expanded="false">
+            <param name="main_prenudge" type="boolean" checked="true" truevalue="--main-prenudge" falsevalue="--no-main-prenudge" label="Automatically anchor a supplied main-phase cell" help="A guarded pre-nudge is triggered only when the starting main CIF does not adequately align with the measured peaks."/>
+            <param name="main_shadow_filter" type="boolean" checked="true" truevalue="--main-shadow-filter" falsevalue="--no-main-shadow-filter" label="Filter candidates supported only by strong main-phase peaks" help="The filter fails open when the main-phase anchor is not reliable, preventing accidental removal of all hypotheses."/>
+            <section name="cleanup" title="Optional internal-structure cleanup" expanded="false">
+                <param name="main_cleanup" type="boolean" checked="false" truevalue="--main-cleanup" falsevalue="--no-main-cleanup" label="Refine supplied main-CIF internal parameters after lattice anchoring"/>
+                <param name="refine_uiso" type="boolean" checked="false" truevalue="--refine-uiso" falsevalue="--no-refine-uiso" label="Refine isotropic displacement parameters (Uiso)"/>
+                <param name="refine_positions" type="boolean" checked="false" truevalue="--refine-positions" falsevalue="--no-refine-positions" label="Refine atomic positions"/>
+            </section>
+        </section>
+
+        <section name="reproducibility" title="9. Run identity and reproducibility" expanded="true">
+            <param name="run_name" type="text" optional="true" label="Run name" help="Defaults to the diffraction dataset name. Use a meaningful name for mapped scans or repeated measurements."/>
+            <conditional name="configuration_override">
+                <param name="config_kind" type="select" label="Configuration source" help="Most users should generate the configuration from the controls above. A saved YAML is useful in automated or mapped workflows.">
+                    <option value="guided" selected="true">Generate a reproducible configuration from this form</option>
+                    <option value="existing">Use a saved RADAR-PD YAML configuration</option>
+                </param>
+                <when value="guided"/>
+                <when value="existing">
+                    <param name="config_file" type="data" format="yaml" label="Saved RADAR-PD configuration" help="Scientific settings above are replaced by this YAML; input datasets, candidate library, and run name are still selected here."/>
+                </when>
+            </conditional>
+        </section>
     </inputs>
     <outputs>
-        <data name="console_output" format="txt" label="RADAR-PD console log"/>
-        <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD report"/>
-        <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD normalized summary"/>
-        <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state"/>
-        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD generated configuration"/>
-        <data name="input_manifest" format="json" from_work_dir="portal/input_manifest.json" label="RADAR-PD input manifest"/>
-        <data name="gpx_index" format="json" from_work_dir="portal/gpx_index.json" label="RADAR-PD GSAS-II project index"/>
-        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD complete results"/>
-        <data name="input_resolution_metadata" format="json" from_work_dir="resolved_input/metadata.json" label="RADAR-PD input resolution metadata"/>
-        <collection type="list" name="plots" label="RADAR-PD plots">
+        <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD 1 | Results dashboard"/>
+        <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD 2 | Scientific summary"/>
+        <collection type="list" name="plots" label="RADAR-PD 3 | Fit and diagnostic plots">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/plots" visible="true"/>
         </collection>
-        <collection type="list" name="tables" label="RADAR-PD result tables">
+        <collection type="list" name="tables" label="RADAR-PD 4 | Scientific result tables">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/tables" visible="true"/>
         </collection>
-        <collection type="list" name="phases" label="RADAR-PD phase CIFs">
+        <collection type="list" name="phases" label="RADAR-PD 5 | Candidate and refined phase CIFs">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/phases" visible="true"/>
         </collection>
-        <collection type="list" name="gpx_projects" label="RADAR-PD GSAS-II projects">
+        <collection type="list" name="gpx_projects" label="RADAR-PD 6 | GSAS-II refinement projects">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/gpx" visible="true"/>
         </collection>
+        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD 7 | Reproducible configuration"/>
+        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD 8 | Complete results archive"/>
+        <data name="console_output" format="txt" label="RADAR-PD 9 | Analysis log"/>
+        <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state" hidden="true"/>
+        <data name="input_manifest" format="json" from_work_dir="portal/input_manifest.json" label="RADAR-PD input manifest" hidden="true"/>
+        <data name="gpx_index" format="json" from_work_dir="portal/gpx_index.json" label="RADAR-PD GSAS-II project index" hidden="true"/>
+        <data name="input_resolution_metadata" format="json" from_work_dir="resolved_input/metadata.json" label="RADAR-PD input resolution metadata" hidden="true"/>
         <collection type="list" name="diagnostics" label="RADAR-PD diagnostics">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/diagnostics" visible="false"/>
         </collection>
     </outputs>
     <help><![CDATA[
-This is the primary RADAR-PD tool. Choose data, enter the scientific parameters, and run; RADAR-PD generates the YAML configuration internally and returns it with the results for reproducibility. Selecting an existing YAML configuration is an advanced option for mapped scans, automation, and reusable Galaxy workflows. Direct Galaxy history input is the default and does not require an IPTS. The optional IPTS route resolves one unambiguous reduced pattern and matching instrument profile from a read-only SNS mount. Every GPX checkpoint produced by Full or Rapid mode is returned as a collection, along with plots, tables, phase CIFs, a normalized machine-readable summary, and a complete results archive.
+**RADAR-PD analysis workflow**
+
+1. Choose neutron or X-ray diffraction and select Rapid or Full RADAR-PD.
+2. Select the built-in catalog or a custom CIF library built with the companion Library Builder.
+3. Supply data directly from Galaxy history or resolve a reduced SNS IPTS run. Add a main-phase CIF when the dominant structure is known.
+4. Enter sample chemistry separately from sample-can or environment elements.
+5. Review optional pattern masks, background treatment, magnetic precheck, and known-main-phase safeguards.
+
+**Rapid Hypothesis Mode** performs coarse mixture search, symmetry-aware lattice nudging, higher-resolution pattern scoring, and focused GSAS-II refinement ranking. **Full RADAR-PD** performs sequential residual-aware impurity discovery and refinement. The Balanced profile is recommended for a first Full run.
+
+The primary outputs are numbered in the History. Open **Results dashboard** with the companion **RADAR-PD Utility: Explore Results** tool for an integrated view of hypotheses, fit plots, timings, phase fractions, warnings, downloads, and GPX checkpoints. Use **GSAS-II Project Handoff** to continue a selected refinement in the hosted GSAS-II interface.
     ]]></help>
 </tool>
