@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.1.7">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.1.8">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -9,6 +9,7 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$library_archive' '$library_manifest' '$console_output' &&
+        trap "chmod a+r '$library_archive' '$library_manifest' '$console_output' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
         mkdir -p cif_inputs library_output &&
         #for $index, $cif_file in enumerate($cif_files)
@@ -22,13 +23,7 @@
             #if str($overwrite) not in ('', 'None', 'False')
         library_args+=($overwrite) &&
             #end if
-        if "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2); then
-            chmod a+r '$library_archive' '$library_manifest' '$console_output'
-        else
-            chmod a+r '$library_archive' '$library_manifest' '$console_output'
-            exit 1
-        fi
-        chmod a+r '$library_archive' '$library_manifest' '$console_output'
+        "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
         <param name="cif_files" type="data_collection" collection_type="list" format="cif" label="Candidate CIF files"/>

@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.8">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.9">
     <description>START HERE: configure and analyze uploaded or SNS powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -22,6 +22,7 @@
         #end if
         mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
         touch '$console_output' portal/report.html portal/summary.json portal/state.json portal/resolved_config.yaml portal/input_manifest.json portal/gpx_index.json portal/results.zip resolved_input/metadata.json &&
+        trap "chmod -R a+rX '$console_output' portal resolved_input >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
         #if str($input_source.source_kind) == 'history'
         cp '$input_source.data' '$analysis_data' &&
@@ -82,13 +83,7 @@
         analyze_args+=(--run-name '$run_name') &&
             #end if
         analyze_args+=(--mode auto --input-source '$input_source.source_kind' --work-dir work --output-dir portal) &&
-        if "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2); then
-            chmod -R a+rX '$console_output' portal resolved_input
-        else
-            chmod -R a+rX '$console_output' portal resolved_input
-            exit 1
-        fi
-        chmod -R a+rX '$console_output' portal resolved_input
+        "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
         <conditional name="input_source">

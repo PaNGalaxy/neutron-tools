@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Utility: Compare Scan Series" profile="22.05" version="0.1.7">
+<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Utility: Compare Scan Series" profile="22.05" version="0.1.8">
     <description>compare normalized results from a mapped scan series</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -9,18 +9,13 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$comparison_table' '$comparison_report' '$console_output' &&
+        trap "chmod a+r '$comparison_table' '$comparison_report' '$console_output' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
         mkdir -p summaries &&
         #for $index, $summary in enumerate($summaries)
         ln -s '$summary' 'summaries/summary_${index}.json' &&
         #end for
-        if python /opt/radar-pd/scripts/ndip_runner.py compare-series --summary-dir summaries --csv-output '$comparison_table' --html-output '$comparison_report' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2); then
-            chmod a+r '$comparison_table' '$comparison_report' '$console_output'
-        else
-            chmod a+r '$comparison_table' '$comparison_report' '$console_output'
-            exit 1
-        fi
-        chmod a+r '$comparison_table' '$comparison_report' '$console_output'
+        python /opt/radar-pd/scripts/ndip_runner.py compare-series --summary-dir summaries --csv-output '$comparison_table' --html-output '$comparison_report' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
         <param name="summaries" type="data_collection" collection_type="list" format="json" label="RADAR-PD normalized summaries" help="Connect the mapped summary output from RADAR-PD Analyze."/>
