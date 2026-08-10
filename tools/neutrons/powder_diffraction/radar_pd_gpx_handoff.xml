@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.1.8">
+<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.1.9">
     <description>select and preserve a RADAR-PD refinement checkpoint for GSAS-II</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -11,7 +11,8 @@
         touch '$output_project' '$handoff_metadata' '$handoff_report' '$console_output' &&
         trap "chmod a+r '$output_project' '$handoff_metadata' '$handoff_report' '$console_output' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
-        handoff_args=(python /opt/radar-pd/scripts/ndip_gpx_handoff.py --project '$gpx_project' --project-name '$gpx_project.element_identifier') &&
+        project_name='$gpx_project.element_identifier' &&
+        handoff_args=(python /opt/radar-pd/scripts/ndip_gpx_handoff.py --project '$gpx_project' --project-name "\${project_name}.gpx") &&
             #if str($gpx_index) not in ('', 'None', 'Not available.')
         handoff_args+=(--index '$gpx_index') &&
             #end if
