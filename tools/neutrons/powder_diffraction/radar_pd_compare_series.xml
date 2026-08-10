@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Utility: Compare Scan Series" profile="22.05" version="0.1.5">
+<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Utility: Compare Scan Series" profile="22.05" version="0.1.6">
     <description>compare normalized results from a mapped scan series</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -14,8 +14,12 @@
         #for $index, $summary in enumerate($summaries)
         ln -s '$summary' 'summaries/summary_${index}.json' &&
         #end for
-        python /opt/radar-pd/scripts/ndip_runner.py compare-series --summary-dir summaries --csv-output '$comparison_table' --html-output '$comparison_report' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        set +e
+        python /opt/radar-pd/scripts/ndip_runner.py compare-series --summary-dir summaries --csv-output '$comparison_table' --html-output '$comparison_report' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+        run_status=\$?
+        set -e
         chmod a+r '$comparison_table' '$comparison_report' '$console_output'
+        exit "\$run_status"
     ]]></command>
     <inputs>
         <param name="summaries" type="data_collection" collection_type="list" format="json" label="RADAR-PD normalized summaries" help="Connect the mapped summary output from RADAR-PD Analyze."/>
