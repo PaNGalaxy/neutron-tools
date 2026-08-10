@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.1.4">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.1.5">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -14,18 +14,15 @@
         #for $index, $cif_file in enumerate($cif_files)
         ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
         #end for
-        python /opt/radar-pd/scripts/ndip_runner.py build-library \
-            --cif-dir cif_inputs \
-            --library-mode '$library_mode' \
-            --radiation '$radiation' \
+        library_args=(python /opt/radar-pd/scripts/ndip_runner.py build-library --cif-dir cif_inputs --library-mode '$library_mode' --radiation '$radiation') &&
             #if str($library_mode) == 'augmented'
-            --base-db-root "${RADAR_PD_DB_ROOT}/database_${radiation}" \
+        library_args+=(--base-db-root "\${RADAR_PD_DB_ROOT}/database_${radiation}") &&
             #end if
-            --output-root library_output \
-            --manifest-output '$library_manifest' \
-            --archive '$library_archive' \
-            $overwrite \
-            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        library_args+=(--output-root library_output --manifest-output '$library_manifest' --archive '$library_archive') &&
+            #if str($overwrite) not in ('', 'None', 'False')
+        library_args+=($overwrite) &&
+            #end if
+        "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
         chmod a+r '$library_archive' '$library_manifest' '$console_output'
     ]]></command>
     <inputs>

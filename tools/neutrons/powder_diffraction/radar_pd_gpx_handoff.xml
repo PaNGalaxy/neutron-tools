@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.1.4">
+<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.1.5">
     <description>select and preserve a RADAR-PD refinement checkpoint for GSAS-II</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -10,16 +10,12 @@
     <command detect_errors="exit_code"><![CDATA[
         touch '$output_project' '$handoff_metadata' '$handoff_report' '$console_output' &&
         set -euo pipefail &&
-        python /opt/radar-pd/scripts/ndip_gpx_handoff.py \
-            --project '$gpx_project' \
-            --project-name '$gpx_project.element_identifier' \
+        handoff_args=(python /opt/radar-pd/scripts/ndip_gpx_handoff.py --project '$gpx_project' --project-name '$gpx_project.element_identifier') &&
             #if str($gpx_index) not in ('', 'None', 'Not available.')
-            --index '$gpx_index' \
+        handoff_args+=(--index '$gpx_index') &&
             #end if
-            --output-project '$output_project' \
-            --metadata '$handoff_metadata' \
-            --report '$handoff_report' \
-            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        handoff_args+=(--output-project '$output_project' --metadata '$handoff_metadata' --report '$handoff_report') &&
+        "\${handoff_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
         chmod a+r '$output_project' '$handoff_metadata' '$handoff_report' '$console_output'
     ]]></command>
     <inputs>
