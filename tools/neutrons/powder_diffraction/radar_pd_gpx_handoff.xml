@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.1.3">
+<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.1.4">
     <description>select and preserve a RADAR-PD refinement checkpoint for GSAS-II</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -19,7 +19,8 @@
             --output-project '$output_project' \
             --metadata '$handoff_metadata' \
             --report '$handoff_report' \
-            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        chmod a+r '$output_project' '$handoff_metadata' '$handoff_report' '$console_output'
     ]]></command>
     <inputs>
         <param name="gpx_project" type="data" format="gpx,binary" label="RADAR-PD GSAS-II project" help="Choose one checkpoint from the GPX collection returned by RADAR-PD Analyze."/>

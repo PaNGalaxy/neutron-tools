@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.3">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.4">
     <description>START HERE: configure and analyze uploaded or SNS powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -91,7 +91,8 @@
             --input-source '$input_source.source_kind' \
             --work-dir work \
             --output-dir portal \
-            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        chmod -R a+rX '$console_output' portal resolved_input
     ]]></command>
     <inputs>
         <conditional name="input_source">

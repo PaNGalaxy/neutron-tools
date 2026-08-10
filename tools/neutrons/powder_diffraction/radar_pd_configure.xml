@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.1.7">
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.1.8">
     <description>advanced: create YAML for mapped, batch, or automated workflows</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -26,7 +26,8 @@
             #for $region in $pattern.excluded_regions
         excluded_args="\$excluded_args --exclude-region ${region.start}:${region.end}" &&
             #end for
-        python /opt/radar-pd/scripts/ndip_runner.py configure --mode '$analysis_mode' --radiation '$radiation' --instrument-mode '$instrument_mode' --allowed-elements '$sample_elements' --environment-elements "\$environment_elements_value" \$limit_start_arg \$limit_end_arg \$excluded_args --background-mode '$background.background_mode' --background-type '$background.background_type' --background-terms '$background.background_terms' --max-passes '$budgets.max_passes' --min-phase-percent '$budgets.min_phase_percent' --phases-per-hypothesis '$budgets.phases_per_hypothesis' --gsas-validation-limit '$budgets.gsas_validation_limit' $advanced.magnetic_precheck $advanced.main_prenudge $advanced.main_shadow_filter $advanced.main_cleanup $advanced.refine_uiso $advanced.refine_positions --output '$config_output' --report '$config_report' > '$console_output' 2>&1
+        python /opt/radar-pd/scripts/ndip_runner.py configure --mode '$analysis_mode' --radiation '$radiation' --instrument-mode '$instrument_mode' --allowed-elements '$sample_elements' --environment-elements "\$environment_elements_value" \$limit_start_arg \$limit_end_arg \$excluded_args --background-mode '$background.background_mode' --background-type '$background.background_type' --background-terms '$background.background_terms' --max-passes '$budgets.max_passes' --min-phase-percent '$budgets.min_phase_percent' --phases-per-hypothesis '$budgets.phases_per_hypothesis' --gsas-validation-limit '$budgets.gsas_validation_limit' $advanced.magnetic_precheck $advanced.main_prenudge $advanced.main_shadow_filter $advanced.main_cleanup $advanced.refine_uiso $advanced.refine_positions --output '$config_output' --report '$config_report' > '$console_output' 2>&1 &&
+        chmod a+r '$config_output' '$config_report' '$console_output'
     ]]></command>
     <inputs>
         <param name="analysis_mode" type="select" label="Analysis mode">
