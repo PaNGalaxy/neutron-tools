@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.4">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.1.5">
     <description>START HERE: configure and analyze uploaded or SNS powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -21,16 +21,7 @@
             #end if
         #end if
         mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
-        touch \
-            '$console_output' \
-            portal/report.html \
-            portal/summary.json \
-            portal/state.json \
-            portal/resolved_config.yaml \
-            portal/input_manifest.json \
-            portal/gpx_index.json \
-            portal/results.zip \
-            resolved_input/metadata.json &&
+        touch '$console_output' portal/report.html portal/summary.json portal/state.json portal/resolved_config.yaml portal/input_manifest.json portal/gpx_index.json portal/results.zip resolved_input/metadata.json &&
         set -euo pipefail &&
         #if str($configuration.config_kind) == 'guided'
         environment_elements_value='' &&
