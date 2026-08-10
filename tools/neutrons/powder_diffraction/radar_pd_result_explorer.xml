@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.2.0">
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.2.1">
     <description>open the integrated scientific dashboard, plots, tables, CIFs, and GPX checkpoints</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-266dadea-catalog-20260617</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-bc15eaa-catalog-20260617</container>
     </requirements>
     <entry_points>
         <entry_point name="RADAR-PD Result Explorer" label="RADAR-PD results" requires_domain="False" requires_path_in_url="True">
