@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.5">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.6">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -192,7 +192,7 @@
                 </param>
                 <when value="choose"/>
                 <when value="history">
-                    <param name="diffraction_pattern" type="data" format="data,tabular,xml" optional="true" label="Measured powder diffraction pattern (required)" help="For a laptop file, click the ... button, choose New upload, and then Choose local file. RADAR-PD accepts .dat, .xye, .gsa, .gss, .gsas, .fxye, and .xrdml files. Galaxy may internally label these files as data, tabular, or xml; that label does not change the file contents.">
+                    <param name="diffraction_pattern" type="data" format="data,tabular,xml" label="Measured powder diffraction pattern" help="To upload from your laptop, click the ... button, then New upload Beta, Upload from Computer, Browse Files, and Start. RADAR-PD accepts .dat, .xye, .gsa, .gss, .gsas, .fxye, and .xrdml files. Galaxy may internally label these files as data, tabular, or xml; that label does not change the file contents.">
                         <validator type="expression" message="Select a RADAR-PD powder diffraction file ending in .dat, .xye, .gsa, .gss, .gsas, .fxye, or .xrdml, not a result table or configuration artifact.">value is not None and value.name.lower().endswith(('.dat', '.xye', '.gsa', '.gss', '.gsas', '.fxye', '.xrdml'))</validator>
                     </param>
                     <conditional name="instrument_source">
@@ -204,7 +204,7 @@
                         </param>
                         <when value="choose"/>
                         <when value="uploaded">
-                            <param name="instrument_file" type="data" format="data,txt" optional="true" label="GSAS-II instrument parameter file (required)" help="Select the matching profile. For a laptop file, click the ... button, choose New upload, and then Choose local file. RADAR-PD accepts .instprm, .prm, .inst, and .ins profiles even when Galaxy labels them as generic data.">
+                            <param name="instrument_file" type="data" format="data,txt" label="GSAS-II instrument parameter file" help="Select the matching profile. To upload from your laptop, click the ... button, then New upload Beta, Upload from Computer, Browse Files, and Start. RADAR-PD accepts .instprm, .prm, .inst, and .ins profiles even when Galaxy labels them as generic data.">
                                 <validator type="expression" message="Select a GSAS-II instrument parameter file ending in .instprm, .prm, .inst, or .ins, not a report or configuration artifact.">value is not None and value.name.lower().endswith(('.instprm', '.prm', '.inst', '.ins'))</validator>
                             </param>
                         </when>
@@ -222,7 +222,7 @@
                     <param name="bank" type="text" value="1" label="Bank"/>
                 </when>
             </conditional>
-            <param name="main_cif" type="data" format="cif,data" optional="true" label="Known/main phase CIF (optional)" help="Supply a .cif file when the dominant structural phase is known. To upload it from your laptop, click the ... button, then New upload and Choose local file. RADAR-PD anchors and protects this phase before searching its residual signal.">
+            <param name="main_cif" type="data" format="cif,data" optional="true" label="Known/main phase CIF" help="Supply a .cif file when the dominant structural phase is known. To upload from your laptop, click the ... button, then New upload Beta, Upload from Computer, Browse Files, and Start. RADAR-PD anchors and protects this phase before searching its residual signal.">
                 <validator type="expression" message="Select a crystallographic information file ending in .cif.">value is None or value.name.lower().endswith('.cif')</validator>
             </param>
         </section>
