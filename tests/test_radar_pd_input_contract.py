@@ -46,7 +46,7 @@ def test_analyze_keeps_scientific_inputs_common_to_both_routes() -> None:
     assert strategy.find("./when[@value='rapid']/section[@name='rapid_controls']") is not None
 
 
-def test_analyze_diffraction_picker_excludes_non_pattern_artifacts() -> None:
+def test_analyze_diffraction_picker_accepts_all_hosted_app_formats() -> None:
     root = _root("radar_pd_analyze.xml")
     source = root.find(
         "./inputs/section[@name='data_inputs']/conditional[@name='input_source']"
@@ -66,18 +66,20 @@ def test_analyze_diffraction_picker_excludes_non_pattern_artifacts() -> None:
     assert data is not None
     accepted = {value.strip() for value in data.attrib["format"].split(",")}
 
-    assert accepted == {"tabular", "xml"}
+    assert accepted == {"data", "tabular", "xml"}
     assert data.attrib.get("optional") == "true"
-    assert accepted.isdisjoint({"data", "yaml", "json", "cif", "zip", "html"})
     data_validator = data.find("./validator[@type='expression']")
-    assert data_validator is not None and ".xrdml" in (data_validator.text or "")
+    assert data_validator is not None
+    validator_text = data_validator.text or ""
+    for extension in (".dat", ".xye", ".gsa", ".gss", ".gsas", ".fxye", ".xrdml"):
+        assert extension in validator_text
 
     instrument = root.find(
         "./inputs/section[@name='data_inputs']/conditional[@name='input_source']"
         "/when[@value='history']/conditional[@name='instrument_source']"
         "/when[@value='uploaded']/param[@name='instrument_file']"
     )
-    assert instrument is not None and instrument.attrib.get("format") == "txt"
+    assert instrument is not None and instrument.attrib.get("format") == "data,txt"
     assert instrument.attrib.get("optional") == "true"
     instrument_validator = instrument.find("./validator[@type='expression']")
     assert instrument_validator is not None and ".instprm" in (instrument_validator.text or "")
