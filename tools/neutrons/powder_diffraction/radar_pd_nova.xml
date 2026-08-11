@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_interactive_prototype" tool_type="interactive" name="RADAR-PD Interactive" version="0.1.4" profile="22.05">
+<tool id="neutrons_radar_pd_interactive_prototype" tool_type="interactive" name="RADAR-PD Interactive" version="0.1.5" profile="22.05">
     <description>configure, run, monitor, recover, and inspect Full or Rapid RADAR-PD analyses</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd-nova:nova-a0706c9</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd-nova:nova-88906cf</container>
     </requirements>
     <entry_points>
         <entry_point name="RADAR-PD Interactive" label="radar_pd_nova" requires_domain="False" requires_path_in_url="True">
@@ -20,7 +20,7 @@
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         set -euo pipefail
-        exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/radar-pd.conf
+        exec /usr/local/bin/run_container.sh
     ]]></command>
     <inputs/>
     <outputs/>
