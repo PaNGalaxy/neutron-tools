@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.2">
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.3">
     <description>reopen one complete RADAR-PD result as an integrated scientific dashboard</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -8,7 +8,7 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3e33a6b-catalog-20260617</container>
     </requirements>
     <entry_points>
-        <entry_point name="RADAR-PD Result Explorer" label="RADAR-PD results" requires_domain="False" requires_path_in_url="True">
+        <entry_point name="RADAR-PD Result Explorer" label="radar_pd_results" requires_domain="False" requires_path_in_url="True">
             <port>8080</port>
             <url>/</url>
         </entry_point>
@@ -16,12 +16,12 @@
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
-        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">RADAR-PD Result Explorer</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">radar_pd_results</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         #import re
-        touch '$session_log'
-        chmod a+r '$session_log'
+        touch '$output'
+        chmod a+r '$output'
         set -euo pipefail
         mkdir -p site/{plots,tables,phases,gpx,diagnostics}
         #if str($result_source.source_kind) == 'archive'
@@ -65,7 +65,7 @@
             #end for
         #end if
         #end if
-        printf '%s\n' 'RADAR-PD interactive result explorer started on port 8080.' > '$session_log'
+        printf '%s\n' 'RADAR-PD interactive result explorer started on port 8080.' > '$output'
         exec python -m http.server 8080 --bind 0.0.0.0 --directory site
     ]]></command>
     <inputs>
@@ -89,7 +89,7 @@
         </conditional>
     </inputs>
     <outputs>
-        <data name="session_log" format="txt" label="RADAR-PD result explorer session"/>
+        <data name="output" format="txt" label="RADAR-PD result explorer console output"/>
     </outputs>
     <help><![CDATA[
 Open this after a RADAR-PD analysis and select its single **Complete Results Archive**. The explorer restores the integrated dashboard, fit plots, result tables, CIF files, diagnostics, and curated GSAS-II checkpoints without reconnecting each History dataset. Galaxy remains the system of record. To continue a refinement, send a selected GPX checkpoint through **RADAR-PD Utility: GSAS-II Project Handoff** and open it in the hosted GSAS-II tool.
