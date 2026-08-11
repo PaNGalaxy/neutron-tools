@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.1">
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.2">
     <description>reopen one complete RADAR-PD result as an integrated scientific dashboard</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -29,13 +29,8 @@
         unzip -q '$result_source.results_archive' -d bundle
         test -f bundle/ndip/report.html
         test -f bundle/ndip/summary.json
-        cp bundle/ndip/report.html site/index.html
-        cp bundle/ndip/summary.json site/summary.json
-        for collection in plots tables phases gpx diagnostics; do
-            if [ -d "bundle/ndip/\${collection}" ]; then
-                cp -R "bundle/ndip/\${collection}/." "site/\${collection}/"
-            fi
-        done
+        cp -R bundle/ndip/. site/
+        cp site/report.html site/index.html
         #else
         cp '$result_source.report' site/index.html
         cp '$result_source.summary' site/summary.json
