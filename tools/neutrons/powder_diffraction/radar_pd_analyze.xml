@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.7">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.0">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-48934aa-catalog-20260617</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3e33a6b-catalog-20260617</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $config_path = 'generated_config.yaml'
@@ -21,7 +21,7 @@
             #set $analysis_data = 'resolved_input/pattern.xrdml'
         #end if
         mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
-        touch '$console_output' portal/report.html portal/summary.json portal/state.json portal/resolved_config.yaml portal/input_manifest.json portal/gpx_index.json portal/results.zip resolved_input/metadata.json &&
+        touch '$console_output' portal/overview.tsv portal/report.html portal/summary.json portal/state.json portal/resolved_config.yaml portal/input_manifest.json portal/gpx_index.json portal/results.zip resolved_input/metadata.json &&
         trap "chmod -R a+rX '$console_output' portal resolved_input >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
         #if $source_kind == 'history' and $instrument_source_kind == 'builtin_cuka' and str($measurement.radiation) != 'xray'
@@ -350,23 +350,24 @@
         </section>
     </inputs>
     <outputs>
-        <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD 1 | Results dashboard"/>
-        <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD 2 | Scientific summary"/>
-        <collection type="list" name="plots" label="RADAR-PD 3 | Fit and diagnostic plots">
+        <data name="overview" format="tabular" from_work_dir="portal/overview.tsv" label="RADAR-PD 1 | Result overview"/>
+        <collection type="list" name="plots" label="RADAR-PD 2 | Accepted fit and diagnostic plots">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/plots" visible="true"/>
         </collection>
-        <collection type="list" name="tables" label="RADAR-PD 4 | Scientific result tables">
+        <collection type="list" name="tables" label="RADAR-PD 3 | Scientific result tables">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/tables" visible="true"/>
         </collection>
-        <collection type="list" name="phases" label="RADAR-PD 5 | Candidate and refined phase CIFs">
+        <collection type="list" name="phases" label="RADAR-PD 4 | Candidate and refined phase CIFs">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/phases" visible="true"/>
         </collection>
-        <collection type="list" name="gpx_projects" label="RADAR-PD 6 | GSAS-II refinement projects">
+        <collection type="list" name="gpx_projects" label="RADAR-PD 5 | GSAS-II handoff projects">
             <discover_datasets pattern="__designation_and_ext__" directory="portal/gpx" visible="true"/>
         </collection>
-        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD 7 | Reproducible configuration"/>
-        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD 8 | Complete results archive"/>
-        <data name="console_output" format="txt" label="RADAR-PD 9 | Analysis log"/>
+        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD 6 | Reproducible configuration"/>
+        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD 7 | Complete results archive"/>
+        <data name="console_output" format="txt" label="RADAR-PD 8 | Analysis log"/>
+        <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD integrated report" hidden="true"/>
+        <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD normalized summary" hidden="true"/>
         <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state" hidden="true"/>
         <data name="input_manifest" format="json" from_work_dir="portal/input_manifest.json" label="RADAR-PD input manifest" hidden="true"/>
         <data name="gpx_index" format="json" from_work_dir="portal/gpx_index.json" label="RADAR-PD GSAS-II project index" hidden="true"/>
@@ -387,6 +388,6 @@
 
 **Rapid Hypothesis Mode** performs coarse mixture search, symmetry-aware lattice nudging, higher-resolution pattern scoring, and focused GSAS-II refinement ranking. **Full RADAR-PD** performs sequential residual-aware impurity discovery and refinement. The Balanced profile is recommended for a first Full run.
 
-The primary outputs are numbered in the History. Open **Results dashboard** with the companion **RADAR-PD Utility: Explore Results** tool for an integrated view of hypotheses, fit plots, timings, phase fractions, warnings, downloads, and GPX checkpoints. Use **GSAS-II Project Handoff** to continue a selected refinement in the hosted GSAS-II interface.
+The primary outputs are numbered in the History. Start with **Result overview**, then open the curated plot and table collections. Send **Complete results archive** to **RADAR-PD Utility: Explore Results** for the integrated dashboard; one archive restores the report, plots, tables, CIFs, and GPX checkpoints together. Use **GSAS-II Project Handoff** to continue a selected refinement in the hosted GSAS-II interface.
     ]]></help>
 </tool>

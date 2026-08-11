@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.2.1">
-    <description>open the integrated scientific dashboard, plots, tables, CIFs, and GPX checkpoints</description>
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.0">
+    <description>reopen one complete RADAR-PD result as an integrated scientific dashboard</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-bc15eaa-catalog-20260617</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3e33a6b-catalog-20260617</container>
     </requirements>
     <entry_points>
         <entry_point name="RADAR-PD Result Explorer" label="RADAR-PD results" requires_domain="False" requires_path_in_url="True">
@@ -24,54 +24,79 @@
         chmod a+r '$session_log' &&
         set -euo pipefail &&
         mkdir -p site/{plots,tables,phases,gpx,diagnostics} &&
-        cp '$report' site/index.html &&
-        cp '$summary' site/summary.json &&
-        #if str($plots) not in ('', 'None', 'Not available.')
-            #for $item in $plots
+        #if str($result_source.source_kind) == 'archive'
+        mkdir -p bundle &&
+        unzip -q '$result_source.results_archive' -d bundle &&
+        test -f bundle/ndip/report.html &&
+        test -f bundle/ndip/summary.json &&
+        cp bundle/ndip/report.html site/index.html &&
+        cp bundle/ndip/summary.json site/summary.json &&
+        for collection in plots tables phases gpx diagnostics; do
+            if [ -d "bundle/ndip/\${collection}" ]; then
+                cp -R "bundle/ndip/\${collection}/." "site/\${collection}/"
+            fi
+        done &&
+        #else
+        cp '$result_source.report' site/index.html &&
+        cp '$result_source.summary' site/summary.json &&
+        #if str($result_source.plots) not in ('', 'None', 'Not available.')
+            #for $item in $result_source.plots
                 #set $name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
         cp '$item' 'site/plots/$name' &&
             #end for
         #end if
-        #if str($tables) not in ('', 'None', 'Not available.')
-            #for $item in $tables
+        #if str($result_source.tables) not in ('', 'None', 'Not available.')
+            #for $item in $result_source.tables
                 #set $name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
         cp '$item' 'site/tables/$name' &&
             #end for
         #end if
-        #if str($phases) not in ('', 'None', 'Not available.')
-            #for $item in $phases
+        #if str($result_source.phases) not in ('', 'None', 'Not available.')
+            #for $item in $result_source.phases
                 #set $name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
         cp '$item' 'site/phases/$name' &&
             #end for
         #end if
-        #if str($gpx_projects) not in ('', 'None', 'Not available.')
-            #for $item in $gpx_projects
+        #if str($result_source.gpx_projects) not in ('', 'None', 'Not available.')
+            #for $item in $result_source.gpx_projects
                 #set $name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
         cp '$item' 'site/gpx/$name' &&
             #end for
         #end if
-        #if str($diagnostics) not in ('', 'None', 'Not available.')
-            #for $item in $diagnostics
+        #if str($result_source.diagnostics) not in ('', 'None', 'Not available.')
+            #for $item in $result_source.diagnostics
                 #set $name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
         cp '$item' 'site/diagnostics/$name' &&
             #end for
+        #end if
         #end if
         printf '%s\n' 'RADAR-PD interactive result explorer started on port 8080.' > '$session_log' &&
         python -m http.server 8080 --bind 0.0.0.0 --directory site
     ]]></command>
     <inputs>
-        <param name="report" type="data" format="html" label="RADAR-PD report"/>
-        <param name="summary" type="data" format="json" label="RADAR-PD normalized summary"/>
-        <param name="plots" type="data_collection" collection_type="list" optional="true" label="RADAR-PD plots"/>
-        <param name="tables" type="data_collection" collection_type="list" optional="true" label="RADAR-PD tables"/>
-        <param name="phases" type="data_collection" collection_type="list" optional="true" label="RADAR-PD phase CIFs"/>
-        <param name="gpx_projects" type="data_collection" collection_type="list" optional="true" label="RADAR-PD GSAS-II projects"/>
-        <param name="diagnostics" type="data_collection" collection_type="list" optional="true" label="RADAR-PD diagnostics and logs"/>
+        <conditional name="result_source">
+            <param name="source_kind" type="select" label="Result source" help="For current runs, select the one Complete Results Archive. Individual outputs remain available only for older runs.">
+                <option value="archive" selected="true">Complete Results Archive (recommended)</option>
+                <option value="legacy">Individual outputs from an older run</option>
+            </param>
+            <when value="archive">
+                <param name="results_archive" type="data" format="zip" label="RADAR-PD Complete Results Archive" help="Select the numbered Complete Results Archive produced by RADAR-PD Analyze. It contains the dashboard and every linked scientific output."/>
+            </when>
+            <when value="legacy">
+                <param name="report" type="data" format="html" label="RADAR-PD report"/>
+                <param name="summary" type="data" format="json" label="RADAR-PD normalized summary"/>
+                <param name="plots" type="data_collection" collection_type="list" optional="true" label="RADAR-PD plots"/>
+                <param name="tables" type="data_collection" collection_type="list" optional="true" label="RADAR-PD tables"/>
+                <param name="phases" type="data_collection" collection_type="list" optional="true" label="RADAR-PD phase CIFs"/>
+                <param name="gpx_projects" type="data_collection" collection_type="list" optional="true" label="RADAR-PD GSAS-II projects"/>
+                <param name="diagnostics" type="data_collection" collection_type="list" optional="true" label="RADAR-PD diagnostics and logs"/>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
         <data name="session_log" format="txt" label="RADAR-PD result explorer session"/>
     </outputs>
     <help><![CDATA[
-Open this after a RADAR-PD analysis to inspect the integrated scientific dashboard. It presents final hypotheses or phases, fit quality, phase fractions, stage timing, warnings, plots, result tables, CIF files, and GSAS-II checkpoints without making you open each History dataset separately. Galaxy remains the system of record. To continue a refinement, send a selected GPX checkpoint through **RADAR-PD Utility: GSAS-II Project Handoff** and open it in the hosted GSAS-II tool.
+Open this after a RADAR-PD analysis and select its single **Complete Results Archive**. The explorer restores the integrated dashboard, fit plots, result tables, CIF files, diagnostics, and curated GSAS-II checkpoints without reconnecting each History dataset. Galaxy remains the system of record. To continue a refinement, send a selected GPX checkpoint through **RADAR-PD Utility: GSAS-II Project Handoff** and open it in the hosted GSAS-II tool.
     ]]></help>
 </tool>

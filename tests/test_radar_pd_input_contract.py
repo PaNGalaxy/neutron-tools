@@ -106,3 +106,34 @@ def test_reusable_configuration_uses_the_same_route_contract() -> None:
     assert mode is not None
     selected = mode.find("./option[@selected='true']")
     assert selected is not None and selected.attrib.get("value") == "full"
+
+
+def test_analyze_outputs_start_with_native_overview_and_hide_report_internals() -> None:
+    root = _root("radar_pd_analyze.xml")
+    outputs = root.find("outputs")
+    assert outputs is not None
+
+    overview = outputs.find("./data[@name='overview']")
+    assert overview is not None
+    assert overview.attrib.get("format") == "tabular"
+    assert overview.attrib.get("label") == "RADAR-PD 1 | Result overview"
+
+    report = outputs.find("./data[@name='report']")
+    summary = outputs.find("./data[@name='summary']")
+    assert report is not None and report.attrib.get("hidden") == "true"
+    assert summary is not None and summary.attrib.get("hidden") == "true"
+
+    archive = outputs.find("./data[@name='results_archive']")
+    assert archive is not None and archive.attrib.get("label") == "RADAR-PD 7 | Complete results archive"
+
+
+def test_result_explorer_defaults_to_one_complete_archive() -> None:
+    root = _root("radar_pd_result_explorer.xml")
+    source = root.find("./inputs/conditional[@name='result_source']")
+    assert source is not None
+    selector = source.find("./param[@name='source_kind']")
+    assert selector is not None
+    selected = selector.find("./option[@selected='true']")
+    assert selected is not None and selected.attrib.get("value") == "archive"
+    archive = source.find("./when[@value='archive']/param[@name='results_archive']")
+    assert archive is not None and archive.attrib.get("format") == "zip"
