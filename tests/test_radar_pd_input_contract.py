@@ -50,7 +50,7 @@ def test_analyze_diffraction_picker_excludes_non_pattern_artifacts() -> None:
     root = _root("radar_pd_analyze.xml")
     data = root.find(
         "./inputs/section[@name='data_inputs']/conditional[@name='input_source']"
-        "/when[@value='history']/param[@name='data']"
+        "/when[@value='history']/param[@name='diffraction_pattern']"
     )
     assert data is not None
     accepted = {value.strip() for value in data.attrib["format"].split(",")}
@@ -61,7 +61,7 @@ def test_analyze_diffraction_picker_excludes_non_pattern_artifacts() -> None:
     instrument = root.find(
         "./inputs/section[@name='data_inputs']/conditional[@name='input_source']"
         "/when[@value='history']/conditional[@name='instrument_source']"
-        "/when[@value='uploaded']/param[@name='instrument']"
+        "/when[@value='uploaded']/param[@name='instrument_file']"
     )
     assert instrument is not None and instrument.attrib.get("format") == "txt"
 
