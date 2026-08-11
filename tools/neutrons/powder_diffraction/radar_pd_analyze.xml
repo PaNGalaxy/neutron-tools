@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.1">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.2">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -171,20 +171,30 @@
 
         <section name="data_inputs" title="3. Diffraction data and known phase" expanded="true">
             <conditional name="input_source">
-                <param name="source_kind" type="select" label="Where is the diffraction pattern?" help="Use Galaxy history for uploaded files. SNS users can instead locate reduced data from the mounted IPTS tree.">
-                    <option value="history" selected="true">Uploaded or Galaxy history dataset</option>
+                <param name="source_kind" type="select" label="Where is the diffraction pattern?" help="Choose explicitly so Galaxy does not silently reuse the newest item in a busy history. Use Galaxy history for uploaded files, or locate reduced SNS data from the mounted IPTS tree.">
+                    <option value="choose" selected="true">Choose an input source...</option>
+                    <option value="history">Uploaded or Galaxy history dataset</option>
                     <option value="ipts_event">SNS IPTS: locate from NeXus event metadata</option>
                     <option value="ipts_manual">SNS IPTS: locate by instrument, IPTS, run, and bank</option>
+                    <validator type="regex" message="Choose where RADAR-PD should obtain the diffraction pattern.">^(history|ipts_event|ipts_manual)$</validator>
                 </param>
+                <when value="choose"/>
                 <when value="history">
-                    <param name="diffraction_pattern" type="data" format="tabular,xml" label="Measured powder diffraction pattern" help="Select the experimental intensity pattern, normally a tabular text file or XRDML/XML file. Configuration, CIF, report, and result files are intentionally excluded."/>
+                    <param name="diffraction_pattern" type="data" format="tabular,xml" label="Measured powder diffraction pattern" help="Select the experimental intensity pattern and verify its name before running. Preserve a recognized suffix such as .dat, .xye, .xy, .fxye, .txt, .csv, .xrdml, or .xml when uploading to Galaxy.">
+                        <validator type="expression" message="Select a powder diffraction pattern with a recognized filename extension, not a RADAR-PD result table or configuration artifact.">value is not None and value.name.lower().endswith(('.dat', '.xye', '.xy', '.fxye', '.txt', '.csv', '.xrdml', '.xml'))</validator>
+                    </param>
                     <conditional name="instrument_source">
                         <param name="kind" type="select" label="Instrument profile" help="Most analyses should use the matching GSAS-II instrument parameter file. The built-in Cu K-alpha profile is for conventional laboratory PXRD only.">
-                            <option value="uploaded" selected="true">Use a GSAS-II instrument parameter file</option>
+                            <option value="choose" selected="true">Choose an instrument profile...</option>
+                            <option value="uploaded">Use a GSAS-II instrument parameter file</option>
                             <option value="builtin_cuka">Use built-in laboratory Cu K-alpha profile (X-ray only)</option>
+                            <validator type="regex" message="Choose an uploaded instrument file or the built-in laboratory PXRD profile.">^(uploaded|builtin_cuka)$</validator>
                         </param>
+                        <when value="choose"/>
                         <when value="uploaded">
-                            <param name="instrument_file" type="data" format="txt" label="GSAS-II instrument parameter file" help="Select the instrument profile matching the measured pattern, bank, geometry, and wavelength."/>
+                            <param name="instrument_file" type="data" format="txt" label="GSAS-II instrument parameter file" help="Select the instrument profile matching the measured pattern, bank, geometry, and wavelength. Preserve its .instprm, .prm, .inst, .ins, or .txt suffix in Galaxy.">
+                                <validator type="expression" message="Select a GSAS-II instrument parameter file, not a report or configuration artifact.">value is not None and value.name.lower().endswith(('.instprm', '.prm', '.inst', '.ins', '.txt'))</validator>
+                            </param>
                         </when>
                         <when value="builtin_cuka"/>
                     </conditional>
