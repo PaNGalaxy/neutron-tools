@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.2">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.3">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -15,7 +15,9 @@
         #set $source_kind = str($data_inputs.input_source.source_kind)
         #set $instrument_source_kind = str($data_inputs.input_source.instrument_source.kind) if $source_kind == 'history' else 'resolved'
         #set $input_source_label = 'ipts' if $source_kind.startswith('ipts_') else 'history'
-        #if $source_kind == 'history' and str($data_inputs.input_source.diffraction_pattern.element_identifier).lower().endswith('.xrdml')
+        #set $history_pattern_selected = $source_kind != 'history' or str($data_inputs.input_source.diffraction_pattern) not in ('', 'None', 'Not available.')
+        #set $history_instrument_selected = $source_kind != 'history' or $instrument_source_kind != 'uploaded' or str($data_inputs.input_source.instrument_source.instrument_file) not in ('', 'None', 'Not available.')
+        #if $source_kind == 'history' and $history_pattern_selected and str($data_inputs.input_source.diffraction_pattern.element_identifier).lower().endswith('.xrdml')
             #set $analysis_data = 'resolved_input/pattern.xrdml'
         #end if
         mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
@@ -27,9 +29,19 @@
         exit 2
         #end if
         #if $source_kind == 'history'
+            #if not $history_pattern_selected
+        printf '%s\n' 'Select a measured powder diffraction pattern before running RADAR-PD.' | tee -a '$console_output' >&2 &&
+        exit 2
+            #else
         cp '$data_inputs.input_source.diffraction_pattern' '$analysis_data' &&
+            #end if
             #if $instrument_source_kind == 'uploaded'
+                #if not $history_instrument_selected
+        printf '%s\n' 'Select the GSAS-II instrument parameter file that matches the diffraction pattern.' | tee -a '$console_output' >&2 &&
+        exit 2
+                #else
         cp '$data_inputs.input_source.instrument_source.instrument_file' '$analysis_instrument' &&
+                #end if
             #end if
         #end if
         #if str($data_inputs.main_cif) not in ('', 'None', 'Not available.')
@@ -180,7 +192,7 @@
                 </param>
                 <when value="choose"/>
                 <when value="history">
-                    <param name="diffraction_pattern" type="data" format="tabular,xml" label="Measured powder diffraction pattern" help="Select the experimental intensity pattern and verify its name before running. Preserve a recognized suffix such as .dat, .xye, .xy, .fxye, .txt, .csv, .xrdml, or .xml when uploading to Galaxy.">
+                    <param name="diffraction_pattern" type="data" format="tabular,xml" optional="true" label="Measured powder diffraction pattern (required)" help="Explicitly select the experimental intensity pattern. RADAR-PD does not reuse the newest history item automatically. Preserve a recognized suffix such as .dat, .xye, .xy, .fxye, .txt, .csv, .xrdml, or .xml when uploading to Galaxy.">
                         <validator type="expression" message="Select a powder diffraction pattern with a recognized filename extension, not a RADAR-PD result table or configuration artifact.">value is not None and value.name.lower().endswith(('.dat', '.xye', '.xy', '.fxye', '.txt', '.csv', '.xrdml', '.xml'))</validator>
                     </param>
                     <conditional name="instrument_source">
@@ -192,7 +204,7 @@
                         </param>
                         <when value="choose"/>
                         <when value="uploaded">
-                            <param name="instrument_file" type="data" format="txt" label="GSAS-II instrument parameter file" help="Select the instrument profile matching the measured pattern, bank, geometry, and wavelength. Preserve its .instprm, .prm, .inst, .ins, or .txt suffix in Galaxy.">
+                            <param name="instrument_file" type="data" format="txt" optional="true" label="GSAS-II instrument parameter file (required)" help="Explicitly select the profile matching the measured pattern, bank, geometry, and wavelength. RADAR-PD does not reuse the newest history item automatically. Preserve its .instprm, .prm, .inst, .ins, or .txt suffix in Galaxy.">
                                 <validator type="expression" message="Select a GSAS-II instrument parameter file, not a report or configuration artifact.">value is not None and value.name.lower().endswith(('.instprm', '.prm', '.inst', '.ins', '.txt'))</validator>
                             </param>
                         </when>

@@ -64,6 +64,7 @@ def test_analyze_diffraction_picker_excludes_non_pattern_artifacts() -> None:
     accepted = {value.strip() for value in data.attrib["format"].split(",")}
 
     assert accepted == {"tabular", "xml"}
+    assert data.attrib.get("optional") == "true"
     assert accepted.isdisjoint({"data", "yaml", "json", "cif", "zip", "html"})
     data_validator = data.find("./validator[@type='expression']")
     assert data_validator is not None and ".xrdml" in (data_validator.text or "")
@@ -74,6 +75,7 @@ def test_analyze_diffraction_picker_excludes_non_pattern_artifacts() -> None:
         "/when[@value='uploaded']/param[@name='instrument_file']"
     )
     assert instrument is not None and instrument.attrib.get("format") == "txt"
+    assert instrument.attrib.get("optional") == "true"
     instrument_validator = instrument.find("./validator[@type='expression']")
     assert instrument_validator is not None and ".instprm" in (instrument_validator.text or "")
 
