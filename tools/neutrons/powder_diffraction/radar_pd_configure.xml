@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.2.1">
+<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.3.0">
     <description>create a portable configuration for mapped, batch, or automated analyses</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -13,7 +13,7 @@
         set -euo pipefail &&
         config_args=(
             python /opt/radar-pd/scripts/ndip_runner.py configure
-            --mode '$measurement.strategy.analysis_mode'
+            --mode '$analysis.strategy.analysis_mode'
             --radiation '$measurement.radiation'
             --instrument-mode '$measurement.instrument_mode'
             --allowed-elements '$chemistry.sample_elements'
@@ -39,30 +39,30 @@
         config_args+=(--reference-mask-preset '$preset') &&
         #end for
         config_args+=($pattern.reference_masks.include_kbeta) &&
-        #if str($measurement.strategy.analysis_mode) == 'rapid'
+        #if str($analysis.strategy.analysis_mode) == 'rapid'
         config_args+=(
-            --phases-per-hypothesis '$measurement.strategy.phases_per_hypothesis'
-            --rapid-stage-output-limit '$measurement.strategy.stage_output_limit'
-            --gsas-validation-limit '$measurement.strategy.gsas_validation_limit'
-            --rapid-workers '$measurement.strategy.parallel_workers'
-            $measurement.strategy.family_variants
-            $measurement.strategy.final_polish
+            --phases-per-hypothesis '$analysis.strategy.rapid_controls.phases_per_hypothesis'
+            --rapid-stage-output-limit '$analysis.strategy.rapid_controls.stage_output_limit'
+            --gsas-validation-limit '$analysis.strategy.rapid_controls.gsas_validation_limit'
+            --rapid-workers '$analysis.strategy.rapid_controls.parallel_workers'
+            $analysis.strategy.rapid_controls.family_variants
+            $analysis.strategy.rapid_controls.final_polish
         ) &&
         #else
-        config_args+=(--runtime-profile '$measurement.strategy.full_profile.profile_kind') &&
-            #if str($measurement.strategy.full_profile.profile_kind) == 'custom'
+        config_args+=(--runtime-profile '$analysis.strategy.full_profile.profile_kind') &&
+            #if str($analysis.strategy.full_profile.profile_kind) == 'custom'
         config_args+=(
-            --max-passes '$measurement.strategy.full_profile.max_passes'
-            --min-phase-percent '$measurement.strategy.full_profile.min_phase_percent'
-            --full-top-n-ml '$measurement.strategy.full_profile.top_n_ml'
-            --full-nudge-candidates '$measurement.strategy.full_profile.nudge_candidates'
-            --full-cell-length-tolerance '$measurement.strategy.full_profile.cell_length_tolerance'
-            --full-cell-angle-tolerance '$measurement.strategy.full_profile.cell_angle_tolerance'
-            --full-nudge-samples '$measurement.strategy.full_profile.nudge_samples'
-            --full-nudge-representatives '$measurement.strategy.full_profile.nudge_representatives'
-            --full-compare-candidates '$measurement.strategy.full_profile.compare_candidates'
-            --full-compare-cycles '$measurement.strategy.full_profile.compare_cycles'
-            --full-rwp-improvement-threshold '$measurement.strategy.full_profile.rwp_improvement_threshold'
+            --max-passes '$analysis.strategy.full_profile.max_passes'
+            --min-phase-percent '$analysis.strategy.full_profile.min_phase_percent'
+            --full-top-n-ml '$analysis.strategy.full_profile.top_n_ml'
+            --full-nudge-candidates '$analysis.strategy.full_profile.nudge_candidates'
+            --full-cell-length-tolerance '$analysis.strategy.full_profile.cell_length_tolerance'
+            --full-cell-angle-tolerance '$analysis.strategy.full_profile.cell_angle_tolerance'
+            --full-nudge-samples '$analysis.strategy.full_profile.nudge_samples'
+            --full-nudge-representatives '$analysis.strategy.full_profile.nudge_representatives'
+            --full-compare-candidates '$analysis.strategy.full_profile.compare_candidates'
+            --full-compare-cycles '$analysis.strategy.full_profile.compare_cycles'
+            --full-rwp-improvement-threshold '$analysis.strategy.full_profile.rwp_improvement_threshold'
         ) &&
             #end if
         #end if
@@ -81,7 +81,7 @@
         "\${config_args[@]}" > '$console_output' 2>&1
     ]]></command>
     <inputs>
-        <section name="measurement" title="1. Measurement and analysis route" expanded="true">
+        <section name="measurement" title="1. Measurement type" expanded="true">
             <param name="radiation" type="select" label="Diffraction source">
                 <option value="neutron" selected="true">Neutron powder diffraction</option>
                 <option value="xray">X-ray powder diffraction (PXRD)</option>
@@ -91,46 +91,6 @@
                 <option value="tof">Time-of-flight</option>
                 <option value="cw">Constant wavelength</option>
             </param>
-            <conditional name="strategy">
-                <param name="analysis_mode" type="select" label="Analysis route">
-                    <option value="rapid" selected="true">Rapid Hypothesis Mode</option>
-                    <option value="full">Full RADAR-PD</option>
-                </param>
-                <when value="rapid">
-                    <param name="phases_per_hypothesis" type="integer" min="1" max="5" value="3" label="Candidate phases in each hypothesis"/>
-                    <param name="stage_output_limit" type="integer" min="3" max="50" value="10" label="Hypotheses retained for inspection"/>
-                    <param name="gsas_validation_limit" type="integer" min="0" max="20" value="10" label="Final refinement checks" help="Zero stops after lattice-aware pattern scoring."/>
-                    <param name="parallel_workers" type="integer" min="1" max="8" value="4" label="Parallel refinement workers"/>
-                    <param name="family_variants" type="boolean" checked="true" truevalue="--rapid-family-variants" falsevalue="--no-rapid-family-variants" label="Keep alternate members of near-stoichiometric families"/>
-                    <param name="final_polish" type="boolean" checked="false" truevalue="--rapid-final-polish" falsevalue="--no-rapid-final-polish" label="Run deeper final cell polish"/>
-                </when>
-                <when value="full">
-                    <conditional name="full_profile">
-                        <param name="profile_kind" type="select" label="Search profile">
-                            <option value="balanced" selected="true">Balanced first pass (recommended)</option>
-                            <option value="quick">Quick diagnostic</option>
-                            <option value="thorough">Thorough search</option>
-                            <option value="custom">Custom research budget</option>
-                        </param>
-                        <when value="balanced"/>
-                        <when value="quick"/>
-                        <when value="thorough"/>
-                        <when value="custom">
-                            <param name="max_passes" type="integer" min="1" max="10" value="2" label="Impurity discovery rounds"/>
-                            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
-                            <param name="top_n_ml" type="integer" min="5" max="200" value="35" label="ML candidates retained per round"/>
-                            <param name="nudge_candidates" type="integer" min="1" max="50" value="7" label="Candidates sent to lattice nudging per round"/>
-                            <param name="cell_length_tolerance" type="float" min="0.1" max="5" value="1.0" label="Cell-length search window (%)"/>
-                            <param name="cell_angle_tolerance" type="float" min="0.1" max="10" value="3.0" label="Cell-angle search window (degrees)"/>
-                            <param name="nudge_samples" type="integer" min="100" max="100000" value="5000" label="Lattice samples per candidate"/>
-                            <param name="nudge_representatives" type="integer" min="5" max="500" value="50" label="Nudge representatives retained"/>
-                            <param name="compare_candidates" type="integer" min="1" max="10" value="2" label="Candidates compared in each commit cycle"/>
-                            <param name="compare_cycles" type="integer" min="1" max="20" value="6" label="Maximum joint-refinement cycles"/>
-                            <param name="rwp_improvement_threshold" type="float" min="0" max="1" value="0.06" label="Stop when Rwp improvement falls below"/>
-                        </when>
-                    </conditional>
-                </when>
-            </conditional>
         </section>
         <section name="chemistry" title="2. Chemistry policy" expanded="true">
             <param name="sample_elements" type="text" label="Elements expected in the sample" help="Comma- or space-separated symbols.">
@@ -189,6 +149,50 @@
                 <param name="refine_uiso" type="boolean" checked="false" truevalue="--refine-uiso" falsevalue="--no-refine-uiso" label="Refine Uiso"/>
                 <param name="refine_positions" type="boolean" checked="false" truevalue="--refine-positions" falsevalue="--no-refine-positions" label="Refine atomic positions"/>
             </section>
+        </section>
+        <section name="analysis" title="7. Analysis route and execution controls" expanded="true">
+            <conditional name="strategy">
+                <param name="analysis_mode" type="select" display="radio" label="Analysis path" help="All scientific settings above are shared by both routes. Only the search strategy below changes.">
+                    <option value="full" selected="true">Full RADAR-PD</option>
+                    <option value="rapid">Rapid Hypothesis Mode</option>
+                </param>
+                <when value="full">
+                    <conditional name="full_profile">
+                        <param name="profile_kind" type="select" label="Full RADAR-PD search profile">
+                            <option value="balanced" selected="true">Balanced first pass (recommended)</option>
+                            <option value="quick">Quick diagnostic</option>
+                            <option value="thorough">Thorough search</option>
+                            <option value="custom">Custom research budget</option>
+                        </param>
+                        <when value="balanced"/>
+                        <when value="quick"/>
+                        <when value="thorough"/>
+                        <when value="custom">
+                            <param name="max_passes" type="integer" min="1" max="10" value="2" label="Impurity discovery rounds"/>
+                            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
+                            <param name="top_n_ml" type="integer" min="5" max="200" value="35" label="ML candidates retained per round"/>
+                            <param name="nudge_candidates" type="integer" min="1" max="50" value="7" label="Candidates sent to lattice nudging per round"/>
+                            <param name="cell_length_tolerance" type="float" min="0.1" max="5" value="1.0" label="Cell-length search window (%)"/>
+                            <param name="cell_angle_tolerance" type="float" min="0.1" max="10" value="3.0" label="Cell-angle search window (degrees)"/>
+                            <param name="nudge_samples" type="integer" min="100" max="100000" value="5000" label="Lattice samples per candidate"/>
+                            <param name="nudge_representatives" type="integer" min="5" max="500" value="50" label="Nudge representatives retained"/>
+                            <param name="compare_candidates" type="integer" min="1" max="10" value="2" label="Candidates compared in each commit cycle"/>
+                            <param name="compare_cycles" type="integer" min="1" max="20" value="6" label="Maximum joint-refinement cycles"/>
+                            <param name="rwp_improvement_threshold" type="float" min="0" max="1" value="0.06" label="Stop when Rwp improvement falls below"/>
+                        </when>
+                    </conditional>
+                </when>
+                <when value="rapid">
+                    <section name="rapid_controls" title="Rapid Hypothesis Mode controls" expanded="true">
+                        <param name="phases_per_hypothesis" type="integer" min="1" max="5" value="3" label="Candidate phases in each hypothesis"/>
+                        <param name="stage_output_limit" type="integer" min="3" max="50" value="10" label="Hypotheses retained for inspection"/>
+                        <param name="gsas_validation_limit" type="integer" min="0" max="20" value="10" label="Final refinement checks" help="Zero stops after lattice-aware pattern scoring."/>
+                        <param name="parallel_workers" type="integer" min="1" max="8" value="4" label="Parallel refinement workers"/>
+                        <param name="family_variants" type="boolean" checked="true" truevalue="--rapid-family-variants" falsevalue="--no-rapid-family-variants" label="Keep alternate members of near-stoichiometric families"/>
+                        <param name="final_polish" type="boolean" checked="false" truevalue="--rapid-final-polish" falsevalue="--no-rapid-final-polish" label="Run deeper final cell polish"/>
+                    </section>
+                </when>
+            </conditional>
         </section>
     </inputs>
     <outputs>

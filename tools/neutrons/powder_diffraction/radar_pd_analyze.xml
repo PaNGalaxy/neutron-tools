@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD" profile="22.05" version="0.3.1">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.0">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -13,18 +13,23 @@
         #set $analysis_instrument = 'resolved_input/instrument.instprm'
         #set $analysis_main_cif = 'resolved_input/main.cif'
         #set $source_kind = str($data_inputs.input_source.source_kind)
+        #set $instrument_source_kind = str($data_inputs.input_source.instrument_source.kind) if $source_kind == 'history' else 'resolved'
         #set $input_source_label = 'ipts' if $source_kind.startswith('ipts_') else 'history'
-        #if $source_kind.startswith('history_') and str($data_inputs.input_source.data.element_identifier).lower().endswith('.xrdml')
+        #if $source_kind == 'history' and str($data_inputs.input_source.data.element_identifier).lower().endswith('.xrdml')
             #set $analysis_data = 'resolved_input/pattern.xrdml'
         #end if
         mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
         touch '$console_output' portal/report.html portal/summary.json portal/state.json portal/resolved_config.yaml portal/input_manifest.json portal/gpx_index.json portal/results.zip resolved_input/metadata.json &&
         trap "chmod -R a+rX '$console_output' portal resolved_input >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
-        #if $source_kind.startswith('history_')
+        #if $source_kind == 'history' and $instrument_source_kind == 'builtin_cuka' and str($measurement.radiation) != 'xray'
+        printf '%s\n' 'The built-in Cu K-alpha profile requires X-ray powder diffraction. Select X-ray in Measurement type or provide a neutron instrument parameter file.' | tee -a '$console_output' >&2 &&
+        exit 2
+        #end if
+        #if $source_kind == 'history'
         cp '$data_inputs.input_source.data' '$analysis_data' &&
-            #if $source_kind == 'history_instrument'
-        cp '$data_inputs.input_source.instrument' '$analysis_instrument' &&
+            #if $instrument_source_kind == 'uploaded'
+        cp '$data_inputs.input_source.instrument_source.instrument' '$analysis_instrument' &&
             #end if
         #end if
         #if str($data_inputs.main_cif) not in ('', 'None', 'Not available.')
@@ -35,7 +40,7 @@
         #else
         config_args=(
             python /opt/radar-pd/scripts/ndip_runner.py configure
-            --mode '$measurement.strategy.analysis_mode'
+            --mode '$analysis.strategy.analysis_mode'
             --radiation '$measurement.radiation'
             --instrument-mode '$measurement.instrument_mode'
             --allowed-elements '$chemistry.sample_elements'
@@ -60,30 +65,30 @@
         config_args+=(--reference-mask-preset '$preset') &&
             #end for
         config_args+=($pattern.reference_masks.include_kbeta) &&
-            #if str($measurement.strategy.analysis_mode) == 'rapid'
+            #if str($analysis.strategy.analysis_mode) == 'rapid'
         config_args+=(
-            --phases-per-hypothesis '$measurement.strategy.phases_per_hypothesis'
-            --rapid-stage-output-limit '$measurement.strategy.stage_output_limit'
-            --gsas-validation-limit '$measurement.strategy.gsas_validation_limit'
-            --rapid-workers '$measurement.strategy.parallel_workers'
-            $measurement.strategy.family_variants
-            $measurement.strategy.final_polish
+            --phases-per-hypothesis '$analysis.strategy.rapid_controls.phases_per_hypothesis'
+            --rapid-stage-output-limit '$analysis.strategy.rapid_controls.stage_output_limit'
+            --gsas-validation-limit '$analysis.strategy.rapid_controls.gsas_validation_limit'
+            --rapid-workers '$analysis.strategy.rapid_controls.parallel_workers'
+            $analysis.strategy.rapid_controls.family_variants
+            $analysis.strategy.rapid_controls.final_polish
         ) &&
             #else
-        config_args+=(--runtime-profile '$measurement.strategy.full_profile.profile_kind') &&
-                #if str($measurement.strategy.full_profile.profile_kind) == 'custom'
+        config_args+=(--runtime-profile '$analysis.strategy.full_profile.profile_kind') &&
+                #if str($analysis.strategy.full_profile.profile_kind) == 'custom'
         config_args+=(
-            --max-passes '$measurement.strategy.full_profile.max_passes'
-            --min-phase-percent '$measurement.strategy.full_profile.min_phase_percent'
-            --full-top-n-ml '$measurement.strategy.full_profile.top_n_ml'
-            --full-nudge-candidates '$measurement.strategy.full_profile.nudge_candidates'
-            --full-cell-length-tolerance '$measurement.strategy.full_profile.cell_length_tolerance'
-            --full-cell-angle-tolerance '$measurement.strategy.full_profile.cell_angle_tolerance'
-            --full-nudge-samples '$measurement.strategy.full_profile.nudge_samples'
-            --full-nudge-representatives '$measurement.strategy.full_profile.nudge_representatives'
-            --full-compare-candidates '$measurement.strategy.full_profile.compare_candidates'
-            --full-compare-cycles '$measurement.strategy.full_profile.compare_cycles'
-            --full-rwp-improvement-threshold '$measurement.strategy.full_profile.rwp_improvement_threshold'
+            --max-passes '$analysis.strategy.full_profile.max_passes'
+            --min-phase-percent '$analysis.strategy.full_profile.min_phase_percent'
+            --full-top-n-ml '$analysis.strategy.full_profile.top_n_ml'
+            --full-nudge-candidates '$analysis.strategy.full_profile.nudge_candidates'
+            --full-cell-length-tolerance '$analysis.strategy.full_profile.cell_length_tolerance'
+            --full-cell-angle-tolerance '$analysis.strategy.full_profile.cell_angle_tolerance'
+            --full-nudge-samples '$analysis.strategy.full_profile.nudge_samples'
+            --full-nudge-representatives '$analysis.strategy.full_profile.nudge_representatives'
+            --full-compare-candidates '$analysis.strategy.full_profile.compare_candidates'
+            --full-compare-cycles '$analysis.strategy.full_profile.compare_cycles'
+            --full-rwp-improvement-threshold '$analysis.strategy.full_profile.rwp_improvement_threshold'
         ) &&
                 #end if
             #end if
@@ -121,7 +126,7 @@
         printf '%s\n' '{"source":"Galaxy history dataset"}' > resolved_input/metadata.json &&
         #end if
         analyze_args=(python /opt/radar-pd/scripts/ndip_runner.py analyze --config '$config_path' --data '$analysis_data') &&
-            #if $source_kind == 'history_cuka'
+            #if $source_kind == 'history' and $instrument_source_kind == 'builtin_cuka'
         analyze_args+=(--instrument-preset xray_lab_cuka) &&
             #else
         analyze_args+=(--instrument '$analysis_instrument') &&
@@ -139,7 +144,7 @@
         "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
-        <section name="measurement" title="1. Measurement and analysis route" expanded="true">
+        <section name="measurement" title="1. Measurement type" expanded="true">
             <param name="radiation" type="select" label="Diffraction source" help="Choose this first. It selects the neutron or X-ray candidate catalog and the appropriate pattern treatment.">
                 <option value="neutron" selected="true">Neutron powder diffraction</option>
                 <option value="xray">X-ray powder diffraction (PXRD)</option>
@@ -149,46 +154,6 @@
                 <option value="tof">Time-of-flight</option>
                 <option value="cw">Constant wavelength</option>
             </param>
-            <conditional name="strategy">
-                <param name="analysis_mode" type="select" label="Analysis route" help="Rapid ranks multi-phase hypotheses before focused refinements. Full RADAR-PD performs sequential residual-aware impurity discovery.">
-                    <option value="rapid" selected="true">Rapid Hypothesis Mode</option>
-                    <option value="full">Full RADAR-PD</option>
-                </param>
-                <when value="rapid">
-                    <param name="phases_per_hypothesis" type="integer" min="1" max="5" value="3" label="Candidate phases in each hypothesis" help="With a supplied main CIF, this is the maximum number of impurity candidates. Without a main CIF, it is the total number of phases in a hypothesis."/>
-                    <param name="stage_output_limit" type="integer" min="3" max="50" value="10" label="Hypotheses retained for inspection" help="Controls how many ranked combinations remain visible at each Rapid stage; it does not alter diffraction physics."/>
-                    <param name="gsas_validation_limit" type="integer" min="0" max="20" value="10" label="Final refinement checks" help="Number of shortlisted hypotheses sent to guarded GSAS-II refinement. Zero stops after lattice-aware pattern scoring."/>
-                    <param name="parallel_workers" type="integer" min="1" max="8" value="4" label="Parallel refinement workers" help="Independent final hypotheses are refined in parallel. Four is the production default."/>
-                    <param name="family_variants" type="boolean" checked="true" truevalue="--rapid-family-variants" falsevalue="--no-rapid-family-variants" label="Keep alternate members of near-stoichiometric phase families" help="Preserves scientifically comparable CIF variants for later inspection while ranking one preferred representative."/>
-                    <param name="final_polish" type="boolean" checked="false" truevalue="--rapid-final-polish" falsevalue="--no-rapid-final-polish" label="Run deeper final cell polish" help="Normally leave off. Enable only when the focused final refinement requires an additional guarded cell-polish stage."/>
-                </when>
-                <when value="full">
-                    <conditional name="full_profile">
-                        <param name="profile_kind" type="select" label="Search profile" help="Balanced is recommended for a first scientific run. Quick is diagnostic; Thorough broadens the search after unexplained peaks remain.">
-                            <option value="balanced" selected="true">Balanced first pass (recommended)</option>
-                            <option value="quick">Quick diagnostic</option>
-                            <option value="thorough">Thorough search</option>
-                            <option value="custom">Custom research budget</option>
-                        </param>
-                        <when value="balanced"/>
-                        <when value="quick"/>
-                        <when value="thorough"/>
-                        <when value="custom">
-                            <param name="max_passes" type="integer" min="1" max="10" value="2" label="Impurity discovery rounds"/>
-                            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
-                            <param name="top_n_ml" type="integer" min="5" max="200" value="35" label="ML candidates retained per round"/>
-                            <param name="nudge_candidates" type="integer" min="1" max="50" value="7" label="Candidates sent to lattice nudging per round"/>
-                            <param name="cell_length_tolerance" type="float" min="0.1" max="5" value="1.0" label="Cell-length search window (%)"/>
-                            <param name="cell_angle_tolerance" type="float" min="0.1" max="10" value="3.0" label="Cell-angle search window (degrees)"/>
-                            <param name="nudge_samples" type="integer" min="100" max="100000" value="5000" label="Lattice samples per candidate"/>
-                            <param name="nudge_representatives" type="integer" min="5" max="500" value="50" label="Nudge representatives retained"/>
-                            <param name="compare_candidates" type="integer" min="1" max="10" value="2" label="Candidates compared in each commit cycle"/>
-                            <param name="compare_cycles" type="integer" min="1" max="20" value="6" label="Maximum joint-refinement cycles"/>
-                            <param name="rwp_improvement_threshold" type="float" min="0" max="1" value="0.06" label="Stop when Rwp improvement falls below"/>
-                        </when>
-                    </conditional>
-                </when>
-            </conditional>
         </section>
 
         <section name="library" title="2. Candidate phase library" expanded="true">
@@ -206,18 +171,23 @@
 
         <section name="data_inputs" title="3. Diffraction data and known phase" expanded="true">
             <conditional name="input_source">
-                <param name="source_kind" type="select" label="Data source" help="Choose datasets directly from Galaxy history, or resolve a reduced run from the mounted SNS IPTS tree.">
-                    <option value="history_instrument" selected="true">Galaxy history: data and instrument files</option>
-                    <option value="history_cuka">Galaxy history: data with built-in Cu K-alpha profile</option>
-                    <option value="ipts_event">SNS IPTS: resolve from a NeXus event file</option>
-                    <option value="ipts_manual">SNS IPTS: enter instrument, IPTS, run, and bank</option>
+                <param name="source_kind" type="select" label="Where is the diffraction pattern?" help="Use Galaxy history for uploaded files. SNS users can instead locate reduced data from the mounted IPTS tree.">
+                    <option value="history" selected="true">Uploaded or Galaxy history dataset</option>
+                    <option value="ipts_event">SNS IPTS: locate from NeXus event metadata</option>
+                    <option value="ipts_manual">SNS IPTS: locate by instrument, IPTS, run, and bank</option>
                 </param>
-                <when value="history_instrument">
-                    <param name="data" type="data" format="data" label="Powder diffraction data" help="Select the measured pattern. Supported inputs include common RADAR-PD text patterns and XRDML."/>
-                    <param name="instrument" type="data" format="txt" label="GSAS-II instrument parameter file" help="Verify this selected file matches the data, bank, geometry, and wavelength."/>
-                </when>
-                <when value="history_cuka">
-                    <param name="data" type="data" format="data" label="Powder diffraction data" help="Use for laboratory PXRD measured with a conventional Cu K-alpha source."/>
+                <when value="history">
+                    <param name="data" type="data" format="tabular,xml" label="Measured powder diffraction pattern" help="Select the experimental intensity pattern, normally a tabular text file or XRDML/XML file. Configuration, CIF, report, and result files are intentionally excluded."/>
+                    <conditional name="instrument_source">
+                        <param name="kind" type="select" label="Instrument profile" help="Most analyses should use the matching GSAS-II instrument parameter file. The built-in Cu K-alpha profile is for conventional laboratory PXRD only.">
+                            <option value="uploaded" selected="true">Use a GSAS-II instrument parameter file</option>
+                            <option value="builtin_cuka">Use built-in laboratory Cu K-alpha profile (X-ray only)</option>
+                        </param>
+                        <when value="uploaded">
+                            <param name="instrument" type="data" format="txt" label="GSAS-II instrument parameter file" help="Select the instrument profile matching the measured pattern, bank, geometry, and wavelength."/>
+                        </when>
+                        <when value="builtin_cuka"/>
+                    </conditional>
                 </when>
                 <when value="ipts_event">
                     <param name="event_file" type="data" format="h5" label="NeXus event file" help="RADAR-PD uses its instrument, IPTS, and run metadata to locate one reduced powder pattern and matching instrument profile."/>
@@ -296,7 +266,52 @@
             </section>
         </section>
 
-        <section name="reproducibility" title="9. Run identity and reproducibility" expanded="true">
+        <section name="analysis" title="9. Analysis route and execution controls" expanded="true">
+            <conditional name="strategy">
+                <param name="analysis_mode" type="select" display="radio" label="Analysis path" help="All measurement, library, data, chemistry, masking, background, magnetic, and main-phase settings above are shared by both routes. Only the search strategy below changes.">
+                    <option value="full" selected="true">Full RADAR-PD</option>
+                    <option value="rapid">Rapid Hypothesis Mode</option>
+                </param>
+                <when value="full">
+                    <conditional name="full_profile">
+                        <param name="profile_kind" type="select" label="Full RADAR-PD search profile" help="Balanced is recommended for a first scientific run. Quick is diagnostic; Thorough broadens the sequential residual search when unexplained peaks remain.">
+                            <option value="balanced" selected="true">Balanced first pass (recommended)</option>
+                            <option value="quick">Quick diagnostic</option>
+                            <option value="thorough">Thorough search</option>
+                            <option value="custom">Custom research budget</option>
+                        </param>
+                        <when value="balanced"/>
+                        <when value="quick"/>
+                        <when value="thorough"/>
+                        <when value="custom">
+                            <param name="max_passes" type="integer" min="1" max="10" value="2" label="Impurity discovery rounds"/>
+                            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
+                            <param name="top_n_ml" type="integer" min="5" max="200" value="35" label="ML candidates retained per round"/>
+                            <param name="nudge_candidates" type="integer" min="1" max="50" value="7" label="Candidates sent to lattice nudging per round"/>
+                            <param name="cell_length_tolerance" type="float" min="0.1" max="5" value="1.0" label="Cell-length search window (%)"/>
+                            <param name="cell_angle_tolerance" type="float" min="0.1" max="10" value="3.0" label="Cell-angle search window (degrees)"/>
+                            <param name="nudge_samples" type="integer" min="100" max="100000" value="5000" label="Lattice samples per candidate"/>
+                            <param name="nudge_representatives" type="integer" min="5" max="500" value="50" label="Nudge representatives retained"/>
+                            <param name="compare_candidates" type="integer" min="1" max="10" value="2" label="Candidates compared in each commit cycle"/>
+                            <param name="compare_cycles" type="integer" min="1" max="20" value="6" label="Maximum joint-refinement cycles"/>
+                            <param name="rwp_improvement_threshold" type="float" min="0" max="1" value="0.06" label="Stop when Rwp improvement falls below"/>
+                        </when>
+                    </conditional>
+                </when>
+                <when value="rapid">
+                    <section name="rapid_controls" title="Rapid Hypothesis Mode controls" expanded="true">
+                        <param name="phases_per_hypothesis" type="integer" min="1" max="5" value="3" label="Candidate phases in each hypothesis" help="With a supplied main CIF, this is the maximum number of impurity candidates. Without a main CIF, it is the total number of phases in a hypothesis."/>
+                        <param name="stage_output_limit" type="integer" min="3" max="50" value="10" label="Hypotheses retained for inspection" help="Controls how many ranked combinations remain visible at each Rapid stage; it does not alter diffraction physics."/>
+                        <param name="gsas_validation_limit" type="integer" min="0" max="20" value="10" label="Final refinement checks" help="Number of shortlisted hypotheses sent to guarded GSAS-II refinement. Zero stops after lattice-aware pattern scoring."/>
+                        <param name="parallel_workers" type="integer" min="1" max="8" value="4" label="Parallel refinement workers" help="Independent final hypotheses are refined in parallel. Four is the production default."/>
+                        <param name="family_variants" type="boolean" checked="true" truevalue="--rapid-family-variants" falsevalue="--no-rapid-family-variants" label="Keep alternate members of near-stoichiometric phase families" help="Preserves scientifically comparable CIF variants for later inspection while ranking one preferred representative."/>
+                        <param name="final_polish" type="boolean" checked="false" truevalue="--rapid-final-polish" falsevalue="--no-rapid-final-polish" label="Run deeper final cell polish" help="Normally leave off. Enable only when the focused final refinement requires an additional guarded cell-polish stage."/>
+                    </section>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="reproducibility" title="10. Run identity and reproducibility" expanded="true">
             <param name="run_name" type="text" optional="true" label="Run name" help="Defaults to the diffraction dataset name. Use a meaningful name for mapped scans or repeated measurements."/>
             <conditional name="configuration_override">
                 <param name="config_kind" type="select" label="Configuration source" help="Most users should generate the configuration from the controls above. A saved YAML is useful in automated or mapped workflows.">
@@ -339,11 +354,12 @@
     <help><![CDATA[
 **RADAR-PD analysis workflow**
 
-1. Choose neutron or X-ray diffraction and select Rapid or Full RADAR-PD.
+1. Choose neutron or X-ray diffraction, then provide the common scientific inputs in Sections 2-8.
 2. Select the built-in catalog or a custom CIF library built with the companion Library Builder.
 3. Supply data directly from Galaxy history or resolve a reduced SNS IPTS run. Add a main-phase CIF when the dominant structure is known.
 4. Enter sample chemistry separately from sample-can or environment elements.
 5. Review optional pattern masks, background treatment, magnetic precheck, and known-main-phase safeguards.
+6. In Section 9, choose Full RADAR-PD or Rapid Hypothesis Mode. Switching routes changes only the execution controls in that section; it does not replace or hide the scientific inputs above.
 
 **Rapid Hypothesis Mode** performs coarse mixture search, symmetry-aware lattice nudging, higher-resolution pattern scoring, and focused GSAS-II refinement ranking. **Full RADAR-PD** performs sequential residual-aware impurity discovery and refinement. The Balanced profile is recommended for a first Full run.
 

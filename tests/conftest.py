@@ -11,6 +11,9 @@ skip_tests = [
 
 
 def pytest_generate_tests(metafunc) -> None:
+    if "xml_path" not in metafunc.fixturenames:
+        return
+
     tool_paths = []
     for root, _, files in os.walk("tools"):
         for name in files:
