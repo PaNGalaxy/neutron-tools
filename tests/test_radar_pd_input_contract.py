@@ -55,6 +55,9 @@ def test_analyze_diffraction_picker_excludes_non_pattern_artifacts() -> None:
     assert source is not None
     selected_source = source.find("./option[@selected='true']")
     assert selected_source is not None and selected_source.attrib.get("value") == "choose"
+    history_option = source.find("./option[@value='history']")
+    assert history_option is not None
+    assert "Upload from laptop" in (history_option.text or "")
 
     data = root.find(
         "./inputs/section[@name='data_inputs']/conditional[@name='input_source']"

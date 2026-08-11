@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.3">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.4.4">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -176,23 +176,23 @@
                 </param>
                 <when value="builtin"/>
                 <when value="custom">
-                    <param name="database_archive" type="data" format="zip" label="Custom library archive" help="Select the ZIP produced by RADAR-PD CIF Library Builder."/>
+                    <param name="database_archive" type="data" format="zip" label="Custom library archive" help="Select the ZIP produced by RADAR-PD CIF Library Builder. To upload it from your laptop, click the ... button, then New upload and Choose local file."/>
                 </when>
             </conditional>
         </section>
 
         <section name="data_inputs" title="3. Diffraction data and known phase" expanded="true">
             <conditional name="input_source">
-                <param name="source_kind" type="select" label="Where is the diffraction pattern?" help="Choose explicitly so Galaxy does not silently reuse the newest item in a busy history. Use Galaxy history for uploaded files, or locate reduced SNS data from the mounted IPTS tree.">
+                <param name="source_kind" type="select" label="Where is the diffraction pattern?" help="Choose laptop/Galaxy history to upload a new local file or select an existing dataset. Use an SNS IPTS option to locate reduced data from the mounted IPTS tree.">
                     <option value="choose" selected="true">Choose an input source...</option>
-                    <option value="history">Uploaded or Galaxy history dataset</option>
+                    <option value="history">Upload from laptop or select Galaxy history</option>
                     <option value="ipts_event">SNS IPTS: locate from NeXus event metadata</option>
                     <option value="ipts_manual">SNS IPTS: locate by instrument, IPTS, run, and bank</option>
                     <validator type="regex" message="Choose where RADAR-PD should obtain the diffraction pattern.">^(history|ipts_event|ipts_manual)$</validator>
                 </param>
                 <when value="choose"/>
                 <when value="history">
-                    <param name="diffraction_pattern" type="data" format="tabular,xml" optional="true" label="Measured powder diffraction pattern (required)" help="Explicitly select the experimental intensity pattern. RADAR-PD does not reuse the newest history item automatically. Preserve a recognized suffix such as .dat, .xye, .xy, .fxye, .txt, .csv, .xrdml, or .xml when uploading to Galaxy.">
+                    <param name="diffraction_pattern" type="data" format="tabular,xml" optional="true" label="Measured powder diffraction pattern (required)" help="For a laptop file, click the ... button, choose New upload, and then Choose local file. Existing history datasets can be selected directly. Preserve a recognized suffix such as .dat, .xye, .xy, .fxye, .txt, .csv, .xrdml, or .xml.">
                         <validator type="expression" message="Select a powder diffraction pattern with a recognized filename extension, not a RADAR-PD result table or configuration artifact.">value is not None and value.name.lower().endswith(('.dat', '.xye', '.xy', '.fxye', '.txt', '.csv', '.xrdml', '.xml'))</validator>
                     </param>
                     <conditional name="instrument_source">
@@ -204,7 +204,7 @@
                         </param>
                         <when value="choose"/>
                         <when value="uploaded">
-                            <param name="instrument_file" type="data" format="txt" optional="true" label="GSAS-II instrument parameter file (required)" help="Explicitly select the profile matching the measured pattern, bank, geometry, and wavelength. RADAR-PD does not reuse the newest history item automatically. Preserve its .instprm, .prm, .inst, .ins, or .txt suffix in Galaxy.">
+                            <param name="instrument_file" type="data" format="txt" optional="true" label="GSAS-II instrument parameter file (required)" help="Select the matching profile. For a laptop file, click the ... button, choose New upload, and then Choose local file. Preserve its .instprm, .prm, .inst, .ins, or .txt suffix.">
                                 <validator type="expression" message="Select a GSAS-II instrument parameter file, not a report or configuration artifact.">value is not None and value.name.lower().endswith(('.instprm', '.prm', '.inst', '.ins', '.txt'))</validator>
                             </param>
                         </when>
@@ -222,7 +222,7 @@
                     <param name="bank" type="text" value="1" label="Bank"/>
                 </when>
             </conditional>
-            <param name="main_cif" type="data" format="cif" optional="true" label="Known/main phase CIF (optional)" help="Supply this when the dominant structural phase is known. RADAR-PD anchors and protects this phase before searching its residual signal."/>
+            <param name="main_cif" type="data" format="cif" optional="true" label="Known/main phase CIF (optional)" help="Supply this when the dominant structural phase is known. To upload it from your laptop, click the ... button, then New upload and Choose local file. RADAR-PD anchors and protects this phase before searching its residual signal."/>
         </section>
 
         <section name="chemistry" title="4. Chemistry policy" expanded="true">
