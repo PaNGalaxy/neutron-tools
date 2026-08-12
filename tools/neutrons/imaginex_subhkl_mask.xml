@@ -78,13 +78,13 @@
 		<param name="sigmas" type="float" value="3.5" optional="true" label="Peak Clear N Sigmas" /> 
 		<param name="minFrames" type="int" value="5" optional="true" label="Minimum Frames" /> 
 		<param name="smoothSigma" type="float" value="2.0" optional="true" label="Smooth Sigma" /> 
-		<param name="gradNmads" type="float" value="8.0" optional="true" label="Gradiant N MADS" /> 
+		<!--<param name="gradNmads" type="float" value="8.0" optional="true" label="Gradiant N MADS" /> 
 		<param name="texture" type="float" value="0.15" optional="true" label="Texture Factor" /> 
 		<param name="wideSigma" type="float" value="20.0" optional="true" label="Wide Sigma" /> 
 		<param name="edgeSigma" type="float" value="25.0" optional="true" label="Wide Sigma" /> 
 		<param name="dilate" type="int" value="8" optional="true" label="Dilate PX" /> 
 		<param name="static" type="float" value="25.08" optional="true" label="Static Quantile" /> 
-		<param name="gradMin" type="float" value="0.02" optional="true" label="Gradient Minimum Fraction" /> 
+		<param name="gradMin" type="float" value="0.02" optional="true" label="Gradient Minimum Fraction" /> -->
 
     </inputs>
     <outputs>
