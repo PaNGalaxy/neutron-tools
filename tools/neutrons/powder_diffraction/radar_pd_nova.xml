@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_interactive_prototype" tool_type="interactive" name="RADAR-PD Interactive" version="0.1.13" profile="22.05">
+<tool id="neutrons_radar_pd_interactive_prototype" tool_type="interactive" name="RADAR-PD Interactive" version="0.1.14" profile="22.05">
     <description>configure, run, monitor, recover, and inspect Full or Rapid RADAR-PD analyses</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -27,6 +27,7 @@
     ]]></command>
     <inputs/>
     <outputs>
+        <!-- Galaxy collects this file from the job work directory when the interactive session exits. -->
         <data format="txt" name="console_output" from_work_dir="console_output.txt" label="RADAR-PD Interactive console output" hidden="true"/>
     </outputs>
     <help><![CDATA[
