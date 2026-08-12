@@ -67,12 +67,12 @@
     ]]></command>
     <inputs>
     
-		<repeat name="inputs" title="Input Files" help="As full file paths inside /SNS">
-			<param name="input" type="text" value="" label="Input File" />
-			<param name="peak" type="text" value="" optional="true" label="Peak File (Optional)" />
+		<repeat name="inputs" title="Input Files" >
+			<param name="input" type="text" value="" label="Input File" help="As full file path inside /SNS" />
+			<param name="peak" type="text" value="" optional="true" label="Peak File (Optional)" help="As full file path inside /SNS" />
 		</repeat>
     	
-		<param name="pooledPeaks" type="str" value="" optional="true" label="Pooled Peak" /> 
+		<!--<param name="pooledPeaks" type="str" value="" optional="true" label="Pooled Peak" /> 
 		<param name="devianceMin" type="float" value="9.488" optional="true" label="Peak Deviance Minimum" /> 
 		<param name="residualMax" type="float" value="2.0" optional="true" label="Peak Residual Maximum" /> 
 		<param name="sigmas" type="float" value="3.5" optional="true" label="Peak Clear N Sigmas" /> 
@@ -84,7 +84,7 @@
 		<param name="edgeSigma" type="float" value="25.0" optional="true" label="Wide Sigma" /> 
 		<param name="dilate" type="int" value="8" optional="true" label="Dilate PX" /> 
 		<param name="static" type="float" value="25.08" optional="true" label="Static Quantile" /> 
-		<param name="gradMin" type="float" value="0.02" optional="true" label="Gradient Minimum Fraction" /> 
+		<param name="gradMin" type="float" value="0.02" optional="true" label="Gradient Minimum Fraction" /> -->
 
     </inputs>
     <outputs>
