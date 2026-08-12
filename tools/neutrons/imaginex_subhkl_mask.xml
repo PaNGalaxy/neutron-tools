@@ -43,10 +43,10 @@
 			#set $options = $options + " --texture_factor " + str($texture) + " " 
 		#end if
 		#if $wideSigma:
-			#set $options = $options + " --wide_sigma " + str($wide_sigma) + " " 
+			#set $options = $options + " --wide_sigma " + str($wideSigma) + " " 
 		#end if
 		#if $edgeSigma:
-			#set $options = $options + " --edge_sigma " + str($edge_sigma) + " " 
+			#set $options = $options + " --edge_sigma " + str($edgeSigma) + " " 
 		#end if
 		#if $dilate:
 			#set $options = $options + " --dilate_px " + str($dilate) + " " 
