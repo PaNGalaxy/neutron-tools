@@ -13,7 +13,7 @@
 		#for $Z in $inputs:
 			#set $options = $options + " --input_filenames " + str($Z.input) + " "
 			
-			#if $Z.peak:
+			#if $Z.peak != "":
 				#set $options = $options + " --peaks " + str($Z.peak) + " "
 			#end if
 		#end for
