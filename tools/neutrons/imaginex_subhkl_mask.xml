@@ -1,0 +1,96 @@
+<tool id="imaginex_subhkl_masking" name="IMAGINE-X subhkl Masking"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+  <requirements>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.3.0</container>
+  </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+		mkdir out ; 
+		
+		## This tool requires more than the default shared memory size. You can unset this if you configure Docker to launch shm-size=128gb
+		export CUDA_VISIBLE_DEVICES=0 ;
+		
+		mv "$peaks" "$peaks.element_identifier" ;  
+		
+		#set $options = ""
+		
+		#for $Z in $inputs:
+			#set $options = $options + " --input_filenames " + str($Z.input) + " "
+			
+			#if $Z.peak:
+				#set $options = $options + " --peaks " + str($Z.peak) + " "
+			#end if
+		#end for
+		
+	
+		
+		#if $pooledPeaks:
+			#set $options = $options + " --pooled_peaks " + str($pooledPeaks) + " " 
+		#end if
+		#if $devianceMin:
+			#set $options = $options + " --peak_deviance_min " + str($devianceMin) + " " 
+		#end if
+		#if $residualMax:
+			#set $options = $options + " --peak_residual_max " + str($residualMax) + " " 
+		#end if
+		#if $sigmas:
+			#set $options = $options + " --peak_clear_nsigmas " + str($sigmas) + " " 
+		#end if
+		#if $minFrames:
+			#set $options = $options + " --min_frames " + str($minFrames) + " " 
+		#end if
+		#if $smoothSigma:
+			#set $options = $options + " --min_frames " + str($smoothSigma) + " " 
+		#end if
+		#if $gradNmads:
+			#set $options = $options + " --grad_nmads " + str($gradNmads) + " " 
+		#end if
+		#if $texture:
+			#set $options = $options + " --texture_factor " + str($texture) + " " 
+		#end if
+		#if $wideSigma:
+			#set $options = $options + " --wide_sigma " + str($wide_sigma) + " " 
+		#end if
+		#if $edgeSigma:
+			#set $options = $options + " --edge_sigma " + str($edge_sigma) + " " 
+		#end if
+		#if $dilate:
+			#set $options = $options + " --dilate_px " + str($dilate) + " " 
+		#end if
+		#if $static:
+			#set $options = $options + " --static_quantile " + str($static) + " " 
+		#end if
+		#if $gradMin:
+			#set $options = $options + " --grad_min_frac " + str($gradMin) + " " 
+		#end if
+
+		python -m subhkl.io.parser static_mask mask.h5 $options
+		
+    ]]></command>
+    <inputs>
+    
+		<repeat name="inputs" title="Input Files" help="As full file paths inside /SNS">
+			<param name="input" type="text" value="" label="Input File" />
+			<param name="peak" type="text" value="" optional="true" label="Peak File (Optional)" />
+		</repeat>
+    	
+		<param name="pooledPeaks" type="str" value="" optional="true" label="Pooled Peak" /> 
+		<param name="devianceMin" type="float" value="9.488" optional="true" label="Peak Deviance Minimum" /> 
+		<param name="residualMax" type="float" value="2.0" optional="true" label="Peak Residual Maximum" /> 
+		<param name="sigmas" type="float" value="3.5" optional="true" label="Peak Clear N Sigmas" /> 
+		<param name="minFrames" type="int" value="5" optional="true" label="Minimum Frames" /> 
+		<param name="smoothSigma" type="float" value="2.0" optional="true" label="Smooth Sigma" /> 
+		<param name="gradNmads" type="float" value="8.0" optional="true" label="Gradiant N MADS" /> 
+		<param name="texture" type="float" value="0.15" optional="true" label="Texture Factor" /> 
+		<param name="wideSigma" type="float" value="20.0" optional="true" label="Wide Sigma" /> 
+		<param name="edgeSigma" type="float" value="25.0" optional="true" label="Wide Sigma" /> 
+		<param name="dilate" type="int" value="8" optional="true" label="Dilate PX" /> 
+		<param name="static" type="float" value="25.08" optional="true" label="Static Quantile" /> 
+		<param name="gradMin" type="float" value="0.02" optional="true" label="Gradient Minimum Fraction" /> 
+
+    </inputs>
+    <outputs>
+		<data format="h5" label="mask.h5" name="output" from_work_dir="out/indexer.h5" />
+    </outputs>
+    <help><![CDATA[
+        Calculates peak indices in reciprocol space.
+    ]]></help>
+</tool>
