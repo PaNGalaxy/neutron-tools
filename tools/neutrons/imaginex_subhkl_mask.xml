@@ -6,9 +6,7 @@
 		mkdir out ; 
 		
 		## This tool requires more than the default shared memory size. You can unset this if you configure Docker to launch shm-size=128gb
-		export CUDA_VISIBLE_DEVICES=0 ;
-		
-		mv "$peaks" "$peaks.element_identifier" ;  
+		export CUDA_VISIBLE_DEVICES=0 ; 
 		
 		#set $options = ""
 		
@@ -19,8 +17,6 @@
 				#set $options = $options + " --peaks " + str($Z.peak) + " "
 			#end if
 		#end for
-		
-	
 		
 		#if $pooledPeaks:
 			#set $options = $options + " --pooled_peaks " + str($pooledPeaks) + " " 
@@ -62,7 +58,7 @@
 			#set $options = $options + " --grad_min_frac " + str($gradMin) + " " 
 		#end if
 
-		python -m subhkl.io.parser static_mask mask.h5 $options
+		python -m subhkl.io.parser static_mask out/mask.h5 $options
 		
     ]]></command>
     <inputs>
