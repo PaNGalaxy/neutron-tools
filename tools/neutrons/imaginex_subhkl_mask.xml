@@ -18,7 +18,47 @@
 			#end if
 		#end for
 		
+		#if $pooledPeaks:
+			#set $options = $options + " --pooled_peaks " + str($pooledPeaks) + " " 
+		#end if
+		#if $devianceMin:
+			#set $options = $options + " --peak_deviance_min " + str($devianceMin) + " " 
+		#end if
+		#if $residualMax:
+			#set $options = $options + " --peak_residual_max " + str($residualMax) + " " 
+		#end if
+		#if $sigmas:
+			#set $options = $options + " --peak_clear_nsigmas " + str($sigmas) + " " 
+		#end if
+		#if $minFrames:
+			#set $options = $options + " --min_frames " + str($minFrames) + " " 
+		#end if
+		#if $smoothSigma:
+			#set $options = $options + " --min_frames " + str($smoothSigma) + " " 
+		#end if
+		#if $gradNmads:
+			#set $options = $options + " --grad_nmads " + str($gradNmads) + " " 
+		#end if
+		#if $texture:
+			#set $options = $options + " --texture_factor " + str($texture) + " " 
+		#end if
+		#if $wideSigma:
+			#set $options = $options + " --wide_sigma " + str($wide_sigma) + " " 
+		#end if
+		#if $edgeSigma:
+			#set $options = $options + " --edge_sigma " + str($edge_sigma) + " " 
+		#end if
+		#if $dilate:
+			#set $options = $options + " --dilate_px " + str($dilate) + " " 
+		#end if
+		#if $static:
+			#set $options = $options + " --static_quantile " + str($static) + " " 
+		#end if
+		#if $gradMin:
+			#set $options = $options + " --grad_min_frac " + str($gradMin) + " " 
+		#end if
 
+		python -m subhkl.io.parser static_mask out/mask.h5 $options
 		
     ]]></command>
     <inputs>
