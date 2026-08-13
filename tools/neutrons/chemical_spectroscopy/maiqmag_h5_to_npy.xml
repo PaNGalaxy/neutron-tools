@@ -34,6 +34,7 @@
             done &&
             rm -rf sunny_inputs &&
         #end for
+        . /etc/profile &&
         export PODMANHPC_ADDITIONAL_STORES="/dvs_ro/cfs/cdirs/m1503/maiqmag/images" &&
         podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -it -v $project_dir:$project_dir h5_to_npy pixi run --as-is app --params \$(pwd)/params --spec \$(pwd)/spec --output $results_folder
         > >(tee -a $output) 2> >(tee -a $output >&2) &&

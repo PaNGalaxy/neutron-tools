@@ -9,6 +9,7 @@
         #set $experiment = re.sub('[\W]', '_', str($experiment))
         #set $results_folder=str($project_dir)+"/maiqmag/simulations/" + str($experiment)+"/macvine_results"
         mkdir sample_inputs &&
+        . /etc/profile &&
         tar -xf $inputs -C sample_inputs/ &&
         for input in \$(realpath sample_inputs/*); do
 	        echo "podman-hpc run --rm --group-add keep-groups -e HDF5_USE_FILE_LOCKING=FALSE -e OMPI_MCA_btl_tcp_if_include=lo -it -v $project_dir:$project_dir mcvine /app/run.sh --beam=$beam --results_folder=$results_folder --n_count=$ncount --n_proc=$nproc --input_file=\$input" >> commands.sh

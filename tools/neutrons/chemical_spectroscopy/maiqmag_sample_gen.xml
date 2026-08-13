@@ -15,6 +15,7 @@
         #if not $varExists('__job_resource.__job_resource__select') or $__job_resource.__job_resource__select=='no' or not $varExists('__job_resource.remote_resource_cloud_nersc') or $__job_resource.remote_resource_cloud_nersc=='orc' :
             pixi run --as-is --manifest-path /app app --nproc 4 --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
         #else
+           . /etc/profile &&
            module load julia/1.12.1 &&
            export JULIA_DEPOT_PATH=/global/cfs/cdirs/m1503/maiqmag/julia_depot &&
            julia --project=/global/cfs/cdirs/m1503/maiqmag/sunny /global/cfs/cdirs/m1503/maiqmag/sunny/src/sunny/sunny.jl --data-dir \$out_folder --nsamps $nsampl > >(tee -a $output) 2> >(tee -a $output >&2) &&
