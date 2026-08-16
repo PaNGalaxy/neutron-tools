@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.7">
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.8">
     <description>reopen one complete RADAR-PD result as an integrated scientific dashboard</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -16,6 +16,8 @@
     <environment_variables>
         <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
         <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">radar_pd_results</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
         #import re
@@ -62,7 +64,7 @@
             #end for
         #end if
         #end if
-        exec python -m http.server 8080 --bind 0.0.0.0 --directory site
+        python -m http.server 8080 --bind 0.0.0.0 --directory site > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
         <conditional name="result_source">
@@ -84,6 +86,9 @@
             </when>
         </conditional>
     </inputs>
+    <outputs>
+        <data format="txt" name="output" label="RADAR-PD Result Explorer console output"/>
+    </outputs>
     <help><![CDATA[
 Open this after a RADAR-PD analysis and select its single **Complete Results Archive**. The explorer restores the integrated dashboard, fit plots, result tables, CIF files, diagnostics, and curated GSAS-II checkpoints without reconnecting each History dataset. Galaxy remains the system of record. To continue a refinement, send a selected GPX checkpoint through **RADAR-PD Utility: GSAS-II Project Handoff** and open it in the hosted GSAS-II tool.
     ]]></help>

@@ -142,6 +142,11 @@ def test_result_explorer_defaults_to_one_complete_archive() -> None:
     assert entrypoint is not None
     assert entrypoint.attrib.get("requires_path_in_url") == "True"
 
+    entry_path = root.find("./environment_variables/environment_variable[@name='EP_PATH']")
+    assert entry_path is not None
+    assert entry_path.attrib.get("inject") == "entry_point_path_for_label"
+    assert (entry_path.text or "").strip() == entrypoint.attrib.get("label")
+
     container = root.find("./requirements/container")
     assert container is not None
     assert (container.text or "").strip().endswith("radar-pd-nova:nova-0.3.2")
@@ -149,3 +154,7 @@ def test_result_explorer_defaults_to_one_complete_archive() -> None:
     command = root.findtext("./command", default="")
     assert "python -m zipfile -e" in command
     assert "python -m http.server 8080" in command
+    assert "$output" in command
+
+    output = root.find("./outputs/data[@name='output']")
+    assert output is not None and output.attrib.get("format") == "txt"
