@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.6">
+<tool id="neutrons_radar_pd_result_explorer_prototype" tool_type="interactive" name="RADAR-PD Utility: Explore Results" profile="22.05" version="0.3.7">
     <description>reopen one complete RADAR-PD result as an integrated scientific dashboard</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -8,7 +8,7 @@
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd-nova:nova-0.3.2</container>
     </requirements>
     <entry_points>
-        <entry_point name="RADAR-PD Result Explorer" label="radar_pd_results" requires_domain="False" requires_path_in_url="False">
+        <entry_point name="RADAR-PD Result Explorer" label="radar_pd_results" requires_domain="False" requires_path_in_url="True">
             <port>8080</port>
             <url>/</url>
         </entry_point>

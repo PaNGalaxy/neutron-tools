@@ -138,6 +138,10 @@ def test_result_explorer_defaults_to_one_complete_archive() -> None:
     archive = source.find("./when[@value='archive']/param[@name='results_archive']")
     assert archive is not None and archive.attrib.get("format") == "zip"
 
+    entrypoint = root.find("./entry_points/entry_point")
+    assert entrypoint is not None
+    assert entrypoint.attrib.get("requires_path_in_url") == "True"
+
     container = root.find("./requirements/container")
     assert container is not None
     assert (container.text or "").strip().endswith("radar-pd-nova:nova-0.3.2")
