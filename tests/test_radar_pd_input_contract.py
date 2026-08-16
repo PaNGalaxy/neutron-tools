@@ -153,8 +153,13 @@ def test_result_explorer_defaults_to_one_complete_archive() -> None:
 
     command = root.findtext("./command", default="")
     assert "python -m zipfile -e" in command
+    assert "python '$prepare_static_prefix'" in command
     assert "python -m http.server 8080" in command
     assert "$output" in command
+
+    prefix_shim = root.findtext("./configfiles/configfile[@name='prepare_static_prefix']", default="")
+    assert 'os.environ.get("EP_PATH", "")' in prefix_shim
+    assert "link.symlink_to(root" in prefix_shim
 
     output = root.find("./outputs/data[@name='output']")
     assert output is not None and output.attrib.get("format") == "txt"
