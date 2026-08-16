@@ -137,3 +137,11 @@ def test_result_explorer_defaults_to_one_complete_archive() -> None:
     assert selected is not None and selected.attrib.get("value") == "archive"
     archive = source.find("./when[@value='archive']/param[@name='results_archive']")
     assert archive is not None and archive.attrib.get("format") == "zip"
+
+    container = root.find("./requirements/container")
+    assert container is not None
+    assert (container.text or "").strip().endswith("radar-pd-nova:nova-0.3.2")
+
+    command = root.findtext("./command", default="")
+    assert "python -m zipfile -e" in command
+    assert "python -m http.server 8080" in command
