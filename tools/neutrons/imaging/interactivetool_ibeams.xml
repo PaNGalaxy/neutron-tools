@@ -2,11 +2,11 @@
 <tool id="nova-ibeams-prototype" tool_type="interactive" name="iBEAMS" version="0.1.0" profile="22.01">
     <description>iBEAMS</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ibeams/prototypes:fb43c6a5d22d3aba4f9b3107ecd2dd899e2c7a71</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ibeams/prototypes:e9cb855edaefbc31c711a9ab946653885f74cb9a</container>
     </requirements>
     <entry_points>
         <entry_point name="iBEAMS" label="app_entry" requires_domain="False" requires_path_in_url="True">
-            <port>8081</port>
+            <port>8080</port>
         </entry_point>
     </entry_points>
     <environment_variables>
@@ -16,9 +16,12 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
     </environment_variables>
      <command><![CDATA[
+        echo "Launching supervisord" > $output &&
+        export GALAXY_WORKING_DIR=`pwd` &&
+        export DEFAULT_DIR="/SNS/users/\$GALAXY_TOOL_USER" &&
         cd /opt/run &&
         npm run build &&
-        bash /opt/run/run_nginx.sh > >(tee -a $output) 2> >(tee -a $output >&2)
+        /start.sh \$GALAXY_TOOL_USER
     ]]></command>
     <outputs>
         <data format="txt" name="output" label="Console output"></data>
