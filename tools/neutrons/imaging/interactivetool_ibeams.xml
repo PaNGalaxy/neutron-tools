@@ -2,7 +2,7 @@
 <tool id="nova-ibeams-prototype" tool_type="interactive" name="iBEAMS" version="0.1.0" profile="22.01">
     <description>iBEAMS</description>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ibeams/prototypes:e9cb855edaefbc31c711a9ab946653885f74cb9a</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ibeams/prototypes:5f9b35f0a26c2c966c682579fe7fb5d42fca1a1b</container>
     </requirements>
     <entry_points>
         <entry_point name="iBEAMS" label="app_entry" requires_domain="False" requires_path_in_url="True">
