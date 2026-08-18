@@ -70,7 +70,7 @@
     	
 		<param name="pooledPeaks" type="text" value="" optional="true" label="Pooled Peak" /> 
 		<param name="devianceMin" type="float" value="9.488" optional="true" label="Peak Deviance Minimum" /> 
-		<param name="residualMax" type="float" value="2.0" optional="true" label="Peak Residual Maximum" /> 
+		<param name="residualMax" type="int" value="2" optional="true" label="Peak Residual Maximum" /> 
 		<param name="sigmas" type="float" value="3.5" optional="true" label="Peak Clear N Sigmas" /> 
 		<param name="minFrames" type="integer" value="5" optional="true" label="Minimum Frames" /> 
 		<param name="smoothSigma" type="float" value="2.0" optional="true" label="Smooth Sigma" /> 
