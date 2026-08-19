@@ -1,0 +1,108 @@
+<tool id="neutrons_radar_pd_facility_access_probe_prototype" name="RADAR-PD Diagnostic: Facility Access" profile="22.05" version="0.1.0">
+    <description>report read-only SNS/HFIR path visibility and permissions</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-3e33a6b-catalog-20260617</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        touch '$report' '$console_output' &&
+        trap "chmod a+r '$report' '$console_output' >/dev/null 2>&1 || true" EXIT &&
+        set -euo pipefail &&
+        python - '$facility_root' '$instrument' '$ipts' '$relative_path' '$report' <<'PY' > '$console_output' 2>&1
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+facility_root, instrument_raw, ipts_raw, relative_raw, report_path = sys.argv[1:]
+if facility_root not in {"/SNS", "/HFIR"}:
+    raise SystemExit("Facility root must be /SNS or /HFIR")
+
+instrument = instrument_raw.strip().upper()
+if not re.fullmatch(r"[A-Z0-9_-]+", instrument):
+    raise SystemExit("Invalid instrument name")
+
+match = re.fullmatch(r"IPTS[-_ ]?(\d+)", ipts_raw.strip(), re.IGNORECASE)
+if not match:
+    raise SystemExit("IPTS must look like IPTS-12345")
+ipts = f"IPTS-{match.group(1)}"
+
+relative = Path(relative_raw.strip() or ".")
+if relative.is_absolute() or ".." in relative.parts:
+    raise SystemExit("Relative path must remain inside the selected IPTS")
+
+base = (Path(facility_root) / instrument / ipts).resolve(strict=False)
+target = (base / relative).resolve(strict=False)
+try:
+    target.relative_to(base)
+except ValueError:
+    raise SystemExit("Resolved path escapes the selected IPTS")
+
+result = {
+    "facility_root": facility_root,
+    "instrument": instrument,
+    "ipts": ipts,
+    "base": str(base),
+    "relative_path": str(relative),
+    "target": str(target),
+    "exists": target.exists(),
+    "is_directory": target.is_dir(),
+    "is_file": target.is_file(),
+    "readable": os.access(target, os.R_OK),
+    "writable": os.access(target, os.W_OK),
+    "searchable": os.access(target, os.X_OK),
+    "entries": [],
+    "read_probe": None,
+}
+
+if target.is_dir():
+    try:
+        entries = []
+        with os.scandir(target) as scan:
+            for entry in scan:
+                try:
+                    kind = "directory" if entry.is_dir(follow_symlinks=False) else "file"
+                    size = entry.stat(follow_symlinks=False).st_size if kind == "file" else None
+                except OSError as exc:
+                    kind = "unavailable"
+                    size = None
+                    entries.append({"name": entry.name, "kind": kind, "size": size, "error": str(exc)})
+                    continue
+                entries.append({"name": entry.name, "kind": kind, "size": size})
+        result["entries"] = sorted(entries, key=lambda item: item["name"].lower())[:100]
+        result["list_probe"] = "ok"
+    except OSError as exc:
+        result["list_probe"] = f"error: {exc}"
+elif target.is_file():
+    try:
+        with target.open("rb") as handle:
+            sample = handle.read(64)
+        result["read_probe"] = {"status": "ok", "bytes_read": len(sample), "size": target.stat().st_size}
+    except OSError as exc:
+        result["read_probe"] = {"status": "error", "message": str(exc)}
+
+Path(report_path).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+print(json.dumps(result, indent=2))
+PY
+    ]]></command>
+    <inputs>
+        <param name="facility_root" type="select" display="radio" label="Facility filesystem">
+            <option value="/SNS" selected="true">SNS (/SNS)</option>
+            <option value="/HFIR">HFIR (/HFIR)</option>
+        </param>
+        <param name="instrument" type="text" label="Instrument" help="For example NOM or HB2A"/>
+        <param name="ipts" type="text" label="IPTS" help="For example IPTS-34537"/>
+        <param name="relative_path" type="text" value="" optional="true" label="Path inside the IPTS" help="Leave empty to inspect the IPTS root. Absolute paths and parent traversal are rejected."/>
+    </inputs>
+    <outputs>
+        <data name="report" format="json" label="RADAR-PD facility access report"/>
+        <data name="console_output" format="txt" label="RADAR-PD facility access console output"/>
+    </outputs>
+    <help><![CDATA[
+This prototype diagnostic is read-only. It reports whether an SNS or HFIR path exists in the NDIP batch container, whether a directory can be listed, whether a file can be opened, and the effective read/write/search permission flags. It never creates, changes, or deletes facility data.
+    ]]></help>
+</tool>
