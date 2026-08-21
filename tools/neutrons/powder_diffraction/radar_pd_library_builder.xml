@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.0">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.1">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -12,9 +12,15 @@
         trap "chmod a+r '$library_archive' '$library_manifest' '$console_output' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
         mkdir -p cif_inputs library_output &&
-        #for $index, $cif_file in enumerate($cif_files)
+        #if str($cif_source.source_kind) == 'files'
+        #for $index, $cif_file in enumerate($cif_source.cif_files)
         ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
         #end for
+        #else
+        #for $index, $cif_file in enumerate($cif_source.cif_collection)
+        ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
+        #end for
+        #end if
         library_args=(python /opt/radar-pd/scripts/ndip_runner.py build-library --cif-dir cif_inputs --library-mode '$library_mode' --radiation '$radiation') &&
             #if str($library_mode) == 'augmented'
         library_args+=(--base-db-root "\${RADAR_PD_DB_ROOT}/database_${radiation}") &&
@@ -26,7 +32,18 @@
         "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
-        <param name="cif_files" type="data_collection" collection_type="list" format="cif" label="Candidate CIF files"/>
+        <conditional name="cif_source">
+            <param name="source_kind" type="select" label="How would you like to provide the CIFs?" help="For files on your computer, first use Galaxy Upload in the left activity bar. The uploaded CIFs then appear in the individual-file selector below.">
+                <option value="files" selected="true">Select individual uploaded CIF files</option>
+                <option value="collection">Use an existing Galaxy CIF collection</option>
+            </param>
+            <when value="files">
+                <param name="cif_files" type="data" multiple="true" format="cif" label="Candidate CIF files" help="Select all CIF datasets to include. Use Ctrl/Command or the dataset selector checkboxes to select more than one."/>
+            </when>
+            <when value="collection">
+                <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Galaxy CIF collection" help="Choose a reusable list collection whose elements are CIF datasets."/>
+            </when>
+        </conditional>
         <param name="library_mode" type="select" label="Library type">
             <option value="mini" selected="true">Only my CIFs</option>
             <option value="augmented">Built-in MP/COD catalog + my CIFs</option>
@@ -43,6 +60,6 @@
         <data name="console_output" format="txt" label="RADAR-PD library build log"/>
     </outputs>
     <help><![CDATA[
-Builds a portable RADAR-PD library from a Galaxy list collection of CIF files. "Only my CIFs" creates a compact standalone library. "Built-in + my CIFs" requires the NDIP deployment to mount the matching built-in catalog read-only in the RADAR-PD container. The resulting ZIP can be selected as the candidate library in RADAR-PD Analyze and preserved in Galaxy history for reuse.
+Builds a portable RADAR-PD library from one or more CIF files. To add CIFs from your laptop, open **Upload** in Galaxy's left activity bar, upload the `.cif` files, then return here and select them under **Candidate CIF files**. A prebuilt Galaxy list collection is also supported for repeatable workflows. "Only my CIFs" creates a compact standalone library. "Built-in + my CIFs" augments the matching read-only MP/COD catalog. The resulting ZIP is preserved in Galaxy history and can be selected as the candidate library in RADAR-PD Analyze.
     ]]></help>
 </tool>

@@ -18,11 +18,13 @@ steps:
   build_library:
     tool_id: neutrons_radar_pd_library_builder_prototype
     state:
+      cif_source:
+        source_kind: collection
       library_mode: mini
       radiation: neutron
       overwrite: false
     in:
-      cif_files:
+      cif_source|cif_collection:
         source: candidate_cifs
   analyze:
     tool_id: neutrons_radar_pd_analyze_prototype
