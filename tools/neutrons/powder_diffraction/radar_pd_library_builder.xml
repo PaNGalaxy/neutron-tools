@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.4">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.5">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -38,6 +38,13 @@
         #for $index, $cif_archive in enumerate($cif_source.cif_archives)
         extract_cif_zip '$cif_archive' 'archive_inputs/archive_${index}' &&
         #end for
+        #elif str($cif_source.source_kind) == 'archives_and_collection'
+        #for $index, $cif_archive in enumerate($cif_source.cif_archives)
+        extract_cif_zip '$cif_archive' 'archive_inputs/archive_${index}' &&
+        #end for
+        #for $index, $cif_file in enumerate($cif_source.cif_collection)
+        ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
+        #end for
         #else
         extract_cif_zip '$cif_source.cif_archive' archive_inputs/archive_0 &&
         #for $index, $cif_file in enumerate($cif_source.cif_collection)
@@ -63,6 +70,7 @@
                 <option value="collection">Use an existing Galaxy CIF collection</option>
                 <option value="archive">Use one prepared RADAR-PD CIF source bundle</option>
                 <option value="archive_and_collection">Combine a source bundle with a Galaxy CIF collection</option>
+                <option value="archives_and_collection">Combine prepared source archives with a Galaxy CIF collection</option>
             </param>
             <when value="files">
                 <param name="cif_files" type="data" multiple="true" format="cif" label="Candidate CIF files" help="Select all CIF datasets to include. Use Ctrl/Command or the dataset selector checkboxes to select more than one."/>
@@ -78,6 +86,10 @@
             </when>
             <when value="archive_and_collection">
                 <param name="cif_archive" type="data" format="zip" label="Prepared RADAR-PD CIF source bundle"/>
+                <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Additional Galaxy CIF collection"/>
+            </when>
+            <when value="archives_and_collection">
+                <param name="cif_archives" type="data" multiple="true" format="zip" label="Prepared RADAR-PD CIF source archives"/>
                 <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Additional Galaxy CIF collection"/>
             </when>
         </conditional>
