@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.3.2">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.3.3">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -26,6 +26,7 @@
             <option value="neutron" selected="true">Neutron</option>
             <option value="xray">X-ray</option>
         </param>
+        <param name="overwrite" type="hidden" value=""/>
     </inputs>
     <outputs>
         <data name="library_archive" format="zip" label="RADAR-PD portable custom library"/>
