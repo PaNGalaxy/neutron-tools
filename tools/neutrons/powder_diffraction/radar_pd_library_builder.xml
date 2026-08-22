@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.3.0">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.3.1">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -14,20 +14,26 @@
         mkdir -p cif_inputs archive_inputs library_output &&
         python -m zipfile -e '$cif_archive' archive_inputs &&
         find archive_inputs -type f -iname '*.cif' -exec cp -n {} cif_inputs/ \; &&
+        #if str($library_mode) == 'augmented'
         python /opt/radar-pd/scripts/ndip_runner.py build-library \
             --cif-dir cif_inputs \
             --library-mode '$library_mode' \
             --radiation '$radiation' \
-            #if str($library_mode) == 'augmented'
             --base-db-root "\${RADAR_PD_DB_ROOT}/database_${radiation}" \
-            #end if
             --output-root library_output \
             --manifest-output '$library_manifest' \
-            --archive '$library_archive' \
-            #if str($overwrite) not in ('', 'None', 'False')
-            --overwrite \
-            #end if
+            --archive '$library_archive' $overwrite \
             > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+        #else
+        python /opt/radar-pd/scripts/ndip_runner.py build-library \
+            --cif-dir cif_inputs \
+            --library-mode '$library_mode' \
+            --radiation '$radiation' \
+            --output-root library_output \
+            --manifest-output '$library_manifest' \
+            --archive '$library_archive' $overwrite \
+            > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+        #end if
     ]]></command>
     <inputs>
         <param name="cif_archive" type="data" format="zip" label="Prepared CIF source bundle" help="A ZIP containing one or more CIF files. RADAR-PD Interactive prepares this bundle automatically from loose CIFs, ZIP archives, and reusable Galaxy CIF datasets."/>
