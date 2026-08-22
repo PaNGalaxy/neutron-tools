@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.7">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.8">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -22,36 +22,15 @@
         #end for
         #elif str($cif_source.source_kind) == 'archive'
         mkdir -p archive_inputs/archive_0 &&
-        (unzip -q '$cif_source.cif_archive' -d archive_inputs/archive_0 || find archive_inputs/archive_0 -type f -iname '*.cif' -print -quit | grep -q .) &&
+        python -m zipfile -e '$cif_source.cif_archive' archive_inputs/archive_0 &&
         #elif str($cif_source.source_kind) == 'archives'
         #for $index, $cif_archive in enumerate($cif_source.cif_archives)
         mkdir -p 'archive_inputs/archive_${index}' &&
-        (unzip -q '$cif_archive' -d 'archive_inputs/archive_${index}' || find 'archive_inputs/archive_${index}' -type f -iname '*.cif' -print -quit | grep -q .) &&
-        #end for
-        #elif str($cif_source.source_kind) == 'archive_collection'
-        #for $index, $cif_archive in enumerate($cif_source.cif_archive_collection)
-        mkdir -p 'archive_inputs/archive_${index}' &&
-        (unzip -q '$cif_archive' -d 'archive_inputs/archive_${index}' || find 'archive_inputs/archive_${index}' -type f -iname '*.cif' -print -quit | grep -q .) &&
-        #end for
-        #elif str($cif_source.source_kind) == 'archive_collection_and_collection'
-        #for $index, $cif_archive in enumerate($cif_source.cif_archive_collection)
-        mkdir -p 'archive_inputs/archive_${index}' &&
-        (unzip -q '$cif_archive' -d 'archive_inputs/archive_${index}' || find 'archive_inputs/archive_${index}' -type f -iname '*.cif' -print -quit | grep -q .) &&
-        #end for
-        #for $index, $cif_file in enumerate($cif_source.cif_collection)
-        ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
-        #end for
-        #elif str($cif_source.source_kind) == 'archives_and_collection'
-        #for $index, $cif_archive in enumerate($cif_source.cif_archives)
-        mkdir -p 'archive_inputs/archive_${index}' &&
-        (unzip -q '$cif_archive' -d 'archive_inputs/archive_${index}' || find 'archive_inputs/archive_${index}' -type f -iname '*.cif' -print -quit | grep -q .) &&
-        #end for
-        #for $index, $cif_file in enumerate($cif_source.cif_collection)
-        ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
+        python -m zipfile -e '$cif_archive' 'archive_inputs/archive_${index}' &&
         #end for
         #else
         mkdir -p archive_inputs/archive_0 &&
-        (unzip -q '$cif_source.cif_archive' -d archive_inputs/archive_0 || find archive_inputs/archive_0 -type f -iname '*.cif' -print -quit | grep -q .) &&
+        python -m zipfile -e '$cif_source.cif_archive' archive_inputs/archive_0 &&
         #for $index, $cif_file in enumerate($cif_source.cif_collection)
         ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
         #end for
@@ -65,7 +44,7 @@
             #if str($overwrite) not in ('', 'None', 'False')
         library_args+=($overwrite) &&
             #end if
-        "\${library_args[@]}" 2>&1 | tee '$console_output'
+        "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
     <inputs>
         <conditional name="cif_source">
@@ -75,9 +54,6 @@
                 <option value="collection">Use an existing Galaxy CIF collection</option>
                 <option value="archive">Use one prepared RADAR-PD CIF source bundle</option>
                 <option value="archive_and_collection">Combine a source bundle with a Galaxy CIF collection</option>
-                <option value="archives_and_collection">Combine prepared source archives with a Galaxy CIF collection</option>
-                <option value="archive_collection">Use a prepared RADAR-PD ZIP collection</option>
-                <option value="archive_collection_and_collection">Combine a ZIP collection with a Galaxy CIF collection</option>
             </param>
             <when value="files">
                 <param name="cif_files" type="data" multiple="true" format="cif" label="Candidate CIF files" help="Select all CIF datasets to include. Use Ctrl/Command or the dataset selector checkboxes to select more than one."/>
@@ -93,17 +69,6 @@
             </when>
             <when value="archive_and_collection">
                 <param name="cif_archive" type="data" format="zip" label="Prepared RADAR-PD CIF source bundle"/>
-                <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Additional Galaxy CIF collection"/>
-            </when>
-            <when value="archives_and_collection">
-                <param name="cif_archives" type="data" multiple="true" format="zip" label="Prepared RADAR-PD CIF source archives"/>
-                <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Additional Galaxy CIF collection"/>
-            </when>
-            <when value="archive_collection">
-                <param name="cif_archive_collection" type="data_collection" collection_type="list" format="zip" label="Prepared RADAR-PD ZIP collection"/>
-            </when>
-            <when value="archive_collection_and_collection">
-                <param name="cif_archive_collection" type="data_collection" collection_type="list" format="zip" label="Prepared RADAR-PD ZIP collection"/>
                 <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Additional Galaxy CIF collection"/>
             </when>
         </conditional>
