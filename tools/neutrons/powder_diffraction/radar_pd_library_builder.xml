@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.1">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.2">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -11,17 +11,32 @@
         touch '$library_archive' '$library_manifest' '$console_output' &&
         trap "chmod a+r '$library_archive' '$library_manifest' '$console_output' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
-        mkdir -p cif_inputs library_output &&
+        mkdir -p cif_inputs archive_inputs library_output &&
         #if str($cif_source.source_kind) == 'files'
         #for $index, $cif_file in enumerate($cif_source.cif_files)
         ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
         #end for
+        #elif str($cif_source.source_kind) == 'collection'
+        #for $index, $cif_file in enumerate($cif_source.cif_collection)
+        ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
+        #end for
+        #elif str($cif_source.source_kind) == 'archive'
+        mkdir -p archive_inputs/archive_0 &&
+        python -m zipfile -e '$cif_source.cif_archive' archive_inputs/archive_0 &&
+        #elif str($cif_source.source_kind) == 'archives'
+        #for $index, $cif_archive in enumerate($cif_source.cif_archives)
+        mkdir -p 'archive_inputs/archive_${index}' &&
+        python -m zipfile -e '$cif_archive' 'archive_inputs/archive_${index}' &&
+        #end for
         #else
+        mkdir -p archive_inputs/archive_0 &&
+        python -m zipfile -e '$cif_source.cif_archive' archive_inputs/archive_0 &&
         #for $index, $cif_file in enumerate($cif_source.cif_collection)
         ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
         #end for
         #end if
-        library_args=(python /opt/radar-pd/scripts/ndip_runner.py build-library --cif-dir cif_inputs --library-mode '$library_mode' --radiation '$radiation') &&
+        library_args=(python /opt/radar-pd/scripts/ndip_runner.py build-library --library-mode '$library_mode' --radiation '$radiation') &&
+        while IFS= read -r -d '' cif_path; do library_args+=(--cif "$cif_path"); done < <(find -L cif_inputs archive_inputs -type f -iname '*.cif' -print0) &&
             #if str($library_mode) == 'augmented'
         library_args+=(--base-db-root "\${RADAR_PD_DB_ROOT}/database_${radiation}") &&
             #end if
@@ -33,15 +48,28 @@
     ]]></command>
     <inputs>
         <conditional name="cif_source">
-            <param name="source_kind" type="select" label="How would you like to provide the CIFs?" help="For files on your computer, first use Galaxy Upload in the left activity bar. The uploaded CIFs then appear in the individual-file selector below.">
+            <param name="source_kind" type="select" label="How would you like to provide the CIFs?" help="Loose CIF datasets and ZIP archives are equivalent input routes. ZIP archives are usually faster for large collections.">
                 <option value="files" selected="true">Select individual uploaded CIF files</option>
+                <option value="archives">Select one or more ZIP archives containing CIFs</option>
                 <option value="collection">Use an existing Galaxy CIF collection</option>
+                <option value="archive">Use one prepared RADAR-PD CIF source bundle</option>
+                <option value="archive_and_collection">Combine a source bundle with a Galaxy CIF collection</option>
             </param>
             <when value="files">
                 <param name="cif_files" type="data" multiple="true" format="cif" label="Candidate CIF files" help="Select all CIF datasets to include. Use Ctrl/Command or the dataset selector checkboxes to select more than one."/>
             </when>
             <when value="collection">
                 <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Galaxy CIF collection" help="Choose a reusable list collection whose elements are CIF datasets."/>
+            </when>
+            <when value="archives">
+                <param name="cif_archives" type="data" multiple="true" format="zip" label="ZIP archives containing CIF files" help="Select one or more ZIP archives. CIFs may be inside subfolders; unrelated files are ignored."/>
+            </when>
+            <when value="archive">
+                <param name="cif_archive" type="data" format="zip" label="Prepared RADAR-PD CIF source bundle"/>
+            </when>
+            <when value="archive_and_collection">
+                <param name="cif_archive" type="data" format="zip" label="Prepared RADAR-PD CIF source bundle"/>
+                <param name="cif_collection" type="data_collection" collection_type="list" format="cif" label="Additional Galaxy CIF collection"/>
             </when>
         </conditional>
         <param name="library_mode" type="select" label="Library type">
@@ -60,6 +88,6 @@
         <data name="console_output" format="txt" label="RADAR-PD library build log"/>
     </outputs>
     <help><![CDATA[
-Builds a portable RADAR-PD library from one or more CIF files. To add CIFs from your laptop, open **Upload** in Galaxy's left activity bar, upload the `.cif` files, then return here and select them under **Candidate CIF files**. A prebuilt Galaxy list collection is also supported for repeatable workflows. "Only my CIFs" creates a compact standalone library. "Built-in + my CIFs" augments the matching read-only MP/COD catalog. The resulting ZIP is preserved in Galaxy history and can be selected as the candidate library in RADAR-PD Analyze.
+Builds a portable RADAR-PD library from loose CIF datasets, one or more ZIP archives, or a reusable Galaxy collection. For large collections, upload ZIP archives instead of hundreds of individual CIF datasets. "Only my CIFs" creates a compact standalone library. "Built-in + my CIFs" augments the matching read-only MP/COD catalog. The resulting ZIP is preserved in Galaxy History and can be selected as the candidate library in RADAR-PD Analyze.
     ]]></help>
 </tool>
