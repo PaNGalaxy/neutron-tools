@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.2">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.2.3">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -10,6 +10,7 @@
     <command detect_errors="exit_code"><![CDATA[
         touch '$library_archive' '$library_manifest' '$console_output' &&
         trap "chmod a+r '$library_archive' '$library_manifest' '$console_output' >/dev/null 2>&1 || true" EXIT &&
+        exec > >(tee -a '$console_output') 2>&1 &&
         set -euo pipefail &&
         mkdir -p cif_inputs archive_inputs library_output &&
         #if str($cif_source.source_kind) == 'files'
@@ -22,15 +23,15 @@
         #end for
         #elif str($cif_source.source_kind) == 'archive'
         mkdir -p archive_inputs/archive_0 &&
-        python -m zipfile -e '$cif_source.cif_archive' archive_inputs/archive_0 &&
+        unzip -q '$cif_source.cif_archive' -d archive_inputs/archive_0 &&
         #elif str($cif_source.source_kind) == 'archives'
         #for $index, $cif_archive in enumerate($cif_source.cif_archives)
         mkdir -p 'archive_inputs/archive_${index}' &&
-        python -m zipfile -e '$cif_archive' 'archive_inputs/archive_${index}' &&
+        unzip -q '$cif_archive' -d 'archive_inputs/archive_${index}' &&
         #end for
         #else
         mkdir -p archive_inputs/archive_0 &&
-        python -m zipfile -e '$cif_source.cif_archive' archive_inputs/archive_0 &&
+        unzip -q '$cif_source.cif_archive' -d archive_inputs/archive_0 &&
         #for $index, $cif_file in enumerate($cif_source.cif_collection)
         ln -s '$cif_file' 'cif_inputs/candidate_${index}.cif' &&
         #end for
@@ -44,7 +45,7 @@
             #if str($overwrite) not in ('', 'None', 'False')
         library_args+=($overwrite) &&
             #end if
-        "\${library_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+        "\${library_args[@]}"
     ]]></command>
     <inputs>
         <conditional name="cif_source">
