@@ -9,9 +9,7 @@
 		export CUDA_VISIBLE_DEVICES=0 ; 
 		
 		## Rename all input files to correct extensions
-		#if not $input.poolPeaks
-			mv "$scan" "$scan.element_identifier" ;    
-		#end if
+		mv "$scan" "$scan.element_identifier" ;    
 		
 		#set $options = ""
 		
