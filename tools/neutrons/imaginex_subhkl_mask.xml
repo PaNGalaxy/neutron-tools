@@ -23,6 +23,8 @@
 		
 		#set $filenames = $filenames[0:-1]
 		
+		echo "peaks" ; 
+		echo $peaks ;
 		#if $peaks:
 			#set $peaks = $peaks[0:-1]
 			#set $options = $options + " --peaks " + str($peaks)
