@@ -8,9 +8,6 @@
 		## This tool requires more than the default shared memory size. You can unset this if you configure Docker to launch shm-size=128gb
 		export CUDA_VISIBLE_DEVICES=0 ; 
 		
-		#set $filenames = ""
-		#set $peaks = ""
-		
 		#set $options = ""
 		
 		#for $Z in $inputs:
@@ -20,18 +17,6 @@
 				#set $peaks = $peaks + str($Z.peak) + ","
 			#end if
 		#end for
-		
-		#set $filenames = $filenames[0:-1]
-		
-		echo "peaks" ; 
-		echo $peaks ;
-		echo "filenames" ;
-		echo $filenames ;
-		#if $peaks:
-			#set $peaks = $peaks[0:-1]
-			#set $options = $options + " --peaks " + str($peaks)
-		#end if
-		#set $peaks = $peaks[0:-1]
 		
 		
 		
@@ -75,15 +60,12 @@
 			#set $options = $options + " --grad-min-frac " + str($gradMin) + " " 
 		#end if
 
-		python -m subhkl.io.parser static-mask out/mask.h5 $filenames $options
+		python -m subhkl.io.parser static-mask out/mask.h5 $mergedFile $options
 		
     ]]></command>
     <inputs>
     
-		<repeat name="inputs" title="Input Files" >
-			<param name="input" type="text" value="" label="Input File" help="As full file path inside /SNS" />
-			<param name="peak" type="text" value="" optional="true" label="Peak File (Optional)" help="As full file path inside /SNS" />
-		</repeat>
+		<param format="h5" name="mergedFile" type="data" label="Merged Input File" />
     	<param format="h5" name="pooledPeaks" type="data" optional="true" label="Pooled Peaks File" />
 		<param name="devianceMin" type="float" value="9.488" optional="true" label="Peak Deviance Minimum" /> 
 		<param name="residualMax" type="integer" value="2" optional="true" label="Peak Residual Maximum" /> 
