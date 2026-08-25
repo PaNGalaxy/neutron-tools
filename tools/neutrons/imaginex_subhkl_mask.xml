@@ -47,7 +47,7 @@
 			#set $options = $options + " --min-frames " + str($minFrames) + " " 
 		#end if
 		#if $smoothSigma:
-			#set $options = $options + " --min-frames " + str($smoothSigma) + " " 
+			#set $options = $options + " --smooth-sigma " + str($smoothSigma) + " " 
 		#end if
 		#if $gradNmads:
 			#set $options = $options + " --grad-nmads " + str($gradNmads) + " " 
