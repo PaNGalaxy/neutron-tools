@@ -1,110 +1,86 @@
 <tool id="imaginex_subhkl_peak_fit" name="IMAGINE-X subhkl Peak Finding"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.2.1</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 
 		mkdir out ; 
 		    
 		## Rename all input files to correct extensions
-		mv "$scan" "$scan.element_identifier" ;    
+		#if not $input.poolPeaks
+			mv "$scan" "$scan.element_identifier" ;    
+		#end if
 		
-		#if $algod.algo == 'thresholding' 
-			#if $algod.mask.useMask 
-				mv "$algod.mask.maskFile" "$algod.mask.maskFile.element_identifier" ;
-			#end if
+		#if $mask
+			mv "$mask" "$mask.element_identifier" ;
+		#end if
+		
+		#set $input_file = "" ;
+		
+		#if $input.poolPeaks
+			python -m subhkl.io.parser sum-images sum.h5 $input.fileList
+			#set $input_file = " sum.h5 "
+		#else
+			#set $input_file = "$scan.element_identifier"
 		#end if
 		    
-		#if $algod.algo == 'peak_local_max'
-		
-			#if $algod.normalization
-				#set $options = "--peak-local-max-normalization" ;
-			#else
-				#set $options = "" ;
-			#end if
+		#set $options = "" ;
 			
-      		python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --region-growth-minimum-intensity $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --peak-local-max-min-pixel-distance $algod.pixelDistance --peak-local-max-min-relative-intensity $algod.relativeIntensity $options "$scan.element_identifier" $instrument 
-      	#end if
-		#if $algod.algo == 'sparse_rbf'
+		#if $maskErosion
+			#set $options = $options + " --mask-rel-erosion-radius " + str($maskErosion) ;
+		#end if	
+		#if $profile
+			#set $options = $options + " --sparse-rbf-profile-file " + str($profile) ;
+		#else
+			#set $options = $options + " --sparse-rbf-profile-file auto " ;
+		#end if	
+		#if $sigma
+			#set $options = $options + " --sparse-rbf-num-sigmas " + str($sigma) ;
+		#end if	
+		#if $staticMask
+			#set $options = $options + " --static-mask-file " + str($staticMask) ;
+		#end if
+		#if $rbfShow
+			#set $options = $options + " --show-steps" ;
+		#end if
 			
-			#set $options = "" ;
-			
-			#if $algod.rbfShow
-				#set $options = $options + " --show-steps" ;
-			#end if
-			#if $algod.tuneSNR
-				#set $options = $options + " --sparse-rbf-auto-tune-alpha" ;
-			#end if
-			
-			python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --region-growth-minimum-intensity $growthIntensity --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --sparse-rbf-alpha $algod.alpha --sparse-rbf-gamma $algod.gamma --sparse-rbf-min-sigma $algod.minSigma --sparse-rbf-max-sigma $algod.maxSigma --sparse-rbf-chunk-size $algod.chunk --sparse-rbf-loss $algod.loss $options --sparse-rbf-candidate-alphas $algod.alphaCand "$scan.element_identifier" $instrument ;
-      	#end if
-		#if $algod.algo == 'thresholding'
-			#if $algod.mask.useMask
-      			python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --thresholding-noise-cutoff-quantile $algod.noise --thresholding-min-peak-dist-pixels $algod.peakDist --thresholding-mask-rel-erosion-radius $algod.erosion --thresholding-blur-kernel-sigma $algod.blur --thresholding-open-kernel-size-pixels $algod.kernelSize --thresholding-mask-file "$algod.mask.maskFile.element_identifier" "$scan.element_identifier" $instrument ;  
-			#else
-      			python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-distance-threshold $growthDistance --region-growth-minimum-sigma $growthSigma --region-growth-minimum-intensity $growthIntensity --region-growth-maximum-pixel-radius $growthRadius --peak-center-box-size $peakBox --peak-smoothing-window-size $peakWindow --peak-minimum-pixels $peakMin --peak-minimum-signal-to-noise $peakSignal --peak-pixel-outlier-threshold $peakThreshold --finder-algorithm $algod.algo --thresholding-noise-cutoff-quantile $algod.noise --thresholding-min-peak-dist-pixels $algod.peakDist --thresholding-mask-rel-erosion-radius $algod.erosion --thresholding-blur-kernel-sigma $algod.blur --thresholding-open-kernel-size-pixels $algod.kernelSize "$scan.element_identifier" $instrument ;
-			#end if
-      	#end if
+		python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-minimum-intensity $growthIntensity --finder-algorithm sparse_rbf --sparse-rbf-alpha $alpha --sparse-rbf-gamma $gamma --sparse-rbf-false-alerts-per-image $alerts --sparse-rbf-max-fragmentation-rate $fragmentation --sparse-rbf-shape-ratio $shape --sparse-rbf-shape-orientation $orientation --sparse-rbf-loss $loss $options $input_file $instrument ;
+
+
 
     ]]></command>
     <inputs>
     
-		<param format="h5" name="scan" type="data" label="Master scan file" />
+    	<conditional name="input">
+		    <param name="poolPeaks" type="boolean" checked="false" label="Pool Peaks" help="Whether to use an existing master scan file or pool peaks from multiple files."> 
+		    </param>
+		    <when value="true">
+		        <param name="fileList" type="text" value="" label="File List" help="Comma separated list of file paths starting with /SNS" /> 
+	    	</when>
+	    	<when value="false">
+	    		<param format="h5" name="scan" type="data" label="Master scan file" />
+	    	</when>
+    	</conditional>
 		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
 			<option value="CG4D">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>	
-		<param name="peakBox" type="integer" value="3" label="Peak Center Box Size" /> 
-		<param name="peakMin" type="integer" value="3" label="Peak Minimum Pixels" /> 
-		<param name="peakSignal" type="float" value="0.0" label="Peak Minimum Signal to Noise Ratio" /> 
-		<param name="peakThreshold" type="float" value="4.0" label="Peak Pixel Outlier Threshold" /> 
-		<param name="peakWindow" type="integer" value="5" label="Peak Smoothing Window SIze" /> 
-		<param name="growthDistance" type="float" value="1.5" label="Region Growth Distance Threshold" /> 
-		<param name="growthIntensity" type="float" value="3.0" label="Region Growth Minimum Intensity" /> 
-		<param name="growthRadius" type="float" value="12.0" label="Region Growth Maximum Pixel Radius" /> 
-		<param name="growthSigma" type="float" value="2.0" label="Region Growth Minimum Sigma" /> 
+		<param name="maskErosion" type="float" value="" optional="true" label="Mask Relative Erosion Radius" /> 
 		<param name="wavelengthMax" type="float" value="2.0" label="Wavelength Max" /> 
 		<param name="wavelengthMin" type="float" value="4.8" label="Wavelength Min" /> 		
-		<conditional name="algod">
-			<param name="algo" type="select" optional="false" value="thresholding" label="Algorithm" > 
-				<option value="peak_local_max">Peak Local Max</option>
-				<option value="sparse_rbf">Sparse RBF</option>
-				<option value="thresholding">Thresholding</option>
-			</param>	
-			<when value="peak_local_max">
-				<param name="pixelDistance" type="integer" value="-1" label="Min Pixel Distance" help="Values less than 0 mean no minimum" /> 
-				<param name="relativeIntensity" type="integer" value="-1" label="Min Relative Intensity" help="Values less than 0 mean no minimum" /> 
-				<param name="normalization" type="boolean" checked="false" label="Normalization" />
-			</when>
-			<when value="sparse_rbf">
-				<param name="alpha" type="float" value="0.1" label="Alpha" /> 
-				<param name="tuneSNR" type="boolean" checked="true" label="Auto-tune SNR threshold" />
-				<param name="alphaCand" type="text" value="3.0,5.0,10.0,15.0,20.0,25.0,30" label="Candidate SNR thresholds alpha for auto-tuning" help="In the format of a comma separated list of numbers" />
-				<param name="chunk" type="integer" value="4096" label="Chunk Size" /> 
-				<param name="gamma" type="float" value="1.0" label="Gamma" /> 
-				<param name="loss" type="text" value="poisson" label="Loss Function" />>
-				<param name="maxSigma" type="float" value="5.0" label="Max Sigma" /> 
-				<param name="minSigma" type="float" value="0.5" label="Min Sigma" /> 
-				<param name="rbfShow" type="boolean" checked="true" label="Show Steps" />
-			</when>
-			<when value="thresholding">
-				<param name="blur" type="integer" value="5" label="Blur Kernel Sigma" /> 
-				<param name="erosion" type="float" value="0.85" label="Mask Relative Erosion Radius" /> 
-				<param name="noise" type="float" value="0.99" label="Noise Cutoff Quantile" /> 
-				<param name="kernelSize" type="integer" value="3" label="Open Kernel Size Pixels" /> 
-				<param name="peakDist" type="integer" value="-1" label="Min Peak Distance Pixels" /> 
-				<param name="thresholdShow" type="boolean" checked="false" label="Show Steps" />
-				<conditional name="mask">
-					<param name="useMask" type="boolean" checked="false" label="Use Mask File" />
-					<when value="false">
-					</when>
-					<when value="true">
-						<param format="h5" name="maskFile" type="data" label="Mask file" />
-					</when>
-				</conditional>
-			</when>
-		</conditional> 
+		<param name="alpha" type="float" value="0.1" label="Alpha" /> 
+		<param name="gamma" type="float" value="1.0" label="Gamma" /> 
+		<param name="alerts" type="float" value="0.1" label="Sparse RBF False Alerts Per Image" />
+		<param name="fragmentation" type="float" value="1.0" label="Sparse RBF Max Fragmentation Rate" />
+		<param name="shape" type="float" value="1.2" label="Sparse RBF Shape Ratio" />
+		<param name="orientation" type="integer" value="4" label="Sparse RBF Shape Orientation" />
+		<param name="sigma" type="integer" value="" optional="true" label="Number of Sigmas" />
+		<param name="profile" type="text" value="" optional="true" label="Sparse RBF Profile File Path" help="Path starting with /SNS or /HFIR to JSON file" />
+		<param name="staticMask" type="text" value="" optional="true" label="Static Mask File" help="Path starting with /SNS or /HFIR to file" />
+		<param name="loss" type="text" value="poisson" label="Loss Function" />
+		<param name="rbfShow" type="boolean" checked="true" label="Show Steps" />
+		
     </inputs>
     <outputs>
 		<data format="h5" label="finder.h5" name="output" from_work_dir="out/finder.h5" />
