@@ -75,9 +75,6 @@
 			#set $options = $options + " --grad-min-frac " + str($gradMin) + " " 
 		#end if
 
-		#echo "options" ;
-		#echo $options ; 
-
 		python -m subhkl.io.parser static-mask out/mask.h5 $filenames $options
 		
     ]]></command>
