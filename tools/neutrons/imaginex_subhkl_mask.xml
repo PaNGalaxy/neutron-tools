@@ -25,6 +25,8 @@
 		
 		echo "peaks" ; 
 		echo $peaks ;
+		echo "filenames" ;
+		echo $filenames ;
 		#if $peaks:
 			#set $peaks = $peaks[0:-1]
 			#set $options = $options + " --peaks " + str($peaks)
@@ -72,6 +74,9 @@
 		#if $gradMin:
 			#set $options = $options + " --grad-min-frac " + str($gradMin) + " " 
 		#end if
+
+		#echo "options" ;
+		#echo $options ; 
 
 		python -m subhkl.io.parser static-mask out/mask.h5 $filenames $options
 		
