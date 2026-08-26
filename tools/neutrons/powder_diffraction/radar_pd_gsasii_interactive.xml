@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.1">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.2">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -19,12 +19,15 @@
         touch '$session_log' &&
         trap "chmod a+r '$edited_project' '$session_log' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
+        python -c 'from pathlib import Path; import sys; head = Path(sys.argv[1]).read_bytes()[:2]; sys.exit(0 if len(head) == 2 and head[0] == 0x80 else "The selected dataset is not a GSAS-II GPX project. Choose a checkpoint from RADAR-PD 5 | GSAS-II handoff projects.")' '$gpx_project' &&
         export GSASII_SOURCE_PROJECT='$gpx_project' &&
         export GSASII_OUTPUT_PROJECT='$edited_project' &&
         /opt/gsasii-gui/start.sh > >(tee -a '$session_log') 2> >(tee -a '$session_log' >&2)
     ]]></command>
     <inputs>
-        <param name="gpx_project" type="data" format="gpx" label="GSAS-II project to refine" help="Choose one checkpoint from RADAR-PD 5 | GSAS-II handoff projects, or any existing .gpx dataset in this History."/>
+        <param name="gpx_project" type="data" format="gpx,binary" label="GSAS-II project to refine" help="Choose one checkpoint from RADAR-PD 5 | GSAS-II handoff projects, or a project saved by this tool. Generic binary support is limited to curated RADAR-PD checkpoint names because NDIP may store collection members as binary.">
+            <validator type="expression" message="Select a RADAR-PD GSAS-II checkpoint such as Main phase anchor or Accepted model after pass, not a plot or NPZ sidecar.">value is not None and (value.name.lower().endswith('.gpx') or value.name.lower().startswith(('01_imported_pattern_and_main_phase', '02_main_phase_anchor', 'accepted_model_after_pass_', 'gsas-ii project ready for interactive handoff', 'gsas-ii refined project')))</validator>
+        </param>
     </inputs>
     <outputs>
         <data name="edited_project" format="gpx" label="GSAS-II refined project"/>

@@ -316,11 +316,15 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     assert (ep_path.text or "").strip() == "gsasii"
 
     project = root.find("./inputs/param[@name='gpx_project']")
-    assert project is not None and project.attrib.get("format") == "gpx"
+    assert project is not None and project.attrib.get("format") == "gpx,binary"
+    validator = project.find("./validator[@type='expression']")
+    assert validator is not None
+    assert "accepted_model_after_pass_" in (validator.text or "")
 
     command = root.findtext("./command", default="")
     assert "GSASII_SOURCE_PROJECT='$gpx_project'" in command
     assert "GSASII_OUTPUT_PROJECT='$edited_project'" in command
+    assert "head[0] == 0x80" in command
     assert "/opt/gsasii-gui/start.sh" in command
 
     edited = root.find("./outputs/data[@name='edited_project']")
