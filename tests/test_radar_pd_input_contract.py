@@ -1,3 +1,5 @@
+import json
+import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -125,6 +127,79 @@ def test_analyze_outputs_start_with_native_overview_and_hide_report_internals() 
 
     archive = outputs.find("./data[@name='results_archive']")
     assert archive is not None and archive.attrib.get("label") == "RADAR-PD 7 | Complete results archive"
+
+
+def test_monitor_profile_publishes_fit_plots_but_not_the_heavy_archive() -> None:
+    root = _root("radar_pd_analyze.xml")
+    outputs = root.find("outputs")
+    assert outputs is not None
+
+    plots = outputs.find("./collection[@name='plots']")
+    assert plots is not None
+    assert plots.find("filter") is None
+
+    archive = outputs.find("./data[@name='results_archive']")
+    assert archive is not None
+    assert (archive.findtext("filter") or "").strip() == "output_profile == 'full'"
+
+    command = root.findtext("command", default="")
+    publisher = root.findtext("./configfiles/configfile[@name='publish_plot_payloads']", default="")
+    assert "python '$publish_plot_payloads' work/run portal" in command
+    assert 'summary.get("artifacts", {}).get("plots", [])' in publisher
+    assert '".plotdata_arrays.npz"' in publisher
+    assert 'metadata["arrays_npz"] = arrays_destination.name' in publisher
+
+
+def test_monitor_plot_publisher_copies_interactive_sidecars(tmp_path: Path, monkeypatch) -> None:
+    root = _root("radar_pd_analyze.xml")
+    publisher = root.findtext("./configfiles/configfile[@name='publish_plot_payloads']", default="")
+    run_root = tmp_path / "work" / "run"
+    source = run_root / "rapid_results" / "live_run" / "curve.png"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"png")
+    Path(str(source) + ".plotdata.json").write_text(
+        json.dumps(
+            {
+                "plot_kind": "gsas_fit_with_ticks_v1",
+                "source_plot": source.name,
+                "arrays_npz": source.name + ".plotdata.npz",
+            }
+        ),
+        encoding="utf-8",
+    )
+    Path(str(source) + ".plotdata.npz").write_bytes(b"npz")
+
+    portal = tmp_path / "portal"
+    published = portal / "plots" / "Rapid_final_fit.png"
+    published.parent.mkdir(parents=True)
+    published.write_bytes(b"png")
+    (portal / "summary.json").write_text(
+        json.dumps(
+            {
+                "artifacts": {
+                    "plots": [
+                        {
+                            "source_path": "rapid_results/live_run/curve.png",
+                            "path": "plots/Rapid_final_fit.png",
+                        }
+                    ]
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(sys, "argv", ["publish_plot_payloads", str(run_root), str(portal)])
+    exec(compile(publisher, "<publish_plot_payloads>", "exec"), {})
+
+    metadata_path = Path(str(published) + ".plotdata.json")
+    arrays_path = Path(str(published) + ".plotdata_arrays.npz")
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+    assert metadata["source_plot"] == published.name
+    assert metadata["arrays_npz"] == arrays_path.name
+    assert arrays_path.read_bytes() == b"npz"
+    assert metadata_path.stem != arrays_path.stem
 
 
 def test_result_explorer_defaults_to_one_complete_archive() -> None:

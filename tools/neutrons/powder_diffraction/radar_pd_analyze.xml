@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.2">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.8">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-8525c0f-catalog-20260617</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-space-groups-20260825</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $config_path = 'generated_config.yaml'
@@ -153,8 +153,67 @@
         analyze_args+=(--run-name '$reproducibility.run_name') &&
             #end if
         analyze_args+=(--mode auto --input-source '$input_source_label' --work-dir work --output-dir portal) &&
-        "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+        "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        python '$publish_plot_payloads' work/run portal
     ]]></command>
+    <configfiles>
+        <configfile name="publish_plot_payloads"><![CDATA[
+import json
+import shutil
+import sys
+from pathlib import Path
+
+run_root = Path(sys.argv[1]).resolve()
+portal = Path(sys.argv[2]).resolve()
+summary = json.loads((portal / "summary.json").read_text(encoding="utf-8"))
+published = 0
+
+for artifact in summary.get("artifacts", {}).get("plots", []):
+    source_relative = Path(str(artifact.get("source_path") or ""))
+    portal_relative = Path(str(artifact.get("path") or ""))
+    if not source_relative.parts or not portal_relative.parts:
+        continue
+
+    source = None
+    roots = [run_root, *(path for path in run_root.iterdir() if path.is_dir())]
+    for root in roots:
+        root = root.resolve()
+        candidate = (root / source_relative).resolve()
+        if root not in candidate.parents or not candidate.is_file():
+            continue
+        source = candidate
+        break
+    if source is None:
+        continue
+
+    destination = (portal / portal_relative).resolve()
+    if portal not in destination.parents:
+        raise ValueError(f"Unsafe published plot path: {portal_relative}")
+    metadata_source = Path(str(source) + ".plotdata.json")
+    if not metadata_source.is_file():
+        continue
+
+    metadata = json.loads(metadata_source.read_text(encoding="utf-8"))
+    metadata["source_plot"] = destination.name
+    arrays_source = Path(str(source) + ".plotdata.npz")
+    if arrays_source.is_file():
+        # Galaxy keys dynamic collection members by the filename without its
+        # final extension. A .plotdata.json/.plotdata.npz pair therefore
+        # collides unless the NPZ stem is made distinct.
+        arrays_destination = Path(str(destination) + ".plotdata_arrays.npz")
+        shutil.copy2(arrays_source, arrays_destination)
+        metadata["arrays_npz"] = arrays_destination.name
+        published += 1
+    else:
+        metadata.pop("arrays_npz", None)
+
+    metadata_destination = Path(str(destination) + ".plotdata.json")
+    metadata_destination.write_text(json.dumps(metadata), encoding="utf-8")
+    published += 1
+
+print(f"Published {published} interactive plot sidecar file(s).")
+        ]]></configfile>
+    </configfiles>
     <inputs>
         <section name="measurement" title="1. Measurement type" expanded="true">
             <param name="radiation" type="select" label="Diffraction source" help="Choose this first. It selects the neutron or X-ray candidate catalog and the appropriate pattern treatment.">
@@ -348,6 +407,7 @@
                 </when>
             </conditional>
         </section>
+        <param name="output_profile" type="hidden" value="full"/>
     </inputs>
     <outputs>
         <data name="overview" format="tabular" from_work_dir="portal/overview.tsv" label="RADAR-PD 1 | Result overview"/>
@@ -355,24 +415,40 @@
             <discover_datasets pattern="__designation_and_ext__" directory="portal/plots" visible="true"/>
         </collection>
         <collection type="list" name="tables" label="RADAR-PD 3 | Scientific result tables">
+            <filter>output_profile == 'full'</filter>
             <discover_datasets pattern="__designation_and_ext__" directory="portal/tables" visible="true"/>
         </collection>
         <collection type="list" name="phases" label="RADAR-PD 4 | Candidate and refined phase CIFs">
+            <filter>output_profile == 'full'</filter>
             <discover_datasets pattern="__designation_and_ext__" directory="portal/phases" visible="true"/>
         </collection>
         <collection type="list" name="gpx_projects" label="RADAR-PD 5 | GSAS-II handoff projects">
+            <filter>output_profile == 'full'</filter>
             <discover_datasets pattern="__designation_and_ext__" directory="portal/gpx" visible="true"/>
         </collection>
-        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD 6 | Reproducible configuration"/>
-        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD 7 | Complete results archive"/>
+        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD 6 | Reproducible configuration">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD 7 | Complete results archive">
+            <filter>output_profile == 'full'</filter>
+        </data>
         <data name="console_output" format="txt" label="RADAR-PD 8 | Analysis log"/>
         <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD integrated report" hidden="true"/>
         <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD normalized summary" hidden="true"/>
-        <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state" hidden="true"/>
-        <data name="input_manifest" format="json" from_work_dir="portal/input_manifest.json" label="RADAR-PD input manifest" hidden="true"/>
-        <data name="gpx_index" format="json" from_work_dir="portal/gpx_index.json" label="RADAR-PD GSAS-II project index" hidden="true"/>
-        <data name="input_resolution_metadata" format="json" from_work_dir="resolved_input/metadata.json" label="RADAR-PD input resolution metadata" hidden="true"/>
+        <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="input_manifest" format="json" from_work_dir="portal/input_manifest.json" label="RADAR-PD input manifest" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="gpx_index" format="json" from_work_dir="portal/gpx_index.json" label="RADAR-PD GSAS-II project index" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="input_resolution_metadata" format="json" from_work_dir="resolved_input/metadata.json" label="RADAR-PD input resolution metadata" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
         <collection type="list" name="diagnostics" label="RADAR-PD diagnostics">
+            <filter>output_profile == 'full'</filter>
             <discover_datasets pattern="__designation_and_ext__" directory="portal/diagnostics" visible="false"/>
         </collection>
     </outputs>
