@@ -36,8 +36,7 @@
 			#set $options = $options + " --static-mask-file " + str($staticMaskFile) + " " 
 		#end if
 
-		python -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --sigmas $sigma --nominal-sigma $nominalSigma --mosaic-bound-mrad $mosaicMrad --shape-fit-min-snr $snr --matrix-free-profile $matrixProfile --rel-border-width $relBorder --chunk-size $chunk --region-growth-minimum-sigma $sigma --create-visualizations --show-progress $options ;
-    
+		
     	ls ;
     ]]></command>
     <inputs>
