@@ -6,22 +6,13 @@
 
 		mkdir out ; 
 		    
-		## Rename all input files to correct extensions
-		#if not $input.poolPeaks
-			mv "$input.scan" "$input.scan.element_identifier" ;    
+		## Rename all source files to correct extensions
+		#if not $source.poolPeaks
+			mv "$source.scan" "$source.scan.element_identifier" ;    
 		#end if
 		
 		#if $mask
 			mv "$mask" "$mask.element_identifier" ;
-		#end if
-		
-		#set $input_file = "" ;
-		
-		#if $input.poolPeaks
-			python -m subhkl.io.parser sum-images sum.h5 $input.fileList
-			#set $input_file = " sum.h5 "
-		#else
-			#set $input_file = "$input.scan.element_identifier"
 		#end if
 		    
 
@@ -30,7 +21,7 @@
     ]]></command>
     <inputs>
     
-    	<conditional name="input">
+    	<conditional name="source">
 		    <param name="poolPeaks" type="boolean" checked="false" label="Pool Peaks" help="Whether to use an existing master scan file or pool peaks from multiple files."> 
 		    </param>
 		    <when value="true">
