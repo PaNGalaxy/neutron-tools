@@ -21,7 +21,7 @@
 			python -m subhkl.io.parser sum-images sum.h5 $source.fileList
 			#set $input_file = " sum.h5 "
 		#else
-			#set $input_file = "$source.scan.element_identifier"
+			#set $input_file = $source.scan.element_identifier
 		#end if
 		    
 		#set $options = "" ;
