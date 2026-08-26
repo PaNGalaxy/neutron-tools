@@ -93,10 +93,7 @@
 			#set $options = $options + " --refine-goniometer-per-run-trans "
 		#end if
 		#if $goniometerHarmonics:
-			#set $options = $options + " --refine-goniometer-harmonics "
-		#end if
-		#if $goniometerHarmonicOrders:
-			#set $options = $options + " --goniometer-harmonics-orders " + str($goniometerHarmonicOrders))
+			#set $options = $options + " --refine-goniometer-harmonics " + str($goniometerHarmonics)
 		#end if
 
 
