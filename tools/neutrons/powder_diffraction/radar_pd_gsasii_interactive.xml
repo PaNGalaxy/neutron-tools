@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.2">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.3">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -16,18 +16,68 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gsasii</environment_variable>
     </environment_variables>
     <command><![CDATA[
+        #import re
         touch '$session_log' &&
         trap "chmod a+r '$edited_project' '$session_log' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
-        python -c 'from pathlib import Path; import sys; head = Path(sys.argv[1]).read_bytes()[:2]; sys.exit(0 if len(head) == 2 and head[0] == 0x80 else "The selected dataset is not a GSAS-II GPX project. Choose a checkpoint from RADAR-PD 5 | GSAS-II handoff projects.")' '$gpx_project' &&
-        export GSASII_SOURCE_PROJECT='$gpx_project' &&
+        #if str($project_source.source_kind) == 'collection'
+        mkdir -p gpx_inputs &&
+            #for $index, $item in enumerate($project_source.gpx_projects)
+                #set $safe_name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
+        cp '$item' 'gpx_inputs/${index}__$safe_name' &&
+            #end for
+        selected_project="$(python '$select_project' gpx_inputs)" &&
+        #else
+        selected_project='$project_source.gpx_project' &&
+        #end if
+        python -c 'from pathlib import Path; import sys; head = Path(sys.argv[1]).read_bytes()[:2]; sys.exit(0 if len(head) == 2 and head[0] == 0x80 else "The selected input is not a GSAS-II GPX project. Choose RADAR-PD 5 | GSAS-II handoff projects or a project previously saved by this tool.")' "$selected_project" &&
+        printf 'Opening GSAS-II project: %s\n' "$(basename "$selected_project")" | tee -a '$session_log' &&
+        export GSASII_SOURCE_PROJECT="$selected_project" &&
         export GSASII_OUTPUT_PROJECT='$edited_project' &&
         /opt/gsasii-gui/start.sh > >(tee -a '$session_log') 2> >(tee -a '$session_log' >&2)
     ]]></command>
+    <configfiles>
+        <configfile name="select_project"><![CDATA[
+import re
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+projects = sorted(path for path in root.iterdir() if path.is_file())
+if not projects:
+    raise SystemExit("The selected RADAR-PD handoff collection is empty.")
+
+
+def priority(path):
+    name = path.name.lower()
+    accepted = re.search(r"accepted_model_after_pass_(\d+)", name)
+    if accepted:
+        return 4, int(accepted.group(1)), name
+    if "02_main_phase_anchor" in name:
+        return 3, 0, name
+    if "01_imported_pattern_and_main_phase" in name:
+        return 2, 0, name
+    return 1, 0, name
+
+
+print(max(projects, key=priority).resolve())
+        ]]></configfile>
+    </configfiles>
     <inputs>
-        <param name="gpx_project" type="data" format="gpx,binary" label="GSAS-II project to refine" help="Choose one checkpoint from RADAR-PD 5 | GSAS-II handoff projects, or a project saved by this tool. Generic binary support is limited to curated RADAR-PD checkpoint names because NDIP may store collection members as binary.">
-            <validator type="expression" message="Select a RADAR-PD GSAS-II checkpoint such as Main phase anchor or Accepted model after pass, not a plot or NPZ sidecar.">value is not None and (value.name.lower().endswith('.gpx') or value.name.lower().startswith(('01_imported_pattern_and_main_phase', '02_main_phase_anchor', 'accepted_model_after_pass_', 'gsas-ii project ready for interactive handoff', 'gsas-ii refined project')))</validator>
-        </param>
+        <conditional name="project_source">
+            <param name="source_kind" type="select" label="What should GSAS-II open?">
+                <option value="collection" selected="true">Final accepted model from a RADAR-PD handoff collection</option>
+                <option value="single">One saved GSAS-II project</option>
+            </param>
+            <when value="collection">
+                <param name="gpx_projects" type="data_collection" collection_type="list" format="gpx,binary" label="RADAR-PD GSAS-II handoff projects" help="Choose the complete RADAR-PD 5 | GSAS-II handoff projects collection. The highest Accepted model after pass checkpoint is opened automatically; Main phase anchor is used when no accepted pass exists."/>
+            </when>
+            <when value="single">
+                <param name="gpx_project" type="data" format="gpx,binary" label="Saved GSAS-II project" help="Choose a GSAS-II refined project from a previous interactive session, or one standalone RADAR-PD checkpoint.">
+                    <validator type="expression" message="Select a RADAR-PD GSAS-II checkpoint or a project previously saved by this tool, not a plot or NPZ sidecar.">value is not None and (value.name.lower().endswith('.gpx') or value.name.lower().startswith(('01_imported_pattern_and_main_phase', '02_main_phase_anchor', 'accepted_model_after_pass_', 'gsas-ii project ready for interactive handoff', 'gsas-ii refined project')))</validator>
+                </param>
+            </when>
+        </conditional>
     </inputs>
     <outputs>
         <data name="edited_project" format="gpx" label="GSAS-II refined project"/>
@@ -38,10 +88,10 @@ Opens a writable copy of one RADAR-PD GPX checkpoint in the native GSAS-II deskt
 
 Typical workflow:
 
-1. Run **RADAR-PD Analyze** and expand **RADAR-PD 5 | GSAS-II handoff projects**.
-2. Select the final or preferred GPX checkpoint here and run this tool.
+1. Run **RADAR-PD Analyze**.
+2. Select the complete **RADAR-PD 5 | GSAS-II handoff projects** collection. The latest accepted refinement checkpoint is chosen automatically.
 3. Open the interactive display, refine parameters in GSAS-II, and use **File > Save project**.
-4. Close GSAS-II or stop the interactive job. Continue later by selecting the resulting **GSAS-II refined project**.
+4. Close GSAS-II or stop the interactive job. Continue later with **One saved GSAS-II project** and select the resulting **GSAS-II refined project**.
 
 This is the full GSAS-II GUI, not the batch GSAS2 refinement tool. Use GSAS-II's own controls for phase fractions, lattice and profile terms, atomic coordinates, occupancies, displacement parameters, background, and instrument parameters. Refining many correlated parameters at once can destabilize a fit; save checkpoints as you proceed.
     ]]></help>
