@@ -5,6 +5,8 @@
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
 		
+		pip install click ;
+		
 		## Rename all input files to correct extensions
 		mv "$scan" "$scan.element_identifier" ;  
 		mv "$predicted" "$predicted.element_identifier" ; 
