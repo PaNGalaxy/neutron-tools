@@ -93,6 +93,7 @@ lint-xml:
     when: always
     reports:
       junit: tools/neutrons/test_output*.xml
+  retry: 2
   tags:
     - rse-multi-builder
 
@@ -162,6 +163,7 @@ testing-xcams:
     when: always
     paths:
       - test_results/
+  retry: 2
   tags:
     - rse-multi-builder
 
