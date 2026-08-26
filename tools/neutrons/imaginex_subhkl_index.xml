@@ -74,6 +74,21 @@
 		#if $refineBeam:
 			#set $options = $options + " --refine-beam "
 		#end if
+		#if $refineDetector:
+			#set $options = $options + " --refine-detector "
+		#end if
+		#if $refineDetectorBanks != "":
+			#set $options = $options + " --refine-detector-banks " + str($refineDetectorBanks) + " "
+		#end if 
+		#if $cylinder:
+			#set $options = $options + " --cylinder-axis " + str($cylinder) + " "
+		#end if
+		#if $index:
+			#set $options = $options + " --index "
+		#end if
+		#if $goniometerRun:
+			#set $options = $options + " --refine-goniometer-per-run " + str($goniometerRun) + " "
+		#end if
 
 
 		
