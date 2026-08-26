@@ -8,7 +8,6 @@
 		## Rename all input files to correct extensions
 		mv "$scan" "$scan.element_identifier" ;  
 		mv "$predicted" "$predicted.element_identifier" ; 
-		mv "$found" "$found.element_identifier" ; 
 		
 		#set $options = ""
 
