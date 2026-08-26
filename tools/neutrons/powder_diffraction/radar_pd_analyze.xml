@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.6">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.7">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -153,8 +153,52 @@
         analyze_args+=(--run-name '$reproducibility.run_name') &&
             #end if
         analyze_args+=(--mode auto --input-source '$input_source_label' --work-dir work --output-dir portal) &&
-        "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
+        "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        python '$publish_plot_payloads' work/run portal
     ]]></command>
+    <configfiles>
+        <configfile name="publish_plot_payloads"><![CDATA[
+import json
+import shutil
+import sys
+from pathlib import Path
+
+run_root = Path(sys.argv[1]).resolve()
+portal = Path(sys.argv[2]).resolve()
+summary = json.loads((portal / "summary.json").read_text(encoding="utf-8"))
+published = 0
+
+for artifact in summary.get("artifacts", {}).get("plots", []):
+    source_relative = Path(str(artifact.get("source_path") or ""))
+    portal_relative = Path(str(artifact.get("path") or ""))
+    if not source_relative.parts or not portal_relative.parts:
+        continue
+
+    source = None
+    roots = [run_root, *(path for path in run_root.iterdir() if path.is_dir())]
+    for root in roots:
+        root = root.resolve()
+        candidate = (root / source_relative).resolve()
+        if root not in candidate.parents or not candidate.is_file():
+            continue
+        source = candidate
+        break
+    if source is None:
+        continue
+
+    destination = (portal / portal_relative).resolve()
+    if portal not in destination.parents:
+        raise ValueError(f"Unsafe published plot path: {portal_relative}")
+    for suffix in (".plotdata.json", ".plotdata.npz"):
+        sidecar = Path(str(source) + suffix)
+        if not sidecar.is_file():
+            continue
+        shutil.copy2(sidecar, Path(str(destination) + suffix))
+        published += 1
+
+print(f"Published {published} interactive plot sidecar file(s).")
+        ]]></configfile>
+    </configfiles>
     <inputs>
         <section name="measurement" title="1. Measurement type" expanded="true">
             <param name="radiation" type="select" label="Diffraction source" help="Choose this first. It selects the neutron or X-ray candidate catalog and the appropriate pattern treatment.">

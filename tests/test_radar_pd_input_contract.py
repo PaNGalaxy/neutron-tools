@@ -1,3 +1,5 @@
+import json
+import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -139,6 +141,49 @@ def test_monitor_profile_publishes_fit_plots_but_not_the_heavy_archive() -> None
     archive = outputs.find("./data[@name='results_archive']")
     assert archive is not None
     assert (archive.findtext("filter") or "").strip() == "output_profile == 'full'"
+
+    command = root.findtext("command", default="")
+    publisher = root.findtext("./configfiles/configfile[@name='publish_plot_payloads']", default="")
+    assert "python '$publish_plot_payloads' work/run portal" in command
+    assert 'summary.get("artifacts", {}).get("plots", [])' in publisher
+    assert 'for suffix in (".plotdata.json", ".plotdata.npz")' in publisher
+
+
+def test_monitor_plot_publisher_copies_interactive_sidecars(tmp_path: Path, monkeypatch) -> None:
+    root = _root("radar_pd_analyze.xml")
+    publisher = root.findtext("./configfiles/configfile[@name='publish_plot_payloads']", default="")
+    run_root = tmp_path / "work" / "run"
+    source = run_root / "rapid_results" / "live_run" / "curve.png"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"png")
+    Path(str(source) + ".plotdata.json").write_text('{"plot_kind":"gsas_fit_with_ticks_v1"}')
+    Path(str(source) + ".plotdata.npz").write_bytes(b"npz")
+
+    portal = tmp_path / "portal"
+    published = portal / "plots" / "Rapid_final_fit.png"
+    published.parent.mkdir(parents=True)
+    published.write_bytes(b"png")
+    (portal / "summary.json").write_text(
+        json.dumps(
+            {
+                "artifacts": {
+                    "plots": [
+                        {
+                            "source_path": "rapid_results/live_run/curve.png",
+                            "path": "plots/Rapid_final_fit.png",
+                        }
+                    ]
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(sys, "argv", ["publish_plot_payloads", str(run_root), str(portal)])
+    exec(compile(publisher, "<publish_plot_payloads>", "exec"), {})
+
+    assert Path(str(published) + ".plotdata.json").is_file()
+    assert Path(str(published) + ".plotdata.npz").read_bytes() == b"npz"
 
 
 def test_result_explorer_defaults_to_one_complete_archive() -> None:
