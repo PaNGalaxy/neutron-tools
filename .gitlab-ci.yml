@@ -1,6 +1,7 @@
 stages:
   - build
   - push
+  - restart
   - test
   - lint
 
@@ -70,6 +71,7 @@ push_dev_tools:
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       changes:
+        - ".gitlab-ci.yml"
         - "tools/neutrons/**/*"
         - "tool_data/radar_pd_datatypes_conf.xml.sample"
         - "utils/register_radar_pd_datatype.py"
@@ -79,7 +81,7 @@ push_dev_tools:
     - rse-multi-builder
 
 redeploy_k8s_galaxy:
-  stage: push
+  stage: restart
   variables:
     KUBE_NAMESPACE: ndip
     GALAXY_DEPLOYMENT: galaxy
@@ -99,6 +101,7 @@ redeploy_k8s_galaxy:
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       changes:
+        - ".gitlab-ci.yml"
         - "tools/neutrons/**/*"
         - "tool_data/radar_pd_datatypes_conf.xml.sample"
         - "utils/register_radar_pd_datatype.py"
