@@ -290,3 +290,40 @@ def test_result_explorer_defaults_to_one_complete_archive() -> None:
 
     output = root.find("./outputs/data[@name='output']")
     assert output is not None and output.attrib.get("format") == "txt"
+
+
+def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
+    root = _root("radar_pd_gsasii_interactive.xml")
+
+    assert root.attrib.get("tool_type") == "interactive"
+    assert root.attrib.get("profile") == "22.05"
+
+    container = root.find("./requirements/container")
+    assert container is not None
+    assert (container.text or "").strip().endswith(
+        ":gsasii-gui-b43344e2410ad2e2737cc61051c24ae03cd47ba9"
+    )
+
+    entrypoint = root.find("./entry_points/entry_point")
+    assert entrypoint is not None
+    assert entrypoint.attrib.get("label") == "gsasii"
+    assert entrypoint.attrib.get("requires_path_in_url") == "True"
+    assert entrypoint.findtext("port") == "8080"
+
+    ep_path = root.find("./environment_variables/environment_variable[@name='EP_PATH']")
+    assert ep_path is not None
+    assert ep_path.attrib.get("inject") == "entry_point_path_for_label"
+    assert (ep_path.text or "").strip() == "gsasii"
+
+    project = root.find("./inputs/param[@name='gpx_project']")
+    assert project is not None and project.attrib.get("format") == "gpx,binary"
+
+    command = root.findtext("./command", default="")
+    assert "GSASII_SOURCE_PROJECT='$gpx_project'" in command
+    assert "GSASII_OUTPUT_PROJECT='$edited_project'" in command
+    assert "/opt/gsasii-gui/start.sh" in command
+
+    edited = root.find("./outputs/data[@name='edited_project']")
+    log = root.find("./outputs/data[@name='session_log']")
+    assert edited is not None and edited.attrib.get("format") == "gpx"
+    assert log is not None and log.attrib.get("format") == "txt"

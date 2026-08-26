@@ -532,6 +532,6 @@ print(f"Published {published} interactive plot sidecar file(s).")
 
 **Rapid Hypothesis Mode** performs coarse mixture search, symmetry-aware lattice nudging, higher-resolution pattern scoring, and focused GSAS-II refinement ranking. **Full RADAR-PD** performs sequential residual-aware impurity discovery and refinement. The Balanced profile is recommended for a first Full run.
 
-The primary outputs are numbered in the History. Start with **Result overview**, then open the curated plot and table collections. Send **Complete results archive** to **RADAR-PD Utility: Explore Results** for the integrated dashboard; one archive restores the report, plots, tables, CIFs, and GPX checkpoints together. Use **GSAS-II Project Handoff** to continue a selected refinement in the hosted GSAS-II interface.
+The primary outputs are numbered in the History. Start with **Result overview**, then open the curated plot and table collections. Send **Complete results archive** to **RADAR-PD Utility: Explore Results** for the integrated dashboard; one archive restores the report, plots, tables, CIFs, and GPX checkpoints together. Send an element from **GSAS-II handoff projects** to **RADAR-PD Utility: Refine in GSAS-II** to continue the refinement in the hosted native GSAS-II desktop.
     ]]></help>
 </tool>

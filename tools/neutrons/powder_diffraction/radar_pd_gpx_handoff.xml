@@ -30,6 +30,6 @@
         <data name="console_output" format="txt" label="GSAS-II project handoff log"/>
     </outputs>
     <help><![CDATA[
-Selects one GPX checkpoint from a RADAR-PD run, preserves it as a first-class Galaxy dataset, and attaches pipeline provenance. This is the workflow boundary for a future NDIP interactive GSAS-II GPX opener. It deliberately does not send an existing GPX to the current batch GSAS2 Refinement tool because that tool starts a new project from data, instrument, and CIF inputs.
+Selects one GPX checkpoint from a RADAR-PD run, preserves it as a first-class Galaxy dataset, and attaches pipeline provenance. Send the preserved project to **RADAR-PD Utility: Refine in GSAS-II** to open it in the hosted native GSAS-II desktop. Do not send an existing GPX to the batch GSAS2 Refinement tool because that tool starts a new project from data, instrument, and CIF inputs.
     ]]></help>
 </tool>

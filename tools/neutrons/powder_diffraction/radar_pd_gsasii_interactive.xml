@@ -1,0 +1,45 @@
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.0">
+    <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-b43344e2410ad2e2737cc61051c24ae03cd47ba9</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="GSAS-II Interactive" label="gsasii" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gsasii</environment_variable>
+    </environment_variables>
+    <command><![CDATA[
+        touch '$session_log' &&
+        trap "chmod a+r '$edited_project' '$session_log' >/dev/null 2>&1 || true" EXIT &&
+        set -euo pipefail &&
+        export GSASII_SOURCE_PROJECT='$gpx_project' &&
+        export GSASII_OUTPUT_PROJECT='$edited_project' &&
+        /opt/gsasii-gui/start.sh > >(tee -a '$session_log') 2> >(tee -a '$session_log' >&2)
+    ]]></command>
+    <inputs>
+        <param name="gpx_project" type="data" format="gpx,binary" label="GSAS-II project to refine" help="Choose one checkpoint from RADAR-PD 5 | GSAS-II handoff projects, or any existing .gpx dataset in this History."/>
+    </inputs>
+    <outputs>
+        <data name="edited_project" format="gpx" label="GSAS-II refined project"/>
+        <data name="session_log" format="txt" label="GSAS-II interactive session log"/>
+    </outputs>
+    <help><![CDATA[
+Opens a writable copy of one RADAR-PD GPX checkpoint in the native GSAS-II desktop through the browser. The selected input remains unchanged. Every stable save is copied back to **GSAS-II refined project** in Galaxy History, including when the interactive session is stopped from NDIP.
+
+Typical workflow:
+
+1. Run **RADAR-PD Analyze** and expand **RADAR-PD 5 | GSAS-II handoff projects**.
+2. Select the final or preferred GPX checkpoint here and run this tool.
+3. Open the interactive display, refine parameters in GSAS-II, and use **File > Save project**.
+4. Close GSAS-II or stop the interactive job. Continue later by selecting the resulting **GSAS-II refined project**.
+
+This is the full GSAS-II GUI, not the batch GSAS2 refinement tool. Use GSAS-II's own controls for phase fractions, lattice and profile terms, atomic coordinates, occupancies, displacement parameters, background, and instrument parameters. Refining many correlated parameters at once can destabilize a fit; save checkpoints as you proceed.
+    ]]></help>
+</tool>
