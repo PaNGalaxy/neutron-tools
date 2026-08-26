@@ -44,7 +44,7 @@
 		#end if
 		#if $nexus:
 			mv "$nexus" "$nexus.element_identifier" ;  
-			#set $options = $options + " --original-nexus-file " + str($nexus.element_identifier) + " " 
+			#set $options = $options + " --original-nexus-filename " + str($nexus.element_identifier) + " " 
 		#end if
 		#if $sigmaInit:
 			#set $options = $options + " --sigma-init " + str($sigmaInit) + " " 
