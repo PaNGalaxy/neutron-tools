@@ -64,15 +64,24 @@ push_dev_tools:
     - >
       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
       cloud@ndip-dev.ornl.gov
-      'if sudo test -f /srv/galaxy/config/datatypes_conf.xml; then
+      'config_file="";
+      for candidate in
+      /srv/galaxy/var/config/datatypes_conf.xml
+      /srv/galaxy/config/datatypes_conf.xml
+      /srv/galaxy/server/config/datatypes_conf.xml
+      /srv/galaxy/var/config/datatypes_conf.xml.sample
+      /srv/galaxy/config/datatypes_conf.xml.sample
+      /srv/galaxy/server/config/datatypes_conf.xml.sample;
+      do if sudo test -f "$candidate"; then config_file="$candidate"; break; fi; done;
+      if test -z "$config_file"; then
+      config_file=$(sudo find /srv/galaxy -maxdepth 5 -type f
+      \( -name "datatypes_conf.xml" -o -name "datatypes_conf.xml.sample" \)
+      -print -quit); fi;
+      if test -z "$config_file"; then echo "Galaxy datatype configuration was not found" >&2; exit 1; fi;
+      echo "Registering RADAR-PD GPX in $config_file";
       sudo python3 /tmp/radar-pd-datatype/register_radar_pd_datatype.py
-      --config /srv/galaxy/config/datatypes_conf.xml
-      --fragment /tmp/radar-pd-datatype/radar_pd_datatypes_conf.xml.sample;
-      elif sudo test -f /srv/galaxy/config/datatypes_conf.xml.sample; then
-      sudo python3 /tmp/radar-pd-datatype/register_radar_pd_datatype.py
-      --config /srv/galaxy/config/datatypes_conf.xml.sample
-      --fragment /tmp/radar-pd-datatype/radar_pd_datatypes_conf.xml.sample;
-      else echo "Galaxy datatype configuration was not found under /srv/galaxy/config" >&2; exit 1; fi'
+      --config "$config_file"
+      --fragment /tmp/radar-pd-datatype/radar_pd_datatypes_conf.xml.sample'
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
