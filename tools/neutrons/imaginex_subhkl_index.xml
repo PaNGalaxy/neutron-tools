@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl" name="IMAGINE-X subhkl Peak Indexing "  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.2.1</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
@@ -42,13 +42,9 @@
 		#if $space != "":
 			#set $options = $options + " --space-group " + str($space) + " "
 		#end if
-		#if $goniometer:
-			mv "$goniometer" "$goniometer.element_identifier" ;  
-			#set $options = $options + " --goniometer-csv-filename " + str($goniometer.element_identifier) + " " 
-		#end if
 		#if $nexus:
 			mv "$nexus" "$nexus.element_identifier" ;  
-			#set $options = $options + " --nexus " + str($nexus.element_identifier) + " " 
+			#set $options = $options + " --original-nexus-file " + str($nexus.element_identifier) + " " 
 		#end if
 		#if $sigmaInit:
 			#set $options = $options + " --sigma-init " + str($sigmaInit) + " " 
@@ -61,19 +57,10 @@
 		#end if
 		#if $bootstrap:
 			mv "$bootstrap" "$bootstrap.element_identifier" ;  
-			#set $options = $options + " --bootstrap " + str($bootstrap.element_identifier) + " " 
-		#end if
-		#if $dMin:
-			#set $options = $options + " --d-min " + str($dMin) + " " 
-		#end if
-		#if $dMax:
-			#set $options = $options + " --d-max " + str($dMax) + " " 
+			#set $options = $options + " --bootstrap_filename " + str($bootstrap.element_identifier) + " " 
 		#end if
 		#if $batch:
 			#set $options = $options + " --batch-size " + str($batch) + " " 
-		#end if
-		#if $bSharpen:
-			#set $options = $options + " --b-sharpen " + str($bSharpen) + " " 
 		#end if
 		#if $lattice:
 			#set $options = $options + " --refine-lattice "
@@ -98,11 +85,27 @@
 		#end if
 		#if $index:
 			#set $options = $options + " --index "
-		#else:
-			#set $options = $options + " --no-index "
+		#end if
+		#if $goniometerRun:
+			#set $options = $options + " --refine-goniometer-per-run " + str($goniometerRun) + " "
+		#end if
+		#if $goniometerRun:
+			#set $options = $options + " --refine-goniometer-per-run-trans "
+		#end if
+		#if $goniometerHarmonics:
+			#set $options = $options + " --refine-goniometer-harmonics "
+		#end if
+		#if $goniometerHarmonicOrders:
+			#set $options = $options + " --goniometer-harmonics-orders " + str($goniometerHarmonicOrders))
+		#end if
+		#if $goniometerTransAxes:
+			#set $options = $options + " --refine-goniometer-trans-axes " + str($goniometerTransAxes))
+		#end if
+		#if $weightPoly:
+			#set $options = $options + " --radial-weight-poly " + str($weightPoly))
 		#end if
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --goniometer-trans-bound-meters $sampleBound --beam-bound-deg $beamBound --detector-area-bound-frac $detectorArea --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates  
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument_name $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy-name=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --goniometer-per-run-bound-degrees $goniometerRunBound --goniometer-per-run-trans-bound-meters $goniometerRunTransBound --goniometer-trans-bound-meters $sampleBound --goniometer-harmonics-axes $goniometerHarmonicsAxes --goniometer-harmonics-bound-deg $goniometerHarmonicsBound --beam-bound-deg $beamBound --detector-area-bound-frac $detectorArea --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates --radial-weight $weight --hkl-metric $hklMetric --hkl-metric-floor $hklFloor  
 
     ]]></command>
     <inputs>
@@ -118,7 +121,6 @@
 		<param name="wavelengthMax" type="float" optional="true" value="4.5" label="Max Wavelength" /> 
 		<param name="kiVec" type="text" optional="true" value="0,0,1" label="Incident Beam Vector" help="As a comma-separated list of numbers (eg '0,0,-1'" />
 		<param name="space" type="text" value="Fdd2" optional="true" label="Space Group" />
-		<param format="csv" name="goniometer" type="data" optional="true" label="Goniometer file" />
 		<param format="h5" name="nexus" type="data" optional="true" label="Original nexus file" />
 		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
@@ -128,6 +130,7 @@
 		<param name="strategy" type="select" optional="false" value="de" label="Strategy" > 
 			<option value="cma_es">CMA-ES</option>
 			<option value="de">Differential Equation</option>
+			<option value="guided_es">Guided ES</option>
 			<option value="pso">PSO</option>
 		</param>
 		<param name="sigmaInit" type="float" optional="true" value="" label="Sigma Init" /> 
@@ -144,6 +147,21 @@
 		<param name="goniometerBound" type="float" value="0.5" label="Goniometer Refinement Bound" /> 
 		<param name="refineSample" type="boolean" checked="false" label="Refine Goniometer Translation" /> 
 		<param name="sampleBound" type="float" value="0.005" label="Goniometer Translation Bound (Meters)" /> 
+		<param name="goniometerRun" type="text" value="" optional="true" label="Motor Name to Refine" />
+		<param name="goniometerRunBound" type="float" value="0.5" label="Bound Degrees Per-Run Angle Correction" />
+		<param name="goniometerRunTrans" type="boolean" value="false" label="Refine Goniometer Per Run Translation" />
+		<param name="goniometerRunTransBound" type="float" value="0.002" label="Goniometer Per Run Translation Bound Degrees" />
+		<param name="goniometerHarmonics" type="text" value="" optional="true" label="Motor Name to Refine Harmonics" />
+		<param name="goniometerHarmonicOrders" type="text" value="" optional="true" label="Comma Separated List of Goniometer Harmonic Orders" />
+		<param name="goniometerHarmonicAxes" type="select" optional="false" value="rocking" label="Goniometer Harmonics Axes" > 
+			<option value="full">Full</option>
+			<option value="rocking">Rocking</option>
+			<option value="transverse">Transverse</option>
+		</param>		
+		<param name="goniometerHarmonicsBound" type="float" value="0.5" label="Goniometer Harmonics Bound" />
+		<param name="refineGoniometerTrans" type="boolean" value="false" label="Refine Goniometer Translation" />
+		<param name="goniometerTransBound" type="text" value="0.005" optional="true" label="Comma separated list of goniometer translation bounds" />
+		<param name="goniometerTransAxes" type="text" value="" optional="true" label="Refine Goniometer Translation Axes" help="(Optional Comma separated list of of motor names to refine." />
 		<param name="refineBeam" type="boolean" checked="false" label="Refine Beam" /> 
 		<param name="beamBound" type="float" value="0.05" label="Beam Bound (Degees)" /> 
 		<param name="refineDetector" type="boolean" checked="false" label="Refine Detector" />
@@ -158,13 +176,16 @@
 		<param name="detectorRadial" type="float" value="0.05" label="Detector Radial Bound Fraction" />
 		<param name="cylinder" type="text" value="" optional="true" label="Axis Vector for Global Rot Axis Mode" help="As a comma-separated list (eg 0,1,0)" />>
 		<param format="h5" name="bootstrap" type="data" optional="true" label="Bootstrap file to restart refinement from" />
-		<param name="dMin" type="float" optional="true" value="" label="D Min" /> 
-		<param name="dMax" type="float" optional="true" value="" label="D Max" /> 
 		<param name="batch" type="integer" optional="true" value="" label="Batch Size" /> 
-		<param name="bSharpen" type="float" optional="true" value="" label="Wilson B-Factor" /> 
 		<param name="candidates" type="integer" value="64" label="Number of Lambda Candidates" />
 		<param name="index" type="boolean" checked="true" label="Index" help="Only useable with bootstrap file."/> 
-
+		<param name="weight" type="float" value="1.0" label="Radial Weight" /> 
+		<param name="weightPoly" type="text" optional="true" value="" label="Comma separated list of polynomial values for radial weight" /> 
+		<param name="hklMetric" type="select" optional="false" value="isotropic" label="HKL Metric" > 
+			<option value="isotropic">Isotropic</option>
+			<option value="positional">Positional</option>
+		</param>	
+		<param name="hklFloor" type="float" value="0.1" label="HKL Metric Floor" /> 
 
 
     </inputs>
