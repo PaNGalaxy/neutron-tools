@@ -44,7 +44,7 @@
 			#set $options = $options + " --show-steps" ;
 		#end if
 			
-		python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --finder-algorithm sparse_rbf --sparse-rbf-alpha $alpha --sparse-rbf-gamma $gamma --sparse-rbf-false-alerts-per-image $alerts --sparse-rbf-max-fragmentation-rate $fragmentation --sparse-rbf-shape-ratio $shape --sparse-rbf-shape-orientation $orientation --sparse-rbf-loss $loss $options $input_file $instrument ;
+		python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --finder-algorithm sparse_rbf --sparse-rbf-alpha $alpha --sparse-rbf-gamma $gamma --sparse-rbf-false-alarms-per-image $alerts --sparse-rbf-max-fragmentation-rate $fragmentation --sparse-rbf-shape-ratio $shape --sparse-rbf-shape-orientation $orientation --sparse-rbf-loss $loss $options $input_file $instrument ;
 
 
 
