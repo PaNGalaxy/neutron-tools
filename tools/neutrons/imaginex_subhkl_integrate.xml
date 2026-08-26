@@ -10,7 +10,10 @@
 		## Rename all input files to correct extensions
 		mv "$scan" "$scan.element_identifier" ;  
 		mv "$predicted" "$predicted.element_identifier" ; 
-		mv "$staticMaskFile" "$staticMaskFile.element_identifier" ; 
+		
+		#if $staticMaskFile:
+			mv "$staticMaskFile" "$staticMaskFile.element_identifier" ; 
+		#end if
 		
 		#set $options = ""
 
