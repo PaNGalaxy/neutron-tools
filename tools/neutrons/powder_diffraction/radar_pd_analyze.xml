@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.8">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.9">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -137,7 +137,7 @@
         #else
         printf '%s\n' '{"source":"Galaxy history dataset"}' > resolved_input/metadata.json &&
         #end if
-        analyze_args=(python /opt/radar-pd/scripts/ndip_runner.py analyze --config '$config_path' --data '$analysis_data') &&
+        analyze_args=(python '$ndip_runner_compat' analyze --config '$config_path' --data '$analysis_data') &&
             #if $source_kind == 'history' and $instrument_source_kind == 'builtin_cuka'
         analyze_args+=(--instrument-preset xray_lab_cuka) &&
             #else
@@ -157,6 +157,74 @@
         python '$publish_plot_payloads' work/run portal
     ]]></command>
     <configfiles>
+        <configfile name="ndip_runner_compat"><![CDATA[
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, "/opt/radar-pd/scripts")
+import ndip_runner
+
+
+_materialize_contract_config = ndip_runner._materialize_contract_config
+
+
+def _materialize_augmented_library(*args, **kwargs):
+    resolved = _materialize_contract_config(*args, **kwargs)
+    db_config = resolved.get("db")
+    if not isinstance(db_config, dict):
+        return resolved
+
+    configured_original = Path(str(db_config.get("original_json") or ""))
+    if configured_original.is_file():
+        return resolved
+
+    db_root = Path(kwargs.get("db_root") or "")
+    manifest_path = db_root / "manifest.json"
+    if not manifest_path.is_file():
+        return resolved
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Invalid custom-library manifest: {manifest_path}") from exc
+
+    library_mode = str(
+        manifest.get("library_mode") or manifest.get("kind") or ""
+    ).strip().lower()
+    if library_mode != "augmented":
+        return resolved
+
+    contract = args[0] if args else kwargs.get("contract") or {}
+    requested_radiation = str(
+        (contract.get("analysis") or {}).get("radiation") or "neutron"
+    ).strip().lower()
+    pack_radiation = str(
+        manifest.get("radiation") or manifest.get("source_type") or ""
+    ).strip().lower()
+    if pack_radiation and pack_radiation != requested_radiation:
+        raise ValueError(
+            f"The augmented library was built for {pack_radiation}, but this "
+            f"analysis uses {requested_radiation}. Build or select a matching library."
+        )
+
+    builtin_original = (
+        ndip_runner._db_root_for(requested_radiation, None)
+        / "highsymm_metadata.json"
+    ).resolve()
+    if not builtin_original.is_file():
+        raise FileNotFoundError(
+            "The augmented library requires the mounted built-in "
+            f"{requested_radiation} structure metadata, but it was not found at "
+            f"{builtin_original}."
+        )
+    db_config["original_json"] = str(builtin_original)
+    print(f"[DB] augmented library base metadata: {builtin_original}")
+    return resolved
+
+
+ndip_runner._materialize_contract_config = _materialize_augmented_library
+raise SystemExit(ndip_runner.main())
+        ]]></configfile>
         <configfile name="publish_plot_payloads"><![CDATA[
 import json
 import shutil

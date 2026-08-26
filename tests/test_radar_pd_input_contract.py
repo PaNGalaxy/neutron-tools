@@ -1,5 +1,6 @@
 import json
 import sys
+import types
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -148,6 +149,57 @@ def test_monitor_profile_publishes_fit_plots_but_not_the_heavy_archive() -> None
     assert 'summary.get("artifacts", {}).get("plots", [])' in publisher
     assert '".plotdata_arrays.npz"' in publisher
     assert 'metadata["arrays_npz"] = arrays_destination.name' in publisher
+
+
+def test_analyze_augmented_library_compatibility_entry_point(tmp_path: Path, monkeypatch) -> None:
+    root = _root("radar_pd_analyze.xml")
+    command = root.findtext("command", default="")
+    wrapper = root.findtext(
+        "./configfiles/configfile[@name='ndip_runner_compat']",
+        default="",
+    )
+    assert "python '$ndip_runner_compat' analyze" in command
+
+    pack_root = tmp_path / "custom_database" / "library"
+    pack_root.mkdir(parents=True)
+    (pack_root / "manifest.json").write_text(
+        '{"kind":"augmented","source_type":"neutron"}',
+        encoding="utf-8",
+    )
+    builtin_root = tmp_path / "database_neutron"
+    builtin_root.mkdir()
+    builtin_original = builtin_root / "highsymm_metadata.json"
+    builtin_original.write_text("{}", encoding="utf-8")
+
+    fake_runner = types.ModuleType("ndip_runner")
+
+    def materialize(contract, **kwargs):
+        return {
+            "db": {
+                "catalog_csv": str(kwargs["db_root"] / "catalog_deduplicated.csv"),
+                "original_json": str(kwargs["db_root"] / "highsymm_metadata.json"),
+            }
+        }
+
+    def fake_main():
+        resolved = fake_runner._materialize_contract_config(
+            {"analysis": {"radiation": "neutron"}},
+            db_root=pack_root,
+        )
+        assert Path(resolved["db"]["original_json"]) == builtin_original.resolve()
+        return 0
+
+    fake_runner._materialize_contract_config = materialize
+    fake_runner._db_root_for = lambda radiation, explicit: builtin_root
+    fake_runner.main = fake_main
+    monkeypatch.setitem(sys.modules, "ndip_runner", fake_runner)
+
+    try:
+        exec(compile(wrapper, "ndip_runner_compat", "exec"), {})
+    except SystemExit as exc:
+        assert exc.code == 0
+    else:
+        raise AssertionError("compatibility entry point did not invoke ndip_runner")
 
 
 def test_monitor_plot_publisher_copies_interactive_sidecars(tmp_path: Path, monkeypatch) -> None:
