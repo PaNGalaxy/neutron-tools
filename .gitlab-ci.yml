@@ -50,11 +50,29 @@ push_dev_tools:
       sudo /root/update_prototype_tools.sh
       /srv/galaxy/local_tools/neutrons-dev
       /srv/galaxy/config/tool_conf_prototype.xml
+    - >
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
+      cloud@ndip-dev.ornl.gov
+      mkdir -p /tmp/radar-pd-datatype
+    - >
+      rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key"
+      -rv
+      tool_data/radar_pd_datatypes_conf.xml.sample
+      utils/register_radar_pd_datatype.py
+      cloud@ndip-dev.ornl.gov:/tmp/radar-pd-datatype/
+    - >
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
+      cloud@ndip-dev.ornl.gov
+      sudo python3 /tmp/radar-pd-datatype/register_radar_pd_datatype.py
+      --config /srv/galaxy/config/datatypes_conf.xml
+      --fragment /tmp/radar-pd-datatype/radar_pd_datatypes_conf.xml.sample
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       changes:
         - "tools/neutrons/**/*"
+        - "tool_data/radar_pd_datatypes_conf.xml.sample"
+        - "utils/register_radar_pd_datatype.py"
       when: always
     - when: never
   tags:
@@ -82,6 +100,8 @@ redeploy_k8s_galaxy:
     - if: $CI_COMMIT_BRANCH == "prototype"
       changes:
         - "tools/neutrons/**/*"
+        - "tool_data/radar_pd_datatypes_conf.xml.sample"
+        - "utils/register_radar_pd_datatype.py"
       when: always
     - when: never
   tags:
