@@ -89,7 +89,21 @@
 		#if $goniometerRun:
 			#set $options = $options + " --refine-goniometer-per-run " + str($goniometerRun) + " "
 		#end if
-
+		#if $goniometerRunTrans:
+			#set $options = $options + " --refine-goniometer-per-run-trans "
+		#end if
+		#if $goniometerHarmonics:
+			#set $options = $options + " --refine-goniometer-harmonics "
+		#end if
+		#if $goniometerHarmonicOrders:
+			#set $options = $options + " --goniometer-harmonics-orders " + str($goniometerHarmonicOrders))
+		#end if
+		#if $goniometerTransAxes:
+			#set $options = $options + " --refine-goniometer-trans-axes " + str($goniometerTransAxes))
+		#end if
+		#if $weightPoly:
+			#set $options = $options + " --radial-weight-poly " + str($weightPoly))
+		#end if
 
 		
     ]]></command>
