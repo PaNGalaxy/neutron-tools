@@ -27,24 +27,7 @@
 		#if $beta:
 			#set $options = $options + " --beta " + str($beta) + " " 
 		#end if
-		#if $gamma:
-			#set $options = $options + " --gamma " + str($gamma) + " " 
-		#end if
-		#if $wavelengthMin:
-			#set $options = $options + " --wavelength-min " + str($wavelengthMin) + " " 
-		#end if
-		#if $wavelengthMax:
-			#set $options = $options + " --wavelength-max " + str($wavelengthMax) + " " 
-		#end if
-		#if $kiVec != "":
-			#set $options = $options + " --ki-vec " + str($kiVec) + " "
-		#end if
-		#if $space != "":
-			#set $options = $options + " --space-group " + str($space) + " "
-		#end if
-		#if $nexus:
-			mv "$nexus" "$nexus.element_identifier" ;  
-			#set $options = $options + " --original-nexus-file " + str($nexus.element_identifier) + " " 
+
 
 		
     ]]></command>
