@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.5">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.6">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -353,7 +353,6 @@
     <outputs>
         <data name="overview" format="tabular" from_work_dir="portal/overview.tsv" label="RADAR-PD 1 | Result overview"/>
         <collection type="list" name="plots" label="RADAR-PD 2 | Accepted fit and diagnostic plots">
-            <filter>output_profile == 'full'</filter>
             <discover_datasets pattern="__designation_and_ext__" directory="portal/plots" visible="true"/>
         </collection>
         <collection type="list" name="tables" label="RADAR-PD 3 | Scientific result tables">
