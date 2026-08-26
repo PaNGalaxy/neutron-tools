@@ -26,7 +26,7 @@
 		    
 		#set $options = "" ;
 			
-		#if $maskErosion
+		#if $getVar('maskErosion', None) is not None
 			#set $options = $options + " --mask-rel-erosion-radius " + str($maskErosion) ;
 		#end if	
 
