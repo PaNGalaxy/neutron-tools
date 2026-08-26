@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.3">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.4">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -80,7 +80,7 @@ print(max(projects, key=priority).resolve())
         </conditional>
     </inputs>
     <outputs>
-        <data name="edited_project" format="gpx" label="GSAS-II refined project"/>
+        <data name="edited_project" format="binary" label="GSAS-II refined project.gpx"/>
         <data name="session_log" format="txt" label="GSAS-II interactive session log"/>
     </outputs>
     <help><![CDATA[
