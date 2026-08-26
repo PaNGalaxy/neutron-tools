@@ -64,9 +64,15 @@ push_dev_tools:
     - >
       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
       cloud@ndip-dev.ornl.gov
+      'if sudo test -f /srv/galaxy/config/datatypes_conf.xml; then
       sudo python3 /tmp/radar-pd-datatype/register_radar_pd_datatype.py
       --config /srv/galaxy/config/datatypes_conf.xml
-      --fragment /tmp/radar-pd-datatype/radar_pd_datatypes_conf.xml.sample
+      --fragment /tmp/radar-pd-datatype/radar_pd_datatypes_conf.xml.sample;
+      elif sudo test -f /srv/galaxy/config/datatypes_conf.xml.sample; then
+      sudo python3 /tmp/radar-pd-datatype/register_radar_pd_datatype.py
+      --config /srv/galaxy/config/datatypes_conf.xml.sample
+      --fragment /tmp/radar-pd-datatype/radar_pd_datatypes_conf.xml.sample;
+      else echo "Galaxy datatype configuration was not found under /srv/galaxy/config" >&2; exit 1; fi'
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
