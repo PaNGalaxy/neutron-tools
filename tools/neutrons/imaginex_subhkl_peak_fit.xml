@@ -29,14 +29,6 @@
 		#if $maskErosion
 			#set $options = $options + " --mask-rel-erosion-radius " + str($maskErosion) ;
 		#end if	
-		#if $profile
-			#set $options = $options + " --sparse-rbf-profile-file " + str($profile) ;
-		#else
-			#set $options = $options + " --sparse-rbf-profile-file auto " ;
-		#end if	
-		#if $sigma
-			#set $options = $options + " --sparse-rbf-num-sigmas " + str($sigma) ;
-		#end if	
 
 			
 		
