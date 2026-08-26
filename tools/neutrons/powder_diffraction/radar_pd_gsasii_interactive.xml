@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.0">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.1">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -24,7 +24,7 @@
         /opt/gsasii-gui/start.sh > >(tee -a '$session_log') 2> >(tee -a '$session_log' >&2)
     ]]></command>
     <inputs>
-        <param name="gpx_project" type="data" format="gpx,binary" label="GSAS-II project to refine" help="Choose one checkpoint from RADAR-PD 5 | GSAS-II handoff projects, or any existing .gpx dataset in this History."/>
+        <param name="gpx_project" type="data" format="gpx" label="GSAS-II project to refine" help="Choose one checkpoint from RADAR-PD 5 | GSAS-II handoff projects, or any existing .gpx dataset in this History."/>
     </inputs>
     <outputs>
         <data name="edited_project" format="gpx" label="GSAS-II refined project"/>

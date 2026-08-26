@@ -316,7 +316,7 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     assert (ep_path.text or "").strip() == "gsasii"
 
     project = root.find("./inputs/param[@name='gpx_project']")
-    assert project is not None and project.attrib.get("format") == "gpx,binary"
+    assert project is not None and project.attrib.get("format") == "gpx"
 
     command = root.findtext("./command", default="")
     assert "GSASII_SOURCE_PROJECT='$gpx_project'" in command
