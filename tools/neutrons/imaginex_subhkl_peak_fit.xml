@@ -44,7 +44,7 @@
 			#set $options = $options + " --show-steps" ;
 		#end if
 			
-		
+		python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-minimum-intensity $growthIntensity --finder-algorithm sparse_rbf 
 
 
     ]]></command>
