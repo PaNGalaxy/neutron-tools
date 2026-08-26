@@ -45,65 +45,6 @@
 		#if $nexus:
 			mv "$nexus" "$nexus.element_identifier" ;  
 			#set $options = $options + " --original-nexus-file " + str($nexus.element_identifier) + " " 
-		#end if
-		#if $sigmaInit:
-			#set $options = $options + " --sigma-init " + str($sigmaInit) + " " 
-		#end if
-		#if $freeze:
-			#set $options = $options + " --freeze-orientation "
-		#end if
-		#if $goniometerAxes:
-			#set $options = $options + " --refine-goniometer-axes " + str($goniometerAxes) + " " 
-		#end if
-		#if $bootstrap:
-			mv "$bootstrap" "$bootstrap.element_identifier" ;  
-			#set $options = $options + " --bootstrap_filename " + str($bootstrap.element_identifier) + " " 
-		#end if
-		#if $batch:
-			#set $options = $options + " --batch-size " + str($batch) + " " 
-		#end if
-		#if $lattice:
-			#set $options = $options + " --refine-lattice "
-		#end if
-		#if $refineGoniometer:
-			#set $options = $options + " --refine-goniometer "
-		#end if
-		#if $refineSample:
-			#set $options = $options + " --refine-goniometer-trans "
-		#end if
-		#if $refineBeam:
-			#set $options = $options + " --refine-beam "
-		#end if
-		#if $refineDetector:
-			#set $options = $options + " --refine-detector "
-		#end if
-		#if $refineDetectorBanks != "":
-			#set $options = $options + " --refine-detector-banks " + str($refineDetectorBanks) + " "
-		#end if 
-		#if $cylinder:
-			#set $options = $options + " --cylinder-axis " + str($cylinder) + " "
-		#end if
-		#if $index:
-			#set $options = $options + " --index "
-		#end if
-		#if $goniometerRun:
-			#set $options = $options + " --refine-goniometer-per-run " + str($goniometerRun) + " "
-		#end if
-		#if $goniometerRun:
-			#set $options = $options + " --refine-goniometer-per-run-trans "
-		#end if
-		#if $goniometerHarmonics:
-			#set $options = $options + " --refine-goniometer-harmonics "
-		#end if
-		#if $goniometerHarmonicOrders:
-			#set $options = $options + " --goniometer-harmonics-orders " + str($goniometerHarmonicOrders))
-		#end if
-		#if $goniometerTransAxes:
-			#set $options = $options + " --refine-goniometer-trans-axes " + str($goniometerTransAxes))
-		#end if
-		#if $weightPoly:
-			#set $options = $options + " --radial-weight-poly " + str($weightPoly))
-		#end if
 
 		
     ]]></command>
