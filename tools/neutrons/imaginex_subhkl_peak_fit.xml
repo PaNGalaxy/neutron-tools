@@ -37,12 +37,7 @@
 		#if $sigma
 			#set $options = $options + " --sparse-rbf-num-sigmas " + str($sigma) ;
 		#end if	
-		#if $staticMask
-			#set $options = $options + " --static-mask-file " + str($staticMask) ;
-		#end if
-		#if $rbfShow
-			#set $options = $options + " --show-steps" ;
-		#end if
+
 			
 		
 
