@@ -105,7 +105,7 @@
 			#set $options = $options + " --radial-weight-poly " + str($weightPoly)
 		#end if
 
-		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument-name $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy-name=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --goniometer-per-run-bound-degrees $goniometerRunBound --goniometer-per-run-trans-bound-meters $goniometerRunTransBound 
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy-name=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --goniometer-per-run-bound-degrees $goniometerRunBound --goniometer-per-run-trans-bound-meters $goniometerRunTransBound 
 
     ]]></command>
     <inputs>
