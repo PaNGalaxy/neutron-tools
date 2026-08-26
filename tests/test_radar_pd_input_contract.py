@@ -146,7 +146,8 @@ def test_monitor_profile_publishes_fit_plots_but_not_the_heavy_archive() -> None
     publisher = root.findtext("./configfiles/configfile[@name='publish_plot_payloads']", default="")
     assert "python '$publish_plot_payloads' work/run portal" in command
     assert 'summary.get("artifacts", {}).get("plots", [])' in publisher
-    assert 'for suffix in (".plotdata.json", ".plotdata.npz")' in publisher
+    assert '".plotdata_arrays.npz"' in publisher
+    assert 'metadata["arrays_npz"] = arrays_destination.name' in publisher
 
 
 def test_monitor_plot_publisher_copies_interactive_sidecars(tmp_path: Path, monkeypatch) -> None:
@@ -156,7 +157,16 @@ def test_monitor_plot_publisher_copies_interactive_sidecars(tmp_path: Path, monk
     source = run_root / "rapid_results" / "live_run" / "curve.png"
     source.parent.mkdir(parents=True)
     source.write_bytes(b"png")
-    Path(str(source) + ".plotdata.json").write_text('{"plot_kind":"gsas_fit_with_ticks_v1"}')
+    Path(str(source) + ".plotdata.json").write_text(
+        json.dumps(
+            {
+                "plot_kind": "gsas_fit_with_ticks_v1",
+                "source_plot": source.name,
+                "arrays_npz": source.name + ".plotdata.npz",
+            }
+        ),
+        encoding="utf-8",
+    )
     Path(str(source) + ".plotdata.npz").write_bytes(b"npz")
 
     portal = tmp_path / "portal"
@@ -182,8 +192,14 @@ def test_monitor_plot_publisher_copies_interactive_sidecars(tmp_path: Path, monk
     monkeypatch.setattr(sys, "argv", ["publish_plot_payloads", str(run_root), str(portal)])
     exec(compile(publisher, "<publish_plot_payloads>", "exec"), {})
 
-    assert Path(str(published) + ".plotdata.json").is_file()
-    assert Path(str(published) + ".plotdata.npz").read_bytes() == b"npz"
+    metadata_path = Path(str(published) + ".plotdata.json")
+    arrays_path = Path(str(published) + ".plotdata_arrays.npz")
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+
+    assert metadata["source_plot"] == published.name
+    assert metadata["arrays_npz"] == arrays_path.name
+    assert arrays_path.read_bytes() == b"npz"
+    assert metadata_path.stem != arrays_path.stem
 
 
 def test_result_explorer_defaults_to_one_complete_archive() -> None:

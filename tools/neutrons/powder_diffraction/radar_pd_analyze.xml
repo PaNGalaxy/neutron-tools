@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.7">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.8">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -189,12 +189,27 @@ for artifact in summary.get("artifacts", {}).get("plots", []):
     destination = (portal / portal_relative).resolve()
     if portal not in destination.parents:
         raise ValueError(f"Unsafe published plot path: {portal_relative}")
-    for suffix in (".plotdata.json", ".plotdata.npz"):
-        sidecar = Path(str(source) + suffix)
-        if not sidecar.is_file():
-            continue
-        shutil.copy2(sidecar, Path(str(destination) + suffix))
+    metadata_source = Path(str(source) + ".plotdata.json")
+    if not metadata_source.is_file():
+        continue
+
+    metadata = json.loads(metadata_source.read_text(encoding="utf-8"))
+    metadata["source_plot"] = destination.name
+    arrays_source = Path(str(source) + ".plotdata.npz")
+    if arrays_source.is_file():
+        # Galaxy keys dynamic collection members by the filename without its
+        # final extension. A .plotdata.json/.plotdata.npz pair therefore
+        # collides unless the NPZ stem is made distinct.
+        arrays_destination = Path(str(destination) + ".plotdata_arrays.npz")
+        shutil.copy2(arrays_source, arrays_destination)
+        metadata["arrays_npz"] = arrays_destination.name
         published += 1
+    else:
+        metadata.pop("arrays_npz", None)
+
+    metadata_destination = Path(str(destination) + ".plotdata.json")
+    metadata_destination.write_text(json.dumps(metadata), encoding="utf-8")
+    published += 1
 
 print(f"Published {published} interactive plot sidecar file(s).")
         ]]></configfile>
