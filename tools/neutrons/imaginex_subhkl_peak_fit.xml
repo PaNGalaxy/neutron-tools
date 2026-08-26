@@ -24,26 +24,7 @@
 			#set $input_file = "$input.scan.element_identifier"
 		#end if
 		    
-		#set $options = "" ;
-			
-		#if $maskErosion
-			#set $options = $options + " --mask-rel-erosion-radius " + str($maskErosion) ;
-		#end if	
-		#if $profile
-			#set $options = $options + " --sparse-rbf-profile-file " + str($profile) ;
-		#else
-			#set $options = $options + " --sparse-rbf-profile-file auto " ;
-		#end if	
-		#if $sigma
-			#set $options = $options + " --sparse-rbf-num-sigmas " + str($sigma) ;
-		#end if	
-		#if $staticMask
-			#set $options = $options + " --static-mask-file " + str($staticMask) ;
-		#end if
-		#if $rbfShow
-			#set $options = $options + " --show-steps" ;
-		#end if
-			
+
 
 
     ]]></command>
