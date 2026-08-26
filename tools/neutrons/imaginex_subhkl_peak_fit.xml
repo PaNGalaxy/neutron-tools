@@ -24,27 +24,6 @@
 			#set $input_file = "$scan.element_identifier"
 		#end if
 		    
-		#set $options = "" ;
-			
-		#if $maskErosion
-			#set $options = $options + " --mask-rel-erosion-radius " + str($maskErosion) ;
-		#end if	
-		#if $profile
-			#set $options = $options + " --sparse-rbf-profile-file " + str($profile) ;
-		#else
-			#set $options = $options + " --sparse-rbf-profile-file auto " ;
-		#end if	
-		#if $sigma
-			#set $options = $options + " --sparse-rbf-num-sigmas " + str($sigma) ;
-		#end if	
-		#if $staticMask
-			#set $options = $options + " --static-mask-file " + str($staticMask) ;
-		#end if
-		#if $rbfShow
-			#set $options = $options + " --show-steps" ;
-		#end if
-			
-		python -m subhkl.io.parser finder --output-filename out/finder.h5 --create-visualizations --show-progress --wavelength-min $wavelengthMin --wavelength-max $wavelengthMax --region-growth-minimum-intensity $growthIntensity --finder-algorithm sparse_rbf --sparse-rbf-alpha $alpha --sparse-rbf-gamma $gamma --sparse-rbf-false-alerts-per-image $alerts --sparse-rbf-max-fragmentation-rate $fragmentation --sparse-rbf-shape-ratio $shape --sparse-rbf-shape-orientation $orientation --sparse-rbf-loss $loss $options $input_file $instrument ;
 
 
 
