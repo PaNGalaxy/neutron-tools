@@ -95,9 +95,18 @@
 		#if $goniometerHarmonics:
 			#set $options = $options + " --refine-goniometer-harmonics " + str($goniometerHarmonics)
 		#end if
+		#if $goniometerHarmonicOrders:
+			#set $options = $options + " --goniometer-harmonics-orders " + str($goniometerHarmonicOrders)
+		#end if
+		#if $goniometerTransAxes:
+			#set $options = $options + " --refine-goniometer-trans-axes " + str($goniometerTransAxes))
+		#end if
+		#if $weightPoly:
+			#set $options = $options + " --radial-weight-poly " + str($weightPoly))
+		#end if
 
+		python -m subhkl.io.parser indexer $peaks.element_identifier out/indexer.h5 $options --instrument-name $instrument --n-runs=$runs --popsize=$population --gens=$generations --strategy-name=$strategy --tolerance-deg=$tolerance --seed $seed --lattice-bound-frac $latticeFrac --goniometer-bound-deg $goniometerBound --goniometer-per-run-bound-degrees $goniometerRunBound --goniometer-per-run-trans-bound-meters $goniometerRunTransBound --goniometer-trans-bound-meters $sampleBound --goniometer-harmonics-axes $goniometerHarmonicsAxes --goniometer-harmonics-bound-deg $goniometerHarmonicsBound --beam-bound-deg $beamBound --detector-area-bound-frac $detectorArea --detector-modes $detectorModes --detector-trans-bound-meters $detectorTrans  --detector-rot-bound-deg $detectorRot --detector-global-rot-bound-deg $detectorGlobalRot --detector-global-rot-axis $detectorAxis --detector-global-trans-bound-meters $detectorGlobalTrans --detector-radial-bound-frac $detectorRadial --num-candidates $candidates --radial-weight $weight --hkl-metric $hklMetric --hkl-metric-floor $hklFloor  
 
-		
     ]]></command>
     <inputs>
     
