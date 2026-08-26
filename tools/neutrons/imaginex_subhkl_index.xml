@@ -98,12 +98,7 @@
 		#if $goniometerHarmonicOrders:
 			#set $options = $options + " --goniometer-harmonics-orders " + str($goniometerHarmonicOrders))
 		#end if
-		#if $goniometerTransAxes:
-			#set $options = $options + " --refine-goniometer-trans-axes " + str($goniometerTransAxes))
-		#end if
-		#if $weightPoly:
-			#set $options = $options + " --radial-weight-poly " + str($weightPoly))
-		#end if
+
 
 		
     ]]></command>
