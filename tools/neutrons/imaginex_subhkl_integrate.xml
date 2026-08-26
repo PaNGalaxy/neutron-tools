@@ -52,14 +52,14 @@
 		</param>
 		<param name="sigma" type="text" value="1.0,2.0,4.0" label="Comma-separated List of Sigmas" />
 		<param name="nominalSigma" type="float" value="1.0" label="Nominal Sigma" />
-		<param name="anisotropic" type="bool" value="false" label="Anisotropic" />
-		<param name="mosaicFit" type="bool" value="false" label="Fit Mosaicity" />
-		<param name="mosaicRadial" type="bool" value="false" label="Mosaicity Radial" />
-		<param name="spherical" type="bool" value="false" label="Shape Spherical" />
+		<param name="anisotropic" type="boolean" value="false" label="Anisotropic" />
+		<param name="mosaicFit" type="boolean" value="false" label="Fit Mosaicity" />
+		<param name="mosaicRadial" type="boolean" value="false" label="Mosaicity Radial" />
+		<param name="spherical" type="boolean" value="false" label="Shape Spherical" />
 		<param name="mosaicMrad" type="float" value="10.0" label="Mosaicity Bound mrad" />
 		<param name="snr" type="float" value="0.0" label="Shape Fit Min SNR" />
-		<param name="normalized" type="bool" value="false" label="Shape Fit Normalized" />
-		<param name="matrix" type="bool" value="true" label="Matrix Free" />
+		<param name="normalized" type="boolean" value="false" label="Shape Fit Normalized" />
+		<param name="matrix" type="boolean" value="true" label="Matrix Free" />
 		<param name="matrixProfile" type="select" optional="false" value="gaussian" label="Matrix Free Profile" > 
 			<option value="gaussian">Gaussian</option> 
 			<option value="auto">Auto</option>
