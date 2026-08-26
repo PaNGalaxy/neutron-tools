@@ -36,7 +36,7 @@
 			#set $options = $options + " --matrix-free-fp-target " + str($matrixFp) + " " 
 		#end if
 		#if $staticMaskFile:
-			#set $options = $options + " --static-mask-file " + str($staticMaskFile) + " " 
+			#set $options = $options + " --static-mask-file " + str($staticMaskFile.element_identifier) + " " 
 		#end if
 
 		python -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --sigmas $sigma --nominal-sigma $nominalSigma --mosaicity-bound-mrad $mosaicMrad --shape-fit-min-snr $snr --matrix-free-profile $matrixProfile --rel-border-width $relBorder --chunk-size $chunk --create-visualizations --show-progress $options ;
@@ -47,7 +47,7 @@
     
 		<param format="h5" name="scan" type="data" label="Master scan file" />
 		<param format="h5" name="predicted" type="data" label="Predicted peaks file" />
-		<param format="h5" name="staticMaskFile" type="data" label="Static mask file" />
+		<param format="h5" name="staticMaskFile" type="data" optional="true" label="Static mask file" />
 		<param name="instrument" type="select" optional="false" value="IMAGINE" label="Instrument" > 
 			<option value="IMAGINE">IMAGINE</option>
 			<option value="CG4D">IMAGINE-X</option>
