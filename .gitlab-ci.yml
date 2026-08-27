@@ -36,6 +36,7 @@ service-build:
   tags:
     - rse-multi-builder
 
+# Prototype updates require both this source sync and the Kubernetes rollout below.
 push_dev_tools:
   stage: push
   script:
