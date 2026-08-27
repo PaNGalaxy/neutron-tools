@@ -30,6 +30,8 @@
     <help><![CDATA[
 RADAR-PD Interactive provides one shared setup experience for Full RADAR-PD and Rapid Hypothesis Mode. It can upload local files, reuse datasets in the current Galaxy history, resolve SNS IPTS inputs, submit the existing batch Analyze tool, show progress, recover earlier runs, render interactive results, and expose reproducible artifacts.
 
+Recovered runs can reopen their published GPX checkpoints directly in the hosted GSAS-II desktop.
+
 The scientific calculation runs as a normal Galaxy job. Closing this interactive session does not cancel that job or remove its history outputs.
     ]]></help>
 </tool>
