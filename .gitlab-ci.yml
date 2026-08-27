@@ -82,6 +82,23 @@ push_dev_tools:
       sudo /root/update_prototype_tools.sh
       /srv/galaxy/local_tools/neutrons-dev
       /srv/galaxy/config/tool_conf_prototype.xml
+    - >
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i key
+      cloud@ndip-dev.ornl.gov
+      'echo "NDIP deployment host capabilities";
+      printf "user_kubectl="; command -v kubectl || echo absent;
+      printf "root_kubectl="; sudo -n sh -c "command -v kubectl" || echo absent;
+      for candidate in
+      /home/cloud/.kube/config
+      /root/.kube/config
+      /etc/rancher/k3s/k3s.yaml
+      /etc/rancher/rke2/rke2.yaml;
+      do if sudo -n test -f "$candidate"; then echo "kubeconfig_present=$candidate"; fi; done;
+      for command_name in kubectl rollout restart reload systemctl docker podman;
+      do if sudo -n grep -q "$command_name" /root/update_prototype_tools.sh;
+      then echo "update_script_uses=$command_name"; fi; done;
+      sudo -n systemctl list-unit-files --type=service 2>/dev/null
+      | grep -i galaxy || true'
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
@@ -142,6 +159,11 @@ redeploy_k8s_galaxy:
           run_kubectl() { KUBECONFIG="$PWD/kubeconfig" ./kubectl "$@"; }
         fi
       fi
+
+      echo "Kubeconfig diagnostics (credentials are redacted by kubectl)"
+      run_kubectl config current-context || true
+      run_kubectl config view --minify || true
+      run_kubectl auth whoami || true
 
       run_kubectl get deployment galaxy -n ndip -o json > galaxy-deployment.json
       init_name=$(python3 -c '
