@@ -176,7 +176,7 @@ interactive-tools-testing-ucams:
     AUTH_MODE: ucams
   <<: *interactive-tool-testing
   rules:
-    - if: '$CI_COMMIT_BRANCH == "248-mantid-workbench-failure-isn-t-properly-detected-in-tests"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
         ENVIRONMENT: "ndip"
         GALAXY_URL: "https://ndip.ornl.gov"
@@ -196,7 +196,7 @@ interactive-tools-testing-xcams:
     AUTH_MODE: xcams
   <<: *interactive-tool-testing
   rules:
-    - if: '$CI_COMMIT_BRANCH == "248-mantid-workbench-failure-isn-t-properly-detected-in-tests"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
         ENVIRONMENT: "ndip"
         GALAXY_URL: "https://ndip.ornl.gov"
