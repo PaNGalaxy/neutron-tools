@@ -1,6 +1,9 @@
+import io
 import json
+import pickle
 import sys
 import types
+from contextlib import redirect_stdout
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -297,11 +300,12 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
 
     assert root.attrib.get("tool_type") == "interactive"
     assert root.attrib.get("profile") == "22.05"
+    assert root.attrib.get("version") == "0.1.9"
 
     container = root.find("./requirements/container")
     assert container is not None
     assert (container.text or "").strip().endswith(
-        ":gsasii-gui-5b306fba0b80d303c6e6dd63b5e929a9e0fb9384"
+        ":gsasii-gui-5ef1bbb17d4b72cc4965826aa7283c1818658d1e"
     )
 
     entrypoint = root.find("./entry_points/entry_point")
@@ -340,7 +344,49 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     )
     assert "pickletools.genops" in validator_script
 
+    selector_script = root.findtext(
+        "./configfiles/configfile[@name='select_project']", default=""
+    )
+    assert "is_pickle_project" in selector_script
+    assert "contains no valid GSAS-II GPX project" in selector_script
+
     edited = root.find("./outputs/data[@name='edited_project']")
     log = root.find("./outputs/data[@name='session_log']")
     assert edited is not None and edited.attrib.get("format") == "binary"
     assert log is not None and log.attrib.get("format") == "txt"
+    assert "${on_string}" in edited.attrib.get("label", "")
+    assert "${on_string}" in log.attrib.get("label", "")
+
+
+def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
+    root = _root("radar_pd_nova.xml")
+    container = root.find("./requirements/container")
+
+    assert root.attrib.get("version") == "0.3.70"
+    assert container is not None
+    assert container.text == (
+        "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
+        "nova-25b6cee57418a100fb74ddae63dd494b7bff66a8"
+    )
+
+
+def test_gsasii_collection_selector_skips_corrupt_higher_priority_checkpoint(
+    tmp_path: Path, monkeypatch
+) -> None:
+    root = _root("radar_pd_gsasii_interactive.xml")
+    selector = root.findtext(
+        "./configfiles/configfile[@name='select_project']", default=""
+    )
+    valid = tmp_path / "Accepted_model_after_pass_2.gpx"
+    with valid.open("wb") as handle:
+        pickle.dump(["Controls", {}], handle, protocol=1)
+    (tmp_path / "Accepted_model_after_pass_9.gpx").write_bytes(b"not a pickle")
+    with (tmp_path / "02_main_phase_anchor.gpx").open("wb") as handle:
+        pickle.dump(["Controls", {}], handle, protocol=1)
+
+    monkeypatch.setattr(sys, "argv", ["select_project", str(tmp_path)])
+    output = io.StringIO()
+    with redirect_stdout(output):
+        exec(compile(selector, "<select_project>", "exec"), {})
+
+    assert Path(output.getvalue().strip()) == valid.resolve()

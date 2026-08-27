@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.8">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.9">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-5b306fba0b80d303c6e6dd63b5e929a9e0fb9384</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-5ef1bbb17d4b72cc4965826aa7283c1818658d1e</container>
     </requirements>
     <entry_points>
         <entry_point name="GSAS-II Interactive" label="gsasii" requires_domain="False" requires_path_in_url="True">
@@ -39,13 +39,22 @@
     <configfiles>
         <configfile name="select_project"><![CDATA[
 import re
+import pickletools
 import sys
 from pathlib import Path
 
 root = Path(sys.argv[1])
-projects = sorted(path for path in root.iterdir() if path.is_file())
+def is_pickle_project(path):
+    try:
+        data = path.read_bytes()
+        return bool(data) and next(pickletools.genops(data), None) is not None
+    except Exception:
+        return False
+
+
+projects = sorted(path for path in root.iterdir() if path.is_file() and is_pickle_project(path))
 if not projects:
-    raise SystemExit("The selected RADAR-PD handoff collection is empty.")
+    raise SystemExit("The selected RADAR-PD handoff collection contains no valid GSAS-II GPX project.")
 
 
 def priority(path):
@@ -100,8 +109,8 @@ if first_opcode is None:
         </conditional>
     </inputs>
     <outputs>
-        <data name="edited_project" format="binary" label="GSAS-II refined project.gpx"/>
-        <data name="session_log" format="txt" label="GSAS-II interactive session log"/>
+        <data name="edited_project" format="binary" label="GSAS-II refined project | ${on_string}.gpx"/>
+        <data name="session_log" format="txt" label="GSAS-II interactive session log | ${on_string}"/>
     </outputs>
     <help><![CDATA[
 Opens a writable copy of one RADAR-PD GPX checkpoint in the native GSAS-II desktop through the browser. The selected input remains unchanged. Every stable save is copied back to **GSAS-II refined project** in Galaxy History, including when the interactive session is stopped from NDIP.
