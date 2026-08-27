@@ -2,11 +2,12 @@ import os
 import sys
 import time
 import pytest
+from nova.common.job import WorkState
 from nova.galaxy import Connection, Tool
 from nova.galaxy.tool import stop_all_tools_in_store
 
 
-def test_interactive_tool(interactive_tool: str) -> bool:
+def test_interactive_tool(interactive_tool: str) -> None:
     """
     Runs an integration test for a given tool ID with provided parameters
     """
@@ -18,10 +19,10 @@ def test_interactive_tool(interactive_tool: str) -> bool:
             d_store = connection.create_data_store(name=f"{interactive_tool}_test")
             d_store.persist()
             d_tool = Tool(id=interactive_tool)
-            d_tool.run_interactive(d_store, max_tries=900)
+            d_tool.run_interactive(d_store, max_tries=120)
             print(f"Tool {interactive_tool} started successfully.")
+            assert WorkState.RUNNING == d_tool.get_status()
             stop_all_tools_in_store(d_store)
-            return True
     except Exception as e:
         print(f"Tool {interactive_tool} failed to start: {str(e)}")
 
@@ -36,7 +37,7 @@ def test_interactive_tool(interactive_tool: str) -> bool:
             # We couldn't fetch any details about the tool, giving up completely :(
             pass
 
-        return False
+        raise e
 
 
 if __name__ == "__main__":
