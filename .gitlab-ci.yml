@@ -100,17 +100,29 @@ redeploy_k8s_galaxy:
   variables:
     KUBE_NAMESPACE: ndip
     GALAXY_DEPLOYMENT: galaxy
+    KUBECTL_IMAGE: regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
   before_script: []
   after_script: []
   script:
     - echo "$KUBECONFIG" | base64 -d > kubeconfig
+    - |
+      pull_succeeded=0
+      for attempt in 1 2 3 4; do
+        if docker pull "$KUBECTL_IMAGE"; then
+          pull_succeeded=1
+          break
+        fi
+        echo "kubectl image pull attempt ${attempt} failed; retrying after $((attempt * 10)) seconds"
+        sleep $((attempt * 10))
+      done
+      test "$pull_succeeded" -eq 1
     - >
-      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
-      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      docker run --rm --pull=never -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      "$KUBECTL_IMAGE"
       rollout restart deployment/galaxy -n ndip
     - >
-      docker run --rm -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
-      regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+      docker run --rm --pull=never -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
+      "$KUBECTL_IMAGE"
       rollout status deployment/galaxy -n ndip --timeout=300s
   allow_failure: true
   rules:
