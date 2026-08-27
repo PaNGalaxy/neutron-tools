@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.5">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.6">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -30,7 +30,7 @@
         #else
         selected_project='$project_source.gpx_project' &&
         #end if
-        python -c 'from pathlib import Path; import sys; head = Path(sys.argv[1]).read_bytes()[:2]; sys.exit(0 if len(head) == 2 and head[0] == 0x80 else "The selected input is not a GSAS-II GPX project. Choose RADAR-PD 5 | GSAS-II handoff projects or a project previously saved by this tool.")' "\$selected_project" &&
+        python '$validate_project' "\$selected_project" &&
         printf 'Opening GSAS-II project: %s\n' "\$(basename "\$selected_project")" | tee -a '$session_log' &&
         export GSASII_SOURCE_PROJECT="\$selected_project" &&
         export GSASII_OUTPUT_PROJECT='$edited_project' &&
@@ -61,6 +61,26 @@ def priority(path):
 
 
 print(max(projects, key=priority).resolve())
+        ]]></configfile>
+        <configfile name="validate_project"><![CDATA[
+import pickletools
+import sys
+from pathlib import Path
+
+project = Path(sys.argv[1])
+message = (
+    "The selected input is not a GSAS-II GPX project. Choose RADAR-PD 5 | "
+    "GSAS-II handoff projects or a project previously saved by this tool."
+)
+data = project.read_bytes()
+if not data:
+    raise SystemExit(message)
+try:
+    first_opcode = next(pickletools.genops(data), None)
+except Exception as exc:
+    raise SystemExit(message) from exc
+if first_opcode is None:
+    raise SystemExit(message)
         ]]></configfile>
     </configfiles>
     <inputs>

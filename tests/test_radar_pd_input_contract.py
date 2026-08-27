@@ -315,19 +315,32 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     assert ep_path.attrib.get("inject") == "entry_point_path_for_label"
     assert (ep_path.text or "").strip() == "gsasii"
 
-    project = root.find("./inputs/param[@name='gpx_project']")
+    source = root.find("./inputs/conditional[@name='project_source']")
+    assert source is not None
+    selector = source.find("./param[@name='source_kind']")
+    assert selector is not None
+    selected = selector.find("./option[@selected='true']")
+    assert selected is not None and selected.attrib.get("value") == "collection"
+    collection = source.find("./when[@value='collection']/param[@name='gpx_projects']")
+    assert collection is not None and collection.attrib.get("format") == "gpx,binary"
+    project = source.find("./when[@value='single']/param[@name='gpx_project']")
     assert project is not None and project.attrib.get("format") == "gpx,binary"
     validator = project.find("./validator[@type='expression']")
     assert validator is not None
     assert "accepted_model_after_pass_" in (validator.text or "")
 
     command = root.findtext("./command", default="")
-    assert "GSASII_SOURCE_PROJECT='$gpx_project'" in command
+    assert 'GSASII_SOURCE_PROJECT="\\$selected_project"' in command
     assert "GSASII_OUTPUT_PROJECT='$edited_project'" in command
-    assert "head[0] == 0x80" in command
+    assert "python '$validate_project'" in command
     assert "/opt/gsasii-gui/start.sh" in command
+
+    validator_script = root.findtext(
+        "./configfiles/configfile[@name='validate_project']", default=""
+    )
+    assert "pickletools.genops" in validator_script
 
     edited = root.find("./outputs/data[@name='edited_project']")
     log = root.find("./outputs/data[@name='session_log']")
-    assert edited is not None and edited.attrib.get("format") == "gpx"
+    assert edited is not None and edited.attrib.get("format") == "binary"
     assert log is not None and log.attrib.get("format") == "txt"

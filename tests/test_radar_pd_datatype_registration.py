@@ -34,13 +34,13 @@ def test_register_datatype_is_valid_and_idempotent(tmp_path: Path) -> None:
     }
 
 
-def test_analyze_publishes_gpx_collection_with_explicit_datatype() -> None:
+def test_analyze_publishes_gpx_collection_with_binary_compatibility() -> None:
     root = ET.parse(
         ROOT / "tools" / "neutrons" / "powder_diffraction" / "radar_pd_analyze.xml"
     ).getroot()
     collection = root.find("./outputs/collection[@name='gpx_projects']")
     assert collection is not None
-    assert collection.attrib.get("format") == "gpx"
+    assert collection.attrib.get("format") == "binary"
     discovery = collection.find("./discover_datasets")
     assert discovery is not None
-    assert discovery.attrib.get("ext") == "gpx"
+    assert discovery.attrib.get("ext") == "binary"

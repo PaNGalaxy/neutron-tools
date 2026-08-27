@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.2.1">
+<tool id="neutrons_radar_pd_gpx_handoff_prototype" name="RADAR-PD Utility: Send Project to GSAS-II" profile="22.05" version="0.2.2">
     <description>select and preserve a RADAR-PD refinement checkpoint for GSAS-II</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -24,7 +24,7 @@
         <param name="gpx_index" type="data" format="json" optional="true" label="RADAR-PD GPX index" help="Adds pipeline-stage and checkpoint-status provenance."/>
     </inputs>
     <outputs>
-        <data name="output_project" format="gpx" label="GSAS-II project ready for interactive handoff"/>
+        <data name="output_project" format="binary" label="GSAS-II project ready for interactive handoff.gpx"/>
         <data name="handoff_metadata" format="json" label="GSAS-II project handoff metadata"/>
         <data name="handoff_report" format="html" label="GSAS-II project handoff report"/>
         <data name="console_output" format="txt" label="GSAS-II project handoff log"/>
