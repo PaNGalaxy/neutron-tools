@@ -100,7 +100,8 @@ redeploy_k8s_galaxy:
   variables:
     KUBE_NAMESPACE: ndip
     GALAXY_DEPLOYMENT: galaxy
-    GALAXY_ROLLOUT_TIMEOUT: 900s
+    GALAXY_ROLLOUT_TIMEOUT: 300s
+    GALAXY_INIT_GIT_IMAGE: regproxy.ornl.gov/hub_proxy/alpine/git:latest
     KUBECTL_IMAGE: regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
     KUBECTL_VERSION: v1.36.4
     KUBECTL_SHA256: 8b8f088da2dab964f853b38464033b1be15ede2839eca751482357c45abdd05a
@@ -139,6 +140,33 @@ redeploy_k8s_galaxy:
           echo "${KUBECTL_SHA256}  kubectl" | sha256sum --check --strict
           chmod 0755 kubectl
           run_kubectl() { KUBECONFIG="$PWD/kubeconfig" ./kubectl "$@"; }
+        fi
+      fi
+
+      run_kubectl get deployment galaxy -n ndip -o json > galaxy-deployment.json
+      init_name=$(python3 -c '
+      import json
+      import sys
+      deployment = json.load(open("galaxy-deployment.json", encoding="utf-8"))
+      containers = deployment["spec"]["template"]["spec"].get("initContainers", [])
+      print(next((item["name"] for item in containers if item.get("image") == sys.argv[1]), ""))
+      ' "$GALAXY_INIT_GIT_IMAGE")
+      if test -n "$init_name"; then
+        init_policy=$(python3 -c '
+      import json
+      import sys
+      deployment = json.load(open("galaxy-deployment.json", encoding="utf-8"))
+      containers = deployment["spec"]["template"]["spec"].get("initContainers", [])
+      print(next((item.get("imagePullPolicy", "") for item in containers if item.get("name") == sys.argv[1]), ""))
+      ' "$init_name")
+        echo "Galaxy init container ${init_name} uses ${GALAXY_INIT_GIT_IMAGE} with policy ${init_policy:-default}"
+        if test "$init_policy" != "IfNotPresent"; then
+          patch=$(python3 -c '
+      import json
+      import sys
+      print(json.dumps({"spec": {"template": {"spec": {"initContainers": [{"name": sys.argv[1], "imagePullPolicy": "IfNotPresent"}]}}}}))
+      ' "$init_name")
+          run_kubectl patch deployment galaxy -n ndip --type=strategic -p "$patch"
         fi
       fi
 
