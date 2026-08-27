@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import pytest
+from nova.common.job import WorkState
 from nova.galaxy import Connection, Tool
 from nova.galaxy.tool import stop_all_tools_in_store
 
@@ -20,6 +21,7 @@ def test_interactive_tool(interactive_tool: str) -> bool:
             d_tool = Tool(id=interactive_tool)
             d_tool.run_interactive(d_store, max_tries=900)
             print(f"Tool {interactive_tool} started successfully.")
+            assert WorkState.RUNNING == d_tool.get_status()
             stop_all_tools_in_store(d_store)
             return True
     except Exception as e:
