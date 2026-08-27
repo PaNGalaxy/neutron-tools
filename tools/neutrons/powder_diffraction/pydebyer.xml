@@ -28,6 +28,14 @@
 
     </outputs>
 
+    <tests>
+        <test>
+            <param name="structure_file" value="argon.xyz"/>
+            <output name="out_sq" file="pydebyer_expected_output.txt"/>
+            <output name="out_csv" file="pydebyer_expected_output.csv"/>
+        </test>
+    </tests>
+
     <help><![CDATA[
 Runs Debyer (https://debyer.readthedocs.io) on input file to calculate S(Q) using Debyer Scattering Equation.
     ]]></help>
