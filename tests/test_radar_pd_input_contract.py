@@ -301,7 +301,7 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     container = root.find("./requirements/container")
     assert container is not None
     assert (container.text or "").strip().endswith(
-        ":gsasii-gui-b43344e2410ad2e2737cc61051c24ae03cd47ba9"
+        ":gsasii-gui-0eeaa70eac923ec9ab6e5b1a0a18145afbc4ea71"
     )
 
     entrypoint = root.find("./entry_points/entry_point")
