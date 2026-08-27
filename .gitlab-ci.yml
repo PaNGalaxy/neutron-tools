@@ -160,6 +160,11 @@ redeploy_k8s_galaxy:
         fi
       fi
 
+      echo "Kubeconfig diagnostics (credentials are redacted by kubectl)"
+      run_kubectl config current-context || true
+      run_kubectl config view --minify || true
+      run_kubectl auth whoami || true
+
       run_kubectl get deployment galaxy -n ndip -o json > galaxy-deployment.json
       init_name=$(python3 -c '
       import json
