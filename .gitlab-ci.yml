@@ -101,29 +101,48 @@ redeploy_k8s_galaxy:
     KUBE_NAMESPACE: ndip
     GALAXY_DEPLOYMENT: galaxy
     KUBECTL_IMAGE: regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
+    KUBECTL_VERSION: v1.36.4
+    KUBECTL_SHA256: 8b8f088da2dab964f853b38464033b1be15ede2839eca751482357c45abdd05a
   before_script: []
   after_script: []
   script:
     - echo "$KUBECONFIG" | base64 -d > kubeconfig
     - |
-      pull_succeeded=0
-      for attempt in 1 2 3 4; do
-        if docker pull "$KUBECTL_IMAGE"; then
-          pull_succeeded=1
-          break
+      if command -v kubectl >/dev/null 2>&1; then
+        echo "Using kubectl already installed on the deployment runner"
+        run_kubectl() { KUBECONFIG="$PWD/kubeconfig" kubectl "$@"; }
+      else
+        pull_succeeded=0
+        for attempt in 1 2; do
+          if docker pull "$KUBECTL_IMAGE"; then
+            pull_succeeded=1
+            break
+          fi
+          if test "$attempt" -lt 2; then
+            echo "kubectl image pull attempt ${attempt} failed; retrying in 10 seconds"
+            sleep 10
+          fi
+        done
+
+        if test "$pull_succeeded" -eq 1; then
+          run_kubectl() {
+            docker run --rm --pull=never -u root:root \
+              -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig \
+              "$KUBECTL_IMAGE" "$@"
+          }
+        else
+          echo "The internal registry is unavailable; downloading the pinned kubectl release"
+          curl --fail --location --retry 4 --retry-delay 5 \
+            --output kubectl \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          echo "${KUBECTL_SHA256}  kubectl" | sha256sum --check --strict
+          chmod 0755 kubectl
+          run_kubectl() { KUBECONFIG="$PWD/kubeconfig" ./kubectl "$@"; }
         fi
-        echo "kubectl image pull attempt ${attempt} failed; retrying after $((attempt * 10)) seconds"
-        sleep $((attempt * 10))
-      done
-      test "$pull_succeeded" -eq 1
-    - >
-      docker run --rm --pull=never -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
-      "$KUBECTL_IMAGE"
-      rollout restart deployment/galaxy -n ndip
-    - >
-      docker run --rm --pull=never -u root:root -v "$PWD":/mnt -e KUBECONFIG=/mnt/kubeconfig
-      "$KUBECTL_IMAGE"
-      rollout status deployment/galaxy -n ndip --timeout=300s
+      fi
+
+      run_kubectl rollout restart deployment/galaxy -n ndip
+      run_kubectl rollout status deployment/galaxy -n ndip --timeout=300s
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
