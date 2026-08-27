@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.4">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.5">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -26,13 +26,13 @@
                 #set $safe_name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
         cp '$item' 'gpx_inputs/${index}__$safe_name' &&
             #end for
-        selected_project="$(python '$select_project' gpx_inputs)" &&
+        selected_project="\$(python '$select_project' gpx_inputs)" &&
         #else
         selected_project='$project_source.gpx_project' &&
         #end if
-        python -c 'from pathlib import Path; import sys; head = Path(sys.argv[1]).read_bytes()[:2]; sys.exit(0 if len(head) == 2 and head[0] == 0x80 else "The selected input is not a GSAS-II GPX project. Choose RADAR-PD 5 | GSAS-II handoff projects or a project previously saved by this tool.")' "$selected_project" &&
-        printf 'Opening GSAS-II project: %s\n' "$(basename "$selected_project")" | tee -a '$session_log' &&
-        export GSASII_SOURCE_PROJECT="$selected_project" &&
+        python -c 'from pathlib import Path; import sys; head = Path(sys.argv[1]).read_bytes()[:2]; sys.exit(0 if len(head) == 2 and head[0] == 0x80 else "The selected input is not a GSAS-II GPX project. Choose RADAR-PD 5 | GSAS-II handoff projects or a project previously saved by this tool.")' "\$selected_project" &&
+        printf 'Opening GSAS-II project: %s\n' "\$(basename "\$selected_project")" | tee -a '$session_log' &&
+        export GSASII_SOURCE_PROJECT="\$selected_project" &&
         export GSASII_OUTPUT_PROJECT='$edited_project' &&
         /opt/gsasii-gui/start.sh > >(tee -a '$session_log') 2> >(tee -a '$session_log' >&2)
     ]]></command>
