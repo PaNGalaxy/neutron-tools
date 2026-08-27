@@ -100,6 +100,7 @@ redeploy_k8s_galaxy:
   variables:
     KUBE_NAMESPACE: ndip
     GALAXY_DEPLOYMENT: galaxy
+    GALAXY_ROLLOUT_TIMEOUT: 900s
     KUBECTL_IMAGE: regproxy.ornl.gov/hub_proxy/bitnami/kubectl:latest
     KUBECTL_VERSION: v1.36.4
     KUBECTL_SHA256: 8b8f088da2dab964f853b38464033b1be15ede2839eca751482357c45abdd05a
@@ -142,8 +143,14 @@ redeploy_k8s_galaxy:
       fi
 
       run_kubectl rollout restart deployment/galaxy -n ndip
-      run_kubectl rollout status deployment/galaxy -n ndip --timeout=300s
-  allow_failure: true
+      if ! run_kubectl rollout status deployment/galaxy -n ndip \
+        --timeout="$GALAXY_ROLLOUT_TIMEOUT"; then
+        echo "Galaxy rollout did not complete; collecting cluster diagnostics"
+        run_kubectl get deployment galaxy -n ndip -o wide || true
+        run_kubectl get pods -n ndip -o wide || true
+        run_kubectl get events -n ndip --sort-by=.lastTimestamp | tail -80 || true
+        exit 1
+      fi
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       changes:
