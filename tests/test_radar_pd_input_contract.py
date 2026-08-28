@@ -176,6 +176,71 @@ def test_monitor_profile_publishes_fit_plots_and_gpx_but_not_the_heavy_archive()
     assert 'metadata["arrays_npz"] = arrays_destination.name' in publisher
 
 
+def test_analyze_republishes_a_main_only_full_project_for_gsasii(tmp_path: Path, monkeypatch) -> None:
+    root = _root("radar_pd_analyze.xml")
+    command = root.findtext("command", default="")
+    publisher = root.findtext(
+        "./configfiles/configfile[@name='publish_gpx_fallback']",
+        default="",
+    )
+    assert "python '$publish_gpx_fallback' work portal '$output_profile'" in command
+    assert "tee -a '$console_output'" in command
+
+    work = tmp_path / "work"
+    run = work / "run" / "demo"
+    project = run / "Technical" / "GSAS_Projects" / "demo_project.gpx"
+    project.parent.mkdir(parents=True)
+    project.write_bytes(b"GPX")
+    portal = tmp_path / "portal"
+    portal.mkdir()
+    (portal / "summary.json").write_text(
+        json.dumps(
+            {
+                "run_name": "demo",
+                "analysis_mode": "full",
+                "status": "complete",
+                "errors": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    fake_outputs = types.ModuleType("ndip_outputs")
+    fake_outputs._publish_gpx = lambda path, root: False
+    fake_outputs._published_name = lambda path, root, collection: path.name
+    fake_outputs._gpx_stage = lambda relative: "refinement_checkpoint"
+    fake_outputs.build_gpx_index = lambda *args, **kwargs: {
+        "projects": [
+            {
+                "path": "Technical/GSAS_Projects/demo_project.gpx",
+                "stage": "refinement_checkpoint",
+                "status": "checkpoint",
+            }
+        ]
+    }
+
+    def collect_outputs(run_root, output_root, **kwargs):
+        assert run_root == run.resolve()
+        assert output_root == portal.resolve()
+        assert fake_outputs._publish_gpx(project, run.resolve()) is True
+        assert fake_outputs._published_name(project, run.resolve(), "gpx") == "02_Main_phase_anchor.gpx"
+        assert fake_outputs._gpx_stage(project.relative_to(run).as_posix()) == "main_phase_anchor"
+        index = fake_outputs.build_gpx_index(run)
+        assert index["projects"][0]["stage"] == "main_phase_anchor"
+        assert index["projects"][0]["status"] == "accepted"
+        assert kwargs["include_archive"] is False
+
+    fake_outputs.collect_outputs = collect_outputs
+    monkeypatch.setitem(sys.modules, "ndip_outputs", fake_outputs)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["publish_gpx_fallback", str(work), str(portal), "monitor"],
+    )
+
+    exec(compile(publisher, "<publish_gpx_fallback>", "exec"), {})
+
+
 def test_analyze_augmented_library_compatibility_entry_point(tmp_path: Path, monkeypatch) -> None:
     root = _root("radar_pd_analyze.xml")
     command = root.findtext("command", default="")

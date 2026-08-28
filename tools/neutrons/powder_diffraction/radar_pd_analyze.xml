@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.12">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.13">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -154,6 +154,7 @@
             #end if
         analyze_args+=(--mode auto --input-source '$input_source_label' --work-dir work --output-dir portal) &&
         "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        python '$publish_gpx_fallback' work portal '$output_profile' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
         python '$publish_plot_payloads' work/run portal
     ]]></command>
     <configfiles>
@@ -224,6 +225,101 @@ def _materialize_augmented_library(*args, **kwargs):
 
 ndip_runner._materialize_contract_config = _materialize_augmented_library
 raise SystemExit(ndip_runner.main())
+        ]]></configfile>
+        <configfile name="publish_gpx_fallback"><![CDATA[
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, "/opt/radar-pd/scripts")
+import ndip_outputs
+
+
+work = Path(sys.argv[1]).resolve()
+portal = Path(sys.argv[2]).resolve()
+output_profile = str(sys.argv[3]).strip().lower()
+summary_path = portal / "summary.json"
+summary = json.loads(summary_path.read_text(encoding="utf-8"))
+run_root = work / "run"
+run_name = str(summary.get("run_name") or "").strip()
+nested_run = run_root / run_name
+if run_name and nested_run.is_dir():
+    run_root = nested_run
+
+original_publish_gpx = ndip_outputs._publish_gpx
+original_published_name = ndip_outputs._published_name
+original_gpx_stage = ndip_outputs._gpx_stage
+original_build_gpx_index = ndip_outputs.build_gpx_index
+
+
+def _fallback_main_project(path, root):
+    try:
+        relative = path.relative_to(root).as_posix().lower()
+    except ValueError:
+        return False
+    if "gsas_projects" not in relative or not path.name.lower().endswith("_project.gpx"):
+        return False
+    if original_publish_gpx(path, root):
+        return False
+    return not any(
+        "seq_final_main_polished" in candidate.name.lower()
+        for candidate in path.parent.glob("*.gpx")
+    )
+
+
+def _publish_gpx(path, root):
+    return original_publish_gpx(path, root) or _fallback_main_project(path, root)
+
+
+def _published_name(path, root, collection):
+    if collection == "gpx" and _fallback_main_project(path, root):
+        return "02_Main_phase_anchor.gpx"
+    return original_published_name(path, root, collection)
+
+
+def _gpx_stage(relative):
+    lowered = str(relative).lower()
+    if "gsas_projects" in lowered and lowered.endswith("_project.gpx"):
+        return "main_phase_anchor"
+    return original_gpx_stage(relative)
+
+
+def _build_gpx_index(*args, **kwargs):
+    index = original_build_gpx_index(*args, **kwargs)
+    root = Path(args[0] if args else kwargs.get("run_dir") or ".").resolve()
+    for project in index.get("projects", []):
+        source = str(project.get("path") or "")
+        if source and _fallback_main_project(root / source, root):
+            project["stage"] = "main_phase_anchor"
+            project["status"] = "accepted"
+    return index
+
+
+ndip_outputs._publish_gpx = _publish_gpx
+ndip_outputs._published_name = _published_name
+ndip_outputs._gpx_stage = _gpx_stage
+ndip_outputs.build_gpx_index = _build_gpx_index
+
+if not any(_fallback_main_project(path, run_root) for path in run_root.rglob("*.gpx")):
+    raise SystemExit(0)
+
+catalog_candidates = [
+    work / "custom_database" / "library_output" / "catalog_deduplicated.csv",
+    Path("/opt/radar-pd/data/database_neutron/catalog_deduplicated.csv"),
+    Path("/opt/radar-pd/data/database_xray/catalog_deduplicated.csv"),
+]
+phase_catalog = next((path for path in catalog_candidates if path.is_file()), None)
+ndip_outputs.collect_outputs(
+    run_root,
+    portal,
+    mode=str(summary.get("analysis_mode") or "full"),
+    run_name=run_name or run_root.name,
+    project_root="/opt/radar-pd",
+    include_archive=output_profile == "full",
+    status=str(summary.get("status") or "complete"),
+    errors=list(summary.get("errors") or []),
+    phase_catalog_csv=phase_catalog,
+)
         ]]></configfile>
         <configfile name="publish_plot_payloads"><![CDATA[
 import json
