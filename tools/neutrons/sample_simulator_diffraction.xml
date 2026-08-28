@@ -1,4 +1,4 @@
-<tool id="neutrons_mcu_sample_simulator_diffraction" name="Sample Simulator diffractometer" profile="22.05" version="0.1.2">
+<tool id="sample_simulator_prototype" name="Sample Simulator (Diffraction) Prototype" profile="22.05" version="0.1.3">
     <description></description>
     <creator>
         <person name="Marshall McDonnell"/>
@@ -21,9 +21,22 @@
         <param name="number_of_nodes" type="integer" label="Number of Compute Nodes" value="1"/>
     </inputs>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir ./output/ &&
-        mkdir ./sampleassembly/ && tar xf $sample_assembly -C sampleassembly --strip-components 1 &&
-        mv $incident_beam incident_beam.mcpl &&
+        ## The image ENTRYPOINT (which primes ~/.mantid) is not run by Galaxy, and
+        ## mcvine's CLI imports mantid2mcvine, which refuses to load without it.
+        python -c 'from mantid.simpleapi import *' > /dev/null 2>&1 || true &&
+        mkdir -p "\$HOME/.mantid/instrument" &&
+        cp -n /opt/conda/instrument/Facilities.xml "\$HOME/.mantid/instrument/" 2>/dev/null || true &&
+
+        mkdir -p ./output/ &&
+        mkdir -p ./sampleassembly/ && tar xf $sample_assembly -C sampleassembly --strip-components 1 &&
+
+        ## The mcpl reader picks gzip vs. plain purely from the file name, so a
+        ## gzipped dataset named *.mcpl is rejected as "not an MCPL file".
+        if gzip -t $incident_beam 2>/dev/null ; then
+            gunzip -c $incident_beam > incident_beam.mcpl ;
+        else
+            cp $incident_beam incident_beam.mcpl ;
+        fi &&
 
         mcu_sample_simulator
           $instrument_name
@@ -46,9 +59,49 @@
         <data format="h5"  name="output_nexus"  from_work_dir="./output-nexus.nxs" />
     </outputs>
 
+    <tests>
+        <!-- The upstream beamline simulator emits the MCPL beam both gzipped
+             (out_mcpl_gz) and uncompressed (out_mcpl); either may be wired in. -->
+        <test>
+            <param name="instrument_name" value="NOMAD"/>
+            <param name="incident_beam" ftype="gz" value="sample_simulator_incident_beam.mcpl.gz"/>
+            <param name="sample_assembly" ftype="gz" value="sample_simulator_sample_assembly.tar.gz"/>
+            <param name="number_of_neutrons" value="1000"/>
+            <param name="multi_scat_flag" value="false"/>
+            <param name="number_of_nodes" value="1"/>
+            <output name="output_mcvine" ftype="tgz">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
+            <output name="output_nexus" ftype="h5">
+                <assert_contents>
+                    <has_size min="1000000"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="instrument_name" value="NOMAD"/>
+            <param name="incident_beam" ftype="data" value="sample_simulator_incident_beam.mcpl"/>
+            <param name="sample_assembly" ftype="gz" value="sample_simulator_sample_assembly.tar.gz"/>
+            <param name="number_of_neutrons" value="1000"/>
+            <param name="multi_scat_flag" value="false"/>
+            <param name="number_of_nodes" value="1"/>
+            <output name="output_mcvine" ftype="tgz">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
+            <output name="output_nexus" ftype="h5">
+                <assert_contents>
+                    <has_size min="1000000"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+
     <help><![CDATA[
         Runs McVine simulations of a sample.
     ]]></help>
 </tool>
-
 
