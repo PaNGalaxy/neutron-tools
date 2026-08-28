@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.11">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.12">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -491,7 +491,6 @@ print(f"Published {published} interactive plot sidecar file(s).")
             <discover_datasets pattern="__designation_and_ext__" directory="portal/phases" visible="true"/>
         </collection>
         <collection type="list" name="gpx_projects" format="binary" label="RADAR-PD 5 | GSAS-II handoff projects">
-            <filter>output_profile == 'full'</filter>
             <discover_datasets pattern="(?P&lt;designation&gt;.+)\.gpx" ext="binary" directory="portal/gpx" visible="true"/>
         </collection>
         <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD 6 | Reproducible configuration">

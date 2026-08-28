@@ -133,7 +133,7 @@ def test_analyze_outputs_start_with_native_overview_and_hide_report_internals() 
     assert archive is not None and archive.attrib.get("label") == "RADAR-PD 7 | Complete results archive"
 
 
-def test_monitor_profile_publishes_fit_plots_but_not_the_heavy_archive() -> None:
+def test_monitor_profile_publishes_fit_plots_and_gpx_but_not_the_heavy_archive() -> None:
     root = _root("radar_pd_analyze.xml")
     outputs = root.find("outputs")
     assert outputs is not None
@@ -141,6 +141,10 @@ def test_monitor_profile_publishes_fit_plots_but_not_the_heavy_archive() -> None
     plots = outputs.find("./collection[@name='plots']")
     assert plots is not None
     assert plots.find("filter") is None
+
+    gpx_projects = outputs.find("./collection[@name='gpx_projects']")
+    assert gpx_projects is not None
+    assert gpx_projects.find("filter") is None
 
     archive = outputs.find("./data[@name='results_archive']")
     assert archive is not None
