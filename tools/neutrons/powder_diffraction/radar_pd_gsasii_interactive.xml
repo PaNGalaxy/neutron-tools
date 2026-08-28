@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.10">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.11">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-da11a5ff41c203c3c42ec65831607212690a4351</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-e1d858113df4483bc0001832a0fc934f7925784e</container>
     </requirements>
     <entry_points>
         <entry_point name="GSAS-II Interactive" label="gsasii" requires_domain="False" requires_path_in_url="True">
@@ -17,8 +17,8 @@
     </environment_variables>
     <command><![CDATA[
         #import re
-        touch '$session_log' &&
-        trap "chmod a+r '$edited_project' '$session_log' >/dev/null 2>&1 || true" EXIT &&
+        touch '$session_log' '$exported_files' &&
+        trap "chmod a+r '$edited_project' '$exported_files' '$session_log' >/dev/null 2>&1 || true" EXIT &&
         set -euo pipefail &&
         #if str($project_source.source_kind) == 'collection'
         mkdir -p gpx_inputs &&
@@ -34,6 +34,7 @@
         printf 'Opening GSAS-II project: %s\n' "\$(basename "\$selected_project")" | tee -a '$session_log' &&
         export GSASII_SOURCE_PROJECT="\$selected_project" &&
         export GSASII_OUTPUT_PROJECT='$edited_project' &&
+        export GSASII_OUTPUT_ARCHIVE='$exported_files' &&
         /opt/gsasii-gui/start.sh > >(tee -a '$session_log') 2> >(tee -a '$session_log' >&2)
     ]]></command>
     <configfiles>
@@ -110,6 +111,7 @@ if first_opcode is None:
     </inputs>
     <outputs>
         <data name="edited_project" format="binary" label="GSAS-II refined project | ${on_string}.gpx"/>
+        <data name="exported_files" format="zip" label="GSAS-II exported files | ${on_string}.zip"/>
         <data name="session_log" format="txt" label="GSAS-II interactive session log | ${on_string}"/>
     </outputs>
     <help><![CDATA[
@@ -120,7 +122,8 @@ Typical workflow:
 1. Run **RADAR-PD Analyze**.
 2. Select the complete **RADAR-PD 5 | GSAS-II handoff projects** collection. The latest accepted refinement checkpoint is chosen automatically.
 3. Open the interactive display, refine parameters in GSAS-II, and use **File > Save project**.
-4. Close GSAS-II or stop the interactive job. Continue later with **One saved GSAS-II project** and select the resulting **GSAS-II refined project**.
+4. Save plots, CIFs, tables, or other files into the visible **Exports** folder in GSAS-II's save dialog.
+5. Close GSAS-II or stop the interactive job. Continue later with **One saved GSAS-II project** and select the resulting **GSAS-II refined project**. Files saved under **Exports** are returned in **GSAS-II exported files**.
 
 This is the full GSAS-II GUI, not the batch GSAS2 refinement tool. Use GSAS-II's own controls for phase fractions, lattice and profile terms, atomic coordinates, occupancies, displacement parameters, background, and instrument parameters. Refining many correlated parameters at once can destabilize a fit; save checkpoints as you proceed.
     ]]></help>

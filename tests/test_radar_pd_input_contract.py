@@ -387,12 +387,12 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
 
     assert root.attrib.get("tool_type") == "interactive"
     assert root.attrib.get("profile") == "22.05"
-    assert root.attrib.get("version") == "0.1.10"
+    assert root.attrib.get("version") == "0.1.11"
 
     container = root.find("./requirements/container")
     assert container is not None
     assert (container.text or "").strip().endswith(
-        ":gsasii-gui-da11a5ff41c203c3c42ec65831607212690a4351"
+        ":gsasii-gui-e1d858113df4483bc0001832a0fc934f7925784e"
     )
 
     entrypoint = root.find("./entry_points/entry_point")
@@ -423,6 +423,7 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     command = root.findtext("./command", default="")
     assert 'GSASII_SOURCE_PROJECT="\\$selected_project"' in command
     assert "GSASII_OUTPUT_PROJECT='$edited_project'" in command
+    assert "GSASII_OUTPUT_ARCHIVE='$exported_files'" in command
     assert "python '$validate_project'" in command
     assert "/opt/gsasii-gui/start.sh" in command
 
@@ -438,10 +439,13 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     assert "contains no valid GSAS-II GPX project" in selector_script
 
     edited = root.find("./outputs/data[@name='edited_project']")
+    exported = root.find("./outputs/data[@name='exported_files']")
     log = root.find("./outputs/data[@name='session_log']")
     assert edited is not None and edited.attrib.get("format") == "binary"
+    assert exported is not None and exported.attrib.get("format") == "zip"
     assert log is not None and log.attrib.get("format") == "txt"
     assert "${on_string}" in edited.attrib.get("label", "")
+    assert "${on_string}" in exported.attrib.get("label", "")
     assert "${on_string}" in log.attrib.get("label", "")
 
 
