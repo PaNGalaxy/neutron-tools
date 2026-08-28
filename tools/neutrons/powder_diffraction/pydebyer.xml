@@ -1,5 +1,5 @@
-<tool id="pydbyer" name="PyDebyer " version="0.1.0" profile="22.01">
-    <description>PyDebyer: Debye Scattering Equation Calculator</description>
+<tool id="pydbyer" name="PyDebyer" version="0.1.0" profile="22.01">
+    <description>PyDebyer: Debyer Scattering Equation Calculator</description>
     <creator>
         <person name="Marshall McDonnell"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
