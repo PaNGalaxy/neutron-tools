@@ -16,6 +16,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">neuxtalviz</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
+        touch $output &&
         export GALAXY_WORKING_DIR=`pwd` &&
         export DEFAULT_DIR="/SNS/users/\$GALAXY_TOOL_USER" &&
         #if $directory:
@@ -27,6 +28,7 @@
         <param name="directory" type="text" optional="true" label="Default working directory" />
     </inputs>
     <outputs>
+        <data name="output" auto_format="true" label="NeuXtalViz Console Output"></data>
     </outputs>
     <help><![CDATA[
         Starts the noVNC version of NeuXtalViz.
