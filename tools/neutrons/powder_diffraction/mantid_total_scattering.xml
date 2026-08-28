@@ -1,0 +1,840 @@
+<tool id="mantid_total_scattering" name="Mantid Total Scattering" profile="22.05" version="0.1.0">
+    <description>Reduces simulated or measured NeXus runs to S(Q) and G(r)</description>
+    <creator>
+        <person name="Marshall McDonnell"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <!-- Built from mantid_total_scattering commit 627c106, which carries
+             the off-cluster fixes (facility config lookup, 'Filenames' for the
+             container background, and the processed-NeXus fallback when
+             loading absorption metadata); without them the reduction aborts
+             looking for /SNS. Pinned to the commit rather than a moving
+             ':prototype' tag so a cached image on a compute node cannot
+             silently diverge from this tool. Move to
+             ghcr.io/neutrons/mantid-total-scattering:<branch> once that repo's
+             docker-build-push job has run. -->
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/neumatix/mantid-total-scattering:prototype-627c106</container>
+    </requirements>
+
+    <configfiles>
+        <!-- The user's choices, handed to the runner as data rather than as a
+             wall of command line flags. Paths are the Galaxy dataset paths. -->
+        <configfile name="tool_params"><![CDATA[{
+    "facility": "$experiment.facility",
+    "instrument": "$experiment.instrument",
+    "title": "$experiment.title",
+
+    "sample_files": [#for $i, $f in enumerate($data.sample_files)#{"path": "$f", "name": "$f.element_identifier"}#if $i + 1 < len($data.sample_files)#,#end if##end for#],
+    "normalization_files": [#for $i, $f in enumerate($data.normalization_files)#{"path": "$f", "name": "$f.element_identifier"}#if $i + 1 < len($data.normalization_files)#,#end if##end for#],
+    "calibration_file": #if $data.calibration_file# "$data.calibration_file" #else# null #end if#,
+    "grouping_file": #if $data.grouping_file# "$data.grouping_file" #else# null #end if#,
+
+    "sample": {
+        "material": "$sample.material",
+        "mass_density": $sample.mass_density,
+        "packing_fraction": $sample.packing_fraction,
+        "geometry": {
+            "shape": "$sample.geometry.shape",
+#if $sample.geometry.shape == "Cylinder"
+            "radius": $sample.geometry.radius,
+#else
+            "inner_radius": $sample.geometry.inner_radius,
+            "outer_radius": $sample.geometry.outer_radius,
+#end if
+            "height": $sample.geometry.height
+        },
+        "absorption_correction": "$sample.absorption_correction",
+        "multiple_scattering_correction": "$sample.multiple_scattering_correction",
+        "inelastic_correction": {
+            "type": "$sample.inelastic.inelastic_correction",
+#if $sample.inelastic.inelastic_correction == "Placzek"
+            "order": "$sample.inelastic.order",
+            "self": #if $sample.inelastic.self_scattering#true#else#false#end if#,
+            "interference": #if $sample.inelastic.interference#true#else#false#end if#,
+            "fit_spectrum_with": "$sample.inelastic.fit_spectrum_with",
+            "lambda_binning_for_fit": "$sample.inelastic.lambda_binning_for_fit",
+            "lambda_binning_for_calc": "$sample.inelastic.lambda_binning_for_calc"
+#else
+            "order": null
+#end if
+        }
+    },
+
+    "normalization": {
+        "material": "$normalization.material",
+        "mass_density": $normalization.mass_density,
+        "packing_fraction": $normalization.packing_fraction,
+        "geometry": {
+            "shape": "Cylinder",
+            "radius": $normalization.radius,
+            "height": $normalization.height
+        },
+        "absorption_correction": "$normalization.absorption_correction",
+        "multiple_scattering_correction": "$normalization.multiple_scattering_correction"
+    },
+
+    "align_and_focus": {
+        "tmin": $align_and_focus.tmin,
+        "tmax": $align_and_focus.tmax,
+        "extra_args": "$align_and_focus.extra_args"
+    },
+
+    "merging": {
+        "q_min": $merging.q_min,
+        "q_delta": $merging.q_delta,
+        "q_max": $merging.q_max,
+        "high_q_linear_fit_range": $merging.high_q_linear_fit_range,
+        "self_scattering_levels": [#for $i, $lvl in enumerate($merging.self_scattering_levels)#{"bank": $lvl.bank, "min": $lvl.level_min, "max": $lvl.level_max}#if $i + 1 < len($merging.self_scattering_levels)#,#end if##end for#]
+    },
+
+    "advanced": {
+        "beam_height": #if str($advanced.beam_height)# $advanced.beam_height #else# null #end if#,
+        "push_positive_level": $advanced.push_positive_level,
+        "debug_mode": #if $advanced.debug_mode#true#else#false#end if#,
+        "processing_q_step": #if str($advanced.processing_q_step)# $advanced.processing_q_step #else# null #end if#,
+        "config_overrides": #if $advanced.config_overrides# "$advanced.config_overrides" #else# null #end if#
+    }
+}]]></configfile>
+
+        <!-- Extra file lists, kept out of the block above because Cheetah cannot
+             iterate an optional multiple="true" param that the user left empty. -->
+        <configfile name="extra_file_lists"><![CDATA[{
+    "sample_background_files": [#if $data.sample_background_files##for $i, $f in enumerate($data.sample_background_files)#{"path": "$f", "name": "$f.element_identifier"}#if $i + 1 < len($data.sample_background_files)#,#end if##end for##end if#],
+    "sample_background_background_files": [#if $data.sample_background_background_files##for $i, $f in enumerate($data.sample_background_background_files)#{"path": "$f", "name": "$f.element_identifier"}#if $i + 1 < len($data.sample_background_background_files)#,#end if##end for##end if#],
+    "normalization_background_files": [#if $data.normalization_background_files##for $i, $f in enumerate($data.normalization_background_files)#{"path": "$f", "name": "$f.element_identifier"}#if $i + 1 < len($data.normalization_background_files)#,#end if##end for##end if#]
+}]]></configfile>
+
+        <configfile name="mts_runner">#raw
+"""Galaxy runner for MantidTotalScattering.
+
+Galaxy hands us datasets, not run numbers, so this wrapper does the three
+things that stand between a Galaxy history and a MantidTotalScattering
+reduction:
+
+  1. Stages each dataset under a name Mantid and MTS can work with. Galaxy
+     dataset paths end in ``.dat`` and carry no run number; MTS keys its
+     caches off the file basename, so every input gets a distinct, stable name.
+
+  2. Synthesises a zero-signal sample background when the user has none. MTS
+     always loads and subtracts a container; subtracting zero is the honest
+     way to express "no container was measured" without forking the reduction.
+
+  3. Builds the MTS input JSON, including the off-cluster settings that a
+     containerised run needs (``DummyExpt`` so no ONCat/IPTS lookup is
+     attempted, ``CacheDirMTS`` inside the job directory, and a facility
+     config that does not live under /SNS).
+
+The JSON it builds is written out as a tool output so a run can always be
+reproduced with a plain ``mantidtotalscattering input.json``.
+"""
+
+import argparse
+import json
+import os
+import shutil
+import sys
+
+
+# MTS reads these from the facility config on the analysis cluster. Off the
+# cluster we write our own copy; these values match the defaults the reduction
+# falls back to internally.
+FACILITY_CONFIG_DEFAULTS = {
+    "SNS": {
+        "NOM": {
+            "QParamsProcessing": "0.01,0.001,40.0",
+            "TMIN": 300.0,
+            "TMAX": 16667.0,
+            "ResampleX": -6000,
+            "ReGenerateGrouping": 0,
+            "QMaxByBank": "35,25,40,40,40,20",
+            "TMinBragg": "0.7,0.7,0.9,1.5,1.6,1.1",
+            "TMaxBragg": "17,18.5,19,18.5,16.9,17",
+            "TBinBragg": "-0.0008",
+        },
+        "PG3": {
+            "QParamsProcessing": "0.01,0.001,40.0",
+            "TMIN": 300.0,
+            "TMAX": 16667.0,
+            "ResampleX": -8000,
+            "ReGenerateGrouping": 0,
+            "TBinBragg": "-0.0008",
+        },
+    }
+}
+
+# Shipped inside the MantidTotalScattering image. Used when the history has no
+# calibration or grouping dataset, so that a two-file run works out of the box.
+IMAGE_DEFAULTS = {
+    "NOM": {
+        "calibration": "/app/examples/sns/nomad_cal.h5",
+        "grouping": "/app/examples/sns/groupings/nomad_group_16_8_masked.xml",
+    }
+}
+
+ROLES = (
+    "sample_files",
+    "normalization_files",
+    "sample_background_files",
+    "sample_background_background_files",
+    "normalization_background_files",
+)
+
+
+def stage_inputs(params, staging_dir):
+    """Give every input dataset a distinct, loadable filename.
+
+    @param params: dict, the tool parameters
+    @param staging_dir: str, directory to stage into
+
+    @return: dict of role -> list of staged absolute paths
+    """
+    os.makedirs(staging_dir, exist_ok=True)
+    staged = {}
+    for role in ROLES:
+        paths = []
+        for index, entry in enumerate(params.get(role) or []):
+            source = entry["path"]
+            target = os.path.join(
+                staging_dir, "{0}_{1}.nxs".format(role[:-6], index))
+            if os.path.exists(target):
+                os.remove(target)
+            # A symlink keeps large NeXus files from being copied, and Mantid
+            # follows it happily.
+            os.symlink(os.path.abspath(source), target)
+            paths.append(target)
+        staged[role] = paths
+    return staged
+
+
+def make_zero_background(reference_file, output_file):
+    """Write a background NeXus with the reference's geometry and no counts.
+
+    MTS unconditionally loads and subtracts a container run. When no container
+    was measured - the usual case for simulated data - subtracting a workspace
+    that is zero everywhere leaves the sample untouched, which is exactly the
+    intended meaning.
+
+    @param reference_file: str, NeXus file whose instrument/geometry to copy
+    @param output_file: str, where to write the zero-signal NeXus
+
+    @return: str, output_file
+    """
+    from mantid.simpleapi import (
+        CreateSingleValuedWorkspace, Load, Multiply, SaveNexusProcessed)
+
+    reference = Load(Filename=reference_file, OutputWorkspace="zero_bkg_ref")
+    zero = CreateSingleValuedWorkspace(0.0, OutputWorkspace="zero_scalar")
+    background = Multiply(
+        LHSWorkspace=reference, RHSWorkspace=zero, OutputWorkspace="zero_bkg")
+    SaveNexusProcessed(InputWorkspace=background, Filename=output_file)
+    return output_file
+
+
+# The reduction rebins to this Q binning while focussing, before the final
+# merge. Fine is good, but see processing_q_params for when it is not.
+DEFAULT_PROCESSING_Q_STEP = 0.001
+DEFAULT_PROCESSING_Q_MIN = 0.01
+
+
+def absorption_enabled(params):
+    """True when either section asks for an absorption correction."""
+    for section in ("sample", "normalization"):
+        if params[section].get("absorption_correction") not in (None, "", "None"):
+            return True
+    return False
+
+
+def processing_q_params(params):
+    """Q binning used while focussing, as a Rebin parameter string.
+
+    Without an absorption correction the detectors are grouped before this
+    rebin, so a fine step costs almost nothing. With an absorption correction
+    the reduction has to rebin every pixel on its own so it can divide by a
+    pixel-level absorption workspace, and a 0.001 step across 40 inverse
+    angstroms over a 100k pixel instrument is tens of gigabytes. There we fall
+    back to the output binning, which is what actually survives the job.
+
+    @param params: dict, the tool parameters
+
+    @return: str, e.g. "0.01,0.001,40.0"
+    """
+    merging = params["merging"]
+    override = params["advanced"].get("processing_q_step")
+    if override:
+        step = override
+    elif absorption_enabled(params):
+        step = merging["q_delta"]
+    else:
+        step = DEFAULT_PROCESSING_Q_STEP
+
+    q_min = merging["q_min"] or DEFAULT_PROCESSING_Q_MIN
+
+    return "{0},{1},{2}".format(q_min, step, merging["q_max"])
+
+
+def write_facility_config(config_dir, facility, instrument, q_params=None):
+    """Write the facility config MTS expects to find on the analysis cluster.
+
+    @param config_dir: str, directory to write into
+    @param facility: str
+    @param instrument: str
+    @param q_params: str or None, overrides QParamsProcessing
+
+    @return: str, path to the written auto_config.json
+    """
+    os.makedirs(config_dir, exist_ok=True)
+    defaults = FACILITY_CONFIG_DEFAULTS.get(facility, {}).get(instrument)
+    if defaults is None:
+        defaults = {
+            "QParamsProcessing": "0.01,0.001,40.0",
+            "TMIN": 300.0,
+            "TMAX": 16667.0,
+            "ReGenerateGrouping": 0,
+        }
+    contents = dict(defaults)
+    if q_params:
+        contents["QParamsProcessing"] = q_params
+    contents["CacheDir"] = os.path.abspath(
+        os.path.join(config_dir, os.pardir, "cache"))
+    os.makedirs(contents["CacheDir"], exist_ok=True)
+
+    config_file = os.path.join(config_dir, "auto_config.json")
+    with open(config_file, "w") as handle:
+        json.dump(contents, handle, indent=4)
+
+    # Older MantidTotalScattering reads this unconditionally for non-PG3
+    # instruments. A header-only file means "no detector sub-grouping".
+    with open(os.path.join(config_dir, "group_index.txt"), "w") as handle:
+        handle.write("group start stop\n")
+
+    return config_file
+
+
+def _correction(name):
+    """Turn a 'None' selection into an absent JSON section."""
+    if not name or name == "None":
+        return None
+    return {"Type": name}
+
+
+def _inelastic(settings):
+    if not settings or settings.get("type") in (None, "", "None"):
+        return None
+    return {
+        "Type": settings["type"],
+        "Order": settings["order"],
+        "Self": settings["self"],
+        "Interference": settings["interference"],
+        "FitSpectrumWith": settings["fit_spectrum_with"],
+        "LambdaBinningForFit": settings["lambda_binning_for_fit"],
+        "LambdaBinningForCalc": settings["lambda_binning_for_calc"],
+    }
+
+
+def _geometry(geometry):
+    shape = geometry.get("shape", "Cylinder")
+    if shape == "HollowCylinder":
+        return {
+            "Shape": "HollowCylinder",
+            "InnerRadius": geometry["inner_radius"],
+            "OuterRadius": geometry["outer_radius"],
+            "Height": geometry["height"],
+        }
+    return {
+        "Shape": "Cylinder",
+        "Radius": geometry["radius"],
+        "Height": geometry["height"],
+    }
+
+
+def build_mts_config(params, staged, calibration_file, grouping_file,
+                     config_file, cache_dir, output_dir):
+    """Assemble the MantidTotalScattering input JSON.
+
+    @param params: dict, the tool parameters
+    @param staged: dict of role -> list of staged file paths
+    @param calibration_file: str, calibration HDF5 to use
+    @param grouping_file: str or None, initial detector grouping
+    @param config_file: str, facility config for this run
+    @param cache_dir: str, writable cache directory
+    @param output_dir: str, where the reduction writes its results
+
+    @return: dict, ready to be dumped as the MTS input JSON
+    """
+    sample = params["sample"]
+    normalization = params["normalization"]
+    merging = params["merging"]
+    focus = params["align_and_focus"]
+    advanced = params["advanced"]
+
+    sample_section = {
+        "Filenames": staged["sample_files"],
+        "Background": {"Filenames": staged["sample_background_files"]},
+        "Material": sample["material"],
+        "MassDensity": sample["mass_density"],
+        "PackingFraction": sample["packing_fraction"],
+        "Geometry": _geometry(sample["geometry"]),
+    }
+    if staged["sample_background_background_files"]:
+        sample_section["Background"]["Background"] = {
+            "Filenames": staged["sample_background_background_files"]}
+
+    for key, value in (
+        ("AbsorptionCorrection", _correction(sample["absorption_correction"])),
+        ("MultipleScatteringCorrection",
+         _correction(sample["multiple_scattering_correction"])),
+        ("InelasticCorrection", _inelastic(sample.get("inelastic_correction"))),
+    ):
+        if value is not None:
+            sample_section[key] = value
+
+    normalization_section = {
+        "Filenames": staged["normalization_files"],
+        "Material": normalization["material"],
+        "MassDensity": normalization["mass_density"],
+        "PackingFraction": normalization["packing_fraction"],
+        "Geometry": _geometry(normalization["geometry"]),
+    }
+    if staged["normalization_background_files"]:
+        normalization_section["Background"] = {
+            "Filenames": staged["normalization_background_files"]}
+    for key, value in (
+        ("AbsorptionCorrection",
+         _correction(normalization["absorption_correction"])),
+        ("MultipleScatteringCorrection",
+         _correction(normalization["multiple_scattering_correction"])),
+    ):
+        if value is not None:
+            normalization_section[key] = value
+
+    align_and_focus = {"TMin": focus["tmin"], "TMax": focus["tmax"]}
+    extra = (focus.get("extra_args") or "").strip()
+    if extra:
+        align_and_focus.update(json.loads(extra))
+
+    merging_section = {
+        "QBinning": [merging["q_min"], merging["q_delta"], merging["q_max"]],
+    }
+    if grouping_file:
+        # 'Initial' focuses detectors during align-and-focus, which is what
+        # keeps a 100k pixel instrument inside a sane memory budget. 'Output'
+        # is deliberately left out so the final focussing uses the grouping
+        # from the calibration file, whose bank count matches QMaxByBank.
+        merging_section["Grouping"] = {"Initial": grouping_file}
+
+    config = {
+        "Facility": params["facility"],
+        "Instrument": params["instrument"],
+        "Title": params["title"],
+        # No ONCat/IPTS lookup: these files are not on the analysis cluster.
+        "DummyExpt": True,
+        "AutoConfigFile": config_file,
+        "Sample": sample_section,
+        "Normalization": normalization_section,
+        "Calibration": {"Filename": calibration_file},
+        "AlignAndFocusArgs": align_and_focus,
+        "HighQLinearFitRange": merging["high_q_linear_fit_range"],
+        "Merging": merging_section,
+        "CacheDirMTS": cache_dir,
+        "OutputDir": output_dir,
+    }
+
+    levels = merging.get("self_scattering_levels") or []
+    if levels:
+        config["SelfScatteringLevelCorrection"] = {
+            "Bank{0}".format(level["bank"]): [level["min"], level["max"]]
+            for level in levels
+        }
+
+    if advanced.get("beam_height") is not None:
+        config["BeamHeight"] = advanced["beam_height"]
+    if advanced.get("push_positive_level") is not None:
+        sample_section["PushPositiveLevel"] = advanced["push_positive_level"]
+    if advanced.get("debug_mode"):
+        config["DebugMode"] = True
+
+    return config
+
+
+def deep_update(base, overrides):
+    """Merge ``overrides`` into ``base``, recursing into nested dicts.
+
+    @param base: dict, modified in place
+    @param overrides: dict
+
+    @return: dict, base
+    """
+    for key, value in overrides.items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            deep_update(base[key], value)
+        else:
+            base[key] = value
+    return base
+
+
+def quiet_mantid(home):
+    """Stop Mantid phoning home from a compute node with no egress."""
+    properties_dir = os.path.join(home, ".mantid")
+    os.makedirs(properties_dir, exist_ok=True)
+    with open(os.path.join(properties_dir, "Mantid.user.properties"),
+              "a") as handle:
+        handle.write("\nUpdateInstrumentDefinitions.OnStartup = 0\n")
+        handle.write("CheckMantidVersion.OnStartup = 0\n")
+        handle.write("usagereports.enabled = 0\n")
+
+
+def collect_outputs(output_dir, title, destinations):
+    """Copy the reduction's title-named results to fixed output paths.
+
+    @param output_dir: str, the reduction's OutputDir
+    @param title: str, the reduction Title, which names its output files
+    @param destinations: dict of relative source path -> destination path
+
+    @return: list of str, the destinations that were actually written
+    """
+    written = []
+    for relative, destination in destinations.items():
+        source = os.path.join(output_dir, relative.format(title=title))
+        if os.path.isfile(source):
+            shutil.copyfile(source, destination)
+            written.append(destination)
+    return written
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--params", required=True)
+    parser.add_argument("--extra-file-lists", required=True)
+    parser.add_argument("--work-dir", default=".")
+    parser.add_argument("--config-out", required=True)
+    parser.add_argument("--sofq-out", required=True)
+    parser.add_argument("--gsas-out", required=True)
+    args = parser.parse_args(argv)
+
+    with open(args.params) as handle:
+        params = json.load(handle)
+    with open(args.extra_file_lists) as handle:
+        params.update(json.load(handle))
+
+    work_dir = os.path.abspath(args.work_dir)
+    staging_dir = os.path.join(work_dir, "staged")
+    output_dir = os.path.join(work_dir, "output")
+    cache_dir = os.path.join(work_dir, "cache")
+    config_dir = os.path.join(work_dir, "mts_config")
+    for directory in (output_dir, cache_dir):
+        os.makedirs(directory, exist_ok=True)
+
+    quiet_mantid(os.environ.get("HOME", work_dir))
+
+    if not params["sample_files"]:
+        parser.error("At least one sample file is required.")
+    if not params["normalization_files"]:
+        parser.error("At least one normalization file is required.")
+
+    inelastic = (params["sample"].get("inelastic_correction") or {})
+    if inelastic.get("type") == "Placzek":
+        parser.error(
+            "Placzek inelastic correction reads beam monitors from the raw "
+            "run on the analysis cluster, which is not available for "
+            "file-based input. Choose 'None' for this tool.")
+
+    staged = stage_inputs(params, staging_dir)
+
+    if not staged["sample_background_files"]:
+        print("[Info] No sample background supplied; using a zero-signal "
+              "background so the container subtraction is a no-op.")
+        staged["sample_background_files"] = [make_zero_background(
+            staged["sample_files"][0],
+            os.path.join(staging_dir, "sample_background_0.nxs"))]
+
+    instrument = params["instrument"]
+    defaults = IMAGE_DEFAULTS.get(instrument, {})
+    calibration_file = params.get("calibration_file") or defaults.get(
+        "calibration")
+    if not calibration_file or not os.path.isfile(calibration_file):
+        parser.error(
+            "A calibration file is required and no default is available for "
+            "instrument '{0}'.".format(instrument))
+    grouping_file = params.get("grouping_file") or defaults.get("grouping")
+    if grouping_file and not os.path.isfile(grouping_file):
+        grouping_file = None
+
+    config_file = write_facility_config(
+        config_dir, params["facility"], instrument,
+        q_params=processing_q_params(params))
+
+    config = build_mts_config(
+        params, staged, calibration_file, grouping_file, config_file,
+        cache_dir, output_dir)
+
+    overrides_file = params["advanced"].get("config_overrides")
+    if overrides_file:
+        with open(overrides_file) as handle:
+            deep_update(config, json.load(handle))
+
+    with open(args.config_out, "w") as handle:
+        json.dump(config, handle, indent=4)
+    print("[Info] MantidTotalScattering input written to {0}".format(
+        args.config_out))
+
+    # Point the reduction at our facility config even on images that predate
+    # the 'AutoConfigFile' key.
+    os.environ["MTS_CONFIG_DIR"] = config_dir
+    import total_scattering.params as mts_params
+    mts_params.config_loc = {
+        params["facility"]: {instrument: config_file}
+    }
+
+    from total_scattering.cli import main as mts_main
+    mts_main(config=config)
+
+    written = collect_outputs(output_dir, config["Title"], {
+        os.path.join("SofQ", "{title}.nxs"): args.sofq_out,
+        os.path.join("GSAS", "{title}.gsa"): args.gsas_out,
+    })
+    if args.sofq_out not in written:
+        print("[Error] The reduction produced no S(Q) file.", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+#end raw</configfile>
+    </configfiles>
+
+    <inputs>
+        <section name="data" title="Input data" expanded="true">
+            <param name="sample_files" type="data" format="h5,nxs" multiple="true" label="Sample NeXus file(s)"
+                   help="Required. The output_nexus datasets from Sample Simulator (Diffraction), or measured runs."/>
+            <param name="normalization_files" type="data" format="h5,nxs" multiple="true" label="Normalization (vanadium) NeXus file(s)"
+                   help="Required."/>
+            <param name="sample_background_files" type="data" format="h5,nxs" multiple="true" optional="true"
+                   label="Sample background (container) NeXus file(s)"
+                   help="Optional. If left empty, a zero-signal background is generated so no container is subtracted."/>
+            <param name="sample_background_background_files" type="data" format="h5,nxs" multiple="true" optional="true"
+                   label="Sample background background (empty instrument) NeXus file(s)"
+                   help="Optional. Only meaningful when a sample background is also given."/>
+            <param name="normalization_background_files" type="data" format="h5,nxs" multiple="true" optional="true"
+                   label="Normalization background NeXus file(s)" help="Optional."/>
+            <param name="calibration_file" type="data" format="h5" optional="true" label="Calibration file"
+                   help="Optional. Defaults to the NOMAD calibration shipped in the tool image."/>
+            <param name="grouping_file" type="data" format="xml" optional="true" label="Initial detector grouping file"
+                   help="Optional. Applied during align-and-focus to keep memory use bounded. Defaults to the 16x8 NOMAD grouping shipped in the tool image."/>
+        </section>
+
+        <section name="experiment" title="Experiment" expanded="true">
+            <param name="facility" type="select" label="Facility">
+                <option value="SNS" selected="true">SNS</option>
+            </param>
+            <param name="instrument" type="select" label="Instrument">
+                <option value="NOM" selected="true">NOMAD</option>
+                <option value="PG3">POWGEN</option>
+            </param>
+            <param name="title" type="text" value="total_scattering" label="Title">
+                <sanitizer invalid_char="_">
+                    <valid initial="string.letters,string.digits"><add value="_"/><add value="-"/></valid>
+                </sanitizer>
+            </param>
+        </section>
+
+        <section name="sample" title="Sample" expanded="true">
+            <param name="material" type="text" value="Si" label="Material (chemical formula)"
+                   help="Mantid chemical formula, e.g. 'Si', 'Ba Ti O3', 'Ce0.85 Y0.15 O2'.">
+                <sanitizer invalid_char="">
+                    <valid initial="string.letters,string.digits"><add value=" "/><add value="."/><add value="("/><add value=")"/><add value="-"/></valid>
+                </sanitizer>
+            </param>
+            <param name="mass_density" type="float" value="2.33" label="Mass density (g/cm^3)"/>
+            <param name="packing_fraction" type="float" value="0.35" label="Packing fraction"/>
+            <conditional name="geometry">
+                <param name="shape" type="select" label="Sample geometry">
+                    <option value="Cylinder" selected="true">Cylinder</option>
+                    <option value="HollowCylinder">Hollow cylinder</option>
+                </param>
+                <when value="Cylinder">
+                    <param name="radius" type="float" value="0.15" label="Radius (cm)"/>
+                    <param name="height" type="float" value="1.8" label="Height (cm)"/>
+                </when>
+                <when value="HollowCylinder">
+                    <param name="inner_radius" type="float" value="0.1" label="Inner radius (cm)"/>
+                    <param name="outer_radius" type="float" value="0.15" label="Outer radius (cm)"/>
+                    <param name="height" type="float" value="1.8" label="Height (cm)"/>
+                </when>
+            </conditional>
+            <param name="absorption_correction" type="select" label="Absorption correction">
+                <option value="None" selected="true">None</option>
+                <option value="SampleOnly">SampleOnly</option>
+                <option value="SampleAndContainer">SampleAndContainer</option>
+                <option value="FullPaalmanPings">FullPaalmanPings</option>
+                <option value="Mayers">Mayers</option>
+                <option value="Carpenter">Carpenter</option>
+            </param>
+            <param name="multiple_scattering_correction" type="select" label="Multiple scattering correction"
+                   help="Must be compatible with the absorption correction; the reduction rejects invalid pairs.">
+                <option value="None" selected="true">None</option>
+                <option value="SampleOnly">SampleOnly</option>
+                <option value="SampleAndContainer">SampleAndContainer</option>
+                <option value="Mayers">Mayers</option>
+                <option value="Carpenter">Carpenter</option>
+            </param>
+            <conditional name="inelastic">
+                <param name="inelastic_correction" type="select" label="Inelastic correction"
+                       help="Placzek needs beam monitors from the raw run on the analysis cluster and does not work with file-based input.">
+                    <option value="None" selected="true">None</option>
+                    <option value="Placzek">Placzek</option>
+                </param>
+                <when value="None"/>
+                <when value="Placzek">
+                    <param name="order" type="select" label="Placzek order">
+                        <option value="1st" selected="true">1st</option>
+                        <option value="2nd">2nd</option>
+                    </param>
+                    <param name="self_scattering" type="boolean" checked="true" label="Self scattering"/>
+                    <param name="interference" type="boolean" checked="false" label="Interference"/>
+                    <param name="fit_spectrum_with" type="text" value="GaussConvCubicSpline" label="Fit incident spectrum with"/>
+                    <param name="lambda_binning_for_fit" type="text" value="0.16,0.04,2.8" label="Lambda binning for fit"/>
+                    <param name="lambda_binning_for_calc" type="text" value="0.16,0.0001,2.9" label="Lambda binning for calculation"/>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="normalization" title="Normalization" expanded="false">
+            <param name="material" type="text" value="V" label="Material (chemical formula)">
+                <sanitizer invalid_char="">
+                    <valid initial="string.letters,string.digits"><add value=" "/><add value="."/><add value="("/><add value=")"/><add value="-"/></valid>
+                </sanitizer>
+            </param>
+            <param name="mass_density" type="float" value="6.11" label="Mass density (g/cm^3)"/>
+            <param name="packing_fraction" type="float" value="1.0" label="Packing fraction"/>
+            <param name="radius" type="float" value="0.2925" label="Radius (cm)"/>
+            <param name="height" type="float" value="1.8" label="Height (cm)"/>
+            <param name="absorption_correction" type="select" label="Absorption correction">
+                <option value="None" selected="true">None</option>
+                <option value="SampleOnly">SampleOnly</option>
+                <option value="Mayers">Mayers</option>
+                <option value="Carpenter">Carpenter</option>
+            </param>
+            <param name="multiple_scattering_correction" type="select" label="Multiple scattering correction">
+                <option value="None" selected="true">None</option>
+                <option value="SampleOnly">SampleOnly</option>
+                <option value="Mayers">Mayers</option>
+                <option value="Carpenter">Carpenter</option>
+            </param>
+        </section>
+
+        <section name="align_and_focus" title="Align and focus" expanded="false">
+            <param name="tmin" type="float" value="300.0" label="TMin (microseconds)"/>
+            <param name="tmax" type="float" value="16667.0" label="TMax (microseconds)"/>
+            <param name="extra_args" type="text" value="" optional="true"
+                   label="Additional AlignAndFocusArgs (JSON object)"
+                   help='Escape hatch, merged over TMin/TMax. Example: {"ResampleX": -6000}'>
+                <sanitizer sanitize="false"/>
+            </param>
+        </section>
+
+        <section name="merging" title="Merging" expanded="false">
+            <param name="q_min" type="float" value="0.0" label="Q binning: minimum (1/Angstrom)"/>
+            <param name="q_delta" type="float" value="0.02" label="Q binning: step (1/Angstrom)"/>
+            <param name="q_max" type="float" value="40.0" label="Q binning: maximum (1/Angstrom)"/>
+            <param name="high_q_linear_fit_range" type="float" value="0.60" label="High-Q linear fit range"/>
+            <repeat name="self_scattering_levels" title="Self scattering level correction" min="0">
+                <param name="bank" type="integer" value="1" label="Bank number"/>
+                <param name="level_min" type="float" value="20.0" label="Q minimum (1/Angstrom)"/>
+                <param name="level_max" type="float" value="30.0" label="Q maximum (1/Angstrom)"/>
+            </repeat>
+        </section>
+
+        <section name="advanced" title="Advanced" expanded="false">
+            <param name="beam_height" type="float" value="" optional="true" label="Beam height (cm)"
+                   help="Only used by the FullPaalmanPings absorption correction."/>
+            <param name="push_positive_level" type="float" value="100.0" label="Push positive level"/>
+            <param name="debug_mode" type="boolean" checked="false" label="Save intermediate workspaces"
+                   help="Significantly increases run time."/>
+            <param name="processing_q_step" type="float" value="" optional="true"
+                   label="Processing Q step (1/Angstrom)"
+                   help="Q binning used while focussing, before the final merge. Left empty it is 0.001, or the merging Q step when an absorption correction is on - an absorption correction rebins every pixel individually, and a fine step over a 100k pixel instrument will exhaust memory."/>
+            <param name="config_overrides" type="data" format="json" optional="true"
+                   label="MantidTotalScattering config overrides (JSON)"
+                   help="Escape hatch. Deep-merged over the generated input JSON."/>
+        </section>
+    </inputs>
+
+    <command detect_errors="exit_code"><![CDATA[
+        export HOME=`pwd` &&
+        python '$mts_runner'
+            --params '$tool_params'
+            --extra-file-lists '$extra_file_lists'
+            --work-dir .
+            --config-out '$output_config'
+            --sofq-out '$output_sofq'
+            --gsas-out '$output_gsas'
+            > >(tee -a $output_log) 2> >(tee -a $output_log >&2)
+    ]]></command>
+
+    <outputs>
+        <data format="h5" name="output_sofq" label="${tool.name} on ${on_string}: S(Q)"/>
+        <data format="txt" name="output_gsas" label="${tool.name} on ${on_string}: GSAS"/>
+        <data format="json" name="output_config" label="${tool.name} on ${on_string}: MTS input JSON"/>
+        <data format="txt" name="output_log" label="${tool.name} on ${on_string}: console output"/>
+        <collection type="list" name="output_all" label="${tool.name} on ${on_string}: all reduction output">
+            <discover_datasets format="txt" pattern="__designation__" directory="output/Topas" visible="true"/>
+        </collection>
+    </outputs>
+
+    <tests>
+        <!-- The tool rejects the run before it opens any input, so these tests
+             need only placeholder HDF5 files. A test of the reduction itself
+             would need a pixel-level NOMAD run: the sample has to carry the
+             full pixel map for the focussed bank count to match QMaxByBank,
+             and the instrument tables alone put any such file above 13 MB. -->
+        <test expect_failure="true">
+            <param name="data|sample_files" ftype="h5" value="mantid_total_scattering_stub_sample.nxs"/>
+            <param name="data|normalization_files" ftype="h5" value="mantid_total_scattering_stub_normalization.nxs"/>
+            <param name="sample|inelastic|inelastic_correction" value="Placzek"/>
+            <assert_stderr>
+                <has_text text="Placzek inelastic correction reads beam monitors"/>
+            </assert_stderr>
+        </test>
+    </tests>
+
+    <help><![CDATA[
+**What it does**
+
+Runs `MantidTotalScattering <https://github.com/neutrons/mantid_total_scattering>`_
+on NeXus files from your history and produces the normalized structure factor
+S(Q) together with GSAS and Topas exports.
+
+**Inputs**
+
+The sample and normalization (vanadium) files are required; the three
+background inputs are optional. Each accepts several files, which the reduction
+sums. The files can come straight from **Sample Simulator (Diffraction)** or be
+measured runs saved as NeXus.
+
+If you do not supply a sample background, the tool generates a zero-signal
+background so that the container subtraction the reduction always performs
+leaves your data unchanged.
+
+Leaving the calibration and grouping inputs empty uses the NOMAD calibration
+and 16x8 grouping shipped inside the tool image, so a run needs no more than a
+sample file and a normalization file.
+
+**Outputs**
+
+* **S(Q)** - the reduction's ``SofQ`` NeXus file
+* **GSAS** - the ``.gsa`` export
+* **MTS input JSON** - the exact configuration used, so any run can be
+  reproduced with ``mantidtotalscattering input.json``
+* **console output** and a collection of the per-bank Topas ``.xye`` files
+
+**Limitations**
+
+The Placzek inelastic correction reads beam monitors from the raw run through
+the analysis cluster's catalogue and therefore cannot run on file-based input.
+
+Sums over banks (``SumBanks``) are not exposed because the current reduction
+ignores that key.
+    ]]></help>
+</tool>
