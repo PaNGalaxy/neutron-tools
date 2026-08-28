@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.3.3">
+<tool id="neutrons_radar_pd_library_builder_prototype" name="RADAR-PD Utility: Build CIF Library" profile="22.05" version="0.3.4">
     <description>build a reusable mini or augmented candidate library</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -18,6 +18,9 @@
     ]]></command>
     <inputs>
         <param name="cif_archive" type="data" format="zip" label="Prepared CIF source bundle" help="A ZIP containing one or more CIF files. RADAR-PD Interactive prepares this bundle automatically from loose CIFs, ZIP archives, and reusable Galaxy CIF datasets."/>
+        <param name="library_name" type="text" value="custom_candidate_library" label="Scientific library name" help="A short name that will identify this reusable library in Galaxy History and in later RADAR-PD runs.">
+            <validator type="regex" message="Use letters, numbers, spaces, periods, underscores, or hyphens (80 characters maximum).">^[A-Za-z0-9][A-Za-z0-9_. -]{0,79}$</validator>
+        </param>
         <param name="library_mode" type="select" label="Library type">
             <option value="mini" selected="true">Only my CIFs</option>
             <option value="augmented">Built-in MP/COD catalog + my CIFs</option>
@@ -29,9 +32,9 @@
         <param name="overwrite" type="hidden" value=""/>
     </inputs>
     <outputs>
-        <data name="library_archive" format="zip" label="RADAR-PD portable custom library"/>
-        <data name="library_manifest" format="json" label="RADAR-PD custom library manifest"/>
-        <data name="console_output" format="txt" label="RADAR-PD library build log"/>
+        <data name="library_archive" format="zip" label="RADAR-PD portable custom library | ${library_name}.zip"/>
+        <data name="library_manifest" format="json" label="RADAR-PD custom library manifest | ${library_name}.json"/>
+        <data name="console_output" format="txt" label="RADAR-PD library build log | ${library_name}.txt"/>
     </outputs>
     <help><![CDATA[
 Builds a portable RADAR-PD library from one prepared ZIP bundle. Use RADAR-PD Interactive to combine loose CIF files, one or more ZIP archives, and reusable Galaxy CIF datasets into this bundle. "Only my CIFs" creates a compact standalone library. "Built-in + my CIFs" augments the matching read-only MP/COD catalog. The resulting ZIP is preserved in Galaxy History and can be selected as the candidate library in RADAR-PD Analyze.

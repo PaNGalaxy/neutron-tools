@@ -133,6 +133,24 @@ def test_analyze_outputs_start_with_native_overview_and_hide_report_internals() 
     assert archive is not None and archive.attrib.get("label") == "RADAR-PD 7 | Complete results archive"
 
 
+def test_library_builder_carries_the_scientific_name_into_history_outputs() -> None:
+    root = _root("radar_pd_library_builder.xml")
+
+    library_name = root.find("./inputs/param[@name='library_name']")
+    assert library_name is not None
+    assert library_name.attrib.get("optional") is None
+    assert library_name.attrib.get("value") == "custom_candidate_library"
+
+    outputs = root.find("outputs")
+    assert outputs is not None
+    assert outputs.find("./data[@name='library_archive']").attrib["label"] == (
+        "RADAR-PD portable custom library | ${library_name}.zip"
+    )
+    assert outputs.find("./data[@name='library_manifest']").attrib["label"] == (
+        "RADAR-PD custom library manifest | ${library_name}.json"
+    )
+
+
 def test_monitor_profile_publishes_fit_plots_and_gpx_but_not_the_heavy_archive() -> None:
     root = _root("radar_pd_analyze.xml")
     outputs = root.find("outputs")
@@ -366,11 +384,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.3.78"
+    assert root.attrib.get("version") == "0.3.79"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-534180cb1fc4ce9fa26c3d2c02c9516291afc139"
+        "nova-341ab2c98ef80eff9b5b91e0971d225062d38d7e"
     )
 
 
