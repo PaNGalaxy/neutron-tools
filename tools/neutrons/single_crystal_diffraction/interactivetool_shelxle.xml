@@ -16,6 +16,7 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">shelxle</environment_variable>
     </environment_variables>
     <command><![CDATA[
+        touch $output &&
         export GALAXY_WORKING_DIR=`pwd` &&
         export DEFAULT_DIR="/SNS/users/\$GALAXY_TOOL_USER" &&
         #if $directory:
@@ -28,6 +29,7 @@
         <param name="directory" type="text" optional="true" label="Default directory for input/output files"/>
     </inputs>
     <outputs>
+        <data name="output" auto_format="true" label="ShelXle Console Output"></data>
     </outputs>
     <help><![CDATA[
         Starts ShelXle.
