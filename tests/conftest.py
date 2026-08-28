@@ -6,7 +6,9 @@ from pathlib import Path
 def pytest_generate_tests(metafunc) -> None:
     tool_paths = []
     interactive_tools = []
-    for root, _, files in os.walk("tools"):
+    folders_to_skip = ["retired"]
+    for root, folders, files in os.walk("tools"):
+        folders[:] = [folder for folder in folders if folder not in folders_to_skip]
         for name in files:
             fname = os.path.join(root, name)
             path = Path(fname)
