@@ -87,7 +87,7 @@ def _process_pytest_json_file(filename):
                 # Extract the tool_id from test_name if it's in the format test_interactive_tool[tool_id-params]
                 if '[' in test_name and ']' in test_name:
                     tool_part = test_name.split('[')[1].split(']')[0]
-                    if '-' in tool_part:
+                    if '-params' in tool_part:
                         tool_id = tool_part.rsplit('-', 1)[0]
                     else:
                         tool_id = tool_part
