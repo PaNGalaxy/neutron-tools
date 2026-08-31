@@ -88,7 +88,7 @@ def _process_pytest_json_file(filename):
                 if '[' in test_name and ']' in test_name:
                     tool_part = test_name.split('[')[1].split(']')[0]
                     if '-' in tool_part:
-                        tool_id = tool_part.split('-')[0]
+                        tool_id = tool_part.rsplit('-', 1)[0]
                     else:
                         tool_id = tool_part
                 else:
