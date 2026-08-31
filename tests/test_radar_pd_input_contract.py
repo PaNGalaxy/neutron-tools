@@ -185,6 +185,8 @@ def test_analyze_republishes_a_main_only_full_project_for_gsasii(tmp_path: Path,
     )
     assert "python '$publish_gpx_fallback' work portal '$output_profile'" in command
     assert "tee -a '$console_output'" in command
+    assert '"phase_catalog_csv" in inspect.signature' in publisher
+    assert 'collect_kwargs["phase_catalog_csv"] = phase_catalog' in publisher
 
     work = tmp_path / "work"
     run = work / "run" / "demo"
@@ -219,7 +221,17 @@ def test_analyze_republishes_a_main_only_full_project_for_gsasii(tmp_path: Path,
         ]
     }
 
-    def collect_outputs(run_root, output_root, **kwargs):
+    def collect_outputs(
+        run_root,
+        output_root,
+        *,
+        mode,
+        run_name,
+        project_root,
+        include_archive,
+        status,
+        errors,
+    ):
         assert run_root == run.resolve()
         assert output_root == portal.resolve()
         assert fake_outputs._publish_gpx(project, run.resolve()) is True
@@ -228,7 +240,12 @@ def test_analyze_republishes_a_main_only_full_project_for_gsasii(tmp_path: Path,
         index = fake_outputs.build_gpx_index(run)
         assert index["projects"][0]["stage"] == "main_phase_anchor"
         assert index["projects"][0]["status"] == "accepted"
-        assert kwargs["include_archive"] is False
+        assert mode == "full"
+        assert run_name == "demo"
+        assert project_root == "/opt/radar-pd"
+        assert include_archive is False
+        assert status == "complete"
+        assert errors == []
 
     fake_outputs.collect_outputs = collect_outputs
     monkeypatch.setitem(sys.modules, "ndip_outputs", fake_outputs)
@@ -458,6 +475,18 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
         "nova-cca812414cad6b39fe7b51d4059f39ec34f90275"
+    )
+
+
+def test_analyze_uses_the_phase_catalog_compatible_release_image() -> None:
+    root = _root("radar_pd_analyze.xml")
+    container = root.find("./requirements/container")
+
+    assert root.attrib.get("version") == "0.5.14"
+    assert container is not None
+    assert container.text == (
+        "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
+        "ndip-dd519157d588a4e7856c3087029fdd9a9728ac63"
     )
 
 

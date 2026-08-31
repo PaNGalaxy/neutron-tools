@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.13">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.14">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/radar-pd/radar-pd:ndip-space-groups-20260825</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-dd519157d588a4e7856c3087029fdd9a9728ac63</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $config_path = 'generated_config.yaml'
@@ -227,6 +227,7 @@ ndip_runner._materialize_contract_config = _materialize_augmented_library
 raise SystemExit(ndip_runner.main())
         ]]></configfile>
         <configfile name="publish_gpx_fallback"><![CDATA[
+import inspect
 import json
 import sys
 from pathlib import Path
@@ -309,16 +310,20 @@ catalog_candidates = [
     Path("/opt/radar-pd/data/database_xray/catalog_deduplicated.csv"),
 ]
 phase_catalog = next((path for path in catalog_candidates if path.is_file()), None)
+collect_kwargs = {
+    "mode": str(summary.get("analysis_mode") or "full"),
+    "run_name": run_name or run_root.name,
+    "project_root": "/opt/radar-pd",
+    "include_archive": output_profile == "full",
+    "status": str(summary.get("status") or "complete"),
+    "errors": list(summary.get("errors") or []),
+}
+if "phase_catalog_csv" in inspect.signature(ndip_outputs.collect_outputs).parameters:
+    collect_kwargs["phase_catalog_csv"] = phase_catalog
 ndip_outputs.collect_outputs(
     run_root,
     portal,
-    mode=str(summary.get("analysis_mode") or "full"),
-    run_name=run_name or run_root.name,
-    project_root="/opt/radar-pd",
-    include_archive=output_profile == "full",
-    status=str(summary.get("status") or "complete"),
-    errors=list(summary.get("errors") or []),
-    phase_catalog_csv=phase_catalog,
+    **collect_kwargs,
 )
         ]]></configfile>
         <configfile name="publish_plot_payloads"><![CDATA[
