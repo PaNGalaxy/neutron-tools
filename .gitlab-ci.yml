@@ -1,7 +1,6 @@
 stages:
   - build
   - push
-  - restart
   - test
   - lint
 
@@ -97,7 +96,7 @@ push_dev_tools:
     - rse-multi-builder
 
 redeploy_k8s_galaxy:
-  stage: restart
+  stage: push
   variables:
     KUBE_NAMESPACE: ndip
     GALAXY_DEPLOYMENT: galaxy
