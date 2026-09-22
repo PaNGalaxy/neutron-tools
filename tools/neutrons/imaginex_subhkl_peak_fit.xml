@@ -67,8 +67,8 @@
 			<option value="MANDI">MANDI</option>
 		</param>	
 		<param name="maskErosion" type="float" value="" optional="true" label="Mask Relative Erosion Radius" /> 
-		<param name="wavelengthMax" type="float" value="2.0" label="Wavelength Max" /> 
-		<param name="wavelengthMin" type="float" value="4.8" label="Wavelength Min" /> 		
+		<param name="wavelengthMax" type="float" value="4.8" label="Wavelength Max" /> 
+		<param name="wavelengthMin" type="float" value="2.0" label="Wavelength Min" /> 		
 		<param name="alpha" type="float" value="0.1" label="Alpha" /> 
 		<param name="gamma" type="float" value="1.0" label="Gamma" /> 
 		<param name="alerts" type="float" value="0.1" label="Sparse RBF False Alerts Per Image" />
@@ -77,7 +77,7 @@
 		<param name="orientation" type="integer" value="4" label="Sparse RBF Shape Orientation" />
 		<param name="sigma" type="integer" value="" optional="true" label="Number of Sigmas" />
 		<param name="profile" type="text" value="" optional="true" label="Sparse RBF Profile File Path" help="Path starting with /SNS or /HFIR to JSON file" />
-		<param name="staticMask" type="text" value="" optional="true" label="Static Mask File" help="Path starting with /SNS or /HFIR to file" />
+		<param name="staticMask" type="data" format="h5" optional="true" label="Static Mask File" />
 		<param name="loss" type="text" value="poisson" label="Loss Function" />
 		<param name="rbfShow" type="boolean" checked="true" label="Show Steps" />
 		
