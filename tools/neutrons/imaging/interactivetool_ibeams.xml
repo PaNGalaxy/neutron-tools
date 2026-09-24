@@ -1,0 +1,32 @@
+
+<tool id="nova-ibeams" tool_type="interactive" name="iBEAMS" version="0.1.0" profile="22.01">
+    <description>iBEAMS</description>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ibeams:0.1.0</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="iBEAMS" label="app_entry" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">app_entry</environment_variable>
+    </environment_variables>
+     <command><![CDATA[
+        echo "Launching supervisord" > $output &&
+        export GALAXY_WORKING_DIR=`pwd` &&
+        export DEFAULT_DIR="/SNS/users/\$GALAXY_TOOL_USER" &&
+        cd /opt/run &&
+        npm run build &&
+        /start.sh \$GALAXY_TOOL_USER
+    ]]></command>
+    <outputs>
+        <data format="txt" name="output" label="Console output"></data>
+    </outputs>
+    <help><![CDATA[
+        **iBEAMS**
+    ]]></help>
+</tool>
