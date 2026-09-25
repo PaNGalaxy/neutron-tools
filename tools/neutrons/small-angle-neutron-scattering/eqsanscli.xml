@@ -1,11 +1,11 @@
-<tool id="nova-neutrons-eqsanscli-prototype" tool_type="interactive" name="EQSANS eqsanscli (prototype)" version="0.1.0" profile="22.05">
+<tool id="nova-neutrons-eqsanscli-prototype" tool_type="interactive" name="EQSANS eqsanscli (prototype)" version="0.2.0" profile="22.05">
     <description>EQSANS data reduction TUI in your browser</description>
     <creator>
         <person name="Changwoo Do"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/ml-assisted-sans-data-analysis/eqsanscli:0.1.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/ml-assisted-sans-data-analysis/eqsanscli:0.2.0</container>
     </requirements>
     <entry_points>
         <entry_point name="eqsanscli" label="eqsanscli" requires_domain="False" requires_path_in_url="True">
