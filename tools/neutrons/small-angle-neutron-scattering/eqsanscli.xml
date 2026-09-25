@@ -1,0 +1,49 @@
+<tool id="nova-neutrons-eqsanscli-prototype" tool_type="interactive" name="EQSANS eqsanscli (prototype)" version="0.1.0" profile="22.05">
+    <description>EQSANS data reduction TUI in your browser</description>
+    <creator>
+        <person name="Changwoo Do"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/small-angle-neutron-scattering/ml-assisted-sans-data-analysis/eqsanscli:0.1.0</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="eqsanscli" label="eqsanscli" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">eqsanscli</environment_variable>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+    </environment_variables>
+    <command><![CDATA[
+        /opt/eqsanscli-ndip/web/ndip-start "\$GALAXY_TOOL_USER"
+            --port 8080 --base-path "\$EP_PATH"
+            #if $ipts
+                --ipts $ipts
+            #end if
+        > >(tee -a '$log') 2>&1
+    ]]></command>
+    <inputs>
+        <param name="ipts" type="integer" optional="true" label="IPTS number"
+               help="eqsanscli starts in /SNS/EQSANS/IPTS-N/shared (your sessions there resume with /continue). Leave empty to start in your home folder."/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt" label="eqsanscli session log"/>
+    </outputs>
+    <help><![CDATA[
+**eqsanscli** — the EQSANS data-reduction terminal app, in your browser.
+
+It is the same program you run on the analysis cluster, running as you, on an SNS
+node, in ``/SNS/EQSANS/IPTS-<N>/shared``. Sessions and reduced data are the same
+files you see from the cluster, so you can switch between the two freely.
+
+- Closing the browser tab does **not** stop eqsanscli; reopen the tool's link to
+  reconnect (a long reduction keeps running).
+- To end the session: quit eqsanscli (``^Q`` or ``/exit``), then press ``q``. Or
+  stop the job in Galaxy.
+- ``/plot`` has no pop-up windows here — use ``/plot … --save file.png``.
+    ]]></help>
+</tool>
