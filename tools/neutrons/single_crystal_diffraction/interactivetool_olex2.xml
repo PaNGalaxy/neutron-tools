@@ -4,7 +4,7 @@
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.12
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/olex2:0.13
         </container>
     </requirements>
     <entry_points>
@@ -21,9 +21,9 @@
         export GALAXY_WORKING_DIR=`pwd` &&
         #if $directory:
             #set $dirname = os.path.basename(str($directory).rstrip('/'))
-            ln -s ${directory} /home/novnc_user/data/${dirname} &&
+            ln -s ${directory} \$HOME/data/${dirname} &&
         #end if
-        /start.sh \$GALAXY_TOOL_USER
+        /opt/run/start.sh
         ]]>
     </command>
     <inputs>

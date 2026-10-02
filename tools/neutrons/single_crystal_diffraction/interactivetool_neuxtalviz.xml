@@ -2,7 +2,7 @@
     <description></description>
     <requirements>
         <resource type="cuda_device_count_min">1</resource>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/neuxtalviz:0.1.0.dev122</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/neuxtalviz:0.1.0.dev122-rootless</container>
     </requirements>
     <entry_points>
         <entry_point name="NeuXtalViz" label="neuxtalviz" requires_domain="False" requires_path_in_url="True">
@@ -22,7 +22,7 @@
         #if $directory:
             export DEFAULT_DIR=$directory &&
         #end if
-        /start.sh \$GALAXY_TOOL_USER
+        /opt/run/start.sh
     ]]></command>
     <inputs>
         <param name="directory" type="text" optional="true" label="Default working directory" />
