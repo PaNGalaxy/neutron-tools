@@ -1,10 +1,10 @@
-<tool id="nova-interactive-tool-sasview" tool_type="interactive" name="SASView" version="6.1.2" profile="22.05">
+<tool id="nova-interactive-tool-sasview" tool_type="interactive" name="SASView" version="6.2.0" profile="22.05">
     <creator>
         <person name="NDIP Team"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sas-view:0.6.0</container>
+        <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/generic/sas-view:0.7.0</container>
     </requirements>
     <entry_points>
         <entry_point name="SASView" label="sasview" requires_domain="False" requries_path_in_url="True">
@@ -16,16 +16,16 @@
     </environment_variables>
 
     <command><![CDATA[
-        echo "Notebook produced no output" > $output_single &&
+        echo "Launching supervisord" > $output_single &&
         export GALAXY_WORKING_DIR=`pwd` &&
-        mkdir -p /home/sas/inputs &&
+        mkdir -p \$HOME/inputs &&
         mkdir -p ./outputs &&
-        ln -s \${GALAXY_WORKING_DIR}/outputs /home/sas/outputs &&
+        ln -s \${GALAXY_WORKING_DIR}/outputs \$HOME/outputs &&
         #for $i, $s in enumerate($datasets)
             #set $name = os.path.basename(str($s.input.element_identifier))
-            ln -sf '${s.input}' '/home/sas/inputs/${name}' &&
+            ln -sf '${s.input}' "\$HOME/inputs/${name}" &&
         #end for
-        /start.sh \$GALAXY_TOOL_USER
+        /opt/run/start.sh
         ]]>
     </command>
     <inputs>
