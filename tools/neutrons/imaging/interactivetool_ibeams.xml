@@ -1,5 +1,5 @@
 
-<tool id="nova-ibeams" tool_type="interactive" name="iBEAMS" version="0.1.0" profile="22.01">
+<tool id="nova-ibeams" tool_type="interactive" name="iBEAMS" version="0.2.0" profile="22.01">
     <description>iBEAMS</description>
     <requirements>
         <container type="docker" shell="/bin/bash">savannah.ornl.gov/ndip/tool-sources/imaging/ibeams:0.2.0</container>
