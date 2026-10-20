@@ -12,16 +12,18 @@
         module load cpe &&
         module load rocm &&
 
+        mkdir -p lammps_outputs &&
+
         ln -s $lmp input.lmp &&
         ln -s $xyz input.xyz &&
 
-        sed -i 's/\S*\.xyz/input.xyz/g' input.lmp &&
+        sed -i 's|\S*\.xyz|../input.xyz|g' input.lmp &&
 
-        export INSTDIR="/lustre/orion/bip280/proj-shared/LAMMPS_Stable_KOKKOSwfcut/lammps/install/bin" &&
+        export INSTDIR="/lustre/orion/bip280/proj-shared/lammps-1016/lammps/install/bin" &&
         export OMP_NUM_THREADS=1 &&
         export MPICH_GPU_SUPPORT_ENABLED=1 &&
 
-        \${INSTDIR}/lmp_frontier -k on g 1 -sf kk -pk kokkos -in input.lmp
+        ( cd lammps_outputs && \${INSTDIR}/lmp_frontier -k on g 1 -sf kk -pk kokkos -in ../input.lmp )
             > >(tee -a $output) 2> >(tee -a $output >&2)
      ]]></command>
     <inputs>
@@ -31,7 +33,7 @@
     <outputs>
         <data format="txt" name="output" label="LAMMPS Console Output"></data>
         <collection type="list" name="output_collection" label="LAMMPS Output Files">
-            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(out|profile)" />
+            <discover_datasets format="data" pattern="__designation__" directory="lammps_outputs" />
         </collection>
     </outputs>
     <help><![CDATA[
