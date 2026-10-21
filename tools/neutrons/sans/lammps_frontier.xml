@@ -20,7 +20,7 @@
 
         sed -i 's|\S*\.xyz|../input.xyz|g' input.lmp &&
 
-        export INSTDIR="/lustre/orion/bip280/proj-shared/lammps-1016/lammps/install/bin" &&
+        export INSTDIR="/lustre/orion/bip280/proj-shared/LAMMPS_Stable_KOKKOSwfcut/lammps/install/bin" &&
         export OMP_NUM_THREADS=1 &&
         export MPICH_GPU_SUPPORT_ENABLED=1 &&
 
