@@ -1,4 +1,4 @@
-<tool id="lammps-frontier" name="LAMMPS (Frontier)" version="0.1.0" profile="22.01">
+<tool id="lammps-frontier" name="LAMMPS (Frontier)" version="0.2.0" profile="22.01">
     <creator>
         <person name="Alan Hicks" />
         <organization url="https://www.ornl.gov/" name="ORNL"/>
@@ -6,6 +6,12 @@
     <requirements>
     </requirements>
     <command><![CDATA[
+        #import os
+        #set $staged_inputs = [$xyz]
+        #if $extra_files
+        #set $staged_inputs = $staged_inputs + list($extra_files)
+        #end if
+
         . /etc/profile &&
         module load PrgEnv-cray &&
         module load craype-accel-amd-gfx90a &&
@@ -16,20 +22,55 @@
         mkdir -p lammps_outputs &&
 
         ln -s $lmp input.lmp &&
-        ln -s $xyz input.xyz &&
 
-        sed -i 's|\S*\.xyz|../input.xyz|g' input.lmp &&
+        #for $f in $staged_inputs
+        #set $staged_name = os.path.basename(str($f.element_identifier))
+        test ! -e 'lammps_outputs/$staged_name' || { echo 'ERROR: more than one input file is named $staged_name' >&2 ; exit 1 ; } &&
+        cp '$f' 'lammps_outputs/$staged_name' &&
+        #end for
 
         export INSTDIR="/lustre/orion/bip280/proj-shared/LAMMPS_Stable_KOKKOSwfcut/lammps/install/bin" &&
         export OMP_NUM_THREADS=1 &&
         export MPICH_GPU_SUPPORT_ENABLED=1 &&
 
         ( cd lammps_outputs && \${INSTDIR}/lmp_frontier -k on g 1 -sf kk -pk kokkos -in ../input.lmp )
-            > >(tee -a $output) 2> >(tee -a $output >&2)
+            > >(tee -a $output) 2> >(tee -a $output >&2) ;
+
+        lammps_exit=\$? ;
+
+        #for $f in $staged_inputs
+        #set $staged_name = os.path.basename(str($f.element_identifier))
+        if cmp -s '$f' 'lammps_outputs/$staged_name' ; then rm -f 'lammps_outputs/$staged_name' ; fi ;
+        #end for
+
+        exit \${lammps_exit}
     ]]></command>
     <inputs>
-        <param name="lmp" type="data" format="txt" optional="false" label="*.lmp file" />
-        <param name="xyz" type="data" format="txt" optional="false" label="*.xyz file" />
+        <param
+            name="lmp"
+            type="data"
+            format="txt"
+            optional="false"
+            label=".lmp file"
+            help="The LAMMPS input script."
+        />
+        <param
+            name="xyz"
+            type="data"
+            format="txt"
+            optional="false"
+            label=".xyz file"
+            help="The coordinate file. It is made available to LAMMPS under the name it has in your history, so that name must match what the .lmp file reads."
+        />
+        <param
+            name="extra_files"
+            type="data"
+            format="data"
+            multiple="true"
+            optional="true"
+            label="Additional input files"
+            help="Any other files the .lmp script reads, e.g. restart, data, potential or molecule template files. These are treated exactly like the .xyz file above."
+        />
     </inputs>
     <outputs>
         <data format="txt" name="output" label="LAMMPS Console Output"></data>
@@ -41,5 +82,21 @@
         **LAMMPS (Frontier)**
 
         This is a Galaxy tool to run LAMMPS on Frontier.
+
+        **Input files**
+
+        The ``.lmp`` file is the LAMMPS input script.
+
+        All other input files are placed in the directory LAMMPS runs in, using the
+        file name shown in your NDIP history::
+
+            read_data      system.data
+            read_restart   equil.restart
+            pair_coeff * * ff.params
+
+        **Output**
+
+        Whatever LAMMPS writes in its run directory is collected into the output
+        collection, and the console output is captured separately.
     ]]></help>
 </tool>
