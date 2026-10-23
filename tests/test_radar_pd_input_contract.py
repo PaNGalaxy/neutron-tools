@@ -482,11 +482,11 @@ def test_analyze_uses_the_phase_catalog_compatible_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.16"
+    assert root.attrib.get("version") == "0.5.17"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-78f2dcedcd5eed1db1c0885a47dc47cac18d63e0"
+        "ndip-b453687ddf6007f127772b03a4433e03a321dd5a"
     )
 
 
