@@ -108,7 +108,7 @@ redeploy_k8s_galaxy:
   before_script: []
   after_script: []
   script:
-    - echo "$KUBECONFIG" | base64 -d > kubeconfig
+    - echo "$KUBE_CONFIG" | base64 -d > kubeconfig
     - |
       if command -v kubectl >/dev/null 2>&1; then
         echo "Using kubectl already installed on the deployment runner"
