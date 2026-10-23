@@ -404,7 +404,7 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
 
     assert root.attrib.get("tool_type") == "interactive"
     assert root.attrib.get("profile") == "22.05"
-    assert root.attrib.get("version") == "0.1.12"
+    assert root.attrib.get("version") == "0.1.13"
 
     container = root.find("./requirements/container")
     assert container is not None
@@ -470,11 +470,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.3.95"
+    assert root.attrib.get("version") == "0.3.96"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-d2f424a15b6398066c59b0f090bd1b45efc965ad"
+        "nova-bd6d2f9d2d3f9ec9222381564439158989140fb0"
     )
 
 
@@ -482,11 +482,11 @@ def test_analyze_uses_the_phase_catalog_compatible_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.14"
+    assert root.attrib.get("version") == "0.5.15"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-dd519157d588a4e7856c3087029fdd9a9728ac63"
+        "ndip-bd6d2f9d2d3f9ec9222381564439158989140fb0"
     )
 
 
@@ -510,3 +510,16 @@ def test_gsasii_collection_selector_skips_corrupt_higher_priority_checkpoint(
         exec(compile(selector, "<select_project>", "exec"), {})
 
     assert Path(output.getvalue().strip()) == valid.resolve()
+
+
+def test_gsasii_collection_prefers_final_joint_cell_model(tmp_path, monkeypatch):
+    selector = _root('radar_pd_gsasii_interactive.xml').findtext('./configfiles/configfile[@name="select_project"]')
+    final = tmp_path / '03_Final_accepted_joint_cell_model.gpx'
+    for path in [final, tmp_path / 'Accepted_model_after_pass_10.gpx']:
+        with path.open('wb') as handle:
+            pickle.dump(['Controls', {}], handle, protocol=1)
+    monkeypatch.setattr(sys, 'argv', ['select_project', str(tmp_path)])
+    output = io.StringIO()
+    with redirect_stdout(output):
+        exec(compile(selector, '<select_project>', 'exec'), {})
+    assert Path(output.getvalue().strip()) == final.resolve()
