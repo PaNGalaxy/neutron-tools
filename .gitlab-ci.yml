@@ -38,6 +38,11 @@ service-build:
 # Prototype updates require both this source sync and the Kubernetes rollout below.
 push_dev_tools:
   stage: push
+  # SSH/rsync synchronization does not build or run a registry image. Keep it
+  # independent of the global Savannah Docker login and image-cleanup hooks.
+  before_script: []
+  after_script:
+    - rm -f key
   script:
     - echo "$PULSAR_SSH_KEY" > key
     - chmod 400 key
