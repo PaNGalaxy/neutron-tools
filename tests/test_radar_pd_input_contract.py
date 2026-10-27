@@ -509,15 +509,15 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     )
 
 
-def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
+def test_analyze_uses_the_phase_catalog_compatible_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.20"
+    assert root.attrib.get("version") == "0.5.19"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-b2aee6f2dfc24c1e0bacdb6ca1c2df1e0964e8d1"
+        "ndip-ac3bf6ff93d163c7a58d07322fcb1d5e44961215"
     )
 
 
