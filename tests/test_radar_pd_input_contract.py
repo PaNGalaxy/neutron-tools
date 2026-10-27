@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.4.12"
+    assert root.attrib.get("version") == "0.4.13"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-b55d168255835ffc11da4524c4f663711e2bac45"
+        "nova-c036f8abbfaed5cc9fadad9e173990c0c71ecd83"
     )
 
 
@@ -513,7 +513,7 @@ def test_analyze_uses_the_phase_catalog_compatible_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.18"
+    assert root.attrib.get("version") == "0.5.19"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
