@@ -155,6 +155,7 @@
         analyze_args+=(--mode auto --input-source '$input_source_label' --work-dir work --output-dir portal) &&
         "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
         python '$publish_gpx_fallback' work portal '$output_profile' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        python '$publish_pattern_observation' portal &&
         python '$publish_plot_payloads' work/run portal
     ]]></command>
     <configfiles>
@@ -325,6 +326,28 @@ ndip_outputs.collect_outputs(
     portal,
     **collect_kwargs,
 )
+        ]]></configfile>
+        <configfile name="publish_pattern_observation"><![CDATA[
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+portal = Path(sys.argv[1]).resolve()
+summary = json.loads((portal / "summary.json").read_text(encoding="utf-8"))
+receipt = summary.get("pattern_observation") or {}
+destination = portal / "pattern_observation.json"
+if receipt.get("sha256"):
+    if receipt.get("name") != "Pattern_observation.json":
+        raise ValueError("Unexpected fitted-pattern receipt name")
+    raw = (portal / "tables" / "Pattern_observation.json").read_bytes()
+    if hashlib.sha256(raw).hexdigest() != receipt["sha256"]:
+        raise ValueError("Fitted-pattern output disagrees with its immutable receipt")
+    destination.write_bytes(raw)
+else:
+    # Some valid outcomes stop before a refinement exists. An explicit empty
+    # document keeps that outcome usable without inventing a fitted curve.
+    destination.write_text("{}\n", encoding="utf-8")
         ]]></configfile>
         <configfile name="publish_plot_payloads"><![CDATA[
 import json
@@ -603,6 +626,7 @@ print(f"Published {published} interactive plot sidecar file(s).")
         <data name="console_output" format="txt" label="RADAR-PD 8 | Analysis log"/>
         <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD integrated report" hidden="true"/>
         <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD normalized summary" hidden="true"/>
+        <data name="pattern_observation" format="json" from_work_dir="portal/pattern_observation.json" label="RADAR-PD fitted pattern observation" hidden="true"/>
         <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state" hidden="true">
             <filter>output_profile == 'full'</filter>
         </data>

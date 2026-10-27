@@ -3,6 +3,8 @@ import json
 import pickle
 import sys
 import types
+import hashlib
+import pytest
 from contextlib import redirect_stdout
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -168,12 +170,41 @@ def test_monitor_profile_publishes_fit_plots_and_gpx_but_not_the_heavy_archive()
     assert archive is not None
     assert (archive.findtext("filter") or "").strip() == "output_profile == 'full'"
 
+    observation = outputs.find("./data[@name='pattern_observation']")
+    assert observation is not None and observation.find("filter") is None
+    assert observation.attrib["from_work_dir"] == "portal/pattern_observation.json"
+    assert observation.attrib["format"] == "json"
+
     command = root.findtext("command", default="")
     publisher = root.findtext("./configfiles/configfile[@name='publish_plot_payloads']", default="")
     assert "python '$publish_plot_payloads' work/run portal" in command
     assert 'summary.get("artifacts", {}).get("plots", [])' in publisher
     assert '".plotdata_arrays.npz"' in publisher
     assert 'metadata["arrays_npz"] = arrays_destination.name' in publisher
+
+
+@pytest.mark.parametrize("outcome", ["fitted", "no_refinement", "corrupt"])
+def test_monitor_curve_publisher_preserves_receipt_or_explicit_absence(tmp_path, monkeypatch, outcome):
+    root = _root("radar_pd_analyze.xml")
+    publisher = root.findtext("./configfiles/configfile[@name='publish_pattern_observation']")
+    assert "python '$publish_pattern_observation' portal" in root.findtext("command")
+    portal = tmp_path / "portal"
+    (portal / "tables").mkdir(parents=True)
+    raw = b'{"x":[1,2],"y":[3,4],"ycalc":[3.1,3.9]}'
+    receipt = {}
+    if outcome != "no_refinement":
+        receipt = {"name": "Pattern_observation.json", "sha256": hashlib.sha256(raw).hexdigest()}
+        (portal / "tables" / "Pattern_observation.json").write_bytes(raw if outcome == "fitted" else b'{}')
+    (portal / "summary.json").write_text(json.dumps({"pattern_observation": receipt}))
+    monkeypatch.setattr(sys, "argv", ["publish_pattern_observation", str(portal)])
+    if outcome == "corrupt":
+        with pytest.raises(ValueError, match="immutable receipt"):
+            exec(compile(publisher, "<publish_pattern_observation>", "exec"), {})
+        assert not (portal / "pattern_observation.json").exists()
+    else:
+        exec(compile(publisher, "<publish_pattern_observation>", "exec"), {})
+        actual = (portal / "pattern_observation.json").read_bytes()
+        assert actual == (raw if outcome == "fitted" else b'{}\n')
 
 
 def test_analyze_republishes_a_main_only_full_project_for_gsasii(tmp_path: Path, monkeypatch) -> None:
