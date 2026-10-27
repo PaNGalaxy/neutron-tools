@@ -27,6 +27,42 @@ pixi run pre-commit install
 git commit --no-verify
 ```
 
+## Logs for Failing Tests
+
+When a test that runs against a live Galaxy fails, a link to a Kibana dashboard with
+Elasticsearch logs is added to the failure output if available, where it shows up both in
+the job log and in the JUnit report that GitLab renders in the test report tab of the
+pipeline. The link covers the time between the first job the test submitted and the moment
+the failure was recorded, padded by 15 seconds on both sides, so the job's own logs are in
+view.
+
+The link is only produced when `KIBANA_URL` is set to the Kibana dashboard holding the logs
+of the environment being tested, e.g. `https://ndip.ornl.gov/logs`. Tests run without it,
+such as the XML linting, simply report their failures as before. The URL itself is built in
+`scripts/kibana.py`, which both paths below share.
+
+### Tests run under pytest
+
+The interactive tool tests report their job submissions through the `log_window` fixture,
+which is applied automatically:
+
+```python
+def test_something(log_window):
+    log_window.job_submitted(job_id)
+```
+
+A test that never calls `job_submitted` still gets a link, covering the time the test
+itself ran. The job ids passed in are listed alongside the link, so they can be used to
+narrow the search further in Kibana.
+
+### Tests run under planemo
+
+planemo writes its own JUnit report, so the pytest fixture never sees those tests. The
+reports are post-processed by `scripts/add_kibana_links.py` instead, which takes the window
+each tool's job ran in from the `--test_output_json` report planemo writes alongside the
+XML. A test whose tool never started has no job to take times from, so it falls back to the
+window of the whole planemo run, which the CI job passes in with `--run-start`/`--run-end`.
+
 ## Installing to Galaxy
 
 ### Copying files
