@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.4.25"
+    assert root.attrib.get("version") == "0.4.26"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-dac049913cd33f3111615e2b72ddd3bbf3d419dd"
+        "nova-cba71f0a62ce7a3e9ef5e8ff7ee3033d6522c48c"
     )
 
 
@@ -526,7 +526,7 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     container = root.find("./requirements/container")
     command = root.findtext("./command", default="")
     source = root.find("./inputs/param[@name='source_gpx']")
-    request = root.find("./inputs/param[@name='request']")
+    request = root.find("./inputs/param[@name='recipe_request']")
     dispatch = root.find("./inputs/param[@name='dispatch_key']")
     stage_projects = root.find("./outputs/collection[@name='stage_projects']")
 
@@ -537,6 +537,7 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
         "ndip-dac049913cd33f3111615e2b72ddd3bbf3d419dd"
     )
     assert "/opt/radar-pd/scripts/ndip_refinement.py" in command
+    assert "'$recipe_request'" in command
     assert source is not None and source.attrib.get("format") == "binary"
     assert request is not None and request.attrib.get("format") == "json"
     assert dispatch is not None and dispatch.find("./validator[@type='regex']") is not None
