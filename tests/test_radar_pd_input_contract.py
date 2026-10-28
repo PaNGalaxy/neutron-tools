@@ -501,12 +501,17 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.4.27"
+    assert root.attrib.get("version") == "0.4.28"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-148bc828388984539097c8f8508ad2e7e09a2bed"
+        "nova-750309da265d3feb21bc7a9227b15d3a14af7c39"
     )
+    credential = root.find("./requirements/credentials[@name='ornl_illumine']")
+    assert credential is not None and credential.attrib.get("optional") == "true"
+    secret = credential.find("./secret[@name='api_key']")
+    assert secret is not None and secret.attrib.get("inject_as_env") == "AZURE_ILLUMINE_API_KEY"
+    assert "AZURE_ILLUMINE_API_KEY" not in root.findtext("command", default="")
 
 
 def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
