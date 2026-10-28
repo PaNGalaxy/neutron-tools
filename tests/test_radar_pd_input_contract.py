@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.4.21"
+    assert root.attrib.get("version") == "0.4.24"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-dd895ac29ffc828f2b45a82150f464ef091f451b"
+        "nova-e697274e890228af2e056bd0f4ab19dc8a39acd2"
     )
 
 
