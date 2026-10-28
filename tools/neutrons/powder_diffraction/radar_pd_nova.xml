@@ -21,18 +21,7 @@
         <environment_variable name="RADAR_PD_HFIR_ROOT">/HFIR</environment_variable>
     </environment_variables>
     <command><![CDATA[
-        python - <<'PY' > >(tee -a $output) 2> >(tee -a $output >&2)
-import urllib.error
-import urllib.request
-url = "https://openai-eus-illumine.openai.azure.com/openai/v1/responses"
-try:
-    with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=8) as response:
-        print("Illumine endpoint probe: HTTP", response.status, flush=True)
-except urllib.error.HTTPError as error:
-    print("Illumine endpoint probe: HTTP", error.code, flush=True)
-except Exception as error:
-    print("Illumine endpoint probe:", type(error).__name__, flush=True)
-PY
+        python -c 'import urllib.request as u; p=type("NoHTTPError",(u.HTTPErrorProcessor,),{"http_response":lambda self,request,response:response,"https_response":lambda self,request,response:response})(); r=u.build_opener(p).open(u.Request("https://openai-eus-illumine.openai.azure.com/openai/v1/responses",method="HEAD"),timeout=8); print("Illumine endpoint probe: HTTP",r.status,flush=True)' > >(tee -a $output) 2> >(tee -a $output >&2) || echo 'Illumine endpoint probe: unavailable' > >(tee -a $output)
         supervisord -c /etc/supervisord.conf > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs/>
