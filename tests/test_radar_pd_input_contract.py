@@ -518,11 +518,11 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.22"
+    assert root.attrib.get("version") == "0.5.23"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-ff3e74ee274ca31ba4338e3135e529572087efa4"
+        "ndip-887fde6c981dbde4a8743b61db1a7545b5f44f29"
     )
 
 
