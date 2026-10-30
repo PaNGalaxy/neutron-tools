@@ -1,0 +1,38 @@
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.1.0" profile="22.05">
+    <description>run reviewed structural or magnetic model starts with bounded resources</description>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-951c7261ed5c41766c3e11efa2617b2a71aa1048</container></requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        touch '$result_bundle' '$console_output' &&
+        trap "chmod a+r '$result_bundle' '$console_output' >/dev/null 2>&1 || true" EXIT &&
+        python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' > '$console_output' 2>&1
+    ]]></command>
+    <inputs>
+        <param name="action" type="select" label="Reviewed model operation">
+            <option value="native">Inspect or prepare native models</option>
+            <option value="chunk">Run a finite chunk of approved starts</option>
+        </param>
+        <param name="source_gpx" type="data" format="binary" label="Exact source GPX"/>
+        <param name="model_assets" type="data" format="zip" label="Captured scientific inputs"/>
+        <param name="model_request" type="data" format="json" label="Reviewed model request"/>
+        <param name="dispatch_key" type="text" label="NOVA dispatch identity">
+            <validator type="regex" message="Use the NOVA-generated dispatch key">^[a-f0-9]{24}$</validator>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="result_bundle" format="zip" label="RADAR-PD model ${dispatch_key} results"/>
+        <data name="console_output" format="txt" label="RADAR-PD model ${dispatch_key} console"/>
+        <collection name="verified_projects" type="list" label="Qualified model GPXs ${dispatch_key}">
+            <discover_datasets pattern="verified_(?P&lt;designation&gt;[a-f0-9]+)\.gpx" ext="binary" directory="worker/verified_projects" visible="true"/>
+        </collection>
+    </outputs>
+    <help><![CDATA[
+NOVA captures the exact source GPX, candidate catalog and approved finite search.
+Each independent start runs in a fresh process. The pool respects GALAXY_SLOTS,
+memory and container CPU quotas; absent allocation information permits one worker.
+Unstarted trials remain pending at the chunk deadline. Every result retains its
+disposition, source and protocol hashes. Only independently audited, qualified
+projects appear in the output collection. A low Rwp does not establish a structure.
+No model API credential, Galaxy key, Python script or network request is accepted
+as an input. Discovery and planning run separately in NOVA.
+    ]]></help>
+</tool>

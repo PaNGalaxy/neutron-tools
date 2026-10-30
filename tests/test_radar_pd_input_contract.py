@@ -501,17 +501,22 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.4.38"
+    assert root.attrib.get("version") == "0.5.0"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-f69e1602a0ff7eabbd02b95670220417063bc3e7"
+        "nova-951c7261ed5c41766c3e11efa2617b2a71aa1048"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
     secret = credential.find("./secret[@name='api_key']")
     assert secret is not None and secret.attrib.get("inject_as_env") == "AZURE_ILLUMINE_API_KEY"
     assert "AZURE_ILLUMINE_API_KEY" not in root.findtext("command", default="")
+    bilbao = root.find("./requirements/credentials[@name='bilbao']")
+    assert bilbao is not None and bilbao.attrib.get("optional") == "true"
+    secret = bilbao.find("./secret[@name='api_key']")
+    assert secret is not None and secret.attrib.get("inject_as_env") == "BCS_API_KEY"
+    assert "BCS_API_KEY" not in root.findtext("command", default="")
 
 
 def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
