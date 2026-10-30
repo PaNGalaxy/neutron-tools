@@ -435,12 +435,12 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
 
     assert root.attrib.get("tool_type") == "interactive"
     assert root.attrib.get("profile") == "22.05"
-    assert root.attrib.get("version") == "0.1.13"
+    assert root.attrib.get("version") == "0.1.14"
 
     container = root.find("./requirements/container")
     assert container is not None
     assert (container.text or "").strip().endswith(
-        ":gsasii-gui-1b4fc8b38ddefa8c612af42546b8d7c1124358fb"
+        ":gsasii-gui-7bf1b359ef877a6289055e1ac8be0f302e33c183"
     )
 
     entrypoint = root.find("./entry_points/entry_point")
@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.0"
+    assert root.attrib.get("version") == "0.5.1"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-951c7261ed5c41766c3e11efa2617b2a71aa1048"
+        "nova-cc39f2179759bbcd73471f52f88c6801e16e7568"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
