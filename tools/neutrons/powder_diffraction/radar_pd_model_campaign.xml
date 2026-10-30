@@ -1,6 +1,6 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.1.2" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.1.3" profile="22.05">
     <description>run reviewed structural or magnetic model starts with bounded resources</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-5572f74349bcc3e45479c67054c69165a76bcdf4</container></requirements>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-600831f98d0789eb10fee98131d618d7b1d96181</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$result_bundle' '$console_output' &&
         trap "chmod a+r '$result_bundle' '$console_output' >/dev/null 2>&1 || true" EXIT &&
