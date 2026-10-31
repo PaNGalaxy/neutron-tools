@@ -1,6 +1,6 @@
-<tool id="neutrons_radar_pd_refine_recipe_prototype" name="RADAR-PD Utility: Reviewed Refinement" version="0.2.2" profile="22.05">
+<tool id="neutrons_radar_pd_refine_recipe_prototype" name="RADAR-PD Utility: Reviewed Refinement" version="0.2.3" profile="22.05">
     <description>inspect, preflight or apply an approved recipe to one published GPX</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-600831f98d0789eb10fee98131d618d7b1d96181</container></requirements>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-919bebf361d77016cfb21f2ce0ab5119ee4d0a94</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$result_bundle' '$console_output' &&
         trap "chmod a+r '$result_bundle' '$console_output' >/dev/null 2>&1 || true" EXIT &&
