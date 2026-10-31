@@ -71,5 +71,8 @@ as an input. Discovery and planning run separately in NOVA.
 NOVA can send the closed request as a sanitized base64 parameter, decoded into
 a bounded JSON data file. The same native validation applies; no per-chunk
 request upload is required. Existing uploaded JSON requests remain supported.
+Independent starts share only the CPU and memory allocated to their Galaxy job.
+NOVA separately limits concurrent batches across scans; visible host cores do
+not authorize additional native workers.
     ]]></help>
 </tool>
