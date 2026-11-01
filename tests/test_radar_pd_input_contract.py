@@ -435,7 +435,7 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
 
     assert root.attrib.get("tool_type") == "interactive"
     assert root.attrib.get("profile") == "22.05"
-    assert root.attrib.get("version") == "0.1.15"
+    assert root.attrib.get("version") == "0.1.16"
 
     container = root.find("./requirements/container")
     assert container is not None
@@ -464,9 +464,9 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
     assert collection is not None and collection.attrib.get("format") == "gpx,binary"
     project = source.find("./when[@value='single']/param[@name='gpx_project']")
     assert project is not None and project.attrib.get("format") == "gpx,binary"
-    validator = project.find("./validator[@type='expression']")
-    assert validator is not None
-    assert "accepted_model_after_pass_" in (validator.text or "")
+    # Galaxy's native stage collection labels are arbitrary (e.g. "final").
+    # Labels cannot establish GPX content and must not reject verified stages.
+    assert project.find("./validator[@type='expression']") is None
 
     command = root.findtext("./command", default="")
     assert 'GSASII_SOURCE_PROJECT="\\$selected_project"' in command
@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.6.5"
+    assert root.attrib.get("version") == "0.6.6"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-610f42849650eedfb14e4130ed4a8561c127ce66"
+        "nova-74ff7d01eecbe8ce8e32e4e151b56d7428efa0e8"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -603,6 +603,18 @@ def test_gsasii_collection_selector_skips_corrupt_higher_priority_checkpoint(
         exec(compile(selector, "<select_project>", "exec"), {})
 
     assert Path(output.getvalue().strip()) == valid.resolve()
+
+
+@pytest.mark.parametrize('name', ['final', 'positions', 'my custom stage', 'saved.gpx'])
+def test_gsasii_accepts_verified_project_content_with_arbitrary_stage_label(tmp_path, monkeypatch, name):
+    script = _root('radar_pd_gsasii_interactive.xml').findtext('./configfiles/configfile[@name="validate_project"]')
+    project = tmp_path / name
+    project.write_bytes(pickle.dumps(['Controls', {}], protocol=1))
+    monkeypatch.setattr(sys, 'argv', ['validate_project', str(project)])
+    exec(compile(script, '<validate_project>', 'exec'), {})
+    project.write_bytes(b'not a GPX project')
+    with pytest.raises(SystemExit, match='not a GSAS-II GPX project'):
+        exec(compile(script, '<validate_project>', 'exec'), {})
 
 
 def test_gsasii_collection_prefers_final_joint_cell_model(tmp_path, monkeypatch):

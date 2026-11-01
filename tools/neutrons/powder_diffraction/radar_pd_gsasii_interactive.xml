@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.15">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.16">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -105,9 +105,7 @@ if first_opcode is None:
                 <param name="gpx_projects" type="data_collection" collection_type="list" format="gpx,binary" label="RADAR-PD GSAS-II handoff projects" help="Choose the complete RADAR-PD 5 | GSAS-II handoff projects collection. The final joint-cell model is preferred, followed by the highest Accepted model after pass checkpoint; Main phase anchor is used when no accepted model exists."/>
             </when>
             <when value="single">
-                <param name="gpx_project" type="data" format="gpx,binary" label="Saved GSAS-II project" help="Choose a GSAS-II refined project from a previous interactive session, or one standalone RADAR-PD checkpoint.">
-                    <validator type="expression" message="Select a RADAR-PD GSAS-II checkpoint or a project previously saved by this tool, not a plot or NPZ sidecar.">value is not None and (value.name.lower().endswith('.gpx') or value.name.lower().startswith(('01_imported_pattern_and_main_phase', '02_main_phase_anchor', '03_final_accepted_joint_cell_model', 'accepted_model_after_pass_', 'gsas-ii project ready for interactive handoff', 'gsas-ii refined project')))</validator>
-                </param>
+                <param name="gpx_project" type="data" format="gpx,binary" label="Saved GSAS-II project" help="Choose a verified refinement stage (including final), a RADAR-PD checkpoint, or a GSAS-II project. Project content is checked before the desktop starts; Galaxy stage labels need not end in .gpx."/>
             </when>
         </conditional>
     </inputs>
