@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_interactive_prototype" tool_type="interactive" name="RADAR-PD Interactive" version="0.6.7" profile="22.01">
+<tool id="neutrons_radar_pd_interactive_prototype" tool_type="interactive" name="RADAR-PD Interactive" version="0.6.8" profile="22.01">
     <description>configure, run, monitor, recover, and inspect Full or Rapid RADAR-PD analyses</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:nova-196cb24ba90b7e202d8fd663d6b14d86c7ac0f2c</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:nova-5744dae69ad3205a1dc4abd87015eb0192205994</container>
         <credentials name="ornl_illumine" version="1.0" label="ORNL Illumine"
                      description="Personal Illumine key for optional reviewed refinement recipes"
                      optional="true">
