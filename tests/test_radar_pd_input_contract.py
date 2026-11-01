@@ -566,7 +566,9 @@ def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
 
 def test_live_snapshot_worker_publishes_verified_projects_without_credentials() -> None:
     root = _root("radar_pd_live_snapshot.xml")
-    assert root.attrib["version"] == "0.1.0"
+    assert root.attrib["version"] == "0.1.1"
+    # Galaxy strips and joins command lines; shell continuations become argv spaces.
+    assert not any(line.rstrip().endswith("\\") for line in root.findtext("command").splitlines())
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
         "models-4c49cd07ee7f67a0d2de3ebc6a00294c9af07c3e"
