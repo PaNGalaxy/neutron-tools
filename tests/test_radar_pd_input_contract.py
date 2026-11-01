@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.34"
+    assert root.attrib.get("version") == "0.6.0"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-8f93a936a661788e0a6b5a9a82c1d82e7231bc77"
+        "nova-0fc7f5858324841dc0d3f11597c131f326a2cf73"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -523,11 +523,11 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.24"
+    assert root.attrib.get("version") == "0.5.25"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-5572f74349bcc3e45479c67054c69165a76bcdf4"
+        "ndip-4c49cd07ee7f67a0d2de3ebc6a00294c9af07c3e"
     )
 
 
@@ -541,10 +541,10 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     stage_projects = root.find("./outputs/collection[@name='stage_projects']")
 
     assert root.attrib.get("id") == "neutrons_radar_pd_refine_recipe_prototype"
-    assert root.attrib.get("version") == "0.2.4"
+    assert root.attrib.get("version") == "0.3.0"
     assert container is not None and container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-90b4fb60163e134e399ab12f3430f7aab95ffee4"
+        "ndip-4c49cd07ee7f67a0d2de3ebc6a00294c9af07c3e"
     )
     assert "/opt/radar-pd/scripts/ndip_refinement.py" in command
     assert "'$recipe_request'" in command
@@ -553,6 +553,32 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     assert dispatch is not None and dispatch.find("./validator[@type='regex']") is not None
     assert stage_projects is not None
     assert "AZURE_ILLUMINE_API_KEY" not in ET.tostring(root, encoding="unicode")
+
+
+def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
+    root = _root("radar_pd_model_campaign.xml")
+    assert root.attrib["version"] == "0.2.0"
+    assert root.findtext("./requirements/container") == (
+        "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
+        "models-4c49cd07ee7f67a0d2de3ebc6a00294c9af07c3e"
+    )
+
+
+def test_live_snapshot_worker_publishes_verified_projects_without_credentials() -> None:
+    root = _root("radar_pd_live_snapshot.xml")
+    assert root.attrib["version"] == "0.1.0"
+    assert root.findtext("./requirements/container") == (
+        "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
+        "models-4c49cd07ee7f67a0d2de3ebc6a00294c9af07c3e"
+    )
+    assert {p.attrib["name"] for p in root.findall("./inputs/param")} == {
+        "packet", "response_cache", "dispatch_key"
+    }
+    assert root.find("./outputs/data[@name='response_cache_output']") is not None
+    projects = root.find("./outputs/collection[@name='verified_projects']/discover_datasets")
+    assert projects is not None and projects.attrib["directory"] == "worker/verified_projects"
+    assert "gpx_recipe.live.galaxy_worker" in root.findtext("command")
+    assert root.find("./requirements/credentials") is None
 
 
 def test_gsasii_collection_selector_skips_corrupt_higher_priority_checkpoint(
