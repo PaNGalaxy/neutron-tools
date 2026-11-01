@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.6.9"
+    assert root.attrib.get("version") == "0.6.10"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-ac1455ab25008931ded18e977df72be61d28130d"
+        "nova-4cd5a5e7b9df26db596ce16c19fcec6af8114dbe"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -523,12 +523,31 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.26"
+    assert root.attrib.get("version") == "0.5.27"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-616f8cc40f4e6f4b2e377065c75880c2d9bdc3ed"
+        "ndip-4cd5a5e7b9df26db596ce16c19fcec6af8114dbe"
     )
+
+
+def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
+    builder = _root("radar_pd_library_builder.xml")
+    analyze = _root("radar_pd_analyze.xml")
+    assert builder.attrib["version"] == "0.3.6"
+    assert builder.findtext("./requirements/container") == analyze.findtext("./requirements/container")
+    policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
+    assert policy is not None
+    assert [(option.attrib["value"], option.attrib.get("selected"))
+            for option in policy.findall("option")] == [("0", "true"), ("0.001", None)]
+    command = builder.findtext("./command", default="")
+    assert command.index("scripts/cif_source_archive.py") < command.index("python -m zipfile -e")
+    assert "--reviewed-occupancy-excess" in command
+    assert "shlex.quote(str($occupancy_review_note))" in command
+    activation = analyze.find(".//param[@name='library_review_activation']")
+    assert activation is not None and activation.attrib.get("optional") == "true"
+    assert analyze.find("./configfiles/configfile[@name='library_review_payload']") is not None
+    assert "--library-review-activation '$library_review_payload'" in analyze.findtext("./command", default="")
 
 
 def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
