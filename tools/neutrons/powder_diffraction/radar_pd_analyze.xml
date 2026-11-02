@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.28">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.29">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-b660251b0846b57c3d026a2b431a3b2757d577e2</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-20516cb603685da2446a98c2256855acd3ec4d73</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $config_path = 'generated_config.yaml'
