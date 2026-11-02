@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.6.17"
+    assert root.attrib.get("version") == "0.6.18"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-f06a93aeca036da4d324c3033e7d641073031acc"
+        "nova-7e370db403b138a572e1240558dad0822f61ea78"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -523,18 +523,18 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.31"
+    assert root.attrib.get("version") == "0.5.32"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-f06a93aeca036da4d324c3033e7d641073031acc"
+        "ndip-7e370db403b138a572e1240558dad0822f61ea78"
     )
 
 
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
     builder = _root("radar_pd_library_builder.xml")
     analyze = _root("radar_pd_analyze.xml")
-    assert builder.attrib["version"] == "0.3.10"
+    assert builder.attrib["version"] == "0.3.11"
     assert builder.findtext("./requirements/container") == analyze.findtext("./requirements/container")
     policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
     assert policy is not None
