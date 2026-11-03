@@ -25,7 +25,7 @@ def decoder(tmp_path):
 
 def test_inline_recipe_preserves_legacy_contract_and_native_worker():
     tool = ET.parse(TOOL).getroot()
-    assert tool.attrib['version'] == '0.3.2'
+    assert tool.attrib['version'] == '0.3.3'
     params = {p.attrib['name']: p for p in tool.findall('inputs/param')}
     assert set(params) == {'action', 'source_gpx', 'recipe_request', 'recipe_request_b64', 'dispatch_key'}
     assert params['recipe_request'].attrib['optional'] == 'true'
