@@ -1,0 +1,674 @@
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.32">
+    <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-7e370db403b138a572e1240558dad0822f61ea78</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $config_path = 'generated_config.yaml'
+        #set $analysis_data = 'resolved_input/pattern.dat'
+        #set $analysis_instrument = 'resolved_input/instrument.instprm'
+        #set $analysis_main_cif = 'resolved_input/main.cif'
+        #set $source_kind = str($data_inputs.input_source.source_kind)
+        #set $instrument_source_kind = str($data_inputs.input_source.instrument_source.kind) if $source_kind == 'history' else 'resolved'
+        #set $input_source_label = 'ipts' if $source_kind.startswith('ipts_') else 'history'
+        #set $history_pattern_selected = $source_kind != 'history' or str($data_inputs.input_source.diffraction_pattern) not in ('', 'None', 'Not available.')
+        #set $history_instrument_selected = $source_kind != 'history' or $instrument_source_kind != 'uploaded' or str($data_inputs.input_source.instrument_source.instrument_file) not in ('', 'None', 'Not available.')
+        #if $source_kind == 'history' and $history_pattern_selected and str($data_inputs.input_source.diffraction_pattern.element_identifier).lower().endswith('.xrdml')
+            #set $analysis_data = 'resolved_input/pattern.xrdml'
+        #end if
+        mkdir -p work portal/{plots,tables,phases,gpx,diagnostics} resolved_input &&
+        touch '$console_output' portal/overview.tsv portal/report.html portal/summary.json portal/state.json portal/resolved_config.yaml portal/input_manifest.json portal/gpx_index.json portal/results.zip resolved_input/metadata.json &&
+        trap "chmod -R a+rX '$console_output' portal resolved_input >/dev/null 2>&1 || true" EXIT &&
+        set -euo pipefail &&
+        #if $source_kind == 'history' and $instrument_source_kind == 'builtin_cuka' and str($measurement.radiation) != 'xray'
+        printf '%s\n' 'The built-in Cu K-alpha profile requires X-ray powder diffraction. Select X-ray in Measurement type or provide a neutron instrument parameter file.' | tee -a '$console_output' >&2 &&
+        exit 2
+        #end if
+        #if $source_kind == 'history'
+            #if not $history_pattern_selected
+        printf '%s\n' 'Select a measured powder diffraction pattern before running RADAR-PD.' | tee -a '$console_output' >&2 &&
+        exit 2
+            #else
+        cp '$data_inputs.input_source.diffraction_pattern' '$analysis_data' &&
+            #end if
+            #if $instrument_source_kind == 'uploaded'
+                #if not $history_instrument_selected
+        printf '%s\n' 'Select the GSAS-II instrument parameter file that matches the diffraction pattern.' | tee -a '$console_output' >&2 &&
+        exit 2
+                #else
+        cp '$data_inputs.input_source.instrument_source.instrument_file' '$analysis_instrument' &&
+                #end if
+            #end if
+        #end if
+        #if str($data_inputs.main_cif) not in ('', 'None', 'Not available.')
+        cp '$data_inputs.main_cif' '$analysis_main_cif' &&
+        #end if
+        #if str($reproducibility.configuration_override.config_kind) == 'existing'
+            #set $config_path = str($reproducibility.configuration_override.config_file)
+        #else
+        config_args=(
+            python /opt/radar-pd/scripts/ndip_runner.py configure
+            --mode '$analysis.strategy.analysis_mode'
+            --radiation '$measurement.radiation'
+            --instrument-mode '$measurement.instrument_mode'
+            --allowed-elements '$chemistry.sample_elements'
+            --background-mode '$background.background_mode'
+            --background-type '$background.background_type'
+            --background-terms '$background.background_terms'
+            --output '$config_path'
+        ) &&
+            #if str($chemistry.environment_elements) not in ('', 'None', 'Not available.')
+        config_args+=(--environment-elements '$chemistry.environment_elements') &&
+            #end if
+            #if str($pattern.limit_start) not in ('', 'None', 'Not available.')
+        config_args+=(--limit-start '$pattern.limit_start') &&
+            #end if
+            #if str($pattern.limit_end) not in ('', 'None', 'Not available.')
+        config_args+=(--limit-end '$pattern.limit_end') &&
+            #end if
+            #for $region in $pattern.excluded_regions
+        config_args+=(--exclude-region '${region.start}:${region.end}') &&
+            #end for
+            #for $preset in $pattern.reference_masks.presets
+        config_args+=(--reference-mask-preset '$preset') &&
+            #end for
+        config_args+=($pattern.reference_masks.include_kbeta) &&
+            #if str($analysis.strategy.analysis_mode) == 'rapid'
+        config_args+=(
+            --phases-per-hypothesis '$analysis.strategy.rapid_controls.phases_per_hypothesis'
+            --rapid-stage-output-limit '$analysis.strategy.rapid_controls.stage_output_limit'
+            --gsas-validation-limit '$analysis.strategy.rapid_controls.gsas_validation_limit'
+            --rapid-workers '$analysis.strategy.rapid_controls.parallel_workers'
+            $analysis.strategy.rapid_controls.family_variants
+            $analysis.strategy.rapid_controls.final_polish
+        ) &&
+            #else
+        config_args+=(--runtime-profile '$analysis.strategy.full_profile.profile_kind') &&
+                #if str($analysis.strategy.full_profile.profile_kind) == 'custom'
+        config_args+=(
+            --max-passes '$analysis.strategy.full_profile.max_passes'
+            --min-phase-percent '$analysis.strategy.full_profile.min_phase_percent'
+            --full-top-n-ml '$analysis.strategy.full_profile.top_n_ml'
+            --full-nudge-candidates '$analysis.strategy.full_profile.nudge_candidates'
+            --full-cell-length-tolerance '$analysis.strategy.full_profile.cell_length_tolerance'
+            --full-cell-angle-tolerance '$analysis.strategy.full_profile.cell_angle_tolerance'
+            --full-nudge-samples '$analysis.strategy.full_profile.nudge_samples'
+            --full-nudge-representatives '$analysis.strategy.full_profile.nudge_representatives'
+            --full-compare-candidates '$analysis.strategy.full_profile.compare_candidates'
+            --full-compare-cycles '$analysis.strategy.full_profile.compare_cycles'
+            --full-rwp-improvement-threshold '$analysis.strategy.full_profile.rwp_improvement_threshold'
+        ) &&
+                #end if
+            #end if
+            #if str($magnetic.magnetic_check.enabled) == 'yes'
+        config_args+=(
+            --magnetic-precheck
+            --magnetic-q-max '$magnetic.magnetic_check.q_max'
+            --magnetic-denominators '$magnetic.magnetic_check.denominators'
+        ) &&
+            #else
+        config_args+=(--no-magnetic-precheck) &&
+            #end if
+        config_args+=(
+            $safeguards.main_prenudge
+            $safeguards.main_shadow_filter
+            $safeguards.cleanup.main_cleanup
+            $safeguards.cleanup.refine_uiso
+            $safeguards.cleanup.refine_positions
+        ) &&
+        "\${config_args[@]}" &&
+        #end if
+        #if $source_kind.startswith('ipts_')
+        resolve_args=(python /opt/radar-pd/scripts/ndip_runner.py resolve-ipts) &&
+            #if $source_kind == 'ipts_event'
+        resolve_args+=(--event-file '$data_inputs.input_source.event_file') &&
+            #else
+        resolve_args+=(--instrument '$data_inputs.input_source.instrument' --ipts '$data_inputs.input_source.ipts' --run '$data_inputs.input_source.run_number') &&
+            #end if
+            #if str($data_inputs.input_source.bank) not in ('', 'None', 'Not available.')
+        resolve_args+=(--bank '$data_inputs.input_source.bank') &&
+            #end if
+        resolve_args+=(--facility-root /SNS --pattern-output '$analysis_data' --instrument-output '$analysis_instrument' --metadata-output resolved_input/metadata.json) &&
+        "\${resolve_args[@]}" &&
+        #else
+        printf '%s\n' '{"source":"Galaxy history dataset"}' > resolved_input/metadata.json &&
+        #end if
+        analyze_args=(python '$ndip_runner_compat' analyze --config '$config_path' --data '$analysis_data') &&
+            #if $source_kind == 'history' and $instrument_source_kind == 'builtin_cuka'
+        analyze_args+=(--instrument-preset xray_lab_cuka) &&
+            #else
+        analyze_args+=(--instrument '$analysis_instrument') &&
+            #end if
+            #if str($data_inputs.main_cif) not in ('', 'None', 'Not available.')
+        analyze_args+=(--main-cif '$analysis_main_cif') &&
+            #end if
+            #if str($library.database.database_kind) == 'custom'
+        analyze_args+=(--db-pack '$library.database.database_archive') &&
+                #if str($library.database.library_review_activation).strip() not in ('', 'None', 'Not available.')
+        analyze_args+=(--library-review-activation '$library_review_payload') &&
+                #end if
+            #end if
+            #if str($reproducibility.run_name) not in ('', 'None', 'Not available.')
+        analyze_args+=(--run-name '$reproducibility.run_name') &&
+            #end if
+        analyze_args+=(--mode auto --input-source '$input_source_label' --work-dir work --output-dir portal) &&
+        "\${analyze_args[@]}" > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        python '$publish_gpx_fallback' work portal '$output_profile' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2) &&
+        python '$publish_pattern_observation' portal &&
+        python '$publish_plot_payloads' work/run portal
+    ]]></command>
+    <configfiles>
+        <configfile name="library_review_payload"><![CDATA[
+#if str($library.database.database_kind) == 'custom'
+$library.database.library_review_activation
+#else
+{}
+#end if
+        ]]></configfile>
+        <configfile name="ndip_runner_compat"><![CDATA[
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, "/opt/radar-pd/scripts")
+import ndip_runner
+
+
+_materialize_contract_config = ndip_runner._materialize_contract_config
+
+
+def _materialize_augmented_library(*args, **kwargs):
+    resolved = _materialize_contract_config(*args, **kwargs)
+    db_config = resolved.get("db")
+    if not isinstance(db_config, dict):
+        return resolved
+
+    configured_original = Path(str(db_config.get("original_json") or ""))
+    if configured_original.is_file():
+        return resolved
+
+    db_root = Path(kwargs.get("db_root") or "")
+    manifest_path = db_root / "manifest.json"
+    if not manifest_path.is_file():
+        return resolved
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Invalid custom-library manifest: {manifest_path}") from exc
+
+    library_mode = str(
+        manifest.get("library_mode") or manifest.get("kind") or ""
+    ).strip().lower()
+    if library_mode != "augmented":
+        return resolved
+
+    contract = args[0] if args else kwargs.get("contract") or {}
+    requested_radiation = str(
+        (contract.get("analysis") or {}).get("radiation") or "neutron"
+    ).strip().lower()
+    pack_radiation = str(
+        manifest.get("radiation") or manifest.get("source_type") or ""
+    ).strip().lower()
+    if pack_radiation and pack_radiation != requested_radiation:
+        raise ValueError(
+            f"The augmented library was built for {pack_radiation}, but this "
+            f"analysis uses {requested_radiation}. Build or select a matching library."
+        )
+
+    builtin_original = (
+        ndip_runner._db_root_for(requested_radiation, None)
+        / "highsymm_metadata.json"
+    ).resolve()
+    if not builtin_original.is_file():
+        raise FileNotFoundError(
+            "The augmented library requires the mounted built-in "
+            f"{requested_radiation} structure metadata, but it was not found at "
+            f"{builtin_original}."
+        )
+    db_config["original_json"] = str(builtin_original)
+    print(f"[DB] augmented library base metadata: {builtin_original}")
+    return resolved
+
+
+ndip_runner._materialize_contract_config = _materialize_augmented_library
+raise SystemExit(ndip_runner.main())
+        ]]></configfile>
+        <configfile name="publish_gpx_fallback"><![CDATA[
+import inspect
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, "/opt/radar-pd/scripts")
+import ndip_outputs
+
+
+work = Path(sys.argv[1]).resolve()
+portal = Path(sys.argv[2]).resolve()
+output_profile = str(sys.argv[3]).strip().lower()
+summary_path = portal / "summary.json"
+summary = json.loads(summary_path.read_text(encoding="utf-8"))
+run_root = work / "run"
+run_name = str(summary.get("run_name") or "").strip()
+nested_run = run_root / run_name
+if run_name and nested_run.is_dir():
+    run_root = nested_run
+
+original_publish_gpx = ndip_outputs._publish_gpx
+original_published_name = ndip_outputs._published_name
+original_gpx_stage = ndip_outputs._gpx_stage
+original_build_gpx_index = ndip_outputs.build_gpx_index
+
+
+def _fallback_main_project(path, root):
+    try:
+        relative = path.relative_to(root).as_posix().lower()
+    except ValueError:
+        return False
+    if "gsas_projects" not in relative or not path.name.lower().endswith("_project.gpx"):
+        return False
+    if original_publish_gpx(path, root):
+        return False
+    return not any(
+        "seq_final_main_polished" in candidate.name.lower()
+        for candidate in path.parent.glob("*.gpx")
+    )
+
+
+def _publish_gpx(path, root):
+    return original_publish_gpx(path, root) or _fallback_main_project(path, root)
+
+
+def _published_name(path, root, collection):
+    if collection == "gpx" and _fallback_main_project(path, root):
+        return "02_Main_phase_anchor.gpx"
+    return original_published_name(path, root, collection)
+
+
+def _gpx_stage(relative):
+    lowered = str(relative).lower()
+    if "gsas_projects" in lowered and lowered.endswith("_project.gpx"):
+        return "main_phase_anchor"
+    return original_gpx_stage(relative)
+
+
+def _build_gpx_index(*args, **kwargs):
+    index = original_build_gpx_index(*args, **kwargs)
+    root = Path(args[0] if args else kwargs.get("run_dir") or ".").resolve()
+    for project in index.get("projects", []):
+        source = str(project.get("path") or "")
+        if source and _fallback_main_project(root / source, root):
+            project["stage"] = "main_phase_anchor"
+            project["status"] = "accepted"
+    return index
+
+
+ndip_outputs._publish_gpx = _publish_gpx
+ndip_outputs._published_name = _published_name
+ndip_outputs._gpx_stage = _gpx_stage
+ndip_outputs.build_gpx_index = _build_gpx_index
+
+if not any(_fallback_main_project(path, run_root) for path in run_root.rglob("*.gpx")):
+    raise SystemExit(0)
+
+catalog_candidates = [
+    work / "custom_database" / "library_output" / "catalog_deduplicated.csv",
+    Path("/opt/radar-pd/data/database_neutron/catalog_deduplicated.csv"),
+    Path("/opt/radar-pd/data/database_xray/catalog_deduplicated.csv"),
+]
+phase_catalog = next((path for path in catalog_candidates if path.is_file()), None)
+collect_kwargs = {
+    "mode": str(summary.get("analysis_mode") or "full"),
+    "run_name": run_name or run_root.name,
+    "project_root": "/opt/radar-pd",
+    "include_archive": output_profile == "full",
+    "status": str(summary.get("status") or "complete"),
+    "errors": list(summary.get("errors") or []),
+}
+if "phase_catalog_csv" in inspect.signature(ndip_outputs.collect_outputs).parameters:
+    collect_kwargs["phase_catalog_csv"] = phase_catalog
+ndip_outputs.collect_outputs(
+    run_root,
+    portal,
+    **collect_kwargs,
+)
+        ]]></configfile>
+        <configfile name="publish_pattern_observation"><![CDATA[
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+portal = Path(sys.argv[1]).resolve()
+summary = json.loads((portal / "summary.json").read_text(encoding="utf-8"))
+receipt = summary.get("pattern_observation") or {}
+destination = portal / "pattern_observation.json"
+if receipt.get("sha256"):
+    if receipt.get("name") != "Pattern_observation.json":
+        raise ValueError("Unexpected fitted-pattern receipt name")
+    raw = (portal / "tables" / "Pattern_observation.json").read_bytes()
+    if hashlib.sha256(raw).hexdigest() != receipt["sha256"]:
+        raise ValueError("Fitted-pattern output disagrees with its immutable receipt")
+    destination.write_bytes(raw)
+else:
+    # Some valid outcomes stop before a refinement exists. An explicit empty
+    # document keeps that outcome usable without inventing a fitted curve.
+    destination.write_text("{}\n", encoding="utf-8")
+        ]]></configfile>
+        <configfile name="publish_plot_payloads"><![CDATA[
+import json
+import shutil
+import sys
+from pathlib import Path
+
+run_root = Path(sys.argv[1]).resolve()
+portal = Path(sys.argv[2]).resolve()
+summary = json.loads((portal / "summary.json").read_text(encoding="utf-8"))
+published = 0
+
+for artifact in summary.get("artifacts", {}).get("plots", []):
+    source_relative = Path(str(artifact.get("source_path") or ""))
+    portal_relative = Path(str(artifact.get("path") or ""))
+    if not source_relative.parts or not portal_relative.parts:
+        continue
+
+    source = None
+    roots = [run_root, *(path for path in run_root.iterdir() if path.is_dir())]
+    for root in roots:
+        root = root.resolve()
+        candidate = (root / source_relative).resolve()
+        if root not in candidate.parents or not candidate.is_file():
+            continue
+        source = candidate
+        break
+    if source is None:
+        continue
+
+    destination = (portal / portal_relative).resolve()
+    if portal not in destination.parents:
+        raise ValueError(f"Unsafe published plot path: {portal_relative}")
+    metadata_source = Path(str(source) + ".plotdata.json")
+    if not metadata_source.is_file():
+        continue
+
+    metadata = json.loads(metadata_source.read_text(encoding="utf-8"))
+    metadata["source_plot"] = destination.name
+    arrays_source = Path(str(source) + ".plotdata.npz")
+    if arrays_source.is_file():
+        # Galaxy keys dynamic collection members by the filename without its
+        # final extension. A .plotdata.json/.plotdata.npz pair therefore
+        # collides unless the NPZ stem is made distinct.
+        arrays_destination = Path(str(destination) + ".plotdata_arrays.npz")
+        shutil.copy2(arrays_source, arrays_destination)
+        metadata["arrays_npz"] = arrays_destination.name
+        published += 1
+    else:
+        metadata.pop("arrays_npz", None)
+
+    metadata_destination = Path(str(destination) + ".plotdata.json")
+    metadata_destination.write_text(json.dumps(metadata), encoding="utf-8")
+    published += 1
+
+print(f"Published {published} interactive plot sidecar file(s).")
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <section name="measurement" title="1. Measurement type" expanded="true">
+            <param name="radiation" type="select" label="Diffraction source" help="Choose this first. It selects the neutron or X-ray candidate catalog and the appropriate pattern treatment.">
+                <option value="neutron" selected="true">Neutron powder diffraction</option>
+                <option value="xray">X-ray powder diffraction (PXRD)</option>
+            </param>
+            <param name="instrument_mode" type="select" label="Pattern geometry" help="Auto detect is recommended unless the file metadata are incomplete or ambiguous.">
+                <option value="auto" selected="true">Auto detect from data and instrument profile</option>
+                <option value="tof">Time-of-flight</option>
+                <option value="cw">Constant wavelength</option>
+            </param>
+        </section>
+
+        <section name="library" title="2. Candidate phase library" expanded="true">
+            <conditional name="database">
+                <param name="database_kind" type="select" label="Library source" help="The built-in MP/COD-derived catalog is the normal choice. A custom archive is produced by the RADAR-PD CIF Library Builder.">
+                    <option value="builtin" selected="true">Built-in MP/COD catalog</option>
+                    <option value="custom">Use a custom RADAR-PD CIF library</option>
+                </param>
+                <when value="builtin"/>
+                <when value="custom">
+                    <param name="database_archive" type="data" format="zip" label="Custom library archive" help="Select the ZIP produced by RADAR-PD CIF Library Builder. To upload it from your laptop, click the ... button, then New upload and Choose local file."/>
+                    <param name="library_review_activation" type="text" value="" optional="true" area="true" label="Explicit library policy activation JSON" help="Required for a library containing a reviewed occupancy policy or non-duplicate failed sources. Provide acknowledged:true plus the exact archive_sha256 and policy_set_sha256; set allow_incomplete:true only after reviewing the declared failures. A matching explicit library_review in the configuration also remains valid. Archive reviewed:true is never permission.">
+                        <sanitizer sanitize="false"/>
+                    </param>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="data_inputs" title="3. Diffraction data and known phase" expanded="true">
+            <conditional name="input_source">
+                <param name="source_kind" type="select" label="Where is the diffraction pattern?" help="Choose laptop/Galaxy history to upload a new local file or select an existing dataset. Use an SNS IPTS option to locate reduced data from the mounted IPTS tree.">
+                    <option value="choose" selected="true">Choose an input source...</option>
+                    <option value="history">Upload from laptop or select Galaxy history</option>
+                    <option value="ipts_event">SNS IPTS: locate from NeXus event metadata</option>
+                    <option value="ipts_manual">SNS IPTS: locate by instrument, IPTS, run, and bank</option>
+                    <validator type="regex" message="Choose where RADAR-PD should obtain the diffraction pattern.">^(history|ipts_event|ipts_manual)$</validator>
+                </param>
+                <when value="choose"/>
+                <when value="history">
+                    <param name="diffraction_pattern" type="data" format="data,tabular,xml" label="Measured powder diffraction pattern" help="To upload from your laptop, click the ... button, then New upload Beta, Upload from Computer, Browse Files, and Start. RADAR-PD accepts .dat, .xye, .gsa, .gss, .gsas, .fxye, and .xrdml files. Galaxy may internally label these files as data, tabular, or xml; that label does not change the file contents.">
+                        <validator type="expression" message="Select a RADAR-PD powder diffraction file ending in .dat, .xye, .gsa, .gss, .gsas, .fxye, or .xrdml, not a result table or configuration artifact.">value is not None and value.name.lower().endswith(('.dat', '.xye', '.gsa', '.gss', '.gsas', '.fxye', '.xrdml'))</validator>
+                    </param>
+                    <conditional name="instrument_source">
+                        <param name="kind" type="select" label="Instrument profile" help="Most analyses should use the matching GSAS-II instrument parameter file. The built-in Cu K-alpha profile is for conventional laboratory PXRD only.">
+                            <option value="choose" selected="true">Choose an instrument profile...</option>
+                            <option value="uploaded">Use a GSAS-II instrument parameter file</option>
+                            <option value="builtin_cuka">Use built-in laboratory Cu K-alpha profile (X-ray only)</option>
+                            <validator type="regex" message="Choose an uploaded instrument file or the built-in laboratory PXRD profile.">^(uploaded|builtin_cuka)$</validator>
+                        </param>
+                        <when value="choose"/>
+                        <when value="uploaded">
+                            <param name="instrument_file" type="data" format="data,txt" label="GSAS-II instrument parameter file" help="Select the matching profile. To upload from your laptop, click the ... button, then New upload Beta, Upload from Computer, Browse Files, and Start. RADAR-PD accepts .instprm, .prm, .inst, and .ins profiles even when Galaxy labels them as generic data.">
+                                <validator type="expression" message="Select a GSAS-II instrument parameter file ending in .instprm, .prm, .inst, or .ins, not a report or configuration artifact.">value is not None and value.name.lower().endswith(('.instprm', '.prm', '.inst', '.ins'))</validator>
+                            </param>
+                        </when>
+                        <when value="builtin_cuka"/>
+                    </conditional>
+                </when>
+                <when value="ipts_event">
+                    <param name="event_file" type="data" format="h5" label="NeXus event file" help="RADAR-PD uses its instrument, IPTS, and run metadata to locate one reduced powder pattern and matching instrument profile."/>
+                    <param name="bank" type="text" value="" optional="true" label="Reduced-data bank override" help="Required only when more than one matching reduced bank exists."/>
+                </when>
+                <when value="ipts_manual">
+                    <param name="instrument" type="text" label="Instrument" help="For example HB2A."/>
+                    <param name="ipts" type="text" label="IPTS" help="For example IPTS-32001."/>
+                    <param name="run_number" type="text" label="Run number"/>
+                    <param name="bank" type="text" value="1" label="Bank"/>
+                </when>
+            </conditional>
+            <param name="main_cif" type="data" format="cif,data" optional="true" label="Known/main phase CIF" help="Supply a .cif file when the dominant structural phase is known. To upload from your laptop, click the ... button, then New upload Beta, Upload from Computer, Browse Files, and Start. RADAR-PD anchors and protects this phase before searching its residual signal.">
+                <validator type="expression" message="Select a crystallographic information file ending in .cif.">value is None or value.name.lower().endswith('.cif')</validator>
+            </param>
+        </section>
+
+        <section name="chemistry" title="4. Chemistry policy" expanded="true">
+            <param name="sample_elements" type="text" label="Elements expected in the sample" help="Comma- or space-separated symbols, for example Cu, P, Pb, O, S. Leave out sample-can elements unless they are chemically part of the specimen.">
+                <validator type="empty_field" message="Enter at least one sample element."/>
+            </param>
+            <param name="environment_elements" type="text" value="" optional="true" label="Sample can / environment elements" help="These may appear as pure environment phases but are not freely combined with the sample chemistry. Examples include Al or V."/>
+        </section>
+
+        <section name="pattern" title="5. Pattern regions and can/reference masks" expanded="false">
+            <param name="limit_start" type="float" optional="true" label="Fit range start" help="Native x-axis units: degrees 2-theta for CW/PXRD or microseconds for TOF."/>
+            <param name="limit_end" type="float" optional="true" label="Fit range end" help="Both fit-range values must be supplied together."/>
+            <repeat name="excluded_regions" title="Ignored region" min="0" max="20" default="0" help="Exclude known artifacts or unreliable intervals from refinement and residual analysis.">
+                <param name="start" type="float" label="Start"/>
+                <param name="end" type="float" label="End"/>
+            </repeat>
+            <section name="reference_masks" title="Automatic sample-can / reference peak masks" expanded="false">
+                <param name="presets" type="select" multiple="true" optional="true" label="Structures to mask" help="RADAR-PD calculates Bragg positions and creates instrument-aware ignored windows. This is separate from the environment-element chemistry policy.">
+                    <option value="Al_fcc">Al (fcc)</option>
+                    <option value="Cu_fcc">Cu (fcc)</option>
+                    <option value="V_bcc">V (bcc)</option>
+                </param>
+                <param name="include_kbeta" type="boolean" checked="false" truevalue="--reference-mask-include-kbeta" falsevalue="--no-reference-mask-include-kbeta" label="Also mask Cu K-beta companion positions" help="Relevant to Cu-anode laboratory PXRD."/>
+            </section>
+        </section>
+
+        <section name="background" title="6. Background correction" expanded="false">
+            <param name="background_mode" type="select" label="Correction strategy" help="Automatic fixed points is the scale-aware default used to seed GSAS-II background refinement.">
+                <option value="auto_fixed_points" selected="true">Automatic fixed points (recommended)</option>
+                <option value="polynomial">Refined analytical background</option>
+            </param>
+            <param name="background_type" type="select" label="GSAS-II background function">
+                <option value="chebyschev-1" selected="true">Chebyshev-1</option>
+                <option value="chebyschev">Chebyshev</option>
+                <option value="cosine">Cosine series</option>
+                <option value="lin interpolate">Linear interpolation</option>
+                <option value="log interpolate">Log interpolation</option>
+            </param>
+            <param name="background_terms" type="integer" min="1" max="36" value="6" label="Background terms"/>
+        </section>
+
+        <section name="magnetic" title="7. Optional magnetic-ordering precheck" expanded="false">
+            <conditional name="magnetic_check">
+                <param name="enabled" type="select" label="Run commensurate magnetic peak precheck" help="Use only for neutron data with a supplied main CIF. It tests whether residual peaks are systematically indexed by a propagation vector; it does not solve a magnetic structure.">
+                    <option value="no" selected="true">No</option>
+                    <option value="yes">Yes, inspect residual peaks before phase search</option>
+                </param>
+                <when value="no"/>
+                <when value="yes">
+                    <param name="q_max" type="float" min="1" max="20" value="6.0" label="Maximum Q for the precheck (1/angstrom)"/>
+                    <param name="denominators" type="text" value="2,3" label="Commensurate denominators" help="Comma-separated positive integers, normally 2,3."/>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="safeguards" title="8. Known-main-phase safeguards" expanded="false">
+            <param name="main_prenudge" type="boolean" checked="true" truevalue="--main-prenudge" falsevalue="--no-main-prenudge" label="Automatically anchor a supplied main-phase cell" help="A guarded pre-nudge is triggered only when the starting main CIF does not adequately align with the measured peaks."/>
+            <param name="main_shadow_filter" type="boolean" checked="true" truevalue="--main-shadow-filter" falsevalue="--no-main-shadow-filter" label="Filter candidates supported only by strong main-phase peaks" help="The filter fails open when the main-phase anchor is not reliable, preventing accidental removal of all hypotheses."/>
+            <section name="cleanup" title="Optional internal-structure cleanup" expanded="false">
+                <param name="main_cleanup" type="boolean" checked="false" truevalue="--main-cleanup" falsevalue="--no-main-cleanup" label="Refine supplied main-CIF internal parameters after lattice anchoring"/>
+                <param name="refine_uiso" type="boolean" checked="false" truevalue="--refine-uiso" falsevalue="--no-refine-uiso" label="Refine isotropic displacement parameters (Uiso)"/>
+                <param name="refine_positions" type="boolean" checked="false" truevalue="--refine-positions" falsevalue="--no-refine-positions" label="Refine atomic positions"/>
+            </section>
+        </section>
+
+        <section name="analysis" title="9. Analysis route and execution controls" expanded="true">
+            <conditional name="strategy">
+                <param name="analysis_mode" type="select" display="radio" label="Analysis path" help="All measurement, library, data, chemistry, masking, background, magnetic, and main-phase settings above are shared by both routes. Only the search strategy below changes.">
+                    <option value="full" selected="true">Full RADAR-PD</option>
+                    <option value="rapid">Rapid Hypothesis Mode</option>
+                </param>
+                <when value="full">
+                    <conditional name="full_profile">
+                        <param name="profile_kind" type="select" label="Full RADAR-PD search profile" help="Balanced is recommended for a first scientific run. Quick is diagnostic; Thorough broadens the sequential residual search when unexplained peaks remain.">
+                            <option value="balanced" selected="true">Balanced first pass (recommended)</option>
+                            <option value="quick">Quick diagnostic</option>
+                            <option value="thorough">Thorough search</option>
+                            <option value="custom">Custom research budget</option>
+                        </param>
+                        <when value="balanced"/>
+                        <when value="quick"/>
+                        <when value="thorough"/>
+                        <when value="custom">
+                            <param name="max_passes" type="integer" min="1" max="10" value="2" label="Impurity discovery rounds"/>
+                            <param name="min_phase_percent" type="float" min="0" max="100" value="0.5" label="Stop below phase fraction (wt%)"/>
+                            <param name="top_n_ml" type="integer" min="5" max="200" value="35" label="ML candidates retained per round"/>
+                            <param name="nudge_candidates" type="integer" min="1" max="50" value="7" label="Candidates sent to lattice nudging per round"/>
+                            <param name="cell_length_tolerance" type="float" min="0.1" max="5" value="1.0" label="Cell-length search window (%)"/>
+                            <param name="cell_angle_tolerance" type="float" min="0.1" max="10" value="3.0" label="Cell-angle search window (degrees)"/>
+                            <param name="nudge_samples" type="integer" min="100" max="100000" value="5000" label="Lattice samples per candidate"/>
+                            <param name="nudge_representatives" type="integer" min="5" max="500" value="50" label="Nudge representatives retained"/>
+                            <param name="compare_candidates" type="integer" min="1" max="10" value="2" label="Candidates compared in each commit cycle"/>
+                            <param name="compare_cycles" type="integer" min="1" max="20" value="6" label="Maximum joint-refinement cycles"/>
+                            <param name="rwp_improvement_threshold" type="float" min="0" max="1" value="0.06" label="Stop when Rwp improvement falls below"/>
+                        </when>
+                    </conditional>
+                </when>
+                <when value="rapid">
+                    <section name="rapid_controls" title="Rapid Hypothesis Mode controls" expanded="true">
+                        <param name="phases_per_hypothesis" type="integer" min="1" max="5" value="3" label="Candidate phases in each hypothesis" help="With a supplied main CIF, this is the maximum number of impurity candidates. Without a main CIF, it is the total number of phases in a hypothesis."/>
+                        <param name="stage_output_limit" type="integer" min="3" max="50" value="10" label="Hypotheses retained for inspection" help="Controls how many ranked combinations remain visible at each Rapid stage; it does not alter diffraction physics."/>
+                        <param name="gsas_validation_limit" type="integer" min="0" max="20" value="10" label="Final refinement checks" help="Number of shortlisted hypotheses sent to guarded GSAS-II refinement. Zero stops after lattice-aware pattern scoring."/>
+                        <param name="parallel_workers" type="integer" min="1" max="8" value="4" label="Parallel refinement workers" help="Independent final hypotheses are refined in parallel. Four is the production default."/>
+                        <param name="family_variants" type="boolean" checked="true" truevalue="--rapid-family-variants" falsevalue="--no-rapid-family-variants" label="Keep alternate members of near-stoichiometric phase families" help="Preserves scientifically comparable CIF variants for later inspection while ranking one preferred representative."/>
+                        <param name="final_polish" type="boolean" checked="false" truevalue="--rapid-final-polish" falsevalue="--no-rapid-final-polish" label="Run deeper final cell polish" help="Normally leave off. Enable only when the focused final refinement requires an additional guarded cell-polish stage."/>
+                    </section>
+                </when>
+            </conditional>
+        </section>
+
+        <section name="reproducibility" title="10. Run identity and reproducibility" expanded="true">
+            <param name="run_name" type="text" optional="true" label="Run name" help="Defaults to the diffraction dataset name. Use a meaningful name for mapped scans or repeated measurements."/>
+            <conditional name="configuration_override">
+                <param name="config_kind" type="select" label="Configuration source" help="Most users should generate the configuration from the controls above. A saved YAML is useful in automated or mapped workflows.">
+                    <option value="guided" selected="true">Generate a reproducible configuration from this form</option>
+                    <option value="existing">Use a saved RADAR-PD YAML configuration</option>
+                </param>
+                <when value="guided"/>
+                <when value="existing">
+                    <param name="config_file" type="data" format="yaml" label="Saved RADAR-PD configuration" help="Scientific settings above are replaced by this YAML; input datasets, candidate library, and run name are still selected here."/>
+                </when>
+            </conditional>
+        </section>
+        <param name="output_profile" type="hidden" value="full"/>
+    </inputs>
+    <outputs>
+        <data name="overview" format="tabular" from_work_dir="portal/overview.tsv" label="RADAR-PD 1 | Result overview"/>
+        <collection type="list" name="plots" label="RADAR-PD 2 | Accepted fit and diagnostic plots">
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/plots" visible="true"/>
+        </collection>
+        <collection type="list" name="tables" label="RADAR-PD 3 | Scientific result tables">
+            <filter>output_profile == 'full'</filter>
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/tables" visible="true"/>
+        </collection>
+        <collection type="list" name="phases" label="RADAR-PD 4 | Candidate and refined phase CIFs">
+            <filter>output_profile == 'full'</filter>
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/phases" visible="true"/>
+        </collection>
+        <collection type="list" name="gpx_projects" format="binary" label="RADAR-PD 5 | GSAS-II handoff projects">
+            <discover_datasets pattern="(?P&lt;designation&gt;.+)\.gpx" ext="binary" directory="portal/gpx" visible="true"/>
+        </collection>
+        <data name="resolved_config" format="yaml" from_work_dir="portal/resolved_config.yaml" label="RADAR-PD 6 | Reproducible configuration">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="results_archive" format="zip" from_work_dir="portal/results.zip" label="RADAR-PD 7 | Complete results archive">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="console_output" format="txt" label="RADAR-PD 8 | Analysis log"/>
+        <data name="report" format="html" from_work_dir="portal/report.html" label="RADAR-PD integrated report" hidden="true"/>
+        <data name="summary" format="json" from_work_dir="portal/summary.json" label="RADAR-PD normalized summary" hidden="true"/>
+        <data name="pattern_observation" format="json" from_work_dir="portal/pattern_observation.json" label="RADAR-PD fitted pattern observation" hidden="true"/>
+        <data name="state" format="json" from_work_dir="portal/state.json" label="RADAR-PD job state" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="input_manifest" format="json" from_work_dir="portal/input_manifest.json" label="RADAR-PD input manifest" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="gpx_index" format="json" from_work_dir="portal/gpx_index.json" label="RADAR-PD GSAS-II project index" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <data name="input_resolution_metadata" format="json" from_work_dir="resolved_input/metadata.json" label="RADAR-PD input resolution metadata" hidden="true">
+            <filter>output_profile == 'full'</filter>
+        </data>
+        <collection type="list" name="diagnostics" label="RADAR-PD diagnostics">
+            <filter>output_profile == 'full'</filter>
+            <discover_datasets pattern="__designation_and_ext__" directory="portal/diagnostics" visible="false"/>
+        </collection>
+    </outputs>
+    <help><![CDATA[
+**RADAR-PD analysis workflow**
+
+1. Choose neutron or X-ray diffraction, then provide the common scientific inputs in Sections 2-8.
+2. Select the built-in catalog or a custom CIF library built with the companion Library Builder.
+3. Supply data directly from Galaxy history or resolve a reduced SNS IPTS run. Add a main-phase CIF when the dominant structure is known.
+4. Enter sample chemistry separately from sample-can or environment elements.
+5. Review optional pattern masks, background treatment, magnetic precheck, and known-main-phase safeguards.
+6. In Section 9, choose Full RADAR-PD or Rapid Hypothesis Mode. Switching routes changes only the execution controls in that section; it does not replace or hide the scientific inputs above.
+
+**Rapid Hypothesis Mode** performs coarse mixture search, symmetry-aware lattice nudging, higher-resolution pattern scoring, and focused GSAS-II refinement ranking. **Full RADAR-PD** performs sequential residual-aware impurity discovery and refinement. The Balanced profile is recommended for a first Full run.
+
+The primary outputs are numbered in the History. Start with **Result overview**, then open the curated plot and table collections. Send **Complete results archive** to **RADAR-PD Utility: Explore Results** for the integrated dashboard; one archive restores the report, plots, tables, CIFs, and GPX checkpoints together. Send an element from **GSAS-II handoff projects** to **RADAR-PD Utility: Refine in GSAS-II** to continue the refinement in the hosted native GSAS-II desktop.
+    ]]></help>
+</tool>

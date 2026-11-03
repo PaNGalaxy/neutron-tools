@@ -1,0 +1,130 @@
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.17">
+    <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
+    <creator>
+        <person name="Lalit Yadav"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-a4822fab93b172a07d84b611e1a9e38b403a66c2</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="GSAS-II Interactive" label="gsasii" requires_domain="False" requires_path_in_url="True">
+            <port>8080</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">gsasii</environment_variable>
+    </environment_variables>
+    <command><![CDATA[
+        #import re
+        touch '$session_log' '$exported_files' &&
+        trap "chmod a+r '$edited_project' '$exported_files' '$session_log' >/dev/null 2>&1 || true" EXIT &&
+        set -euo pipefail &&
+        #if str($project_source.source_kind) == 'collection'
+        mkdir -p gpx_inputs &&
+            #for $index, $item in enumerate($project_source.gpx_projects)
+                #set $safe_name = re.sub(r'[^A-Za-z0-9_.-]+', '_', str($item.element_identifier))
+        cp '$item' 'gpx_inputs/${index}__$safe_name' &&
+            #end for
+        selected_project="\$(python '$select_project' gpx_inputs)" &&
+        #else
+        selected_project='$project_source.gpx_project' &&
+        #end if
+        python '$validate_project' "\$selected_project" &&
+        printf 'Opening GSAS-II project: %s\n' "\$(basename "\$selected_project")" | tee -a '$session_log' &&
+        export GSASII_SOURCE_PROJECT="\$selected_project" &&
+        export GSASII_OUTPUT_PROJECT='$edited_project' &&
+        export GSASII_OUTPUT_ARCHIVE='$exported_files' &&
+        /opt/gsasii-gui/start.sh > >(tee -a '$session_log') 2> >(tee -a '$session_log' >&2)
+    ]]></command>
+    <configfiles>
+        <configfile name="select_project"><![CDATA[
+import re
+import pickletools
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+def is_pickle_project(path):
+    try:
+        data = path.read_bytes()
+        return bool(data) and next(pickletools.genops(data), None) is not None
+    except Exception:
+        return False
+
+
+projects = sorted(path for path in root.iterdir() if path.is_file() and is_pickle_project(path))
+if not projects:
+    raise SystemExit("The selected RADAR-PD handoff collection contains no valid GSAS-II GPX project.")
+
+
+def priority(path):
+    name = path.name.lower()
+    if "final_accepted_joint_cell_model" in name or "seq_final_joint_polished" in name:
+        return 5, 0, name
+    accepted = re.search(r"accepted_model_after_pass_(\d+)", name)
+    if accepted:
+        return 4, int(accepted.group(1)), name
+    if "02_main_phase_anchor" in name:
+        return 3, 0, name
+    if "01_imported_pattern_and_main_phase" in name:
+        return 2, 0, name
+    return 1, 0, name
+
+
+print(max(projects, key=priority).resolve())
+        ]]></configfile>
+        <configfile name="validate_project"><![CDATA[
+import pickletools
+import sys
+from pathlib import Path
+
+project = Path(sys.argv[1])
+message = (
+    "The selected input is not a GSAS-II GPX project. Choose RADAR-PD 5 | "
+    "GSAS-II handoff projects or a project previously saved by this tool."
+)
+data = project.read_bytes()
+if not data:
+    raise SystemExit(message)
+try:
+    first_opcode = next(pickletools.genops(data), None)
+except Exception as exc:
+    raise SystemExit(message) from exc
+if first_opcode is None:
+    raise SystemExit(message)
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <conditional name="project_source">
+            <param name="source_kind" type="select" label="What should GSAS-II open?">
+                <option value="collection" selected="true">Final accepted model from a RADAR-PD handoff collection</option>
+                <option value="single">One saved GSAS-II project</option>
+            </param>
+            <when value="collection">
+                <param name="gpx_projects" type="data_collection" collection_type="list" format="gpx,binary" label="RADAR-PD GSAS-II handoff projects" help="Choose the complete RADAR-PD 5 | GSAS-II handoff projects collection. The final joint-cell model is preferred, followed by the highest Accepted model after pass checkpoint; Main phase anchor is used when no accepted model exists."/>
+            </when>
+            <when value="single">
+                <param name="gpx_project" type="data" format="gpx,binary" label="Saved GSAS-II project" help="Choose a verified refinement stage (including final), a RADAR-PD checkpoint, or a GSAS-II project. Project content is checked before the desktop starts; Galaxy stage labels need not end in .gpx."/>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="edited_project" format="binary" label="GSAS-II refined project | ${on_string}.gpx"/>
+        <data name="exported_files" format="zip" label="GSAS-II exported files | ${on_string}.zip"/>
+        <data name="session_log" format="txt" label="GSAS-II interactive session log | ${on_string}"/>
+    </outputs>
+    <help><![CDATA[
+Opens a writable copy of one RADAR-PD GPX checkpoint in the native GSAS-II desktop through the browser. The selected input remains unchanged. Every stable save is copied back to **GSAS-II refined project** in Galaxy History, including when the interactive session is stopped from NDIP.
+
+Typical workflow:
+
+1. Run **RADAR-PD Analyze**.
+2. Select the complete **RADAR-PD 5 | GSAS-II handoff projects** collection. The latest accepted refinement checkpoint is chosen automatically.
+3. Open the interactive display, refine parameters in GSAS-II, and use **File > Save project**.
+4. Save plots, CIFs, tables, or other files into the visible **Exports** folder in GSAS-II's save dialog.
+5. Close GSAS-II or stop the interactive job. Continue later with **One saved GSAS-II project** and select the resulting **GSAS-II refined project**. Files saved under **Exports** are returned in **GSAS-II exported files**.
+
+This is the full GSAS-II GUI, not the batch GSAS2 refinement tool. Use GSAS-II's own controls for phase fractions, lattice and profile terms, atomic coordinates, occupancies, displacement parameters, background, and instrument parameters. Refining many correlated parameters at once can destabilize a fit; save checkpoints as you proceed.
+    ]]></help>
+</tool>
