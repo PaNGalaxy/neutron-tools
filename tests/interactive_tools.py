@@ -6,11 +6,14 @@ from nova.common.job import WorkState
 from nova.galaxy import Connection, Tool
 from nova.galaxy.tool import stop_all_tools_in_store
 
+from conftest import LogWindow
 
-def test_interactive_tool(interactive_tool: str) -> None:
+
+def test_interactive_tool(interactive_tool: str, log_window: LogWindow) -> None:
     """
     Runs an integration test for a given tool ID with provided parameters
     """
+    d_tool = None
     try:
         conn = Connection(
             galaxy_url=os.environ["GALAXY_URL"], galaxy_key=os.environ["API_KEY"]
@@ -19,12 +22,22 @@ def test_interactive_tool(interactive_tool: str) -> None:
             d_store = connection.create_data_store(name=f"{interactive_tool}_test")
             d_store.persist()
             d_tool = Tool(id=interactive_tool)
+            # Open the log window before the job is launched, since run_interactive
+            # waits for it to come up and the job id only exists afterwards.
+            log_window.job_submitted()
             d_tool.run_interactive(d_store, max_tries=120)
             print(f"Tool {interactive_tool} started successfully.")
             assert WorkState.RUNNING == d_tool.get_status()
             stop_all_tools_in_store(d_store)
     except Exception as e:
         print(f"Tool {interactive_tool} failed to start: {str(e)}")
+
+        try:
+            log_window.job_submitted(d_tool._job.id)
+        except Exception:
+            # The tool never got far enough to have a job, so the link will just
+            # cover the time the test itself ran.
+            pass
 
         try:
             # Give Galaxy time to record job metrics.

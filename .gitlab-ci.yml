@@ -58,6 +58,7 @@ lint-xml:
     - |
       for FOLDER in $TEST_FOLDERS
       do
+        RUN_START=`date +%s`
         docker run --user `id -u`:`id -g` -v `pwd`:`pwd` --workdir `pwd`/$FOLDER  $CONTAINER_URL \
           planemo test --galaxy_root /galaxy --docker --no_conda_auto_init \
           --test_output_json `pwd`/test_output_${FOLDER}_${AUTH_MODE}.json \
@@ -65,12 +66,16 @@ lint-xml:
           --galaxy_url  $GALAXY_URL \
           --galaxy_user_key $API_KEY \
           --galaxy_admin_key $ADMIN_KEY 2>&1 | tee docker_output.log || ERROR=1
+        RUN_END=`date +%s`
         if grep -q "No tests were executed" docker_output.log && [ "$CI_COMMIT_BRANCH" == "main" ]; then
           echo "Ignoring error: 'no tests were executed'"
           ERROR=0
         fi
         if [ -f test_output_${FOLDER}_${AUTH_MODE}.xml ]; then
           python3 $ROOT_DIR/scripts/fix_junit_xml.py test_output_${FOLDER}_${AUTH_MODE}.xml
+          python3 $ROOT_DIR/scripts/add_kibana_links.py \
+            --run-start $RUN_START --run-end $RUN_END \
+            test_output_${FOLDER}_${AUTH_MODE}.xml
         fi
         GLOBAL_ERROR=$((GLOBAL_ERROR | ERROR))
       done
@@ -102,6 +107,7 @@ testing-ucams:
   variables:
     ENVIRONMENT: "ndip-test"
     GALAXY_URL: "https://ndip-test.ornl.gov"
+    KIBANA_URL: "https://ndip-test.ornl.gov/logs"
     API_KEY: $CALVERA_TEST_API_KEY
     ADMIN_KEY: $CALVERA_TEST_ADMIN_KEY
     AUTH_MODE: ucams
@@ -113,6 +119,7 @@ testing-ucams:
       variables:
         ENVIRONMENT: "ndip"
         GALAXY_URL: "https://ndip.ornl.gov"
+        KIBANA_URL: "https://ndip.ornl.gov/logs"
         API_KEY: $CALVERA_API_KEY
         ADMIN_KEY: $CALVERA_ADMIN_KEY
       when: always
@@ -123,6 +130,7 @@ testing-xcams:
   variables:
     ENVIRONMENT: "ndip-test"
     GALAXY_URL: "https://ndip-test.ornl.gov"
+    KIBANA_URL: "https://ndip-test.ornl.gov/logs"
     API_KEY: $NDIP_XCAMS_TEST_API_KEY
     ADMIN_KEY: $CALVERA_TEST_ADMIN_KEY
     AUTH_MODE: xcams
@@ -134,6 +142,7 @@ testing-xcams:
       variables:
         ENVIRONMENT: "ndip"
         GALAXY_URL: "https://ndip.ornl.gov"
+        KIBANA_URL: "https://ndip.ornl.gov/logs"
         API_KEY: $NDIP_XCAMS_API_KEY
         ADMIN_KEY: $CALVERA_ADMIN_KEY
       when: always
@@ -150,12 +159,12 @@ testing-xcams:
     # Run tests with --push-metrics if scheduled or web
     - |
       if [ "$CI_PIPELINE_SOURCE" = "schedule" ] || [ "$CI_PIPELINE_SOURCE" = "web" ]; then
-        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY \
+        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e KIBANA_URL \
           --user `id -u`:`id -g` \
           -e CI_PIPELINE_ID -e CI_PROJECT_URL -e PROMETHEUS_URL -e ENVIRONMENT -e AUTH_MODE \
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py --push-metrics
       else
-        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e ENVIRONMENT -e AUTH_MODE \
+        docker run -e GALAXY_URL=$GALAXY_URL -e API_KEY=$API_KEY -e KIBANA_URL -e ENVIRONMENT -e AUTH_MODE \
           --user `id -u`:`id -g` \
           -v $(pwd)/test_results:/src/test_results galaxy_tools python tests/interactive_tools.py
       fi
@@ -172,6 +181,7 @@ interactive-tools-testing-ucams:
   variables:
     ENVIRONMENT: "ndip-test"
     GALAXY_URL: "https://ndip-test.ornl.gov"
+    KIBANA_URL: "https://ndip-test.ornl.gov/logs"
     API_KEY: $ANDREW_API_KEY
     AUTH_MODE: ucams
   <<: *interactive-tool-testing
@@ -180,6 +190,7 @@ interactive-tools-testing-ucams:
       variables:
         ENVIRONMENT: "ndip"
         GALAXY_URL: "https://ndip.ornl.gov"
+        KIBANA_URL: "https://ndip.ornl.gov/logs"
         API_KEY: $ANDREW_API_KEY_PROD
       when: always
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -192,6 +203,7 @@ interactive-tools-testing-xcams:
   variables:
     ENVIRONMENT: "ndip-test"
     GALAXY_URL: "https://ndip-test.ornl.gov"
+    KIBANA_URL: "https://ndip-test.ornl.gov/logs"
     API_KEY: $NDIP_XCAMS_TEST_API_KEY
     AUTH_MODE: xcams
   <<: *interactive-tool-testing
@@ -200,6 +212,7 @@ interactive-tools-testing-xcams:
       variables:
         ENVIRONMENT: "ndip"
         GALAXY_URL: "https://ndip.ornl.gov"
+        KIBANA_URL: "https://ndip.ornl.gov/logs"
         API_KEY: $NDIP_XCAMS_API_KEY
       when: always
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
