@@ -9,9 +9,9 @@ the production deployment procedure.
 The package is based on production commit
 `39eaab3e3f0d1916684b8c07a814305da9f286a0`. The companion wrappers and GPX datatype support
 were copied from prototype commit `3dc25baaf437720dc67443e2d20b9e277a2dc721`.
-The NOVA 0.6.31 launch-page wrapper comes from tested source commit
-`514749b1dcb305b33c127f092702c68a1c546eb7`, with immutable image digest
-`sha256:8b4eddf4da716e795aa11c106164f8f4f809efd31c87c6b3732fb1a507655410`.
+The NOVA 0.6.32 launch-page and user-guide wrapper comes from tested source commit
+`bf29e4b8e574044b65458a3ae6a8023a8a541c45`, with immutable image digest
+`sha256:ff1a7791dc835bea40b304e4a9594ab68aa5c41daebb230f5dd5cf6c57348852`.
 No facility data, credentials, private audit reports, or unrelated prototype
 tools are included.
 
@@ -94,7 +94,7 @@ verify the NOVA release image before production installation.
 
 | Wrapper | Version | Image |
 | --- | --- | --- |
-| `radar_pd_nova.xml` | `0.6.31` | `ghcr.io/lalityadav07/impurity_detection_gsas_ver6:nova-514749b1dcb305b33c127f092702c68a1c546eb7` |
+| `radar_pd_nova.xml` | `0.6.32` | `ghcr.io/lalityadav07/impurity_detection_gsas_ver6:nova-bf29e4b8e574044b65458a3ae6a8023a8a541c45` |
 | `radar_pd_analyze.xml` | `0.5.32` | `ghcr.io/lalityadav07/impurity_detection_gsas_ver6:ndip-7e370db403b138a572e1240558dad0822f61ea78` |
 | `radar_pd_configure.xml` | `0.3.0` | `savannah.ornl.gov/radar-pd/radar-pd:ndip-bc15eaa-catalog-20260617` |
 | `radar_pd_resolve_sns_input.xml` | `0.1.0` | `savannah.ornl.gov/radar-pd/radar-pd:ndip-3e33a6b-catalog-20260617` |
@@ -118,3 +118,8 @@ smoke test to confirm session launch, one authorized dataset submission,
 published outputs, GPX reopening, and export. The repository's full interactive
 test suite launches tools against its configured Galaxy instance; it is not an
 installation command and should not be used as an unreviewed deployment check.
+
+The 0.6.32 image updates the bundled user guide to the current Live, refinement,
+model exploration and recovery workflows. It preserves the dated AGES walkthrough
+as a separate reference. This is a documentation-only application release; the
+12 companion tools and their scientific image pins are unchanged.
