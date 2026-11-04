@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.6.33"
+    assert root.attrib.get("version") == "0.6.34"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-ee5af4e694d1abc0bdafbff7e797a4eef4d41709"
+        "nova-c45df9bf896ee3afb1c505b7ef8a96eb91d01088"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -560,10 +560,10 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     stage_projects = root.find("./outputs/collection[@name='stage_projects']")
 
     assert root.attrib.get("id") == "neutrons_radar_pd_refine_recipe_prototype"
-    assert root.attrib.get("version") == "0.3.3"
+    assert root.attrib.get("version") == "0.3.4"
     assert container is not None and container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-08a97f91e6b1224fc0595735614ca2a4d615d9c9"
+        "ndip-3e5e99bd7764af8b68ced3d5fce381364d6558d9"
     )
     assert "/opt/radar-pd/scripts/ndip_refinement.py" in command
     assert "'$recipe_request'" in command
@@ -576,10 +576,10 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
 
 def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
     root = _root("radar_pd_model_campaign.xml")
-    assert root.attrib["version"] == "0.2.2"
+    assert root.attrib["version"] == "0.2.3"
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-08a97f91e6b1224fc0595735614ca2a4d615d9c9"
+        "models-3e5e99bd7764af8b68ced3d5fce381364d6558d9"
     )
 
 
