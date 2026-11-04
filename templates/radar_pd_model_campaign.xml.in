@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.2.7" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.2.8" profile="22.05">
     <description>run reviewed structural or magnetic model starts with bounded resources</description>
     <requirements><container type="docker">@IMMUTABLE_MODEL_IMAGE@</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -61,8 +61,14 @@ else:
     </outputs>
     <help><![CDATA[
 NOVA captures the exact source GPX, candidate catalog and approved finite search.
-Each independent start runs in a fresh process. The pool respects GALAXY_SLOTS,
-memory and container CPU quotas; absent allocation information permits one worker.
+The fast fixed-geometry magnetic optimizer prepares one subgroup in an isolated
+process and screens its complete reviewed start portfolio against one checked
+surrogate. Distinct calculated profiles are independently verified with GSAS-II.
+Equivalent screened starts retain their own moment solutions and reference a
+native-verified representative; they are not separate verified GPX files.
+Other refinement modes retain independent fresh-process starts. Workers respect
+GALAXY_SLOTS, memory and container CPU quotas; absent allocation information
+permits one worker.
 Unstarted trials remain pending at the chunk deadline. Every result retains its
 disposition, source and protocol hashes. Only independently audited, qualified
 projects appear in the output collection. A low Rwp does not establish a structure.
