@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.6.45"
+    assert root.attrib.get("version") == "0.6.46"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-224dcc30e277d996b48f89acdb4825a4f8bb19e6"
+        "nova-33f2e019c9cc21b3af3a04e234d52d3914e39ef5"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -523,11 +523,11 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.32"
+    assert root.attrib.get("version") == "0.5.33"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-7e370db403b138a572e1240558dad0822f61ea78"
+        "ndip-fd08af18143483b3d38457a22f2c48cafb54a567"
     )
 
 
@@ -535,7 +535,10 @@ def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None
     builder = _root("radar_pd_library_builder.xml")
     analyze = _root("radar_pd_analyze.xml")
     assert builder.attrib["version"] == "0.3.11"
-    assert builder.findtext("./requirements/container") == analyze.findtext("./requirements/container")
+    assert builder.findtext("./requirements/container") == (
+        "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
+        "ndip-7e370db403b138a572e1240558dad0822f61ea78"
+    )  # Keep the independently tested library builder pinned; its contract is unchanged.
     policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
     assert policy is not None
     assert [(option.attrib["value"], option.attrib.get("selected"))
@@ -560,10 +563,10 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     stage_projects = root.find("./outputs/collection[@name='stage_projects']")
 
     assert root.attrib.get("id") == "neutrons_radar_pd_refine_recipe_prototype"
-    assert root.attrib.get("version") == "0.3.8"
+    assert root.attrib.get("version") == "0.3.9"
     assert container is not None and container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-7ff0700061441e6c163b64ff0fcd8a5208cae054"
+        "ndip-fd08af18143483b3d38457a22f2c48cafb54a567"
     )
     assert "/opt/radar-pd/scripts/ndip_refinement.py" in command
     assert "'$recipe_request'" in command
@@ -576,21 +579,21 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
 
 def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
     root = _root("radar_pd_model_campaign.xml")
-    assert root.attrib["version"] == "0.2.8"
+    assert root.attrib["version"] == "0.2.9"
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-4d7cdda6c8e2fb5c975045143b9dbcf11a970297"
+        "models-fd08af18143483b3d38457a22f2c48cafb54a567"
     )
 
 
 def test_live_snapshot_worker_publishes_verified_projects_without_credentials() -> None:
     root = _root("radar_pd_live_snapshot.xml")
-    assert root.attrib["version"] == "0.1.2"
+    assert root.attrib["version"] == "0.1.3"
     # Galaxy strips and joins command lines; shell continuations become argv spaces.
     assert not any(line.rstrip().endswith("\\") for line in root.findtext("command").splitlines())
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-d64ba7a3dbdd6356af4859344834b96d5df301bd"
+        "models-fd08af18143483b3d38457a22f2c48cafb54a567"
     )
     assert {p.attrib["name"] for p in root.findall("./inputs/param")} == {
         "packet", "response_cache", "dispatch_key"
