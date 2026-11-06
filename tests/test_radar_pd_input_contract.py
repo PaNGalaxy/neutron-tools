@@ -523,22 +523,22 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.33"
+    assert root.attrib.get("version") == "0.5.34"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-fd08af18143483b3d38457a22f2c48cafb54a567"
+        "ndip-56abab118a8e89d6d41f015b12a91950a864cc51"
     )
 
 
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
     builder = _root("radar_pd_library_builder.xml")
     analyze = _root("radar_pd_analyze.xml")
-    assert builder.attrib["version"] == "0.3.11"
+    assert builder.attrib["version"] == "0.3.12"
     assert builder.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-7e370db403b138a572e1240558dad0822f61ea78"
-    )  # Keep the independently tested library builder pinned; its contract is unchanged.
+        "ndip-56abab118a8e89d6d41f015b12a91950a864cc51"
+    )  # Scientific library contracts are retained; both workers share the allocation guard.
     policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
     assert policy is not None
     assert [(option.attrib["value"], option.attrib.get("selected"))
