@@ -30,6 +30,10 @@ def test_worker_template_binds_exact_dispatch_result_and_data_inputs(tmp_path):
     assert result.attrib['label']=='RADAR-PD model ${dispatch_key} results'
     assert '&&' in tool.findtext('command') and '&amp;' not in tool.findtext('command')
     assert 'worker/verified_projects' in tool.find('outputs/collection/discover_datasets').attrib['directory']
+    point_fits=tool.find("outputs/collection[@name='reviewable_projects']")
+    assert 'review required' in point_fits.attrib['label']
+    assert point_fits.find('discover_datasets').attrib['directory']=='worker/reviewable_projects'
+    assert 'reviewable_' in point_fits.find('discover_datasets').attrib['pattern']
     assert (ROOT/'templates/radar_pd_model_campaign.xml.in').is_file()
     assert '@IMMUTABLE_MODEL_IMAGE@' not in output.read_text()
 
