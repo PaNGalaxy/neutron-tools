@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.6.54"
+    assert root.attrib.get("version") == "0.6.55"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-ef4a21ccb56e19e2ffa895264414d0c3935373ce"
+        "nova-204bd6becb1b36408c19f8063210b3b76ef1361b"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -579,10 +579,10 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
 
 def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
     root = _root("radar_pd_model_campaign.xml")
-    assert root.attrib["version"] == "0.2.14"
+    assert root.attrib["version"] == "0.2.15"
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-ef4a21ccb56e19e2ffa895264414d0c3935373ce"
+        "models-204bd6becb1b36408c19f8063210b3b76ef1361b"
     )
 
 
