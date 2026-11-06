@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.2.10" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.2.16" profile="22.05">
     <description>run reviewed structural or magnetic model starts with bounded resources</description>
     <requirements><container type="docker">@IMMUTABLE_MODEL_IMAGE@</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -42,7 +42,7 @@ else:
             <option value="native">Inspect or prepare native models</option>
             <option value="chunk">Run a finite chunk of approved starts</option>
         </param>
-        <param name="source_gpx" type="data" format="binary" label="Exact source GPX"/>
+        <param name="source_gpx" type="data" format="binary,txt" label="Exact source GPX or nuclear CIF (experiment preparation)"/>
         <param name="model_assets" type="data" format="zip" label="Captured scientific inputs"/>
         <param name="model_request" type="data" format="json" optional="true" label="Reviewed model request dataset (legacy transport)"/>
         <param name="model_request_b64" type="text" value="" optional="true" label="NOVA encoded model request">
@@ -80,5 +80,12 @@ request upload is required. Existing uploaded JSON requests remain supported.
 Independent starts share only the CPU and memory allocated to their Galaxy job.
 NOVA separately limits concurrent batches across scans; visible host cores do
 not authorize additional native workers.
+Experiment preparation can instead supply one nuclear CIF with captured bank
+profiles and a closed preparation request. The worker creates theoretical
+reference calculations without fitting observations. Its portable result bundle
+contains data only; preparation does not create a verified experimental GPX.
+The source parameter keeps its existing name for compatibility. Text includes
+plain CIF uploads; native operations verify the selected source's content and
+exact checksum before scientific use.
     ]]></help>
 </tool>

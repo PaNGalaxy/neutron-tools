@@ -14,11 +14,15 @@ def test_worker_template_binds_exact_dispatch_result_and_data_inputs(tmp_path):
     output=tmp_path/'models.xml';image='ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-'+'a'*40
     renderer.render(image,output);tool=ET.parse(output).getroot()
     assert tool.attrib['id']=='neutrons_radar_pd_model_campaign_prototype'
-    assert tool.attrib['version']=='0.2.10'
-    assert ET.parse(ROOT/'tools/neutrons/powder_diffraction/radar_pd_model_campaign.xml').getroot().attrib['version']=='0.2.10'
+    assert tool.attrib['version']=='0.2.16'
+    # Updating the future template does not activate an unpublished image.
+    assert ET.parse(ROOT/'tools/neutrons/powder_diffraction/radar_pd_model_campaign.xml').getroot().attrib['version']=='0.2.15'
     assert tool.findtext('requirements/container')==image
     assert {p.attrib['name'] for p in tool.findall('inputs/param')}=={'action','source_gpx','model_assets','model_request','model_request_b64','dispatch_key'}
     assert tool.find("inputs/param[@name='model_request']").attrib['optional']=='true'
+    source=tool.find("inputs/param[@name='source_gpx']")
+    assert set(source.attrib['format'].split(','))=={'binary','txt'}
+    assert 'CIF' in source.attrib['label']
     result=tool.find('outputs/data[@name="result_bundle"]')
     assert result.attrib['label']=='RADAR-PD model ${dispatch_key} results'
     assert '&&' in tool.findtext('command') and '&amp;' not in tool.findtext('command')
