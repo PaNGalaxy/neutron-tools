@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.2.17" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.2.18" profile="22.05">
     <description>run reviewed structural or magnetic model starts with bounded resources</description>
     <requirements><container type="docker">@IMMUTABLE_MODEL_IMAGE@</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -8,10 +8,22 @@
             echo 'Supply exactly one reviewed request source' >&2; exit 1
         #elif $model_request_b64
             python '$request_decoder' '$inline_request' decoded-model-request.json &&
-            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' > '$console_output' 2>&1 &&
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' \
+            #if $model_asset_parts
+                #for $part in $model_asset_parts
+                    --asset-part '$part' \
+                #end for
+            #end if
+                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' > '$console_output' 2>&1 &&
             python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #elif $model_request
-            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' > '$console_output' 2>&1 &&
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' \
+            #if $model_asset_parts
+                #for $part in $model_asset_parts
+                    --asset-part '$part' \
+                #end for
+            #end if
+                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' > '$console_output' 2>&1 &&
             python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #else
             echo 'Supply one reviewed request source' >&2; exit 1
@@ -47,6 +59,7 @@ else:
         </param>
         <param name="source_gpx" type="data" format="binary,txt" label="Exact source GPX or nuclear CIF (experiment preparation)"/>
         <param name="model_assets" type="data" format="zip" label="Captured scientific inputs"/>
+        <param name="model_asset_parts" type="data" format="zip" multiple="true" optional="true" label="Additional structural training input parts (NOVA supplies these automatically)"/>
         <param name="preparation_evidence" type="data" format="json" multiple="true" optional="true" label="Native preparation origin receipts (NOVA supplies these automatically)"/>
         <param name="model_request" type="data" format="json" optional="true" label="Reviewed model request dataset (legacy transport)"/>
         <param name="model_request_b64" type="text" value="" optional="true" label="NOVA encoded model request">
@@ -99,6 +112,12 @@ assert optimization convergence, a unique structure or a posterior probability.
 The source parameter keeps its existing name for compatibility. Text includes
 plain CIF uploads; native operations verify the selected source's content and
 exact checksum before scientific use.
+Large three-curve structural training inventories are automatically staged in
+separately bounded ZIP parts. Their complete index binds every file to the
+captured source, instrument profile and training plan; parts cannot add models,
+alter the training cohort or carry executable code. Ordinary model operations
+retain their single-packet bounds. Saved sessions retain every part's dataset
+identity so the exact inputs can be restored without resubmitting a job.
 The native wrapper emits a compact origin receipt and announces its digest to
 Galaxy's job stdout. Subsequent jobs receive creating-job metadata from this
 fixed template, separately from uploaded request data. Exact-context structural

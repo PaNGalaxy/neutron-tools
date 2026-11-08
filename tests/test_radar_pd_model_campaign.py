@@ -14,11 +14,13 @@ def test_worker_template_binds_exact_dispatch_result_and_data_inputs(tmp_path):
     output=tmp_path/'models.xml';image='ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-'+'a'*40
     renderer.render(image,output);tool=ET.parse(output).getroot()
     assert tool.attrib['id']=='neutrons_radar_pd_model_campaign_prototype'
-    assert tool.attrib['version']=='0.2.17'
+    assert tool.attrib['version']=='0.2.18'
     # Updating the future template does not activate an unpublished image.
     assert ET.parse(ROOT/'tools/neutrons/powder_diffraction/radar_pd_model_campaign.xml').getroot().attrib['version']=='0.2.15'
     assert tool.findtext('requirements/container')==image
-    assert {p.attrib['name'] for p in tool.findall('inputs/param')}=={'action','source_gpx','model_assets','model_request','model_request_b64','dispatch_key','preparation_evidence'}
+    assert {p.attrib['name'] for p in tool.findall('inputs/param')}=={'action','source_gpx','model_assets','model_request','model_request_b64','dispatch_key','preparation_evidence','model_asset_parts'}
+    parts=tool.find("inputs/param[@name='model_asset_parts']")
+    assert parts.attrib['optional']==parts.attrib['multiple']=='true'
     evidence=tool.find("inputs/param[@name='preparation_evidence']")
     assert evidence.attrib['optional']==evidence.attrib['multiple']=='true'
     assert tool.find("outputs/data[@name='preparation_certificate']").attrib['hidden']=='true'
@@ -125,7 +127,8 @@ def test_provenance_config_uses_creating_job_metadata_and_literal_json(tmp_path,
 
 
 @pytest.mark.parametrize('encoded',[True,False])
-def test_future_command_passes_provenance_outside_request_and_announces_only_fixed_receipt(tmp_path,encoded):
+@pytest.mark.parametrize('part_count',[0,2])
+def test_future_command_passes_provenance_outside_request_and_announces_only_fixed_receipt(tmp_path,encoded,part_count):
     Template=pytest.importorskip('Cheetah.Template').Template
     tool=future_tool(tmp_path)
     decoder=tmp_path/'decode.py';decoder.write_text(tool.findtext("configfiles/configfile[@name='request_decoder']"))
@@ -136,6 +139,7 @@ def test_future_command_passes_provenance_outside_request_and_announces_only_fix
     provenance=tmp_path/'server.json';provenance.write_text('{"server":"owned"}')
     worker=tmp_path/'fake_worker.py'
     worker.write_text("import json,pathlib,sys\np=pathlib.Path\n"
+        "p('captured-parts.json').write_text(json.dumps([sys.argv[i+1] for i,v in enumerate(sys.argv) if v=='--asset-part']))\n"
         "assert p(sys.argv[sys.argv.index('--preparation-evidence')+1]).read_text()=='{\\\"server\\\":\\\"owned\\\"}'\n"
         "p(sys.argv[6]).write_text(json.dumps(json.loads(p(sys.argv[4]).read_text())))\n"
         "p(sys.argv[sys.argv.index('--preparation-certificate')+1]).write_text('{\\\"receipt\\\":true}')\n"
@@ -145,13 +149,15 @@ def test_future_command_passes_provenance_outside_request_and_announces_only_fix
     command=tool.findtext('command').replace('/opt/radar-symmetry/ndip_model_campaign.py',str(worker))
     command=command.replace('-m gpx_recipe.preparation.certificates',str(announce))
     result=tmp_path/'result.json';console=tmp_path/'console.txt';certificate=tmp_path/'certificate.json'
+    parts=[str(tmp_path/f'part {i}.zip') for i in range(part_count)]
     rendered=str(Template(command,searchList=[dict(action='native',result_bundle=str(result),console_output=str(console),
         preparation_certificate=str(certificate),preparation_provenance=str(provenance),
-        source_gpx='source.gpx',model_assets='assets.zip',model_request=None if encoded else str(legacy),
+        source_gpx='source.gpx',model_assets='assets.zip',model_asset_parts=parts,model_request=None if encoded else str(legacy),
         model_request_b64=b64 if encoded else None,request_decoder=str(decoder),inline_request=str(inline))]))
     rendered=re.sub(r'(?m)^(\s*)python\s',lambda m:m[1]+shlex.quote(sys.executable)+' ',rendered)
     process=subprocess.run(['/bin/sh','-c',rendered],cwd=tmp_path,check=True,capture_output=True,text=True)
     assert json.loads(result.read_text())==payload and not (tmp_path/'MUST_NOT_EXIST').exists()
+    assert json.loads((tmp_path/'captured-parts.json').read_text())==parts
     import hashlib
     assert process.stdout=='[RADAR PREPARATION CERTIFICATE] '+hashlib.sha256(certificate.read_bytes()).hexdigest()+'\n'
     assert 'untrusted-scientific-output' in console.read_text() and 'untrusted-scientific-output' not in process.stdout
