@@ -1,7 +1,7 @@
 <tool id="imaginex_subhkl_rainbow_zones" name="IMAGINE-X subhkl Diffraction Parallax &amp; Lattice Ladder" profile="22.05" version="0.2.0" python_template_version="3.5">
     <description>Interactive Laue zone curves, detector pixel intensity heatmaps, and 2-tier NDIP + Solve Lattice Ladder</description>
     <requirements>
-        <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
+        <container type="docker">ghcr.io/neutrons/subhkl:feat-rainbow-zones</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         export JAX_PLATFORMS=cpu &&

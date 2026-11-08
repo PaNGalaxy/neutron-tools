@@ -1,7 +1,7 @@
 <tool id="nova-subhkl-diffraction-parallax" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax (NOVA Interactive)" profile="22.05" version="0.2.0">
     <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with NDIP workflow orchestration</description>
     <requirements>
-        <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
+        <container type="docker">ghcr.io/neutrons/subhkl:feat-rainbow-zones</container>
     </requirements>
     <entry_points>
         <entry_point name="SubHKL Diffraction Parallax" label="subhkl_diffraction_parallax" requires_domain="False" requires_path_in_url="True">
