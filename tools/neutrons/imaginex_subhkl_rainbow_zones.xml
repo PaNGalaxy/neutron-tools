@@ -4,6 +4,7 @@
         <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        export JAX_PLATFORMS=cpu &&
         mkdir -p out &&
         ln -sf "$indexed_h5" input_peaks.h5 &&
         #set $img_opt = ""
@@ -15,7 +16,7 @@
         #if str($projection) != "auto":
             #set $proj_opt = " --projection " + str($projection) + " "
         #end if
-        python -m subhkl.io.parser rainbow-visualize input_peaks.h5 $img_opt $proj_opt --instrument "$instrument" --max-zone-index "$max_zone_index" --tolerance-deg "$tolerance_deg" -o out/rainbow_zones.html
+        python -m subhkl.io.parser rainbow-visualize input_peaks.h5 $img_opt $proj_opt --instrument "$instrument" --max-zone-index "$max_zone_index" --zone-tolerance-deg "$tolerance_deg" -o out/rainbow_zones.html
     ]]></command>
     <inputs>
         <param format="h5" name="indexed_h5" type="data" label="Solved / Indexed / Integrated SubHKL HDF5 (solve.h5, indexer.h5, integrator.h5)" />

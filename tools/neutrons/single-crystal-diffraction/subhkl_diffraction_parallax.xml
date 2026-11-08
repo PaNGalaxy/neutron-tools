@@ -13,18 +13,24 @@
         <environment_variable name="GALAXY_API_KEY" inject="api_key" />
         <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">subhkl_diffraction_parallax</environment_variable>
+        <environment_variable name="JAX_PLATFORMS">cpu</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        ln -sf "$indexed_h5" input_peaks.h5 &&
+        export JAX_PLATFORMS=cpu &&
+        #set $p_opt = ""
+        #if $indexed_h5:
+            ln -sf "$indexed_h5" input_peaks.h5 &&
+            #set $p_opt = " input_peaks.h5 "
+        #end if
         #set $img_opt = ""
         #if $images_h5:
             ln -sf "$images_h5" input_images.h5 &&
             #set $img_opt = " --images input_images.h5 "
         #end if
-        python -m subhkl.io.parser rainbow-visualize input_peaks.h5 $img_opt --instrument "$instrument" -o "$rainbow_html" --serve --host 0.0.0.0 --port 8081
+        python -m subhkl.io.parser rainbow-visualize $p_opt $img_opt --instrument "$instrument" -o "$rainbow_html" --serve --host 0.0.0.0 --port 8081
     ]]></command>
     <inputs>
-        <param format="h5" name="indexed_h5" type="data" label="Solved / Indexed / Integrated SubHKL HDF5 (solve.h5, indexer.h5, integrator.h5)" />
+        <param format="h5" name="indexed_h5" type="data" optional="true" label="Solved / Indexed / Integrated SubHKL HDF5 (solve.h5, indexer.h5, integrator.h5)" />
         <param format="h5" name="images_h5" type="data" optional="true" label="Detector Image HDF5 (scan.h5 / merged.h5)" />
         <param name="instrument" type="select" optional="false" value="CG4D" label="Instrument">
             <option value="CG4D">IMAGINE-X (CG4D — Cylindrical)</option>
