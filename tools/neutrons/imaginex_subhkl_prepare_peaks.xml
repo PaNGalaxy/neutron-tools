@@ -1,47 +1,53 @@
-<tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X subhkl Prepare Peaks"  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
+<tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X subhkl Prepare Peaks" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.2.1</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 
-		mkdir out ; 
+		mkdir -p out ;
 
-		#set $FILE_LIST = ""
-		
+		#set $wl_opts = ""
+		#if str($wavelengthMin) != "":
+		    #set $wl_opts = $wl_opts + " --wavelength-min " + str($wavelengthMin)
+		#end if
+		#if str($wavelengthMax) != "":
+		    #set $wl_opts = $wl_opts + " --wavelength-max " + str($wavelengthMax)
+		#end if
+
 		#for $Z in $inputs:
 		    #set $BN = str($Z.input).split("/")[-1].split(".")[0]
 		    #set $filename = "out/" + str($BN) + ".reduce.h5"
-		    ls /SNS/MANDI/IPTS-34720 ;
-		    python -m subhkl.io.parser reduce $Z.input $filename $instrument ;
-		    #set $FILE_LIST = $FILE_LIST + $filename + " "
+		    python -m subhkl.io.parser reduce "$Z.input" "$filename" $instrument $wl_opts ;
 		#end for
-		
-		python -m subhkl.io.parser merge-images $FILE_LIST out/scan_master.h5 $a $b $c $alpha $beta $gamma $spaceGroup ;
-		
+
+		python -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup" ;
+
     ]]></command>
     <inputs>
-    
-		<repeat name="inputs" title="Input Files" help="As full file paths inside /SNS">
+
+		<repeat name="inputs" title="Input Files" help="As full file paths inside /SNS or /HFIR">
 			<param name="input" type="text" label="File" />
 		</repeat>
-		<param name="instrument" type="select" optional="false" value="MANDI" label="Instrument" > 
+		<param name="instrument" type="select" optional="false" value="CG4D" label="Instrument" >
 			<option value="IMAGINE">IMAGINE</option>
 			<option value="CG4D">IMAGINE-X</option>
 			<option value="MANDI">MANDI</option>
 		</param>
-	    <param name="a" type="float" value="18.39" label="a"/> 
-	    <param name="b" type="float" value="56.55" label="b"/> 
-	    <param name="c" type="float" value="6.54" label="c"/> 
-	    <param name="alpha" type="float" value="90" label="alpha"/> 
-	    <param name="beta" type="float" value="90" label="beta"/> 
-	    <param name="gamma" type="float" value="90" label="gamma"/> 
-	    <param name="spaceGroup" type="text" value="Fdd2" label="Space Group"/> 
-		
+	    <param name="a" type="float" value="18.39" label="a"/>
+	    <param name="b" type="float" value="56.55" label="b"/>
+	    <param name="c" type="float" value="6.54" label="c"/>
+	    <param name="alpha" type="float" value="90" label="alpha"/>
+	    <param name="beta" type="float" value="90" label="beta"/>
+	    <param name="gamma" type="float" value="90" label="gamma"/>
+	    <param name="spaceGroup" type="text" value="Fdd2" label="Space Group"/>
+	    <param name="wavelengthMin" type="float" value="" optional="true" label="Override Min Wavelength (Å)"/>
+	    <param name="wavelengthMax" type="float" value="" optional="true" label="Override Max Wavelength (Å)"/>
+
     </inputs>
     <outputs>
 		<data format="h5" label="scan.h5" name="output" from_work_dir="out/scan_master.h5" />
     </outputs>
     <help><![CDATA[
-        Reduce and merge images.
+        Reduce raw NeXus files into per-bank 2D count images and merge into a master scan.h5 stack for subhkl solve.
     ]]></help>
 </tool>

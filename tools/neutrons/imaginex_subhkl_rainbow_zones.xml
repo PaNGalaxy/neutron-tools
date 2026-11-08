@@ -1,0 +1,48 @@
+<tool id="imaginex_subhkl_rainbow_zones" name="IMAGINE-X subhkl Diffraction Parallax &amp; Lattice Ladder" profile="22.05" version="0.2.0" python_template_version="3.5">
+    <description>Interactive Laue zone curves, detector pixel intensity heatmaps, and 2-tier NDIP + Solve Lattice Ladder</description>
+    <requirements>
+        <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir -p out &&
+        ln -sf "$indexed_h5" input_peaks.h5 &&
+        #set $img_opt = ""
+        #if $images_h5:
+            ln -sf "$images_h5" input_images.h5 &&
+            #set $img_opt = " --images input_images.h5 "
+        #end if
+        #set $proj_opt = ""
+        #if str($projection) != "auto":
+            #set $proj_opt = " --projection " + str($projection) + " "
+        #end if
+        python -m subhkl.io.parser rainbow-visualize input_peaks.h5 $img_opt $proj_opt --instrument "$instrument" --max-zone-index "$max_zone_index" --tolerance-deg "$tolerance_deg" -o out/rainbow_zones.html
+    ]]></command>
+    <inputs>
+        <param format="h5" name="indexed_h5" type="data" label="Solved / Indexed / Integrated SubHKL HDF5 (solve.h5, indexer.h5, integrator.h5)" />
+        <param format="h5" name="images_h5" type="data" optional="true" label="Detector Image HDF5 (scan.h5 / merged.h5)" help="Optional raw/reduced detector bank image stack for log-scaled pixel intensity grounding." />
+        <param name="instrument" type="select" optional="false" value="CG4D" label="Instrument">
+            <option value="CG4D">IMAGINE-X (CG4D — Cylindrical Default)</option>
+            <option value="IMAGINE">IMAGINE (HFIR — Cylindrical Default)</option>
+            <option value="MANDI">MANDI (SNS — Spherical Default)</option>
+        </param>
+        <param name="projection" type="select" optional="false" value="auto" label="Initial Detector Projection">
+            <option value="auto">Auto (Instrument Default)</option>
+            <option value="cylindrical">Cylindrical (Azimuth φ, Height y)</option>
+            <option value="spherical">Spherical (Azimuth φ, Elevation ψ)</option>
+        </param>
+        <param name="max_zone_index" type="integer" value="3" min="1" max="5" label="Max Zone Axis Index (|u|, |v|, |w| &lt;= N)" />
+        <param name="tolerance_deg" type="float" value="0.75" label="Zone Coplanarity Tolerance (deg)" />
+    </inputs>
+    <outputs>
+        <data format="html" name="rainbow_html" label="SubHKL Diffraction Parallax (${on_string})" from_work_dir="out/rainbow_zones.html" />
+    </outputs>
+    <help><![CDATA[
+**IMAGINE-X subhkl Diffraction Parallax & Lattice Ladder**
+
+Generates a self-contained HTML5/Canvas interactive diagnostic from a `subhkl` HDF5 file (`solve.h5`, `indexer.h5`, or `integrator.h5`):
+
+- **Coarse NDIP Workflow Pipeline Bar**: Tracks `1. REDUCE & MERGE` -> `2. SOLVE (LATTICE LADDER)` -> `3. PREDICT & INTEGRATE` -> `4. MERGE & MTZ`.
+- **Step 1–5 Solve Lattice Ladder**: Animates the 5 internal solve stages (`1. Binned Count Excess` -> `2. 13→145 Zone Ladder` -> `3. 60-Zone Global` -> `4. 120→400 Zone + Cell` -> `5. Converged Solve UB`).
+- **2-Layer Depth Parallax**: Move the mouse over the detector view to shift predicted Bragg reflection rings aside and inspect raw detector spot morphology directly underneath.
+    ]]></help>
+</tool>
