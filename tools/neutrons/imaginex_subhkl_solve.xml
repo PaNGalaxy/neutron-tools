@@ -6,6 +6,8 @@
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p out &&
         export CUDA_VISIBLE_DEVICES=0 &&
+        export XLA_PYTHON_CLIENT_PREALLOCATE=false &&
+        export TF_GPU_ALLOCATOR=cuda_malloc_async &&
 
         ln -sf "$scan" "$scan.element_identifier" &&
 
@@ -81,7 +83,7 @@
         <param name="runs" type="text" value="" optional="true" label="Selected Run Indices (comma-separated, blank for all)" />
         <param name="stableRuns" type="text" value="" optional="true" label="Stable Drift-Free Run Indices for Blind Search (blank for all)" />
         <param name="modes" type="text" value="cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run" label="Band Refinement Modes" help="Comma-separated: cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,panels" />
-        <param name="nZones" type="integer" value="400" label="Number of Direct-Lattice Zones in Fine Band Stage" />
+        <param name="nZones" type="integer" value="120" label="Number of Direct-Lattice Zones in Fine Band Stage" />
         <param name="bandBinning" type="integer" value="16" label="Band Observation Spatial Binning" />
         <param name="samples" type="integer" value="16384" label="Blind Search Quadrature Samples" />
         <param name="candidates" type="integer" value="4" label="Distinct Lattice-Ladder Orientation Candidates" />
