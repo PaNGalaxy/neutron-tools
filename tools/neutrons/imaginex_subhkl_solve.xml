@@ -6,8 +6,6 @@
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p out &&
         export CUDA_VISIBLE_DEVICES=0 &&
-        export XLA_PYTHON_CLIENT_PREALLOCATE=false &&
-        export TF_GPU_ALLOCATOR=cuda_malloc_async &&
 
         ln -sf "$scan" "$scan.element_identifier" &&
 
@@ -41,7 +39,13 @@
         #end if
 
         #if str($refinement) == "band":
-            #set $options = $options + " --refine-modes '" + str($modes) + "' --band-zones " + str($nZones) + " --binning " + str($bandBinning) + " --search-samples " + str($samples) + " --n-candidates " + str($candidates) + " --band-maxiter " + str($maxiter) + " "
+            #set $options = $options + " --refine-modes '" + str($modes) + "' --binning " + str($bandBinning) + " --search-samples " + str($samples) + " --n-candidates " + str($candidates) + " "
+            #if str($nZones) != "":
+                #set $options = $options + " --band-zones " + str($nZones) + " "
+            #end if
+            #if str($maxiter) != "":
+                #set $options = $options + " --band-maxiter " + str($maxiter) + " "
+            #end if
             #if $pixelPolish:
                 #set $options = $options + " --pixel-polish "
             #else:
@@ -83,11 +87,11 @@
         <param name="runs" type="text" value="" optional="true" label="Selected Run Indices (comma-separated, blank for all)" />
         <param name="stableRuns" type="text" value="" optional="true" label="Stable Drift-Free Run Indices for Blind Search (blank for all)" />
         <param name="modes" type="text" value="cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run" label="Band Refinement Modes" help="Comma-separated: cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,panels" />
-        <param name="nZones" type="integer" value="120" label="Number of Direct-Lattice Zones in Fine Band Stage" />
+        <param name="nZones" type="integer" value="" optional="true" label="Override Number of Direct-Lattice Zones in Fine Band Stage" />
         <param name="bandBinning" type="integer" value="16" label="Band Observation Spatial Binning" />
         <param name="samples" type="integer" value="16384" label="Blind Search Quadrature Samples" />
         <param name="candidates" type="integer" value="4" label="Distinct Lattice-Ladder Orientation Candidates" />
-        <param name="maxiter" type="integer" value="400" label="Max L-BFGS-B Iterations per Band Stage" />
+        <param name="maxiter" type="integer" value="" optional="true" label="Override Max L-BFGS-B Iterations per Band Stage" />
         <param name="pixelPolish" type="boolean" checked="false" label="Enable Assigned-Reflection Pixel Polish" />
         <param name="poissonBinning" type="integer" value="8" label="Poisson Solve Spatial Binning" />
         <param name="proposalBinning" type="integer" value="32" label="Poisson Proposal Spatial Binning" />
