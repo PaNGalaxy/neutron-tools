@@ -9,25 +9,10 @@
 
         ln -sf "$scan" "$scan.element_identifier" &&
 
-        #set $options = " --refinement " + str($refinement) + " --instrument " + str($instrument) + " --d-min " + str($dMin) + " --seed " + str($seed) + " "
+        #set $options = " --refinement " + str($refinement) + " --instrument " + str($instrument) + " --d-min " + str($dMin) + " --search-seed " + str($seed) + " "
 
-        #if str($a) != "":
-            #set $options = $options + " --a " + str($a) + " "
-        #end if
-        #if str($b) != "":
-            #set $options = $options + " --b " + str($b) + " "
-        #end if
-        #if str($c) != "":
-            #set $options = $options + " --c " + str($c) + " "
-        #end if
-        #if str($alpha) != "":
-            #set $options = $options + " --alpha " + str($alpha) + " "
-        #end if
-        #if str($beta) != "":
-            #set $options = $options + " --beta " + str($beta) + " "
-        #end if
-        #if str($gamma) != "":
-            #set $options = $options + " --gamma " + str($gamma) + " "
+        #if str($a) != "" and str($b) != "" and str($c) != "":
+            #set $options = $options + " --cell '" + str($a) + "," + str($b) + "," + str($c) + "," + str($alpha) + "," + str($beta) + "," + str($gamma) + "' "
         #end if
         #if str($spaceGroup) != "":
             #set $options = $options + " --space-group '" + str($spaceGroup) + "' "
@@ -46,30 +31,26 @@
         #end if
         #if $staticMaskFile:
             ln -sf "$staticMaskFile" "$staticMaskFile.element_identifier" &&
-            #set $options = $options + " --static-mask '" + str($staticMaskFile.element_identifier) + "' "
+            #set $options = $options + " --static-mask-file '" + str($staticMaskFile.element_identifier) + "' "
         #end if
         #if $finderFile:
             ln -sf "$finderFile" "$finderFile.element_identifier" &&
-            #set $options = $options + " --finder '" + str($finderFile.element_identifier) + "' "
+            #set $options = $options + " --finder-peaks '" + str($finderFile.element_identifier) + "' "
         #end if
 
         #if str($refinement) == "band":
-            #set $options = $options + " --modes '" + str($modes) + "' --n-zones " + str($nZones) + " --binning " + str($bandBinning) + " --samples " + str($samples) + " --candidates " + str($candidates) + " --maxiter " + str($maxiter) + " "
+            #set $options = $options + " --refine-modes '" + str($modes) + "' --band-zones " + str($nZones) + " --binning " + str($bandBinning) + " --search-samples " + str($samples) + " --n-candidates " + str($candidates) + " --band-maxiter " + str($maxiter) + " "
             #if $pixelPolish:
                 #set $options = $options + " --pixel-polish "
             #else:
                 #set $options = $options + " --no-pixel-polish "
             #end if
         #else:
-            #set $options = $options + " --binning " + str($poissonBinning) + " --proposal-binning " + str($proposalBinning) + " --n-orientations " + str($nOrientations) + " --n-shortlist " + str($nShortlist) + " --grid-deg " + str($gridDeg) + " "
+            #set $options = $options + " --binning " + str($poissonBinning) + " --proposal-binning " + str($proposalBinning) + " --n-candidates " + str($nOrientations) + " --max-evals " + str($maxiter) + " "
             #if $refineGeometry:
-                #set $options = $options + " --refine-geometry "
-            #end if
-            #if $refineCell:
-                #set $options = $options + " --refine-cell "
-            #end if
-            #if $refineGoniometer:
-                #set $options = $options + " --refine-goniometer "
+                #set $options = $options + " --no-fixed-geometry "
+            #else:
+                #set $options = $options + " --fixed-geometry "
             #end if
         #end if
 
