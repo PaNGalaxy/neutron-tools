@@ -7,10 +7,24 @@
     ln -sf "$reflections" input_reflections.mtz ;
 
     METADATA_KEYS=\$(python -c "
-import gemmi
+import gemmi, reciprocalspaceship as rs
 mtz = gemmi.read_mtz_file('input_reflections.mtz')
-cols = {c.label for c in mtz.columns}
-keys = ['WAVEL','THETA','PHI','dHKL','H_0','K_0','L_0','Hobs','Kobs','Lobs','image_id','file_id','asu_id','harmonic_id']
+c = mtz.cell
+na = 90.0 if abs(c.alpha - 90) < 0.2 else (120.0 if abs(c.alpha - 120) < 0.2 else c.alpha)
+nb = 90.0 if abs(c.beta - 90) < 0.2 else (120.0 if abs(c.beta - 120) < 0.2 else c.beta)
+ng = 90.0 if abs(c.gamma - 90) < 0.2 else (120.0 if abs(c.gamma - 120) < 0.2 else c.gamma)
+mtz.cell.set(c.a, c.b, c.c, na, nb, ng)
+mtz.write_to_file('input_cell.mtz')
+ds = rs.read_mtz('input_cell.mtz')
+if 'SIGI' in ds:
+    ds = ds[ds['SIGI'] > 0]
+if not ds.get_m_isym_keys():
+    ds = ds.hkl_to_asu()
+ds.merged = False
+ds.write_mtz('input_unmerged.mtz')
+
+cols = {col.label for col in mtz.columns}
+keys = ['WAVEL','THETA','PHI','dHKL','H_0','K_0','L_0','H','K','L','image_id','file_id','asu_id','harmonic_id']
 for extra in ('SIGEFF', 'SNAPD', 'DPHI', 'DTX', 'DTY', 'DTZ'):
     if extra in cols:
         keys.append(extra)
@@ -34,12 +48,13 @@ print(','.join(keys))
       #set $options = $options + " --anomalous "
     #end if
 
-    careless poly --iterations=$iterations $options "\$METADATA_KEYS" input_reflections.mtz out/careless &&
+    careless poly --iterations=$iterations $options "\$METADATA_KEYS" input_unmerged.mtz out/careless &&
     cp -f out/careless_0.mtz out/merged.mtz &&
     cp -f out/careless_predictions_0.mtz out/predictions.mtz &&
     if [ -f out/careless_xval_0.mtz ]; then cp -f out/careless_xval_0.mtz out/xval.mtz; else cp -f out/careless_0.mtz out/xval.mtz; fi &&
     python -c "
 import json, os, gemmi, numpy as np
+import reciprocalspaceship as rs
 from scipy.stats import pearsonr, spearmanr
 
 summary = {'status': 'ok'}
@@ -47,11 +62,30 @@ mtz = gemmi.read_mtz_file('out/merged.mtz')
 cols = {c.label: np.array(c, dtype=np.float64) for c in mtz.columns}
 I = cols.get('I', cols.get('I(+)', np.array([])))
 SigI = cols.get('SigI', cols.get('SigI(+)', np.array([])))
-N = cols.get('N', np.ones_like(I))
 valid = np.isfinite(I) & np.isfinite(SigI) & (SigI > 0)
 summary['n_merged_asu'] = int(np.sum(valid))
 summary['mean_isigi'] = float(np.mean(I[valid] / SigI[valid])) if np.any(valid) else 0.0
-summary['mean_multiplicity'] = float(np.mean(N[valid])) if np.any(valid) else 0.0
+
+n_obs = 0
+if os.path.exists('out/predictions.mtz'):
+    pmtz = gemmi.read_mtz_file('out/predictions.mtz')
+    n_obs = int(pmtz.nreflections)
+summary['n_observations'] = n_obs
+summary['mean_multiplicity'] = float(n_obs / max(1, summary['n_merged_asu'])) if summary['n_merged_asu'] > 0 else 0.0
+
+try:
+    h_m = cols['H'][valid].astype(int)
+    k_m = cols['K'][valid].astype(int)
+    l_m = cols['L'][valid].astype(int)
+    d_m = np.array([mtz.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h_m, k_m, l_m)])
+    dmin_obs = float(np.min(d_m)) if len(d_m) else 2.0
+    theo_asu = rs.utils.generate_reciprocal_asu(mtz.cell, mtz.spacegroup, dmin_obs)
+    summary['n_theoretical_asu'] = int(len(theo_asu))
+    summary['completeness_pct'] = float(100.0 * summary['n_merged_asu'] / max(1, len(theo_asu)))
+    summary['d_min'] = round(dmin_obs, 3)
+    summary['d_max'] = round(float(np.max(d_m)), 3) if len(d_m) else 10.0
+except Exception as e:
+    summary['completeness_error'] = str(e)
 
 if os.path.exists('out/careless_xval_0.mtz'):
     xv = gemmi.read_mtz_file('out/careless_xval_0.mtz')
@@ -78,7 +112,7 @@ if os.path.exists('out/careless_xval_0.mtz'):
             cc_b = float(pearsonr(v0[bm], v1[bm])[0]) if np.sum(bm) >= 3 else float('nan')
             d_hi = float(1.0 / np.sqrt(max(edges[b+1], 1e-6)))
             d_lo = float(1.0 / np.sqrt(max(edges[b], 1e-6)))
-            bins.append({'bin': b, 'd_max': round(d_lo, 2), 'd_min': round(d_hi, 2), 'n_refl': int(np.sum(bm)), 'cc_half': cc_b if np.isfinite(cc_b) else None})
+            bins.append({'bin': b, 'd_max': round(d_lo, 2), 'd_min': round(d_hi, 2), 'n_refl': int(np.sum(bm)), 'cc_half': round(cc_b, 4) if np.isfinite(cc_b) else None})
         summary['resolution_bins'] = bins
 with open('out/careless_metrics.json', 'w') as fh:
     json.dump(summary, fh, indent=2)
