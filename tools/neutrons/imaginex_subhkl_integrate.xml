@@ -38,9 +38,12 @@
 		#if $staticMaskFile:
 			#set $options = $options + " --static-mask-file " + str($staticMaskFile.element_identifier) + " " 
 		#end if
+		#if $createVisualizations:
+			#set $options = $options + " --create-visualizations " 
+		#end if
 
-		python -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --sigmas $sigma --nominal-sigma $nominalSigma --mosaicity-bound-mrad $mosaicMrad --shape-fit-min-snr $snr --matrix-free-profile $matrixProfile --rel-border-width $relBorder --chunk-size $chunk --create-visualizations --show-progress $options &&
-		python -m subhkl.io.parser mtz-exporter out/integrator.h5 out/reflections.mtz --predictions-file "$predicted.element_identifier"
+		python -u -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --sigmas $sigma --nominal-sigma $nominalSigma --mosaicity-bound-mrad $mosaicMrad --shape-fit-min-snr $snr --matrix-free-profile $matrixProfile --rel-border-width $relBorder --chunk-size $chunk --show-progress $options &&
+		python -u -m subhkl.io.parser mtz-exporter out/integrator.h5 out/reflections.mtz --predictions-file "$predicted.element_identifier"
     ]]></command>
     <inputs>
     
@@ -54,7 +57,7 @@
 		</param>
 		<param name="sigma" type="text" value="1.0,2.0,4.0" label="Comma-separated List of Sigmas" />
 		<param name="nominalSigma" type="float" value="1.0" label="Nominal Sigma" />
-		<param name="anisotropic" type="boolean" value="false" label="Anisotropic" />
+		<param name="anisotropic" type="boolean" value="true" label="Anisotropic" />
 		<param name="mosaicFit" type="boolean" value="true" label="Fit Mosaicity" />
 		<param name="mosaicRadial" type="boolean" value="false" label="Mosaicity Radial" />
 		<param name="spherical" type="boolean" value="false" label="Shape Spherical" />
@@ -69,6 +72,7 @@
 		<param name="matrixFp" type="float" value="" optional="true" label="Matrix Free FP Target" />
 		<param name="relBorder" type="float" value="0.0" label="Relative Border Width" />
 		<param name="chunk" type="integer" value="256" label="Chunk Size" />
+		<param name="createVisualizations" type="boolean" value="false" label="Create Diagnostic PNG Visualizations" />
 		
     </inputs>
     <outputs>
