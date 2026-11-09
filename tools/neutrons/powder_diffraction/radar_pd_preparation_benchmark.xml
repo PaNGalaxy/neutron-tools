@@ -86,6 +86,7 @@ else:
     <inputs>
         <param name="action" type="select" label="Reviewed model operation">
             <option value="native">Inspect or prepare native models</option>
+            <option value="chunk">Rank and refine reviewed structural candidates</option>
         </param>
         <param name="source_gpx" type="data" format="binary,txt" label="Exact source GPX or nuclear CIF (experiment preparation)"/>
         <param name="model_assets" type="data" format="zip" label="Captured scientific inputs"/>

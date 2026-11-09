@@ -15,11 +15,12 @@ PATH=ROOT/'tools/neutrons/powder_diffraction/radar_pd_preparation_benchmark.xml'
 
 @pytest.mark.parametrize('encoded',[True,False])
 @pytest.mark.parametrize('parts',[[],['part-one.zip','part-two.zip']])
-def test_native_request_transport_renders_with_optional_input_parts(encoded,parts):
+@pytest.mark.parametrize('action',['native','chunk'])
+def test_native_request_transport_renders_with_optional_input_parts(encoded,parts,action):
     tool=ET.parse(PATH).getroot()
     scope={key:key+'.data' for key in ('result_bundle','console_output','preparation_certificate',
         'runtime_probe','request_decoder','inline_request','source_gpx','model_assets','preparation_provenance')}
-    scope.update(action='native',model_request_b64='e30=' if encoded else '',
+    scope.update(action=action,model_request_b64='e30=' if encoded else '',
                  model_request=None if encoded else 'request.json',model_asset_parts=parts)
     command=str(Template(tool.findtext('command'),searchList=[scope]))
     result=subprocess.run(['bash','-n'],input=command,text=True,capture_output=True)
@@ -28,6 +29,7 @@ def test_native_request_transport_renders_with_optional_input_parts(encoded,part
     assert command.count('--asset-part')==len(parts)
     assert '--preparation-evidence' in command and '--preparation-certificate' in command
     assert ('decoded-model-request.json' in command)==encoded
+    assert "ndip_model_campaign.py '"+action+"'" in command
 
 
 def test_pilot_is_separate_and_never_sets_its_own_scheduler_grant():
@@ -38,7 +40,7 @@ def test_pilot_is_separate_and_never_sets_its_own_scheduler_grant():
     assert image.endswith('models-18c642c547676e5e98f5a26a4a06b997f95688b1')
     assert not tool.findall('./environment_variables/environment_variable')
     assert not tool.findall('./requirements/credentials')
-    assert [r.attrib['value'] for r in tool.findall('./inputs/param[@name="action"]/option')]==['native']
+    assert [r.attrib['value'] for r in tool.findall('./inputs/param[@name="action"]/option')]==['native','chunk']
     probe=tool.find('./configfiles/configfile[@name="runtime_probe"]').text
     compile(probe,'runtime_probe','exec')
     assert 'allocation(4)' in probe and 'torch.cuda.is_available()' in probe
