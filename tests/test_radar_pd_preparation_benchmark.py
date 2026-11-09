@@ -30,10 +30,10 @@ def expanded(path):
 
 
 @pytest.mark.parametrize('encoded',[True,False])
-@pytest.mark.parametrize('parts',[[],['part-one.zip','part-two.zip']])
+@pytest.mark.parametrize('parts',[[],['part-one.zip','part-two.zip'],["part one.zip","part'two.zip"]])
 @pytest.mark.parametrize('action',['native','chunk'])
 @pytest.mark.parametrize('path',[PATH,TRAINING])
-def test_native_request_transport_renders_with_optional_input_parts(encoded,parts,action,path):
+def test_native_request_transport_renders_with_optional_input_parts(tmp_path,encoded,parts,action,path):
     tool=expanded(path)
     scope={key:key+'.data' for key in ('result_bundle','console_output','preparation_certificate',
         'runtime_probe','request_decoder','inline_request','source_gpx','model_assets','preparation_provenance')}
@@ -47,6 +47,27 @@ def test_native_request_transport_renders_with_optional_input_parts(encoded,part
     assert '--preparation-evidence' in command and '--preparation-certificate' in command
     assert ('decoded-model-request.json' in command)==encoded
     assert "ndip_model_campaign.py '"+action+"'" in command
+    # Galaxy commands are whitespace-normalized for shell dispatch. Bash
+    # syntax alone cannot detect a backslash escaping the space before an
+    # option, which turns "--preparation-evidence" into a different argument.
+    # Execute the rendered wrapper with a harmless Python argv recorder.
+    normalized=' '.join(line.strip() for line in command.splitlines())
+    record=tmp_path/'worker-argv.bin'
+    bootstrap="""python() {
+if [ "$1" = /opt/radar-symmetry/ndip_model_campaign.py ]; then
+    printf '%s\\0' "$@" > worker-argv.bin
+fi
+}
+"""
+    result=subprocess.run(['bash'],input=bootstrap+normalized,text=True,capture_output=True,cwd=tmp_path)
+    assert result.returncode==0,result.stderr
+    actual=record.read_bytes().decode().split('\0')[:-1]
+    expected=['/opt/radar-symmetry/ndip_model_campaign.py',action,'source_gpx.data','model_assets.data',
+        'decoded-model-request.json' if encoded else 'request.json','worker','result_bundle.data']
+    expected.extend(value for part in parts for value in ['--asset-part',part])
+    expected.extend(['--preparation-evidence','preparation_provenance.data',
+                     '--preparation-certificate','preparation_certificate.data'])
+    assert actual==expected
 
 
 def test_pilot_is_separate_and_never_sets_its_own_scheduler_grant():

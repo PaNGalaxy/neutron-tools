@@ -1,6 +1,8 @@
 <macros>
     <xml name="preparation_benchmark_body">
     <command detect_errors="exit_code"><![CDATA[
+        #import shlex
+        #set asset_part_options = ' '.join(['--asset-part ' + shlex.quote(str(part)) for part in ($model_asset_parts or [])])
         touch '$result_bundle' '$console_output' '$preparation_certificate' &&
         trap "chmod a+r '$result_bundle' '$console_output' '$preparation_certificate' >/dev/null 2>&1 || true" EXIT &&
         python '$runtime_probe' >> '$console_output' 2>&1 &&
@@ -8,22 +10,10 @@
             echo 'Supply exactly one reviewed request source' >&2; exit 1
         #elif $model_request_b64
             python '$request_decoder' '$inline_request' decoded-model-request.json &&
-            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' \
-            #if $model_asset_parts
-                #for $part in $model_asset_parts
-                    --asset-part '$part' \
-                #end for
-            #end if
-                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' $asset_part_options --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
             python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #elif $model_request
-            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' \
-            #if $model_asset_parts
-                #for $part in $model_asset_parts
-                    --asset-part '$part' \
-                #end for
-            #end if
-                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' $asset_part_options --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
             python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #else
             echo 'Supply one reviewed request source' >&2; exit 1

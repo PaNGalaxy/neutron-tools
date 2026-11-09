@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_preparation_benchmark_prototype" name="RADAR-PD Diagnostic: Preparation timing" version="0.1.0" hidden="true" profile="22.05">
+<tool id="neutrons_radar_pd_preparation_benchmark_prototype" name="RADAR-PD Diagnostic: Preparation timing" version="0.1.1" hidden="true" profile="22.05">
     <macros><import>radar_pd_preparation_benchmark.macros</import></macros>
     <description>measure preparation and inference with observed worker allocations</description>
     <requirements>
