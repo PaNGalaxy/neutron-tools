@@ -18,7 +18,7 @@ TRAINING=PATH.with_name('radar_pd_preparation_training_benchmark.xml')
 
 def expanded(path):
     tool=ET.parse(path).getroot()
-    macro=ET.parse(path.parent/'radar_pd_preparation_benchmark_macros.xml').getroot()
+    macro=ET.parse(path.parent/'radar_pd_preparation_benchmark.macros').getroot()
     for child in list(tool):
         if child.tag=='expand':
             body=macro.find('./xml[@name="'+child.attrib['macro']+'"]')

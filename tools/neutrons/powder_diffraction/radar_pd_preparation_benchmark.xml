@@ -1,5 +1,5 @@
 <tool id="neutrons_radar_pd_preparation_benchmark_prototype" name="RADAR-PD Diagnostic: Preparation timing" version="0.1.0" hidden="true" profile="22.05">
-    <macros><import>radar_pd_preparation_benchmark_macros.xml</import></macros>
+    <macros><import>radar_pd_preparation_benchmark.macros</import></macros>
     <description>measure preparation and inference with observed worker allocations</description>
     <requirements>
         <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-d2bc43d8e76a9677415b2d6afc8f098b39558103</container>
