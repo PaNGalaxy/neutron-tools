@@ -1,0 +1,130 @@
+<tool id="neutrons_radar_pd_preparation_benchmark_prototype" name="RADAR-PD Diagnostic: Preparation timing" version="0.1.0" hidden="true" profile="22.05">
+    <description>measure preparation, training and inference with the current shared worker</description>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-18c642c547676e5e98f5a26a4a06b997f95688b1</container></requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        touch '$result_bundle' '$console_output' '$preparation_certificate' &&
+        trap "chmod a+r '$result_bundle' '$console_output' '$preparation_certificate' >/dev/null 2>&1 || true" EXIT &&
+        python '$runtime_probe' >> '$console_output' 2>&1 &&
+        #if $model_request_b64 and $model_request
+            echo 'Supply exactly one reviewed request source' >&2; exit 1
+        #elif $model_request_b64
+            python '$request_decoder' '$inline_request' decoded-model-request.json &&
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' \
+            #if $model_asset_parts
+                #for $part in $model_asset_parts
+                    --asset-part '$part' \
+                #end for
+            #end if
+                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
+            python -m gpx_recipe.preparation.certificates '$preparation_certificate'
+        #elif $model_request
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' \
+            #if $model_asset_parts
+                #for $part in $model_asset_parts
+                    --asset-part '$part' \
+                #end for
+            #end if
+                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
+            python -m gpx_recipe.preparation.certificates '$preparation_certificate'
+        #else
+            echo 'Supply one reviewed request source' >&2; exit 1
+        #end if
+    ]]></command>
+    <configfiles>
+        <configfile name="runtime_probe"><![CDATA[import json, shutil, subprocess
+from gpx_recipe.symmetry.resources import allocation
+import torch
+details=dict(schema='radar-preparation-device-probe/v1', allocation=allocation(4),
+    torch_version=str(torch.__version__), cuda_build=torch.version.cuda,
+    cuda_available=torch.cuda.is_available(), cuda_devices=torch.cuda.device_count())
+if details['cuda_available']:
+    details['gpu_names']=[torch.cuda.get_device_name(i) for i in range(details['cuda_devices'])]
+binary=shutil.which('nvidia-smi')
+if binary:
+    try:
+        result=subprocess.run([binary,'--query-gpu=name,memory.total','--format=csv,noheader'],
+            capture_output=True,text=True,timeout=5)
+        details['visible_nvidia_devices']=result.stdout[:4096] if result.returncode==0 else 'not available to this job'
+    except subprocess.TimeoutExpired:details['visible_nvidia_devices']='probe timed out'
+print('[RADAR PREPARATION DEVICE] '+json.dumps(details,sort_keys=True))
+]]></configfile>
+
+        <configfile name="preparation_provenance"><![CDATA[#import json
+#set records = []
+#if $preparation_evidence
+    #for certificate in $preparation_evidence
+        #set dataset = $certificate.unsanitized
+        #set job = getattr($dataset, 'creating_job', None)
+        #set markers = [line for line in str(getattr($job, 'stdout', '')).splitlines() if line.startswith('[RADAR PREPARATION CERTIFICATE] ')]
+        #set record = dict(certificate_path=str($certificate), tool_id=str(getattr($job, 'tool_id', '')), tool_version=str(getattr($job, 'tool_version', '')), job_state=str(getattr($job, 'state', '')), dataset_state=str(getattr($dataset, 'state', '')), dataset_deleted=bool(getattr($dataset, 'deleted', True)), dataset_purged=bool(getattr($dataset, 'purged', True)), job_stdout='\n'.join($markers))
+        #set ignored = $records.append($record)
+    #end for
+#end if
+$json.dumps(dict(schema='radar-galaxy-preparation-evidence/v1', records=$records), sort_keys=True)
+]]></configfile>
+        <configfile name="inline_request">$model_request_b64</configfile>
+        <configfile name="request_decoder"><![CDATA[import base64, json, pathlib, sys
+source, target = map(pathlib.Path, sys.argv[1:])
+if source.stat().st_size > 6 * 1024 * 1024:
+    raise ValueError('Encoded model request exceeds its size bound')
+raw = source.read_bytes().strip()
+decoded = base64.b64decode(raw, validate=True)
+if len(decoded) > 4 * 1024 * 1024:
+    raise ValueError('Decoded model request exceeds its 4 MiB size bound')
+if not isinstance(json.loads(decoded), dict):
+    raise ValueError('A model request must be one JSON object')
+if target.is_symlink():
+    raise ValueError('The decoded request path must not be a symlink')
+if target.exists():
+    if target.read_bytes() != decoded:
+        raise ValueError('A different request already occupies the decoded path')
+else:
+    with target.open('xb') as stream:
+        stream.write(decoded)
+]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="action" type="select" label="Reviewed model operation">
+            <option value="native">Inspect or prepare native models</option>
+        </param>
+        <param name="source_gpx" type="data" format="binary,txt" label="Exact source GPX or nuclear CIF (experiment preparation)"/>
+        <param name="model_assets" type="data" format="zip" label="Captured scientific inputs"/>
+        <param name="model_asset_parts" type="data" format="zip" multiple="true" optional="true" label="Additional structural training input parts (NOVA supplies these automatically)"/>
+        <param name="preparation_evidence" type="data" format="json" multiple="true" optional="true" label="Native preparation origin receipts (NOVA supplies these automatically)"/>
+        <param name="model_request" type="data" format="json" optional="true" label="Reviewed model request dataset (legacy transport)"/>
+        <param name="model_request_b64" type="text" value="" optional="true" label="NOVA encoded model request">
+            <validator type="regex" message="Use the NOVA-generated base64 request">^[A-Za-z0-9+/=]*$</validator>
+        </param>
+        <param name="dispatch_key" type="text" label="NOVA dispatch identity">
+            <validator type="regex" message="Use the NOVA-generated dispatch key">^[a-f0-9]{24}$</validator>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="result_bundle" format="zip" label="RADAR-PD model ${dispatch_key} results"/>
+        <data name="console_output" format="txt" label="RADAR-PD model ${dispatch_key} console"/>
+        <data name="preparation_certificate" format="json" hidden="true" label="RADAR-PD native preparation receipt ${dispatch_key}"/>
+        <collection name="verified_projects" type="list" label="Qualified model GPXs ${dispatch_key}">
+            <discover_datasets pattern="verified_(?P&lt;designation&gt;[a-f0-9]+)\.gpx" ext="binary" directory="worker/verified_projects" visible="true"/>
+        </collection>
+        <collection name="reviewable_projects" type="list" label="Structural point-fit GPXs (review required) ${dispatch_key}">
+            <discover_datasets pattern="reviewable_(?P&lt;designation&gt;[a-f0-9]+)\.gpx" ext="binary" directory="worker/reviewable_projects" visible="true"/>
+        </collection>
+    </outputs>
+    <help><![CDATA[
+This separate diagnostic worker measures the current experiment-preparation
+engine without changing the worker used by existing RADAR-PD sessions.
+Requests and input packets remain bounded data-only contracts. No uploaded
+Python, credentials or unreviewed commands are accepted.
+
+Native pattern generation and structural attention training use the same
+implementation as the preparation workspace. Each response reports native
+calculation, staging, archive and resource measurements. Galaxy queue and
+container-start latency are measured separately by the benchmark coordinator.
+The device probe reports actual CPU limits and CUDA availability. Requested
+worker counts never substitute for a scheduler allocation.
+
+This diagnostic does not grant GPU access or certify a production release.
+Its native-profile certificates are not a new trusted producer for existing
+model workers. No experimental patterns are required for theoretical generation.
+    ]]></help>
+</tool>
