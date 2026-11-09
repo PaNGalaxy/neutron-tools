@@ -6,6 +6,67 @@
 
 		mkdir -p out ;
 
+		cat << 'EOF' > sitecustomize.py
+import re, h5py, numpy as np
+try:
+    import subhkl.instrument.goniometer as _g
+    from subhkl.config import reduction_settings as _rs
+    _PATS = {
+        "phi": re.compile(r"(?:axis0|phi)\s*=\s*([-+]?[0-9]*\.?[0-9]+)", re.I),
+        "kappa": re.compile(r"(?:axis1|kappa)\s*=\s*([-+]?[0-9]*\.?[0-9]+)", re.I),
+        "omega": re.compile(r"(?:axis2|omega)\s*=\s*([-+]?[0-9]*\.?[0-9]+)", re.I),
+        "chi": re.compile(r"(?:chi)\s*=\s*([-+]?[0-9]*\.?[0-9]+)", re.I),
+        "alpha": re.compile(r"(?:alpha)\s*=\s*([-+]?[0-9]*\.?[0-9]+)", re.I),
+    }
+    _ATTO = {
+        "phi": "CG4D:Mot:AttocubeGoni:Rot:ReadPosition0",
+        "kappa": "CG4D:Mot:AttocubeGoni:Rot:ReadPosition1",
+        "omega": "CG4D:Mot:AttocubeGoni:Rot:ReadPosition2",
+    }
+    _DEF = {"omega": 0.0, "alpha": 45.0, "kappa": 0.0, "phi": 0.0, "chi": 0.0}
+    def _get_rot(filename, instrument):
+        settings = _rs[instrument]
+        axes, angles, names = [], [], []
+        with h5py.File(filename, "r") as f:
+            das = f["entry/DASlogs"] if "entry/DASlogs" in f else {}
+            t_raw = f["entry/title"][()] if "entry/title" in f else b""
+            if hasattr(t_raw, "flat") and t_raw.size > 0:
+                t_raw = t_raw.flat[0]
+            t_str = t_raw.decode("utf-8", "replace") if isinstance(t_raw, (bytes, np.bytes_)) else str(t_raw)
+            t_ang = {}
+            for k, p in _PATS.items():
+                m = p.search(t_str)
+                if m:
+                    t_ang[k] = float(m.group(1))
+            for axis_name, axis_spec in settings["Goniometer"].items():
+                log_name = axis_name.split("#")[0]
+                sk = log_name.split(":")[-1].lower()
+                val = None
+                if log_name in das and "average_value" in das[log_name]:
+                    try:
+                        val = float(das[log_name]["average_value"][0])
+                    except Exception:
+                        val = None
+                if val is None and sk in t_ang:
+                    val = float(t_ang[sk])
+                if val is None and sk in _ATTO and _ATTO[sk] in das and "average_value" in das[_ATTO[sk]]:
+                    try:
+                        val = float(das[_ATTO[sk]]["average_value"][0])
+                    except Exception:
+                        val = None
+                if val is None and str(instrument).upper() in ("CG4D", "IMAGINE") and sk in _DEF:
+                    val = float(_DEF[sk])
+                if val is not None:
+                    angles.append(val)
+                    axes.append(np.array(axis_spec, dtype=float))
+                    names.append(log_name)
+        return axes, angles, names
+    _g.get_rotation_data_from_nexus = _get_rot
+except Exception:
+    pass
+EOF
+		export PYTHONPATH=".:$PYTHONPATH" ;
+
 		#set $wl_opts = ""
 		#if str($wavelengthMin) != "":
 		    #set $wl_opts = $wl_opts + " --wavelength-min " + str($wavelengthMin)
@@ -17,10 +78,10 @@
 		#for $Z in $inputs:
 		    #set $BN = str($Z.input).split("/")[-1].split(".")[0]
 		    #set $filename = "out/" + str($BN) + ".reduce.h5"
-		    python -m subhkl.io.parser reduce "$Z.input" "$filename" $instrument $wl_opts ;
+		    python -u -m subhkl.io.parser reduce "$Z.input" "$filename" $instrument $wl_opts ;
 		#end for
 
-		python -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup" ;
+		python -u -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup" ;
 
     ]]></command>
     <inputs>
