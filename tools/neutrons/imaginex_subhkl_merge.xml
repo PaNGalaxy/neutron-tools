@@ -1,0 +1,105 @@
+<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.0" python_template_version="3.5">
+  <requirements>
+    <container type="docker">ghcr.io/jglaser/careless:cuda</container>
+  </requirements>
+  <command detect_errors="exit_code"><![CDATA[
+    mkdir -p out ;
+    ln -sf "$reflections" input_reflections.mtz ;
+
+    METADATA_KEYS=\$(python -c "
+import gemmi
+mtz = gemmi.read_mtz_file('input_reflections.mtz')
+cols = {c.label for c in mtz.columns}
+keys = ['WAVEL','THETA','PHI','dHKL','H_0','K_0','L_0','Hobs','Kobs','Lobs','image_id','file_id','asu_id','harmonic_id']
+for extra in ('SIGEFF', 'SNAPD', 'DPHI', 'DTX', 'DTY', 'DTZ'):
+    if extra in cols:
+        keys.append(extra)
+print(','.join(keys))
+") ;
+
+    #set $options = " --jit-compile --wavelength-key=WAVEL "
+    #if str($studenttDof) != "":
+      #set $options = $options + " --studentt-likelihood-dof=" + str($studenttDof) + " "
+    #end if
+    #if str($dmin) != "":
+      #set $options = $options + " --dmin=" + str($dmin) + " "
+    #end if
+    #if str($isigiCutoff) != "":
+      #set $options = $options + " --isigi-cutoff=" + str($isigiCutoff) + " "
+    #end if
+    #if $mergeHalfDatasets:
+      #set $options = $options + " --merge-half-datasets "
+    #end if
+    #if $anomalous:
+      #set $options = $options + " --anomalous "
+    #end if
+
+    careless poly --iterations=$iterations $options "\$METADATA_KEYS" input_reflections.mtz out/careless &&
+    cp -f out/careless_0.mtz out/merged.mtz &&
+    cp -f out/careless_predictions_0.mtz out/predictions.mtz &&
+    if [ -f out/careless_xval_0.mtz ]; then cp -f out/careless_xval_0.mtz out/xval.mtz; else cp -f out/careless_0.mtz out/xval.mtz; fi &&
+    python -c "
+import json, os, gemmi, numpy as np
+from scipy.stats import pearsonr, spearmanr
+
+summary = {'status': 'ok'}
+mtz = gemmi.read_mtz_file('out/merged.mtz')
+cols = {c.label: np.array(c, dtype=np.float64) for c in mtz.columns}
+I = cols.get('I', cols.get('I(+)', np.array([])))
+SigI = cols.get('SigI', cols.get('SigI(+)', np.array([])))
+N = cols.get('N', np.ones_like(I))
+valid = np.isfinite(I) & np.isfinite(SigI) & (SigI > 0)
+summary['n_merged_asu'] = int(np.sum(valid))
+summary['mean_isigi'] = float(np.mean(I[valid] / SigI[valid])) if np.any(valid) else 0.0
+summary['mean_multiplicity'] = float(np.mean(N[valid])) if np.any(valid) else 0.0
+
+if os.path.exists('out/careless_xval_0.mtz'):
+    xv = gemmi.read_mtz_file('out/careless_xval_0.mtz')
+    xcols = {c.label: np.array(c, dtype=np.float64) for c in xv.columns}
+    h = xcols['H'].astype(int); k = xcols['K'].astype(int); l = xcols['L'].astype(int)
+    half = xcols.get('half', np.zeros_like(h)).astype(int)
+    xI = xcols.get('I', xcols.get('F', np.zeros_like(xcols['H'])))
+    d_arr = np.array([xv.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h, k, l)])
+    m0 = half == 0; m1 = half == 1
+    map0 = {(int(hh), int(kk), int(ll)): (float(val), float(dd)) for hh, kk, ll, val, dd in zip(h[m0], k[m0], l[m0], xI[m0], d_arr[m0]) if np.isfinite(val)}
+    map1 = {(int(hh), int(kk), int(ll)): float(val) for hh, kk, ll, val in zip(h[m1], k[m1], l[m1], xI[m1]) if np.isfinite(val)}
+    common = [key for key in map0 if key in map1]
+    if len(common) >= 3:
+        v0 = np.array([map0[k][0] for k in common])
+        v1 = np.array([map1[k] for k in common])
+        d_c = np.array([map0[k][1] for k in common])
+        summary['cc_half'] = float(pearsonr(v0, v1)[0])
+        summary['cc_half_spearman'] = float(spearmanr(v0, v1)[0])
+        inv_d2 = 1.0 / np.maximum(d_c ** 2, 1e-6)
+        edges = np.linspace(inv_d2.min(), inv_d2.max(), 11)
+        bins = []
+        for b in range(10):
+            bm = (inv_d2 >= edges[b]) & (inv_d2 <= edges[b+1] if b == 9 else inv_d2 < edges[b+1])
+            cc_b = float(pearsonr(v0[bm], v1[bm])[0]) if np.sum(bm) >= 3 else float('nan')
+            d_hi = float(1.0 / np.sqrt(max(edges[b+1], 1e-6)))
+            d_lo = float(1.0 / np.sqrt(max(edges[b], 1e-6)))
+            bins.append({'bin': b, 'd_max': round(d_lo, 2), 'd_min': round(d_hi, 2), 'n_refl': int(np.sum(bm)), 'cc_half': cc_b if np.isfinite(cc_b) else None})
+        summary['resolution_bins'] = bins
+with open('out/careless_metrics.json', 'w') as fh:
+    json.dump(summary, fh, indent=2)
+"
+  ]]></command>
+  <inputs>
+    <param format="mtz" name="reflections" type="data" label="Unmerged reflections file (reflections.mtz)" />
+    <param name="iterations" type="integer" value="10000" label="Variational inference iterations" />
+    <param name="studenttDof" type="float" value="4.0" optional="true" label="Student-t likelihood degrees of freedom (empty for Gaussian)" />
+    <param name="dmin" type="float" value="" optional="true" label="High-resolution cutoff d_min (Angstrom)" />
+    <param name="isigiCutoff" type="float" value="" optional="true" label="I/sigma(I) cutoff" />
+    <param name="mergeHalfDatasets" type="boolean" value="true" label="Merge half-datasets for CC1/2 cross-validation" />
+    <param name="anomalous" type="boolean" value="false" label="Separate anomalous pairs I(+) / I(-)" />
+  </inputs>
+  <outputs>
+    <data format="mtz" label="merged.mtz" name="merged_mtz" from_work_dir="out/merged.mtz" />
+    <data format="mtz" label="predictions.mtz" name="predictions_mtz" from_work_dir="out/predictions.mtz" />
+    <data format="mtz" label="xval.mtz" name="xval_mtz" from_work_dir="out/xval.mtz" />
+    <data format="json" label="careless_metrics.json" name="metrics_json" from_work_dir="out/careless_metrics.json" />
+  </outputs>
+  <help><![CDATA[
+    Polychromatic / Laue variational scaling and merging of unmerged subhkl MTZ reflections using CUDA-enabled Careless.
+  ]]></help>
+</tool>
