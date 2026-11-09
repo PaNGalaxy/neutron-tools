@@ -1,6 +1,7 @@
 stages:
   - build
   - push
+  - deploy
   - test
   - lint
 
@@ -87,7 +88,7 @@ push_dev_tools:
       sudo /root/update_prototype_tools.sh
       /srv/galaxy/local_tools/neutrons-dev
       /srv/galaxy/config/tool_conf_prototype.xml
-  allow_failure: true
+  allow_failure: false
   rules:
     - if: $CI_COMMIT_BRANCH == "prototype"
       changes:
@@ -101,7 +102,7 @@ push_dev_tools:
     - rse-multi-builder
 
 redeploy_k8s_galaxy:
-  stage: push
+  stage: deploy
   variables:
     KUBE_NAMESPACE: ndip
     GALAXY_DEPLOYMENT: galaxy
