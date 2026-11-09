@@ -1,0 +1,95 @@
+<tool id="neutrons_radar_pd_preparation_ranking_benchmark_prototype" name="RADAR-PD Diagnostic: Structural ranking timing" version="0.1.0" hidden="true" profile="22.05">
+    <description>measure standalone native-admitted inference and Galaxy latency</description>
+    <requirements>
+        <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-d2bc43d8e76a9677415b2d6afc8f098b39558103</container>
+        <resource type="cores_min">1</resource><resource type="cores_max">1</resource><resource type="ram_min">4096</resource>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python '$ranking_driver' '$inline_request' '$source_gpx' '$model_assets' worker '$result_bundle' > '$console_output' 2>&1
+    ]]></command>
+    <configfiles>
+        <configfile name="inline_request">$model_request_b64</configfile>
+        <configfile name="ranking_driver"><![CDATA[import base64, json, pathlib, sys
+encoded, source, assets, work, archive = map(pathlib.Path, sys.argv[1:])
+if encoded.is_symlink() or encoded.stat().st_size > 6 * 1024**2:
+    raise ValueError('Encoded ranking request exceeds its bound')
+raw = base64.b64decode(encoded.read_bytes().strip(), validate=True)
+if len(raw) > 4 * 1024**2:
+    raise ValueError('Decoded ranking request exceeds its bound')
+request = json.loads(raw)
+required = {'schema', 'protocol', 'protocol_sha256', 'prepared_scattering', 'implementation_sha256', 'dispatch_key'}
+if not isinstance(request, dict) or set(request) != required or request['schema'] != 'radar-structural-ranking-benchmark/v1':
+    raise ValueError('One closed data-only ranking request is required')
+import datetime, hashlib, re, subprocess, threading, time
+sys.path.insert(0, '/opt/radar-symmetry')
+from ndip_runtime import runtime_limits, process_usage, usage_delta
+from gpx_recipe.execution import write_json
+from gpx_recipe.process import run_scientific
+from gpx_recipe.symmetry.bundle import unpack, hydrate_source, pack
+from gpx_recipe.symmetry.compiler import package_signature, file_sha, native_environment, assets as protocol_assets, verify_inputs
+from gpx_recipe.symmetry.contracts import validate_protocol, digest
+from gpx_recipe.symmetry.resources import allocation
+from gpx_recipe.preparation.structural_hints import validate as validate_hints, MANIFEST
+began = time.monotonic(); entered = datetime.datetime.now(datetime.timezone.utc).isoformat(); initial = process_usage()
+if request['implementation_sha256'] != package_signature() or not re.fullmatch('[a-f0-9]{24}', request['dispatch_key']):
+    raise ValueError('Ranking worker implementation or dispatch identity differs')
+protocol = validate_protocol(request['protocol'])
+if protocol['kind'] != 'structural' or request['protocol_sha256'] != digest(protocol):
+    raise ValueError('Exact reviewed structural protocol required')
+validate_hints(request['prepared_scattering'], protocol)
+expected = protocol['source']['sha256']
+if file_sha(source) != expected:
+    raise ValueError('Galaxy source differs from its captured protocol')
+work = work.resolve(); work.mkdir(parents=True, exist_ok=False)
+inputs = unpack(assets, work / 'inputs')
+hydrate_source(inputs, source, {a['path']: a['sha256'] for a in protocol_assets(protocol)}, expected)
+if json.loads((inputs / MANIFEST).read_text()) != request['prepared_scattering'] or json.loads((inputs / 'protocol.json').read_text()) != protocol:
+    raise ValueError('Captured ranking snapshot differs from the request')
+verify_inputs(protocol, inputs)
+before = {str(p.relative_to(inputs)): file_sha(p) for p in inputs.rglob('*') if p.is_file()}
+staged = time.monotonic(); log = work / 'native.log'; destination = work / 'ranking'
+with log.open('w') as stream:
+    result = run_scientific([sys.executable, '-m', 'gpx_recipe.preparation.structural_ranking_native', str(inputs), str(destination)],
+        timeout=600, cancel_event=threading.Event(), cwd=work, env=native_environment(), stdout=stream, stderr=subprocess.STDOUT)
+if result.returncode or not (destination / 'ranking.json').is_file():
+    print(log.read_text()[-8000:]); raise RuntimeError('Standalone native ranking did not produce a result')
+calculated = time.monotonic(); ranking = json.loads((destination / 'ranking.json').read_text())
+for name, checksum in before.items():
+    if file_sha(inputs / name) != checksum: raise ValueError('Ranking changed a captured input')
+response = dict(schema='radar-structural-ranking-benchmark-result/v1', dispatch_key=request['dispatch_key'],
+    protocol_sha256=digest(protocol), implementation_sha256=package_signature(), allocation=allocation(1),
+    ranking=ranking, scientific_result=False, candidate_pruning_authorized=False)
+write_json(destination / 'response.json', response)
+pack(destination, archive, ['ranking.json', 'response.json'])
+timing = dict(schema='radar-worker-timing/v1', entered_utc=entered, staging_seconds=staged-began,
+    calculation_seconds=calculated-staged, total_worker_seconds=time.monotonic()-began,
+    scope='Worker only; Galaxy queue, image startup, Python imports before this clock and output collection excluded',
+    limits=runtime_limits(), usage=usage_delta(initial))
+print('[RADAR MODEL RUNTIME] ' + json.dumps(timing, sort_keys=True), flush=True)
+if ranking.get('ranking_available') is not True: raise SystemExit('Ranking unavailable; inspect the retained structured response')
+]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="source_gpx" type="data" format="binary" label="Exact current GPX"/>
+        <param name="model_assets" type="data" format="zip" label="Captured parent, profile, reference and model inputs"/>
+        <param name="model_request_b64" type="text" value="" label="Encoded reviewed ranking request">
+            <validator type="regex" message="Use the benchmark-generated data request">^[A-Za-z0-9+/=]+$</validator>
+        </param>
+        <param name="dispatch_key" type="text" label="Captured dispatch identity">
+            <validator type="regex" message="Use the captured dispatch identity">^[a-f0-9]{24}$</validator>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="result_bundle" format="zip" label="RADAR-PD ranking ${dispatch_key} results"/>
+        <data name="console_output" format="txt" label="RADAR-PD ranking ${dispatch_key} timing"/>
+    </outputs>
+    <help><![CDATA[
+This isolated timing diagnostic calls the existing production GPX-ranking CLI
+in the pinned scientific image. It performs native parent/profile/reference
+admission and model inference, without executing candidate refinements.
+Input packets remain bounded data-only contracts. All candidates remain in
+the returned scope. No uploaded script or user-provided command is executed.
+Only ranking metadata is exported; observed arrays and scratch GPXs remain
+inside the worker. Requested resources never substitute for measured grants.
+    ]]></help>
+</tool>
