@@ -37,7 +37,7 @@ def test_pilot_is_separate_and_never_sets_its_own_scheduler_grant():
     assert tool.attrib['id']=='neutrons_radar_pd_preparation_benchmark_prototype'
     assert tool.attrib['hidden']=='true'
     image=tool.findtext('./requirements/container')
-    assert image.endswith('models-18c642c547676e5e98f5a26a4a06b997f95688b1')
+    assert image.endswith('models-d2bc43d8e76a9677415b2d6afc8f098b39558103')
     assert not tool.findall('./environment_variables/environment_variable')
     assert not tool.findall('./requirements/credentials')
     assert [r.attrib['value'] for r in tool.findall('./inputs/param[@name="action"]/option')]==['native','chunk']
