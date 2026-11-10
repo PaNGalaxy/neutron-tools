@@ -1,0 +1,11 @@
+<tool id="neutrons_radar_pd_preparation_optimized_benchmark_prototype" name="RADAR-PD Diagnostic: Optimized preparation timing" version="0.1.0" hidden="true" profile="22.05">
+    <macros><import>radar_pd_preparation_benchmark.macros</import></macros>
+    <description>repeat unchanged preparation workloads with the verified native helper</description>
+    <requirements>
+        <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-7ad23d7b9677ec71e848f64f9d5a8710eded5a78</container>
+        <resource type="cores_min">1</resource>
+        <resource type="cores_max">1</resource>
+        <resource type="ram_min">4096</resource>
+    </requirements>
+    <expand macro="preparation_benchmark_body"/>
+</tool>

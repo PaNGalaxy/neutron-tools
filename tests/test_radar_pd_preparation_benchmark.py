@@ -14,6 +14,8 @@ import pytest
 ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/'tools/neutrons/powder_diffraction/radar_pd_preparation_benchmark.xml'
 TRAINING=PATH.with_name('radar_pd_preparation_training_benchmark.xml')
+OPTIMIZED=PATH.with_name('radar_pd_preparation_optimized_benchmark.xml')
+OPTIMIZED_TRAINING=PATH.with_name('radar_pd_preparation_optimized_training_benchmark.xml')
 
 
 def expanded(path):
@@ -32,7 +34,7 @@ def expanded(path):
 @pytest.mark.parametrize('encoded',[True,False])
 @pytest.mark.parametrize('parts',[[],['part-one.zip','part-two.zip'],["part one.zip","part'two.zip"]])
 @pytest.mark.parametrize('action',['native','chunk'])
-@pytest.mark.parametrize('path',[PATH,TRAINING])
+@pytest.mark.parametrize('path',[PATH,TRAINING,OPTIMIZED,OPTIMIZED_TRAINING])
 def test_native_request_transport_renders_with_optional_input_parts(tmp_path,encoded,parts,action,path):
     tool=expanded(path)
     scope={key:key+'.data' for key in ('result_bundle','console_output','preparation_certificate',
@@ -85,7 +87,8 @@ def test_pilot_is_separate_and_never_sets_its_own_scheduler_grant():
     assert 'os.environ' not in probe
 
 
-@pytest.mark.parametrize('path,cores,memory',[(PATH,1,4096),(TRAINING,4,8192)])
+@pytest.mark.parametrize('path,cores,memory',[
+    (PATH,1,4096),(TRAINING,4,8192),(OPTIMIZED,1,4096),(OPTIMIZED_TRAINING,4,8192)])
 def test_allocation_hints_are_declarative_with_optional_site_schema_validation(tmp_path,path,cores,memory):
     tool=expanded(path)
     resources={r.attrib['type']:int(r.text) for r in tool.findall('./requirements/resource')}
@@ -96,6 +99,23 @@ def test_allocation_hints_are_declarative_with_optional_site_schema_validation(t
     if schema:
         result=subprocess.run(['xmllint','--noout','--schema',schema,str(xml)],capture_output=True,text=True)
         assert result.returncode==0,result.stderr
+
+
+@pytest.mark.parametrize('path,tool_id',[
+    (OPTIMIZED,'neutrons_radar_pd_preparation_optimized_benchmark_prototype'),
+    (OPTIMIZED_TRAINING,'neutrons_radar_pd_preparation_optimized_training_benchmark_prototype')])
+def test_optimized_pilot_keeps_baseline_tools_and_checkpoints_separate(path,tool_id):
+    tool=expanded(path)
+    assert tool.attrib['id']==tool_id and tool.attrib['hidden']=='true'
+    assert tool.attrib['version']=='0.1.0'
+    assert tool.findtext('./requirements/container').endswith(
+        'models-7ad23d7b9677ec71e848f64f9d5a8710eded5a78')
+    assert not tool.findall('./environment_variables/environment_variable')
+    assert not tool.findall('./requirements/credentials')
+    assert expanded(PATH).findtext('./requirements/container').endswith(
+        'models-d2bc43d8e76a9677415b2d6afc8f098b39558103')
+    assert expanded(TRAINING).findtext('./requirements/container').endswith(
+        'models-d2bc43d8e76a9677415b2d6afc8f098b39558103')
 
 
 @pytest.mark.parametrize('value',[dict(operation='preparation-structural-training'),['not','an','object']])
