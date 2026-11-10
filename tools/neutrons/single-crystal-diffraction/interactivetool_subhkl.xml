@@ -1,0 +1,54 @@
+<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="0.2.0">
+    <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with NDIP workflow orchestration</description>
+    <creator>
+        <person name="Jens Glaser"/>
+        <organization url="https://www.ornl.gov/" name="ORNL"/>
+    </creator>
+    <requirements>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:fix-integrator-background-border</container>
+    </requirements>
+    <entry_points>
+        <entry_point name="Trame SubHKL" label="subhkl" requires_domain="False" requires_path_in_url="True">
+            <port>8081</port>
+        </entry_point>
+    </entry_points>
+    <environment_variables>
+        <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+        <environment_variable name="GALAXY_API_KEY" inject="api_key"/>
+        <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+        <environment_variable name="EP_PATH" inject="entry_point_path_for_label">subhkl</environment_variable>
+        <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
+        <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
+        <environment_variable name="JAX_PLATFORMS">cpu</environment_variable>
+    </environment_variables>
+    <command detect_errors="exit_code"><![CDATA[
+        export JAX_PLATFORMS=cpu &&
+        #set $p_opt = ""
+        #if $indexed_h5:
+            ln -sf "$indexed_h5" input_peaks.h5 &&
+            #set $p_opt = "--peaks input_peaks.h5"
+        #end if
+        #set $img_opt = ""
+        #if $images_h5:
+            ln -sf "$images_h5" input_images.h5 &&
+            #set $img_opt = "--images input_images.h5"
+        #end if
+        subhkl-nova-app $p_opt $img_opt --instrument "$instrument" --host 0.0.0.0 --port 8081 --server timeout=0 > >(tee -a $output) 2> >(tee -a $output >&2)
+    ]]></command>
+    <inputs>
+        <param format="h5" name="indexed_h5" type="data" optional="true" label="Solved / Indexed / Integrated SubHKL HDF5 (solve.h5, indexer.h5, integrator.h5)"/>
+        <param format="h5" name="images_h5" type="data" optional="true" label="Detector Image HDF5 (scan.h5 / merged.h5)"/>
+        <param name="instrument" type="select" optional="true" value="CG4D" label="Instrument">
+            <option value="CG4D" selected="true">IMAGINE-X (CG4D — Cylindrical)</option>
+            <option value="IMAGINE">IMAGINE (HFIR — Cylindrical)</option>
+            <option value="MANDI">MANDI (SNS — Spherical)</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="Console output">
+        </data>
+    </outputs>
+    <help><![CDATA[
+        Starts the interactive NOVA Trame user interface for IMAGINE-X SubHKL Diffraction Parallax and Lattice-Ladder workflow orchestration.
+    ]]></help>
+</tool>
