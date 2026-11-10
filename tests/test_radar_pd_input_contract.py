@@ -23,6 +23,15 @@ def _top_level_sections(root: ET.Element) -> list[str]:
     return [section.attrib["name"] for section in inputs.findall("section")]
 
 
+def test_nova_caps_numerical_threads_without_claiming_scheduler_allocations():
+    root = _root('radar_pd_nova.xml')
+    values = {node.get('name'): (node.text or '').strip()
+              for node in root.findall('./environment_variables/environment_variable')}
+    assert {key: values[key] for key in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')} == {
+        'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'MKL_NUM_THREADS': '1'}
+    assert 'GALAXY_SLOTS' not in values and 'GALAXY_MEMORY_MB' not in values
+
+
 def test_analyze_keeps_scientific_inputs_common_to_both_routes() -> None:
     root = _root("radar_pd_analyze.xml")
 
@@ -501,11 +510,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.7.8"
+    assert root.attrib.get("version") == "0.7.9"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-76c1d86d46490c5d2603b72aeedcd35e17d2ae6a"
+        "nova-9023b102fc05dc08a674e268b4ce6ca1e79a4f13"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -523,7 +532,7 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.36"
+    assert root.attrib.get("version") == "0.5.37"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
