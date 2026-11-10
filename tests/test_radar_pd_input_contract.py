@@ -501,11 +501,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.7.3"
+    assert root.attrib.get("version") == "0.7.5"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-cd566e846d1b61a453242a324540a82aeed229ad"
+        "nova-526bc46b687c781c0e2eceb460ca4deafdaac30d"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -534,10 +534,10 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
     builder = _root("radar_pd_library_builder.xml")
     analyze = _root("radar_pd_analyze.xml")
-    assert builder.attrib["version"] == "0.3.12"
+    assert builder.attrib["version"] == "0.3.13"
     assert builder.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-56abab118a8e89d6d41f015b12a91950a864cc51"
+        "ndip-9405ffdd08e3dc90cb66a384803d2f185949f2b7"
     )  # Scientific library contracts are retained; both workers share the allocation guard.
     policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
     assert policy is not None
