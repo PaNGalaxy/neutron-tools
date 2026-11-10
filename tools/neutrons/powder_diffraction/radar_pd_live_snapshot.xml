@@ -1,6 +1,6 @@
-<tool id="neutrons_radar_pd_live_snapshot_prototype" name="RADAR-PD Utility: Live Snapshot Analysis" version="0.1.3" profile="22.05">
+<tool id="neutrons_radar_pd_live_snapshot_prototype" name="RADAR-PD Utility: Live Snapshot Analysis" version="0.1.4" profile="22.05">
     <description>analyze one immutable provisional scan against a reviewed nuclear reference</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-fd08af18143483b3d38457a22f2c48cafb54a567</container></requirements>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-d05f01d12ed2084f377629b1903a465a01f0c0ad</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$result_bundle' '$response_cache_output' '$console_output' &&
         trap "chmod a+r '$result_bundle' '$response_cache_output' '$console_output' >/dev/null 2>&1 || true" EXIT &&
