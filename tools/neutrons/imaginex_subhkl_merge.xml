@@ -77,16 +77,20 @@ try:
     h_m = cols['H'][valid].astype(int)
     k_m = cols['K'][valid].astype(int)
     l_m = cols['L'][valid].astype(int)
+    isigi_m = I[valid] / SigI[valid]
     d_m = np.array([mtz.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h_m, k_m, l_m)])
     dmin_obs = float(np.min(d_m)) if len(d_m) else 2.0
     theo_asu = rs.utils.generate_reciprocal_asu(mtz.cell, mtz.spacegroup, dmin_obs)
+    d_th = np.array([mtz.cell.calculate_d([int(r[0]), int(r[1]), int(r[2])]) for r in theo_asu]) if len(theo_asu) else np.array([])
     summary['n_theoretical_asu'] = int(len(theo_asu))
     summary['completeness_pct'] = float(100.0 * summary['n_merged_asu'] / max(1, len(theo_asu)))
     summary['d_min'] = round(dmin_obs, 3)
     summary['d_max'] = round(float(np.max(d_m)), 3) if len(d_m) else 10.0
 except Exception as e:
     summary['completeness_error'] = str(e)
+    d_m = np.array([]); isigi_m = np.array([]); d_th = np.array([])
 
+v0 = np.array([]); v1 = np.array([]); d_c = np.array([])
 if os.path.exists('out/careless_xval_0.mtz'):
     xv = gemmi.read_mtz_file('out/careless_xval_0.mtz')
     xcols = {c.label: np.array(c, dtype=np.float64) for c in xv.columns}
@@ -98,22 +102,35 @@ if os.path.exists('out/careless_xval_0.mtz'):
     map0 = {(int(hh), int(kk), int(ll)): (float(val), float(dd)) for hh, kk, ll, val, dd in zip(h[m0], k[m0], l[m0], xI[m0], d_arr[m0]) if np.isfinite(val)}
     map1 = {(int(hh), int(kk), int(ll)): float(val) for hh, kk, ll, val in zip(h[m1], k[m1], l[m1], xI[m1]) if np.isfinite(val)}
     common = [key for key in map0 if key in map1]
-    if len(common) >= 3:
+    if len(common) >= 2:
         v0 = np.array([map0[k][0] for k in common])
         v1 = np.array([map1[k] for k in common])
         d_c = np.array([map0[k][1] for k in common])
-        summary['cc_half'] = float(pearsonr(v0, v1)[0])
-        summary['cc_half_spearman'] = float(spearmanr(v0, v1)[0])
-        inv_d2 = 1.0 / np.maximum(d_c ** 2, 1e-6)
-        edges = np.linspace(inv_d2.min(), inv_d2.max(), 11)
-        bins = []
-        for b in range(10):
-            bm = (inv_d2 >= edges[b]) & (inv_d2 <= edges[b+1] if b == 9 else inv_d2 < edges[b+1])
-            cc_b = float(pearsonr(v0[bm], v1[bm])[0]) if np.sum(bm) >= 3 else float('nan')
-            d_hi = float(1.0 / np.sqrt(max(edges[b+1], 1e-6)))
-            d_lo = float(1.0 / np.sqrt(max(edges[b], 1e-6)))
-            bins.append({'bin': b, 'd_max': round(d_lo, 2), 'd_min': round(d_hi, 2), 'n_refl': int(np.sum(bm)), 'cc_half': round(cc_b, 4) if np.isfinite(cc_b) else None})
-        summary['resolution_bins'] = bins
+        summary['cc_half'] = float(pearsonr(v0, v1)[0]) if len(common) >= 3 else float(np.corrcoef(v0, v1)[0, 1])
+        summary['cc_half_spearman'] = float(spearmanr(v0, v1)[0]) if len(common) >= 3 else summary['cc_half']
+
+if len(d_m) >= 2:
+    inv_d2_m = 1.0 / np.maximum(d_m ** 2, 1e-6)
+    inv_d2_t = 1.0 / np.maximum(d_th ** 2, 1e-6) if len(d_th) else np.array([])
+    inv_d2_x = 1.0 / np.maximum(d_c ** 2, 1e-6) if len(d_c) else np.array([])
+    edges = np.linspace(inv_d2_m.min(), inv_d2_m.max(), 11)
+    bins = []
+    for b in range(10):
+        bm_m = (inv_d2_m >= edges[b]) & (inv_d2_m <= edges[b+1] if b == 9 else inv_d2_m < edges[b+1])
+        bm_t = (inv_d2_t >= edges[b]) & (inv_d2_t <= edges[b+1] if b == 9 else inv_d2_t < edges[b+1]) if len(inv_d2_t) else np.array([], dtype=bool)
+        n_m_b = int(np.sum(bm_m))
+        n_t_b = max(n_m_b, int(np.sum(bm_t))) if len(bm_t) else n_m_b
+        comp_b = round(100.0 * n_m_b / max(1, n_t_b), 2) if n_t_b > 0 else 0.0
+        isig_b = round(float(np.mean(isigi_m[bm_m])), 2) if n_m_b > 0 else 0.0
+        cc_b = float('nan')
+        if len(inv_d2_x):
+            bm_x = (inv_d2_x >= edges[b]) & (inv_d2_x <= edges[b+1] if b == 9 else inv_d2_x < edges[b+1])
+            if np.sum(bm_x) >= 2 and np.std(v0[bm_x]) > 1e-12 and np.std(v1[bm_x]) > 1e-12:
+                cc_b = float(np.corrcoef(v0[bm_x], v1[bm_x])[0, 1])
+        d_hi = float(1.0 / np.sqrt(max(edges[b+1], 1e-6)))
+        d_lo = float(1.0 / np.sqrt(max(edges[b], 1e-6)))
+        bins.append({'bin': b, 'd_max': round(d_lo, 2), 'd_min': round(d_hi, 2), 'n_refl': n_m_b, 'n_theo': n_t_b, 'completeness_pct': comp_b, 'mean_isigi': isig_b, 'cc_half': round(cc_b, 4) if np.isfinite(cc_b) else None})
+    summary['resolution_bins'] = bins
 with open('out/careless_metrics.json', 'w') as fh:
     json.dump(summary, fh, indent=2)
 "

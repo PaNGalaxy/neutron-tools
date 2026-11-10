@@ -62,6 +62,14 @@ try:
                     names.append(log_name)
         return axes, angles, names
     _g.get_rotation_data_from_nexus = _get_rot
+    _orig_cd = h5py.File.create_dataset
+    def _lzf_cd(self, name, shape=None, dtype=None, data=None, **kw):
+        sh = shape if shape is not None else getattr(data, "shape", ())
+        if name == "images" and len(sh) >= 3 and sh[0] > 0:
+            kw.setdefault("compression", "lzf")
+            kw.setdefault("chunks", (1,) + tuple(sh[1:]))
+        return _orig_cd(self, name, shape=shape, dtype=dtype, data=data, **kw)
+    h5py.File.create_dataset = _lzf_cd
 except Exception:
     pass
 EOF
@@ -75,11 +83,11 @@ EOF
 		    #set $wl_opts = $wl_opts + " --wavelength-max " + str($wavelengthMax)
 		#end if
 
+		#set $input_args = ""
 		#for $Z in $inputs:
-		    #set $BN = str($Z.input).split("/")[-1].split(".")[0]
-		    #set $filename = "out/" + str($BN) + ".reduce.h5"
-		    python -u -m subhkl.io.parser reduce "$Z.input" "$filename" $instrument $wl_opts ;
+		    #set $input_args = $input_args + ' "' + str($Z.input) + '"'
 		#end for
+		python -u -m subhkl.io.parser reduce-batch $input_args --output-dir out --instrument $instrument $wl_opts ;
 
 		python -u -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup" ;
 

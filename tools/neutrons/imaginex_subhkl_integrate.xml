@@ -70,7 +70,7 @@
 			<option value="auto">Auto</option>
 		</param>
 		<param name="matrixFp" type="float" value="" optional="true" label="Matrix Free FP Target" />
-		<param name="relBorder" type="float" value="0.0" label="Relative Border Width" />
+		<param name="relBorder" type="float" value="0.03" label="Relative Border Width" />
 		<param name="chunk" type="integer" value="256" label="Chunk Size" />
 		<param name="createVisualizations" type="boolean" value="false" label="Create Diagnostic PNG Visualizations" />
 		

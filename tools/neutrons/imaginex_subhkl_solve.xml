@@ -86,7 +86,7 @@
         <param name="gamma" type="float" value="" optional="true" label="Override Unit Cell gamma (deg)" />
         <param name="runs" type="text" value="" optional="true" label="Selected Run Indices (comma-separated, blank for all)" />
         <param name="stableRuns" type="text" value="" optional="true" label="Stable Drift-Free Run Indices for Blind Search (blank for all)" />
-        <param name="modes" type="text" value="cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run" label="Band Refinement Modes" help="Comma-separated: cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,panels" />
+        <param name="modes" type="text" value="cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,per_run_trans" label="Band Refinement Modes" help="Comma-separated: cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,per_run_trans,panels" />
         <param name="nZones" type="integer" value="" optional="true" label="Override Number of Direct-Lattice Zones in Fine Band Stage" />
         <param name="bandBinning" type="integer" value="16" label="Band Observation Spatial Binning" />
         <param name="samples" type="integer" value="16384" label="Blind Search Quadrature Samples" />
