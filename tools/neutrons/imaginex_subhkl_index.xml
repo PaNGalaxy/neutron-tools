@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl" name="IMAGINE-X subhkl Peak Indexing "  profile="22.05" version="0.1.0-dev" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.4.0</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:feat-rainbow-zones</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		mkdir out ; 
@@ -166,7 +166,7 @@
 		<param name="beamBound" type="float" value="0.05" label="Beam Bound (Degees)" /> 
 		<param name="refineDetector" type="boolean" checked="false" label="Refine Detector" />
 		<param name="refineDetectorBanks" type="text" optional="true" value="" label="Refine Detector Banks" help="As a comma-separated list of numerical bank IDs (eg 1,2,3)" />
-		<param name="detectorArea" type="float" value="0.05" labels="Detector Area Bound Fraction" />
+		<param name="detectorArea" type="float" value="0.05" label="Detector Area Bound Fraction" />
 		<param name="detectorModes" type="text" value="independent" label="Detector modes" help="Comma-separated list of refinement modes (e.g. radial,global_rot,independent)" />
 		<param name="detectorTrans" type="float" value="0.005" label="Detector Trans Bound (Meters)" />
 		<param name="detectorGlobalTrans" type="float" value="0.01" label="Detector Global Trans Bound (Meters)" />
@@ -174,7 +174,7 @@
 		<param name="detectorGlobalRot" type="float" value="2.0" label="Detector Global Rot Bound (Degrees)" />
 		<param name="detectorAxis" type="text" value="0,1,0" label="Detector Global Rotation Axis" help="As a comma-separated list (eg 0,1,0)" />
 		<param name="detectorRadial" type="float" value="0.05" label="Detector Radial Bound Fraction" />
-		<param name="cylinder" type="text" value="" optional="true" label="Axis Vector for Global Rot Axis Mode" help="As a comma-separated list (eg 0,1,0)" />>
+		<param name="cylinder" type="text" value="" optional="true" label="Axis Vector for Global Rot Axis Mode" help="As a comma-separated list (eg 0,1,0)" />
 		<param format="h5" name="bootstrap" type="data" optional="true" label="Bootstrap file to restart refinement from" />
 		<param name="batch" type="integer" optional="true" value="" label="Batch Size" /> 
 		<param name="candidates" type="integer" value="64" label="Number of Lambda Candidates" />
