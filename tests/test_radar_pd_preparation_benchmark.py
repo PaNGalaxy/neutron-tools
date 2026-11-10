@@ -43,13 +43,14 @@ def expanded(path):
 def test_native_request_transport_renders_with_optional_input_parts(tmp_path,encoded,parts,action,path):
     tool=expanded(path)
     scope={key:key+'.data' for key in ('result_bundle','console_output','preparation_certificate',
-        'runtime_probe','request_decoder','inline_request','source_gpx','model_assets','preparation_provenance')}
+        'runtime_probe','request_decoder','training_request_guard','inline_request','source_gpx','model_assets','preparation_provenance')}
     scope.update(action=action,model_request_b64='e30=' if encoded else '',
                  model_request=None if encoded else 'request.json',model_asset_parts=parts)
     command=str(Template(tool.findtext('command'),searchList=[scope]))
     result=subprocess.run(['bash','-n'],input=command,text=True,capture_output=True)
     assert result.returncode==0,result.stderr
     assert command.index("python 'runtime_probe.data'")<command.index('/opt/radar-symmetry/ndip_model_campaign.py')
+    assert command.index("python 'training_request_guard.data'")<command.index('/opt/radar-symmetry/ndip_model_campaign.py')
     assert command.count('--asset-part')==len(parts)
     assert '--preparation-evidence' in command and '--preparation-certificate' in command
     assert ('decoded-model-request.json' in command)==encoded
@@ -75,6 +76,35 @@ fi
     expected.extend(['--preparation-evidence','preparation_provenance.data',
                      '--preparation-certificate','preparation_certificate.data'])
     assert actual==expected
+
+
+@pytest.mark.parametrize('case',['paired','legacy','wrong_action','wrong_operation','non_object','missing_settings','oversized'])
+def test_cuda_contract_guard_rejects_cpu_only_and_unrelated_requests_before_the_worker(tmp_path,case):
+    tool=expanded(CUDA_TRAINING)
+    script=tmp_path/'guard.py';script.write_text(tool.find('./configfiles/configfile[@name="training_request_guard"]').text)
+    request=dict(schema='radar-model-native/v1',operation='preparation-structural-training',payload=dict(settings=dict(
+        representation='reference-current-signed-difference/shared-Q-asinh/v1')))
+    action='native'
+    if case=='legacy':request['payload']['settings'].clear()
+    elif case=='wrong_action':action='chunk'
+    elif case=='wrong_operation':request['operation']='inspect'
+    elif case=='non_object':request=[]
+    elif case=='missing_settings':request['payload'].clear()
+    path=tmp_path/'request.json';path.write_text(json.dumps(request))
+    if case=='oversized':path.write_bytes(b' '*(4*1024*1024+1))
+    env=dict(os.environ,RADAR_PREPARATION_TRAINING_DEVICE='cuda')
+    result=subprocess.run([sys.executable,str(script),action,str(path)],env=env,capture_output=True,text=True)
+    assert (result.returncode==0)==(case=='paired')
+    if case not in ('paired','oversized'):assert 'only current three-curve structural training' in result.stderr
+
+
+def test_cpu_wrapper_guard_does_not_read_or_change_old_requests(tmp_path):
+    tool=expanded(PATH)
+    script=tmp_path/'guard.py';script.write_text(tool.find('./configfiles/configfile[@name="training_request_guard"]').text)
+    env=dict(os.environ);env.pop('RADAR_PREPARATION_TRAINING_DEVICE',None)
+    result=subprocess.run([sys.executable,str(script),'chunk',str(tmp_path/'not-opened.json')],
+        env=env,capture_output=True,text=True)
+    assert result.returncode==0 and not result.stdout
 
 
 def test_pilot_is_separate_and_never_sets_its_own_scheduler_grant():
@@ -145,7 +175,7 @@ def test_cuda_controls_request_hardware_without_fabricating_cpu_entitlement(tmp_
     assert not tool.findall('./requirements/credentials')
     command=str(Template(tool.findtext('command'),searchList=[dict(result_bundle='results.zip',console_output='console.txt',
         model_asset_parts=[],model_request_b64='e30=',model_request=None,action='native',preparation_certificate='receipt.json',
-        source_gpx='source.cif',model_assets='assets.zip',request_decoder='decoder.py',inline_request='encoded.txt',
+        source_gpx='source.cif',model_assets='assets.zip',request_decoder='decoder.py',training_request_guard='guard.py',inline_request='encoded.txt',
         runtime_probe='probe.py',preparation_provenance='provenance.json')]))
     # An explicitly empty scheduler binding must keep GPUs disabled.
     assert '${CUDA_VISIBLE_DEVICES-0}' in command

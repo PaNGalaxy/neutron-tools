@@ -10,9 +10,11 @@
             echo 'Supply exactly one reviewed request source' >&2; exit 1
         #elif $model_request_b64
             python '$request_decoder' '$inline_request' decoded-model-request.json &&
+            python '$training_request_guard' '$action' decoded-model-request.json &&
             python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' $asset_part_options --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
             python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #elif $model_request
+            python '$training_request_guard' '$action' '$model_request' &&
             python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' $asset_part_options --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' >> '$console_output' 2>&1 &&
             python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #else
@@ -20,6 +22,22 @@
         #end if
     ]]></command>
     <configfiles>
+        <configfile name="training_request_guard"><![CDATA[import json, os, pathlib, sys
+# Ordinary CPU tools retain their existing contracts, including old libraries.
+if os.environ.get('RADAR_PREPARATION_TRAINING_DEVICE') == 'cuda':
+    action, name = sys.argv[1:]
+    source = pathlib.Path(name)
+    if source.stat().st_size > 4 * 1024 * 1024:
+        raise ValueError('CUDA training request exceeds its data bound')
+    request = json.loads(source.read_bytes())
+    payload = request.get('payload') if isinstance(request, dict) else None
+    settings = payload.get('settings') if isinstance(payload, dict) else None
+    if (not isinstance(request, dict) or action != 'native' or request.get('schema') != 'radar-model-native/v1'
+            or request.get('operation') != 'preparation-structural-training'
+            or not isinstance(settings, dict)
+            or settings.get('representation') != 'reference-current-signed-difference/shared-Q-asinh/v1'):
+        raise ValueError('The GPU trainer accepts only current three-curve structural training. Old CPU training plans require a new preparation.')
+]]></configfile>
         <configfile name="runtime_probe"><![CDATA[import json, shutil, subprocess
 from gpx_recipe.symmetry.resources import allocation
 import torch
