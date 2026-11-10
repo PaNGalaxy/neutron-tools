@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_facility_access_probe_prototype" name="RADAR-PD Diagnostic: Facility Access" profile="22.05" version="0.1.1">
+<tool id="neutrons_radar_pd_facility_access_probe" name="RADAR-PD Diagnostic: Facility Access" profile="22.05" version="0.1.1">
     <description>report read-only SNS/HFIR path visibility and permissions</description>
     <creator>
         <person name="Lalit Yadav"/>
@@ -32,6 +32,6 @@
         <data name="console_output" format="txt" label="RADAR-PD facility access console output"/>
     </outputs>
     <help><![CDATA[
-This prototype diagnostic is read-only. It reports whether an SNS or HFIR path exists in the NDIP batch container, whether a directory can be listed, whether a file can be opened, and the effective read/write/search permission flags. It never creates, changes, or deletes facility data.
+This diagnostic is read-only. It reports whether an SNS or HFIR path exists in the NDIP batch container, whether a directory can be listed, whether a file can be opened, and the effective read/write/search permission flags. It never creates, changes, or deletes facility data.
     ]]></help>
 </tool>

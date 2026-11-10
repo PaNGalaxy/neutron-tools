@@ -1,6 +1,6 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.2.2" profile="22.05">
-    <description>run reviewed structural or magnetic model starts with bounded resources</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-08a97f91e6b1224fc0595735614ca2a4d615d9c9</container></requirements>
+<tool id="neutrons_radar_pd_model_campaign" name="RADAR-PD Utility: Model Campaign" version="0.3.2" profile="22.05">
+    <description>run reviewed planning, preparation, training and model jobs with allocated resources</description>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-76c1d86d46490c5d2603b72aeedcd35e17d2ae6a</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$result_bundle' '$console_output' &&
         trap "chmod a+r '$result_bundle' '$console_output' >/dev/null 2>&1 || true" EXIT &&
@@ -39,10 +39,11 @@ else:
     </configfiles>
     <inputs>
         <param name="action" type="select" label="Reviewed model operation">
-            <option value="native">Inspect or prepare native models</option>
+            <option value="native">Inspect, simulate, prepare or train</option>
+            <option value="admission">Validate a prepared structural library for this scan</option>
             <option value="chunk">Run a finite chunk of approved starts</option>
         </param>
-        <param name="source_gpx" type="data" format="binary" label="Exact source GPX"/>
+        <param name="source_gpx" type="data" format="binary" label="Captured source dataset (GPX, CIF or prepared inputs)"/>
         <param name="model_assets" type="data" format="zip" label="Captured scientific inputs"/>
         <param name="model_request" type="data" format="json" optional="true" label="Reviewed model request dataset (legacy transport)"/>
         <param name="model_request_b64" type="text" value="" optional="true" label="NOVA encoded model request">
@@ -60,9 +61,18 @@ else:
         </collection>
     </outputs>
     <help><![CDATA[
-NOVA captures the exact source GPX, candidate catalog and approved finite search.
-Each independent start runs in a fresh process. The pool respects GALAXY_SLOTS,
-memory and container CPU quotas; absent allocation information permits one worker.
+NOVA captures typed, reviewed inputs for simulation, reusable preparation, training or a finite model search.
+Planner and preparation calculations use the same managed native worker; each operation validates its own input contract.
+Prepared structural-library admission checks the current parent, instrument, grid and stored modes without running refinements. It returns a validation receipt, not a new GPX.
+Simulated patterns are not treated as measured experiment data.
+The fast fixed-geometry magnetic optimizer prepares one subgroup in an isolated
+process and screens its complete reviewed start portfolio against one checked
+surrogate. Distinct calculated profiles are independently verified with GSAS-II.
+Equivalent screened starts retain their own moment solutions and reference a
+native-verified representative; they are not separate verified GPX files.
+Other refinement modes retain independent fresh-process starts. Workers respect
+GALAXY_SLOTS, memory and container CPU quotas; absent allocation information
+permits one worker.
 Unstarted trials remain pending at the chunk deadline. Every result retains its
 disposition, source and protocol hashes. Only independently audited, qualified
 projects appear in the output collection. A low Rwp does not establish a structure.

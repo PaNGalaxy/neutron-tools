@@ -1,0 +1,54 @@
+<tool id="neutrons_radar_pd_preparation_cuda_acceptance" name="RADAR-PD Diagnostic: CUDA trainer acceptance" version="0.1.2" hidden="true" profile="22.05">
+    <description>verify actual GPU kernels, recovery and portable inference using fixed synthetic controls</description>
+    <requirements>
+        <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:preparation-cuda-76c1d86d46490c5d2603b72aeedcd35e17d2ae6a</container>
+        <resource type="cores_min">1</resource>
+        <resource type="ram_min">8192</resource>
+        <resource type="cuda_device_count_min">1</resource>
+        <resource type="gpu_memory_min">4096</resource>
+        <resource type="cuda_version_min">12.6</resource>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        export CUBLAS_WORKSPACE_CONFIG=:4096:8 RADAR_PREPARATION_TRAINING_DEVICE=cuda OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 &&
+        export CUDA_VISIBLE_DEVICES="\${CUDA_VISIBLE_DEVICES-0}" &&
+        touch '$result_bundle' '$console_output' &&
+        trap "chmod a+r '$result_bundle' '$console_output' >/dev/null 2>&1 || true" EXIT &&
+        python '$runtime_probe' >> '$console_output' 2>&1 &&
+        python /opt/radar-symmetry/ndip_preparation_cuda_acceptance.py acceptance '$result_bundle' >> '$console_output' 2>&1
+    ]]></command>
+    <configfiles>
+        <configfile name="runtime_probe"><![CDATA[import json, os, shutil, subprocess
+import torch
+from gpx_recipe.symmetry.resources import allocation
+record=dict(schema='radar-cuda-routing-probe/v1',torch=str(torch.__version__),cuda_build=torch.version.cuda,
+    cuda_available=torch.cuda.is_available(),cuda_devices=torch.cuda.device_count(),
+    application_binding=os.environ.get('CUDA_VISIBLE_DEVICES'),allocation=allocation(4),
+    exclusive_gpu_reservation_claimed=False)
+binary=shutil.which('nvidia-smi')
+if binary:
+    try:
+        result=subprocess.run([binary,'--query-gpu=name,driver_version,memory.total,memory.free,utilization.gpu',
+            '--format=csv,noheader'],capture_output=True,text=True,timeout=5)
+        record['visible_driver_status']=result.stdout[:4096] if result.returncode==0 else result.stderr[:1024]
+    except subprocess.TimeoutExpired:record['visible_driver_status']='Probe timed out'
+print('[RADAR CUDA ROUTING] '+json.dumps(record,sort_keys=True))
+]]></configfile>
+    </configfiles>
+    <inputs/>
+    <outputs>
+        <data name="result_bundle" format="zip" label="RADAR-PD synthetic CUDA acceptance"/>
+        <data name="console_output" format="txt" label="RADAR-PD synthetic CUDA console"/>
+    </outputs>
+    <help><![CDATA[
+Runs the installed, fixed synthetic controls on one usable CUDA device.
+All seven hardware tests must pass without skips. A visible NVIDIA device or
+a successful wrapper alone does not qualify training. No experimental inputs,
+credentials or uploaded code are accepted.
+
+The application retains the worker's CUDA binding, or limits itself to the
+first visible device when no binding was supplied. It caps its Torch allocator
+at 4 GiB. That application limit does not establish an exclusive GPU reservation.
+Resource requirements express routing needs; runtime receipts separately
+record the actual device and CPU allocation. A CPU destination fails explicitly.
+    ]]></help>
+</tool>

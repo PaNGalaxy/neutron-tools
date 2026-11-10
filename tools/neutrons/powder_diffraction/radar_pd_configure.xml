@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_configure_prototype" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.3.0">
+<tool id="neutrons_radar_pd_configure" name="RADAR-PD Utility: Reusable Configuration" profile="22.05" version="0.3.0">
     <description>create a portable configuration for mapped, batch, or automated analyses</description>
     <creator>
         <person name="Lalit Yadav"/>

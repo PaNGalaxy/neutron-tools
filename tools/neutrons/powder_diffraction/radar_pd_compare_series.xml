@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_compare_series_prototype" name="RADAR-PD Utility: Compare Scan Series" profile="22.05" version="0.2.1">
+<tool id="neutrons_radar_pd_compare_series" name="RADAR-PD Utility: Compare Scan Series" profile="22.05" version="0.2.1">
     <description>compare normalized results from a mapped scan series</description>
     <creator>
         <person name="Lalit Yadav"/>
