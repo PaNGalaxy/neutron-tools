@@ -1,9 +1,9 @@
 <macros>
-    <xml name="preparation_benchmark_body">
+    <xml name="preparation_benchmark_body" token_launch_prefix="">
     <command detect_errors="exit_code"><![CDATA[
         #import shlex
         #set asset_part_options = ' '.join(['--asset-part ' + shlex.quote(str(part)) for part in ($model_asset_parts or [])])
-        touch '$result_bundle' '$console_output' '$preparation_certificate' &&
+        @LAUNCH_PREFIX@ touch '$result_bundle' '$console_output' '$preparation_certificate' &&
         trap "chmod a+r '$result_bundle' '$console_output' '$preparation_certificate' >/dev/null 2>&1 || true" EXIT &&
         python '$runtime_probe' >> '$console_output' 2>&1 &&
         #if $model_request_b64 and $model_request

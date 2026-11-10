@@ -16,6 +16,8 @@ PATH=ROOT/'tools/neutrons/powder_diffraction/radar_pd_preparation_benchmark.xml'
 TRAINING=PATH.with_name('radar_pd_preparation_training_benchmark.xml')
 OPTIMIZED=PATH.with_name('radar_pd_preparation_optimized_benchmark.xml')
 OPTIMIZED_TRAINING=PATH.with_name('radar_pd_preparation_optimized_training_benchmark.xml')
+CUDA_TRAINING=PATH.with_name('radar_pd_preparation_cuda_training.xml')
+CUDA_ACCEPTANCE=PATH.with_name('radar_pd_preparation_cuda_acceptance.xml')
 
 
 def expanded(path):
@@ -26,7 +28,10 @@ def expanded(path):
             body=macro.find('./xml[@name="'+child.attrib['macro']+'"]')
             assert body is not None
             position=list(tool).index(child);tool.remove(child)
-            for offset,item in enumerate(body):tool.insert(position+offset,copy.deepcopy(item))
+            for offset,item in enumerate(body):
+                item=copy.deepcopy(item)
+                if item.tag=='command':item.text=item.text.replace('@LAUNCH_PREFIX@',child.attrib.get('launch_prefix',''))
+                tool.insert(position+offset,item)
     tool.remove(tool.find('macros'))
     return tool
 
@@ -34,7 +39,7 @@ def expanded(path):
 @pytest.mark.parametrize('encoded',[True,False])
 @pytest.mark.parametrize('parts',[[],['part-one.zip','part-two.zip'],["part one.zip","part'two.zip"]])
 @pytest.mark.parametrize('action',['native','chunk'])
-@pytest.mark.parametrize('path',[PATH,TRAINING,OPTIMIZED,OPTIMIZED_TRAINING])
+@pytest.mark.parametrize('path',[PATH,TRAINING,OPTIMIZED,OPTIMIZED_TRAINING,CUDA_TRAINING])
 def test_native_request_transport_renders_with_optional_input_parts(tmp_path,encoded,parts,action,path):
     tool=expanded(path)
     scope={key:key+'.data' for key in ('result_bundle','console_output','preparation_certificate',
@@ -127,3 +132,26 @@ def test_embedded_decoder_accepts_data_objects_only(tmp_path,value):
     result=subprocess.run([sys.executable,str(script),str(encoded),str(output)],capture_output=True,text=True)
     if isinstance(value,dict):assert result.returncode==0 and json.loads(output.read_text())==value
     else:assert result.returncode!=0 and not output.exists()
+
+
+@pytest.mark.parametrize('path',[CUDA_ACCEPTANCE,CUDA_TRAINING])
+def test_cuda_controls_request_hardware_without_fabricating_cpu_entitlement(tmp_path,path):
+    tool=expanded(path) if path==CUDA_TRAINING else ET.parse(path).getroot()
+    assert tool.attrib['hidden']=='true'
+    assert tool.findtext('./requirements/container').endswith('preparation-cuda-9066077d0b93cb8ba8549a8f08e968a3bbec667b')
+    resources={r.attrib['type']:r.text for r in tool.findall('./requirements/resource')}
+    assert resources['cuda_device_count_min']=='1' and resources['gpu_memory_min']=='4096'
+    assert resources['cuda_version_min']=='12.6'
+    assert not tool.findall('./requirements/credentials')
+    command=str(Template(tool.findtext('command'),searchList=[dict(result_bundle='results.zip',console_output='console.txt',
+        model_asset_parts=[],model_request_b64='e30=',model_request=None,action='native',preparation_certificate='receipt.json',
+        source_gpx='source.cif',model_assets='assets.zip',request_decoder='decoder.py',inline_request='encoded.txt',
+        runtime_probe='probe.py',preparation_provenance='provenance.json')]))
+    assert '${CUDA_VISIBLE_DEVICES:-0}' in command
+    assert 'GALAXY_SLOTS=' not in command and 'GALAXY_MEMORY_MB=' not in command
+    assert 'RADAR_PREPARATION_TRAINING_DEVICE=cuda' in command and 'CUBLAS_WORKSPACE_CONFIG=:4096:8' in command
+    rendered=tmp_path/'tool.xml';ET.ElementTree(tool).write(rendered,encoding='utf-8')
+    schema=os.environ.get('RADAR_GALAXY_SCHEMA')
+    if schema:
+        result=subprocess.run(['xmllint','--noout','--schema',schema,str(rendered)],capture_output=True,text=True)
+        assert result.returncode==0,result.stderr
