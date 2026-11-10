@@ -14,9 +14,10 @@ def test_worker_template_binds_exact_dispatch_result_and_data_inputs(tmp_path):
     output=tmp_path/'models.xml';image='ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-'+'a'*40
     renderer.render(image,output);tool=ET.parse(output).getroot()
     assert tool.attrib['id']=='neutrons_radar_pd_model_campaign_prototype'
-    assert tool.attrib['version']=='0.3.0'
-    assert ET.parse(ROOT/'tools/neutrons/powder_diffraction/radar_pd_model_campaign.xml').getroot().attrib['version']=='0.3.0'
+    assert tool.attrib['version']=='0.3.1'
+    assert ET.parse(ROOT/'tools/neutrons/powder_diffraction/radar_pd_model_campaign.xml').getroot().attrib['version']=='0.3.1'
     assert tool.findtext('requirements/container')==image
+    assert {v.attrib['value'] for v in tool.findall("inputs/param[@name='action']/option")} == {'native','admission','chunk'}
     assert {p.attrib['name'] for p in tool.findall('inputs/param')}=={'action','source_gpx','model_assets','model_request','model_request_b64','dispatch_key'}
     assert tool.find("inputs/param[@name='model_request']").attrib['optional']=='true'
     result=tool.find('outputs/data[@name="result_bundle"]')
@@ -64,7 +65,8 @@ def test_invalid_or_oversized_encoded_request_stops_before_native_execution(tmp_
 
 
 @pytest.mark.parametrize('encoded',[True,False])
-def test_real_cheetah_command_preserves_both_request_paths(tmp_path,encoded):
+@pytest.mark.parametrize('action',['native','admission','chunk'])
+def test_real_cheetah_command_preserves_both_request_paths(tmp_path,encoded,action):
     Template=pytest.importorskip('Cheetah.Template').Template
     tool,script=decoder(tmp_path)
     payload={'literal':"Fe' $(touch MUST_NOT_EXIST)"}
@@ -75,7 +77,7 @@ def test_real_cheetah_command_preserves_both_request_paths(tmp_path,encoded):
     worker.write_text("import json,pathlib,sys\np=pathlib.Path\np(sys.argv[6]).write_text(json.dumps(json.loads(p(sys.argv[4]).read_text())))\n")
     command=tool.findtext('command').replace('/opt/radar-symmetry/ndip_model_campaign.py',str(worker))
     result=tmp_path/'result.json'
-    rendered=str(Template(command,searchList=[dict(action='native',result_bundle=str(result),console_output=str(tmp_path/'console.txt'),
+    rendered=str(Template(command,searchList=[dict(action=action,result_bundle=str(result),console_output=str(tmp_path/'console.txt'),
         source_gpx='source.gpx',model_assets='assets.zip',model_request=None if encoded else str(legacy),
         model_request_b64=b64 if encoded else None,request_decoder=str(script),inline_request=str(inline))]))
     rendered=re.sub(r'(?m)^(\s*)python\s',lambda m:m[1]+shlex.quote(sys.executable)+' ',rendered)

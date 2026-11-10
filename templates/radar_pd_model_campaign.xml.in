@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.0" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.1" profile="22.05">
     <description>run reviewed planning, preparation, training and model jobs with allocated resources</description>
     <requirements><container type="docker">@IMMUTABLE_MODEL_IMAGE@</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -40,6 +40,7 @@ else:
     <inputs>
         <param name="action" type="select" label="Reviewed model operation">
             <option value="native">Inspect, simulate, prepare or train</option>
+            <option value="admission">Validate a prepared structural library for this scan</option>
             <option value="chunk">Run a finite chunk of approved starts</option>
         </param>
         <param name="source_gpx" type="data" format="binary" label="Captured source dataset (GPX, CIF or prepared inputs)"/>
@@ -62,6 +63,7 @@ else:
     <help><![CDATA[
 NOVA captures typed, reviewed inputs for simulation, reusable preparation, training or a finite model search.
 Planner and preparation calculations use the same managed native worker; each operation validates its own input contract.
+Prepared structural-library admission checks the current parent, instrument, grid and stored modes without running refinements. It returns a validation receipt, not a new GPX.
 Simulated patterns are not treated as measured experiment data.
 The fast fixed-geometry magnetic optimizer prepares one subgroup in an isolated
 process and screens its complete reviewed start portfolio against one checked
