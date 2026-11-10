@@ -10,5 +10,5 @@
         <resource type="gpu_memory_min">4096</resource>
         <resource type="cuda_version_min">12.6</resource>
     </requirements>
-    <expand macro="preparation_benchmark_body" launch_prefix="export CUBLAS_WORKSPACE_CONFIG=:4096:8 RADAR_PREPARATION_TRAINING_DEVICE=cuda &amp;&amp; export CUDA_VISIBLE_DEVICES=&quot;\${CUDA_VISIBLE_DEVICES:-0}&quot; &amp;&amp;"/>
+    <expand macro="preparation_benchmark_body" launch_prefix="export CUBLAS_WORKSPACE_CONFIG=:4096:8 RADAR_PREPARATION_TRAINING_DEVICE=cuda &amp;&amp; export CUDA_VISIBLE_DEVICES=&quot;\${CUDA_VISIBLE_DEVICES-0}&quot; &amp;&amp;"/>
 </tool>

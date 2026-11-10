@@ -147,7 +147,8 @@ def test_cuda_controls_request_hardware_without_fabricating_cpu_entitlement(tmp_
         model_asset_parts=[],model_request_b64='e30=',model_request=None,action='native',preparation_certificate='receipt.json',
         source_gpx='source.cif',model_assets='assets.zip',request_decoder='decoder.py',inline_request='encoded.txt',
         runtime_probe='probe.py',preparation_provenance='provenance.json')]))
-    assert '${CUDA_VISIBLE_DEVICES:-0}' in command
+    # An explicitly empty scheduler binding must keep GPUs disabled.
+    assert '${CUDA_VISIBLE_DEVICES-0}' in command
     assert 'GALAXY_SLOTS=' not in command and 'GALAXY_MEMORY_MB=' not in command
     assert 'RADAR_PREPARATION_TRAINING_DEVICE=cuda' in command and 'CUBLAS_WORKSPACE_CONFIG=:4096:8' in command
     rendered=tmp_path/'tool.xml';ET.ElementTree(tool).write(rendered,encoding='utf-8')
@@ -155,3 +156,10 @@ def test_cuda_controls_request_hardware_without_fabricating_cpu_entitlement(tmp_
     if schema:
         result=subprocess.run(['xmllint','--noout','--schema',schema,str(rendered)],capture_output=True,text=True)
         assert result.returncode==0,result.stderr
+
+    prefix=command[:command.index('touch ')]
+    for supplied,expected in [(None,'0'),('',''),('GPU-site-selected','GPU-site-selected')]:
+        env=dict(os.environ);env.pop('CUDA_VISIBLE_DEVICES',None)
+        if supplied is not None:env['CUDA_VISIBLE_DEVICES']=supplied
+        actual=subprocess.run(['bash','-c',prefix+'printf %s "$CUDA_VISIBLE_DEVICES"'],env=env,capture_output=True,text=True)
+        assert actual.returncode==0 and actual.stdout==expected

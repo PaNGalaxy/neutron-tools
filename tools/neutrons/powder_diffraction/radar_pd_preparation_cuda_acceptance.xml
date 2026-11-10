@@ -10,7 +10,7 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         export CUBLAS_WORKSPACE_CONFIG=:4096:8 RADAR_PREPARATION_TRAINING_DEVICE=cuda OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 &&
-        export CUDA_VISIBLE_DEVICES="\${CUDA_VISIBLE_DEVICES:-0}" &&
+        export CUDA_VISIBLE_DEVICES="\${CUDA_VISIBLE_DEVICES-0}" &&
         touch '$result_bundle' '$console_output' &&
         trap "chmod a+r '$result_bundle' '$console_output' >/dev/null 2>&1 || true" EXIT &&
         python '$runtime_probe' >> '$console_output' 2>&1 &&
