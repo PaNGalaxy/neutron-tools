@@ -1,21 +1,48 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.3" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.4" profile="22.05">
     <description>run reviewed planning, preparation, training and model jobs with allocated resources</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-f3aba94bcca30a1b7e21c36a5a65fc83dc79e217</container></requirements>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-9a40648a5e958e16c179e3fc47668eeb3ae16bfb</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
-        touch '$result_bundle' '$console_output' &&
-        trap "chmod a+r '$result_bundle' '$console_output' >/dev/null 2>&1 || true" EXIT &&
+        touch '$result_bundle' '$console_output' '$preparation_certificate' &&
+        trap "chmod a+r '$result_bundle' '$console_output' '$preparation_certificate' >/dev/null 2>&1 || true" EXIT &&
         #if $model_request_b64 and $model_request
             echo 'Supply exactly one reviewed request source' >&2; exit 1
         #elif $model_request_b64
             python '$request_decoder' '$inline_request' decoded-model-request.json &&
-            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' > '$console_output' 2>&1
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' decoded-model-request.json worker '$result_bundle' #slurp
+            #if $model_asset_parts
+                #for $part in $model_asset_parts
+                    --asset-part '$part' #slurp
+                #end for
+            #end if
+                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' > '$console_output' 2>&1 &&
+            python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #elif $model_request
-            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' > '$console_output' 2>&1
+            python /opt/radar-symmetry/ndip_model_campaign.py '$action' '$source_gpx' '$model_assets' '$model_request' worker '$result_bundle' #slurp
+            #if $model_asset_parts
+                #for $part in $model_asset_parts
+                    --asset-part '$part' #slurp
+                #end for
+            #end if
+                --preparation-evidence '$preparation_provenance' --preparation-certificate '$preparation_certificate' > '$console_output' 2>&1 &&
+            python -m gpx_recipe.preparation.certificates '$preparation_certificate'
         #else
             echo 'Supply one reviewed request source' >&2; exit 1
         #end if
     ]]></command>
     <configfiles>
+        <configfile name="preparation_provenance"><![CDATA[#import json
+#set records = []
+#if $preparation_evidence
+    #for certificate in $preparation_evidence
+        #set dataset = $certificate.unsanitized
+        #set job = getattr($dataset, 'creating_job', None)
+        #set markers = [line for line in str(getattr($job, 'stdout', '')).splitlines() if line.startswith('[RADAR PREPARATION CERTIFICATE] ')]
+        #set record = dict(certificate_path=str($certificate), tool_id=str(getattr($job, 'tool_id', '')), tool_version=str(getattr($job, 'tool_version', '')), job_state=str(getattr($job, 'state', '')), dataset_state=str(getattr($dataset, 'state', '')), dataset_deleted=bool(getattr($dataset, 'deleted', True)), dataset_purged=bool(getattr($dataset, 'purged', True)), job_stdout='\n'.join($markers))
+        #set ignored = $records.append($record)
+    #end for
+#end if
+$json.dumps(dict(schema='radar-galaxy-preparation-evidence/v1', records=$records), sort_keys=True)
+]]></configfile>
         <configfile name="inline_request">$model_request_b64</configfile>
         <configfile name="request_decoder"><![CDATA[import base64, json, pathlib, sys
 source, target = map(pathlib.Path, sys.argv[1:])
@@ -43,8 +70,10 @@ else:
             <option value="admission">Validate a prepared structural library for this scan</option>
             <option value="chunk">Run a finite chunk of approved starts</option>
         </param>
-        <param name="source_gpx" type="data" format="binary" label="Captured source dataset (GPX, CIF or prepared inputs)"/>
+        <param name="source_gpx" type="data" format="binary,txt" label="Captured source dataset (GPX, CIF or prepared inputs)"/>
         <param name="model_assets" type="data" format="zip" label="Captured scientific inputs"/>
+        <param name="model_asset_parts" type="data" format="zip" multiple="true" optional="true" label="Additional structural training input parts (NOVA supplies these automatically)"/>
+        <param name="preparation_evidence" type="data" format="json" multiple="true" optional="true" label="Native preparation origin receipts (NOVA supplies these automatically)"/>
         <param name="model_request" type="data" format="json" optional="true" label="Reviewed model request dataset (legacy transport)"/>
         <param name="model_request_b64" type="text" value="" optional="true" label="NOVA encoded model request">
             <validator type="regex" message="Use the NOVA-generated base64 request">^[A-Za-z0-9+/=]*$</validator>
@@ -56,8 +85,12 @@ else:
     <outputs>
         <data name="result_bundle" format="zip" label="RADAR-PD model ${dispatch_key} results"/>
         <data name="console_output" format="txt" label="RADAR-PD model ${dispatch_key} console"/>
+        <data name="preparation_certificate" format="json" hidden="true" label="RADAR-PD native preparation receipt ${dispatch_key}"/>
         <collection name="verified_projects" type="list" label="Qualified model GPXs ${dispatch_key}">
             <discover_datasets pattern="verified_(?P&lt;designation&gt;[a-f0-9]+)\.gpx" ext="binary" directory="worker/verified_projects" visible="true"/>
+        </collection>
+        <collection name="reviewable_projects" type="list" label="Structural point-fit GPXs (review required) ${dispatch_key}">
+            <discover_datasets pattern="reviewable_(?P&lt;designation&gt;[a-f0-9]+)\.gpx" ext="binary" directory="worker/reviewable_projects" visible="true"/>
         </collection>
     </outputs>
     <help><![CDATA[
@@ -84,5 +117,11 @@ request upload is required. Existing uploaded JSON requests remain supported.
 Independent starts share only the CPU and memory allocated to their Galaxy job.
 NOVA separately limits concurrent batches across scans; visible host cores do
 not authorize additional native workers.
+
+Native preparation receipts bind exact array bytes to their creating job.
+NOVA passes selected receipts separately from scientific requests; the fixed
+Galaxy template supplies actual creating-job metadata. Missing or incompatible
+receipts require native requalification and never relax scientific checks.
+Large structural-training inputs may arrive as checked additional ZIP parts.
     ]]></help>
 </tool>

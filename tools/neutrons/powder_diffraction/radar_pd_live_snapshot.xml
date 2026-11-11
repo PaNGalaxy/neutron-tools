@@ -1,18 +1,34 @@
-<tool id="neutrons_radar_pd_live_snapshot_prototype" name="RADAR-PD Utility: Live Snapshot Analysis" version="0.1.6" profile="22.05">
+<tool id="neutrons_radar_pd_live_snapshot_prototype" name="RADAR-PD Utility: Live Snapshot Analysis" version="0.1.7" profile="22.05">
     <description>analyze one immutable provisional scan against a reviewed nuclear reference</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-f3aba94bcca30a1b7e21c36a5a65fc83dc79e217</container></requirements>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-9a40648a5e958e16c179e3fc47668eeb3ae16bfb</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$result_bundle' '$response_cache_output' '$console_output' &&
         trap "chmod a+r '$result_bundle' '$response_cache_output' '$console_output' >/dev/null 2>&1 || true" EXIT &&
-        python -m gpx_recipe.live.galaxy_worker '$packet' worker '$result_bundle' '$response_cache_output'
+        python -m gpx_recipe.live.galaxy_worker '$packet' worker '$result_bundle' '$response_cache_output' --preparation-evidence '$preparation_provenance' #slurp
         #if $response_cache
-            --cache '$response_cache'
+            --cache '$response_cache' #slurp
         #end if
         > '$console_output' 2>&1
     ]]></command>
+    <configfiles>
+        <configfile name="preparation_provenance"><![CDATA[#import json
+#set records = []
+#if $preparation_evidence
+    #for certificate in $preparation_evidence
+        #set dataset = $certificate.unsanitized
+        #set job = getattr($dataset, 'creating_job', None)
+        #set markers = [line for line in str(getattr($job, 'stdout', '')).splitlines() if line.startswith('[RADAR PREPARATION CERTIFICATE] ')]
+        #set record = dict(certificate_path=str($certificate), tool_id=str(getattr($job, 'tool_id', '')), tool_version=str(getattr($job, 'tool_version', '')), job_state=str(getattr($job, 'state', '')), dataset_state=str(getattr($dataset, 'state', '')), dataset_deleted=bool(getattr($dataset, 'deleted', True)), dataset_purged=bool(getattr($dataset, 'purged', True)), job_stdout='\n'.join($markers))
+        #set ignored = $records.append($record)
+    #end for
+#end if
+$json.dumps(dict(schema='radar-galaxy-preparation-evidence/v1', records=$records), sort_keys=True)
+]]></configfile>
+    </configfiles>
     <inputs>
         <param name="packet" type="data" format="zip" label="Reviewed source, observations and magnetic settings"/>
         <param name="response_cache" type="data" format="zip" optional="true" label="Compatible native response cache"/>
+        <param name="preparation_evidence" type="data" format="json" multiple="true" optional="true" label="Native preparation origin receipts (NOVA supplies these automatically)"/>
         <param name="dispatch_key" type="text" label="NOVA dispatch identity">
             <validator type="regex" message="Use the NOVA-generated dispatch key">^[a-f0-9]{24}$</validator>
         </param>
@@ -35,5 +51,8 @@ The result reports conditional uncertainty and sampling diagnostics. It does
 not establish a phase, calibrated stopping decision or a converged conventional
 Rietveld refinement. Published GPXs represent the verified displayed parameter
 values; the original source is preserved. No model API credential is required.
+
+Prepared model inputs use the same creating-job evidence contract as Model
+Campaign. A receipt alone does not qualify another geometry, bank or data set.
     ]]></help>
 </tool>
