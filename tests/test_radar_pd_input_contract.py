@@ -444,12 +444,12 @@ def test_gsasii_interactive_opens_a_copy_and_publishes_the_edited_gpx() -> None:
 
     assert root.attrib.get("tool_type") == "interactive"
     assert root.attrib.get("profile") == "22.05"
-    assert root.attrib.get("version") == "0.1.18"
+    assert root.attrib.get("version") == "0.1.19"
 
     container = root.find("./requirements/container")
     assert container is not None
     assert (container.text or "").strip().endswith(
-        ":gsasii-gui-f3aba94bcca30a1b7e21c36a5a65fc83dc79e217"
+        ":gsasii-gui-7b60f62ae68f8ff217c346bb957d0815fe8fca2b"
     )
 
     entrypoint = root.find("./entry_points/entry_point")
