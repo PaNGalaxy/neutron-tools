@@ -168,8 +168,8 @@ def test_embedded_decoder_accepts_data_objects_only(tmp_path,value):
 def test_cuda_controls_request_hardware_without_fabricating_cpu_entitlement(tmp_path,path):
     tool=expanded(path) if path==CUDA_TRAINING else ET.parse(path).getroot()
     assert tool.attrib['hidden']=='true'
-    assert tool.attrib['version']=='0.1.2'
-    assert tool.findtext('./requirements/container').endswith('preparation-cuda-76c1d86d46490c5d2603b72aeedcd35e17d2ae6a')
+    assert tool.attrib['version']=='0.1.3'
+    assert tool.findtext('./requirements/container').endswith('preparation-cuda-f3aba94bcca30a1b7e21c36a5a65fc83dc79e217')
     resources={r.attrib['type']:r.text for r in tool.findall('./requirements/resource')}
     assert resources['cuda_device_count_min']=='1' and resources['gpu_memory_min']=='4096'
     assert resources['cuda_version_min']=='12.6'
