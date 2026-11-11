@@ -510,11 +510,11 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.7.31"
+    assert root.attrib.get("version") == "0.7.32"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "nova-e97bd2e21db95365fecc11c97756c50a38c114a9"
+        "nova-915ca3a0e8ef0614b39f3eeea3ac509b6cc89823"
     )
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
@@ -532,21 +532,21 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.42"
+    assert root.attrib.get("version") == "0.5.43"
     assert container is not None
     assert container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-e25b907044dc4941348a83c2536f94c217145756"
+        "ndip-915ca3a0e8ef0614b39f3eeea3ac509b6cc89823"
     )
 
 
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
     builder = _root("radar_pd_library_builder.xml")
     analyze = _root("radar_pd_analyze.xml")
-    assert builder.attrib["version"] == "0.3.16"
+    assert builder.attrib["version"] == "0.3.17"
     assert builder.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-e25b907044dc4941348a83c2536f94c217145756"
+        "ndip-915ca3a0e8ef0614b39f3eeea3ac509b6cc89823"
     )  # Scientific library contracts are retained; both workers share the allocation guard.
     policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
     assert policy is not None
@@ -572,10 +572,10 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     stage_projects = root.find("./outputs/collection[@name='stage_projects']")
 
     assert root.attrib.get("id") == "neutrons_radar_pd_refine_recipe_prototype"
-    assert root.attrib.get("version") == "0.3.16"
+    assert root.attrib.get("version") == "0.3.17"
     assert container is not None and container.text == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "ndip-e25b907044dc4941348a83c2536f94c217145756"
+        "ndip-915ca3a0e8ef0614b39f3eeea3ac509b6cc89823"
     )
     assert "/opt/radar-pd/scripts/ndip_refinement.py" in command
     assert "'$recipe_request'" in command
@@ -588,21 +588,21 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
 
 def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
     root = _root("radar_pd_model_campaign.xml")
-    assert root.attrib["version"] == "0.3.7"
+    assert root.attrib["version"] == "0.3.8"
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-e25b907044dc4941348a83c2536f94c217145756"
+        "models-915ca3a0e8ef0614b39f3eeea3ac509b6cc89823"
     )
 
 
 def test_live_snapshot_worker_publishes_verified_projects_without_credentials() -> None:
     root = _root("radar_pd_live_snapshot.xml")
-    assert root.attrib["version"] == "0.1.10"
+    assert root.attrib["version"] == "0.1.11"
     # Galaxy strips and joins command lines; shell continuations become argv spaces.
     assert not any(line.rstrip().endswith("\\") for line in root.findtext("command").splitlines())
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-e25b907044dc4941348a83c2536f94c217145756"
+        "models-915ca3a0e8ef0614b39f3eeea3ac509b6cc89823"
     )
     assert {p.attrib["name"] for p in root.findall("./inputs/param")} == {
         "packet", "response_cache", "preparation_evidence", "dispatch_key"
