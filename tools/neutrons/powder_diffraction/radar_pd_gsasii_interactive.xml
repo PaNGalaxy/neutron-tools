@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.17">
+<tool id="neutrons_radar_pd_gsasii_interactive_prototype" tool_type="interactive" name="RADAR-PD Utility: Refine in GSAS-II" profile="22.05" version="0.1.18">
     <description>open a RADAR-PD GPX checkpoint in the native GSAS-II desktop</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-a4822fab93b172a07d84b611e1a9e38b403a66c2</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:gsasii-gui-f3aba94bcca30a1b7e21c36a5a65fc83dc79e217</container>
     </requirements>
     <entry_points>
         <entry_point name="GSAS-II Interactive" label="gsasii" requires_domain="False" requires_path_in_url="True">
