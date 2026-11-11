@@ -14,8 +14,8 @@ def test_worker_template_binds_exact_dispatch_result_and_data_inputs(tmp_path):
     output=tmp_path/'models.xml';image='ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-'+'a'*40
     renderer.render(image,output);tool=ET.parse(output).getroot()
     assert tool.attrib['id']=='neutrons_radar_pd_model_campaign_prototype'
-    assert tool.attrib['version']=='0.3.2'
-    assert ET.parse(ROOT/'tools/neutrons/powder_diffraction/radar_pd_model_campaign.xml').getroot().attrib['version']=='0.3.2'
+    assert tool.attrib['version']=='0.3.3'
+    assert ET.parse(ROOT/'tools/neutrons/powder_diffraction/radar_pd_model_campaign.xml').getroot().attrib['version']=='0.3.3'
     assert tool.findtext('requirements/container')==image
     assert {v.attrib['value'] for v in tool.findall("inputs/param[@name='action']/option")} == {'native','admission','chunk'}
     assert {p.attrib['name'] for p in tool.findall('inputs/param')}=={'action','source_gpx','model_assets','model_request','model_request_b64','dispatch_key'}

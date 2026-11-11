@@ -588,21 +588,21 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
 
 def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
     root = _root("radar_pd_model_campaign.xml")
-    assert root.attrib["version"] == "0.3.2"
+    assert root.attrib["version"] == "0.3.3"
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-76c1d86d46490c5d2603b72aeedcd35e17d2ae6a"
+        "models-f3aba94bcca30a1b7e21c36a5a65fc83dc79e217"
     )
 
 
 def test_live_snapshot_worker_publishes_verified_projects_without_credentials() -> None:
     root = _root("radar_pd_live_snapshot.xml")
-    assert root.attrib["version"] == "0.1.5"
+    assert root.attrib["version"] == "0.1.6"
     # Galaxy strips and joins command lines; shell continuations become argv spaces.
     assert not any(line.rstrip().endswith("\\") for line in root.findtext("command").splitlines())
     assert root.findtext("./requirements/container") == (
         "ghcr.io/lalityadav07/impurity_detection_gsas_ver6:"
-        "models-76c1d86d46490c5d2603b72aeedcd35e17d2ae6a"
+        "models-f3aba94bcca30a1b7e21c36a5a65fc83dc79e217"
     )
     assert {p.attrib["name"] for p in root.findall("./inputs/param")} == {
         "packet", "response_cache", "dispatch_key"
