@@ -67,8 +67,8 @@
         <param format="h5" name="scan" type="data" label="Reduced / Merged Image Stack (scan.h5 / merged.h5)" />
         <param name="instrument" type="select" optional="false" value="CG4D" label="Instrument">
             <option value="CG4D">IMAGINE-X (CG4D)</option>
-            <option value="IMAGINE">IMAGINE (HFIR)</option>
             <option value="MANDI">MANDI (SNS)</option>
+            <option value="TOPAZ">TOPAZ (SNS)</option>
         </param>
         <param name="refinement" type="select" optional="false" value="band" label="Refinement Mode">
             <option value="band">Staged Zone-Band &amp; Detector Geometry Refinement (band)</option>

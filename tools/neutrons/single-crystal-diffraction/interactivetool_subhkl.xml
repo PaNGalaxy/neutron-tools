@@ -40,8 +40,8 @@
         <param format="h5" name="images_h5" type="data" optional="true" label="Detector Image HDF5 (scan.h5 / merged.h5)"/>
         <param name="instrument" type="select" optional="true" value="CG4D" label="Instrument">
             <option value="CG4D" selected="true">IMAGINE-X (CG4D — Cylindrical)</option>
-            <option value="IMAGINE">IMAGINE (HFIR — Cylindrical)</option>
             <option value="MANDI">MANDI (SNS — Spherical)</option>
+            <option value="TOPAZ">TOPAZ (SNS — Spherical)</option>
         </param>
     </inputs>
     <outputs>
