@@ -73,7 +73,7 @@ try:
 except Exception:
     pass
 EOF
-		export PYTHONPATH=".:$PYTHONPATH" ;
+		export PYTHONPATH=".:\$PYTHONPATH" ;
 
 		#set $wl_opts = ""
 		#if str($wavelengthMin) != "":
