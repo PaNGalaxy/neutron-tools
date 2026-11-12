@@ -29,9 +29,9 @@
 		<param format="h5" name="scan" type="data" label="Master scan file (scan.h5 / merged.h5)" />
 		<param format="h5" name="indexer" type="data" label="Solved or Indexed Orientation file (solve.h5 / indexer.h5)" />
 		<param name="instrument" type="select" optional="false" value="CG4D" label="Instrument" > 
-			<option value="IMAGINE">IMAGINE</option>
-			<option value="CG4D">IMAGINE-X</option>
-			<option value="MANDI">MANDI</option>
+			<option value="CG4D">IMAGINE-X (CG4D)</option>
+			<option value="MANDI">MANDI (SNS)</option>
+			<option value="TOPAZ">TOPAZ (SNS)</option>
 		</param>
 	    <param name="wavelengthMin" type="float" value="2.8" optional="true" label="Min Wavelength" /> 
 		<param name="wavelengthMax" type="float" value="4.5" optional="true" label="Max Wavelength" /> 

@@ -2,15 +2,16 @@
   <requirements>
     <container type="docker">ghcr.io/neutrons/subhkl:1.5.1</container>
   </requirements>
-    <command detect_errors="exit_code"><![CDATA[
+  <configfiles>
+    <configfile name="sitecustomize_script"><![CDATA[#raw
+import re
+import h5py
+import numpy as np
 
-		mkdir -p out ;
-
-		cat << 'EOF' > sitecustomize.py
-import re, h5py, numpy as np
 try:
     import subhkl.instrument.goniometer as _g
     from subhkl.config import reduction_settings as _rs
+
     _PATS = {
         "phi": re.compile(r"(?:axis0|phi)\s*=\s*([-+]?[0-9]*\.?[0-9]+)", re.I),
         "kappa": re.compile(r"(?:axis1|kappa)\s*=\s*([-+]?[0-9]*\.?[0-9]+)", re.I),
@@ -24,6 +25,7 @@ try:
         "omega": "CG4D:Mot:AttocubeGoni:Rot:ReadPosition2",
     }
     _DEF = {"omega": 0.0, "alpha": 45.0, "kappa": 0.0, "phi": 0.0, "chi": 0.0}
+
     def _get_rot(filename, instrument):
         settings = _rs[instrument]
         axes, angles, names = [], [], []
@@ -32,7 +34,11 @@ try:
             t_raw = f["entry/title"][()] if "entry/title" in f else b""
             if hasattr(t_raw, "flat") and t_raw.size > 0:
                 t_raw = t_raw.flat[0]
-            t_str = t_raw.decode("utf-8", "replace") if isinstance(t_raw, (bytes, np.bytes_)) else str(t_raw)
+            t_str = (
+                t_raw.decode("utf-8", "replace")
+                if isinstance(t_raw, (bytes, np.bytes_))
+                else str(t_raw)
+            )
             t_ang = {}
             for k, p in _PATS.items():
                 m = p.search(t_str)
@@ -49,31 +55,47 @@ try:
                         val = None
                 if val is None and sk in t_ang:
                     val = float(t_ang[sk])
-                if val is None and sk in _ATTO and _ATTO[sk] in das and "average_value" in das[_ATTO[sk]]:
+                if (
+                    val is None
+                    and sk in _ATTO
+                    and _ATTO[sk] in das
+                    and "average_value" in das[_ATTO[sk]]
+                ):
                     try:
                         val = float(das[_ATTO[sk]]["average_value"][0])
                     except Exception:
                         val = None
-                if val is None and str(instrument).upper() in ("CG4D", "IMAGINE") and sk in _DEF:
+                if (
+                    val is None
+                    and str(instrument).upper() in ("CG4D", "IMAGINE")
+                    and sk in _DEF
+                ):
                     val = float(_DEF[sk])
                 if val is not None:
                     angles.append(val)
                     axes.append(np.array(axis_spec, dtype=float))
                     names.append(log_name)
         return axes, angles, names
+
     _g.get_rotation_data_from_nexus = _get_rot
     _orig_cd = h5py.File.create_dataset
+
     def _lzf_cd(self, name, shape=None, dtype=None, data=None, **kw):
         sh = shape if shape is not None else getattr(data, "shape", ())
         if name == "images" and len(sh) >= 3 and sh[0] > 0:
             kw.setdefault("compression", "lzf")
             kw.setdefault("chunks", (1,) + tuple(sh[1:]))
         return _orig_cd(self, name, shape=shape, dtype=dtype, data=data, **kw)
+
     h5py.File.create_dataset = _lzf_cd
 except Exception:
     pass
-EOF
-		export PYTHONPATH=".:\$PYTHONPATH" ;
+#end raw]]></configfile>
+  </configfiles>
+    <command detect_errors="exit_code"><![CDATA[
+		mkdir -p out &&
+		cp "$sitecustomize_script" sitecustomize.py &&
+		export PYTHONPATH=".:\${PYTHONPATH:-}" &&
 
 		#set $wl_opts = ""
 		#if str($wavelengthMin) != "":
@@ -87,10 +109,8 @@ EOF
 		#for $Z in $inputs:
 		    #set $input_args = $input_args + ' "' + str($Z.input) + '"'
 		#end for
-		python -u -m subhkl.io.parser reduce-batch $input_args --output-dir out --instrument $instrument $wl_opts ;
-
-		python -u -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup" ;
-
+		python -u -m subhkl.io.parser reduce-batch $input_args --output-dir out --instrument $instrument $wl_opts &&
+		python -u -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup"
     ]]></command>
     <inputs>
 
@@ -98,9 +118,9 @@ EOF
 			<param name="input" type="text" label="File" />
 		</repeat>
 		<param name="instrument" type="select" optional="false" value="CG4D" label="Instrument" >
-			<option value="IMAGINE">IMAGINE</option>
-			<option value="CG4D">IMAGINE-X</option>
-			<option value="MANDI">MANDI</option>
+			<option value="CG4D">IMAGINE-X (CG4D)</option>
+			<option value="MANDI">MANDI (SNS)</option>
+			<option value="TOPAZ">TOPAZ (SNS)</option>
 		</param>
 	    <param name="a" type="float" value="18.39" label="a"/>
 	    <param name="b" type="float" value="56.55" label="b"/>

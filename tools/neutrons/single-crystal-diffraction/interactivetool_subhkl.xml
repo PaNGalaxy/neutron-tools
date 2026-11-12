@@ -1,4 +1,4 @@
-<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="0.2.0">
+<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.5.1">
     <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with NDIP workflow orchestration</description>
     <creator>
         <person name="Jens Glaser"/>
