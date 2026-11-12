@@ -1,7 +1,6 @@
 <tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.0" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/jglaser/careless:cuda</container>
-    <resource type="cuda_device_count_min">1</resource>
   </requirements>
   <configfiles>
     <configfile name="prep_mtz_script"><![CDATA[#raw
