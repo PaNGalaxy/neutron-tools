@@ -2,6 +2,7 @@
     <description>Threshold-free Lattice-Ladder orientation search and staged zone-band / Poisson geometry refinement</description>
     <requirements>
         <container type="docker">ghcr.io/neutrons/subhkl:1.5.1</container>
+        <resource type="cuda_device_count_min">1</resource>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p out &&

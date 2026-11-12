@@ -1,6 +1,7 @@
 <tool id="imaginex_subhkl_integrate" name="IMAGINE-X subhkl Peak Integration" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/neutrons/subhkl:1.5.1</container>
+    <resource type="cuda_device_count_min">1</resource>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		mkdir -p out ; 
