@@ -2,34 +2,130 @@
   <requirements>
     <container type="docker">ghcr.io/jglaser/careless:cuda</container>
   </requirements>
-  <command detect_errors="exit_code"><![CDATA[
-    mkdir -p out ;
-    ln -sf "$reflections" input_reflections.mtz ;
+  <configfiles>
+    <configfile name="prep_mtz_script"><![CDATA[#raw
+import gemmi
+import reciprocalspaceship as rs
 
-    METADATA_KEYS=\$(python -c "
-import gemmi, reciprocalspaceship as rs
-mtz = gemmi.read_mtz_file('input_reflections.mtz')
+mtz = gemmi.read_mtz_file("input_reflections.mtz")
 c = mtz.cell
 na = 90.0 if abs(c.alpha - 90) < 0.2 else (120.0 if abs(c.alpha - 120) < 0.2 else c.alpha)
 nb = 90.0 if abs(c.beta - 90) < 0.2 else (120.0 if abs(c.beta - 120) < 0.2 else c.beta)
 ng = 90.0 if abs(c.gamma - 90) < 0.2 else (120.0 if abs(c.gamma - 120) < 0.2 else c.gamma)
 mtz.cell.set(c.a, c.b, c.c, na, nb, ng)
-mtz.write_to_file('input_cell.mtz')
-ds = rs.read_mtz('input_cell.mtz')
-if 'SIGI' in ds:
-    ds = ds[ds['SIGI'] > 0]
+mtz.write_to_file("input_cell.mtz")
+ds = rs.read_mtz("input_cell.mtz")
+if "SIGI" in ds:
+    ds = ds[ds["SIGI"] > 0]
 if not ds.get_m_isym_keys():
     ds = ds.hkl_to_asu()
 ds.merged = False
-ds.write_mtz('input_unmerged.mtz')
+ds.write_mtz("input_unmerged.mtz")
 
 cols = {col.label for col in mtz.columns}
-keys = ['WAVEL','THETA','PHI','dHKL','H_0','K_0','L_0','H','K','L','image_id','file_id','asu_id','harmonic_id']
-for extra in ('SIGEFF', 'SNAPD', 'DPHI', 'DTX', 'DTY', 'DTZ'):
+keys = ["WAVEL", "THETA", "PHI", "dHKL", "H_0", "K_0", "L_0", "H", "K", "L", "image_id", "file_id", "asu_id", "harmonic_id"]
+for extra in ("SIGEFF", "SNAPD", "DPHI", "DTX", "DTY", "DTZ"):
     if extra in cols:
         keys.append(extra)
-print(','.join(keys))
-") ;
+print(",".join(keys))
+#end raw]]></configfile>
+    <configfile name="post_metrics_script"><![CDATA[#raw
+import json
+import os
+import gemmi
+import numpy as np
+import reciprocalspaceship as rs
+from scipy.stats import pearsonr, spearmanr
+
+summary = {"status": "ok"}
+mtz = gemmi.read_mtz_file("out/merged.mtz")
+cols = {c.label: np.array(c, dtype=np.float64) for c in mtz.columns}
+I = cols.get("I", cols.get("I(+)", np.array([])))
+SigI = cols.get("SigI", cols.get("SigI(+)", np.array([])))
+valid = np.isfinite(I) & np.isfinite(SigI) & (SigI > 0)
+summary["n_merged_asu"] = int(np.sum(valid))
+summary["mean_isigi"] = float(np.mean(I[valid] / SigI[valid])) if np.any(valid) else 0.0
+
+n_obs = 0
+if os.path.exists("out/predictions.mtz"):
+    pmtz = gemmi.read_mtz_file("out/predictions.mtz")
+    n_obs = int(pmtz.nreflections)
+summary["n_observations"] = n_obs
+summary["mean_multiplicity"] = float(n_obs / max(1, summary["n_merged_asu"])) if summary["n_merged_asu"] > 0 else 0.0
+
+try:
+    h_m = cols["H"][valid].astype(int)
+    k_m = cols["K"][valid].astype(int)
+    l_m = cols["L"][valid].astype(int)
+    isigi_m = I[valid] / SigI[valid]
+    d_m = np.array([mtz.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h_m, k_m, l_m)])
+    dmin_obs = float(np.min(d_m)) if len(d_m) else 2.0
+    theo_asu = rs.utils.generate_reciprocal_asu(mtz.cell, mtz.spacegroup, dmin_obs)
+    d_th = np.array([mtz.cell.calculate_d([int(r[0]), int(r[1]), int(r[2])]) for r in theo_asu]) if len(theo_asu) else np.array([])
+    summary["n_theoretical_asu"] = int(len(theo_asu))
+    summary["completeness_pct"] = float(100.0 * summary["n_merged_asu"] / max(1, len(theo_asu)))
+    summary["d_min"] = round(dmin_obs, 3)
+    summary["d_max"] = round(float(np.max(d_m)), 3) if len(d_m) else 10.0
+except Exception as e:
+    summary["completeness_error"] = str(e)
+    d_m = np.array([])
+    isigi_m = np.array([])
+    d_th = np.array([])
+
+v0 = np.array([])
+v1 = np.array([])
+d_c = np.array([])
+if os.path.exists("out/careless_xval_0.mtz"):
+    xv = gemmi.read_mtz_file("out/careless_xval_0.mtz")
+    xcols = {c.label: np.array(c, dtype=np.float64) for c in xv.columns}
+    h = xcols["H"].astype(int)
+    k = xcols["K"].astype(int)
+    l = xcols["L"].astype(int)
+    half = xcols.get("half", np.zeros_like(h)).astype(int)
+    xI = xcols.get("I", xcols.get("F", np.zeros_like(xcols["H"])))
+    d_arr = np.array([xv.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h, k, l)])
+    m0 = half == 0
+    m1 = half == 1
+    map0 = {(int(hh), int(kk), int(ll)): (float(val), float(dd)) for hh, kk, ll, val, dd in zip(h[m0], k[m0], l[m0], xI[m0], d_arr[m0]) if np.isfinite(val)}
+    map1 = {(int(hh), int(kk), int(ll)): float(val) for hh, kk, ll, val in zip(h[m1], k[m1], l[m1], xI[m1]) if np.isfinite(val)}
+    common = [key for key in map0 if key in map1]
+    if len(common) >= 2:
+        v0 = np.array([map0[k][0] for k in common])
+        v1 = np.array([map1[k] for k in common])
+        d_c = np.array([map0[k][1] for k in common])
+        summary["cc_half"] = float(pearsonr(v0, v1)[0]) if len(common) >= 3 else float(np.corrcoef(v0, v1)[0, 1])
+        summary["cc_half_spearman"] = float(spearmanr(v0, v1)[0]) if len(common) >= 3 else summary["cc_half"]
+
+if len(d_m) >= 2:
+    inv_d2_m = 1.0 / np.maximum(d_m ** 2, 1e-6)
+    inv_d2_t = 1.0 / np.maximum(d_th ** 2, 1e-6) if len(d_th) else np.array([])
+    inv_d2_x = 1.0 / np.maximum(d_c ** 2, 1e-6) if len(d_c) else np.array([])
+    edges = np.linspace(inv_d2_m.min(), inv_d2_m.max(), 11)
+    bins = []
+    for b in range(10):
+        bm_m = (inv_d2_m >= edges[b]) & (inv_d2_m <= edges[b+1] if b == 9 else inv_d2_m < edges[b+1])
+        bm_t = (inv_d2_t >= edges[b]) & (inv_d2_t <= edges[b+1] if b == 9 else inv_d2_t < edges[b+1]) if len(inv_d2_t) else np.array([], dtype=bool)
+        n_m_b = int(np.sum(bm_m))
+        n_t_b = max(n_m_b, int(np.sum(bm_t))) if len(bm_t) else n_m_b
+        comp_b = round(100.0 * n_m_b / max(1, n_t_b), 2) if n_t_b > 0 else 0.0
+        isig_b = round(float(np.mean(isigi_m[bm_m])), 2) if n_m_b > 0 else 0.0
+        cc_b = float("nan")
+        if len(inv_d2_x):
+            bm_x = (inv_d2_x >= edges[b]) & (inv_d2_x <= edges[b+1] if b == 9 else inv_d2_x < edges[b+1])
+            if np.sum(bm_x) >= 2 and np.std(v0[bm_x]) > 1e-12 and np.std(v1[bm_x]) > 1e-12:
+                cc_b = float(np.corrcoef(v0[bm_x], v1[bm_x])[0, 1])
+        d_hi = float(1.0 / np.sqrt(max(edges[b+1], 1e-6)))
+        d_lo = float(1.0 / np.sqrt(max(edges[b], 1e-6)))
+        bins.append({"bin": b, "d_max": round(d_lo, 2), "d_min": round(d_hi, 2), "n_refl": n_m_b, "n_theo": n_t_b, "completeness_pct": comp_b, "mean_isigi": isig_b, "cc_half": round(cc_b, 4) if np.isfinite(cc_b) else None})
+    summary["resolution_bins"] = bins
+with open("out/careless_metrics.json", "w") as fh:
+    json.dump(summary, fh, indent=2)
+#end raw]]></configfile>
+  </configfiles>
+  <command detect_errors="exit_code"><![CDATA[
+    mkdir -p out &&
+    ln -sf "$reflections" input_reflections.mtz &&
+    METADATA_KEYS=\$(python "$prep_mtz_script") &&
 
     #set $options = " --jit-compile --wavelength-key=WAVEL "
     #if str($studenttDof) != "":
@@ -52,88 +148,7 @@ print(','.join(keys))
     cp -f out/careless_0.mtz out/merged.mtz &&
     cp -f out/careless_predictions_0.mtz out/predictions.mtz &&
     if [ -f out/careless_xval_0.mtz ]; then cp -f out/careless_xval_0.mtz out/xval.mtz; else cp -f out/careless_0.mtz out/xval.mtz; fi &&
-    python -c "
-import json, os, gemmi, numpy as np
-import reciprocalspaceship as rs
-from scipy.stats import pearsonr, spearmanr
-
-summary = {'status': 'ok'}
-mtz = gemmi.read_mtz_file('out/merged.mtz')
-cols = {c.label: np.array(c, dtype=np.float64) for c in mtz.columns}
-I = cols.get('I', cols.get('I(+)', np.array([])))
-SigI = cols.get('SigI', cols.get('SigI(+)', np.array([])))
-valid = np.isfinite(I) & np.isfinite(SigI) & (SigI > 0)
-summary['n_merged_asu'] = int(np.sum(valid))
-summary['mean_isigi'] = float(np.mean(I[valid] / SigI[valid])) if np.any(valid) else 0.0
-
-n_obs = 0
-if os.path.exists('out/predictions.mtz'):
-    pmtz = gemmi.read_mtz_file('out/predictions.mtz')
-    n_obs = int(pmtz.nreflections)
-summary['n_observations'] = n_obs
-summary['mean_multiplicity'] = float(n_obs / max(1, summary['n_merged_asu'])) if summary['n_merged_asu'] > 0 else 0.0
-
-try:
-    h_m = cols['H'][valid].astype(int)
-    k_m = cols['K'][valid].astype(int)
-    l_m = cols['L'][valid].astype(int)
-    isigi_m = I[valid] / SigI[valid]
-    d_m = np.array([mtz.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h_m, k_m, l_m)])
-    dmin_obs = float(np.min(d_m)) if len(d_m) else 2.0
-    theo_asu = rs.utils.generate_reciprocal_asu(mtz.cell, mtz.spacegroup, dmin_obs)
-    d_th = np.array([mtz.cell.calculate_d([int(r[0]), int(r[1]), int(r[2])]) for r in theo_asu]) if len(theo_asu) else np.array([])
-    summary['n_theoretical_asu'] = int(len(theo_asu))
-    summary['completeness_pct'] = float(100.0 * summary['n_merged_asu'] / max(1, len(theo_asu)))
-    summary['d_min'] = round(dmin_obs, 3)
-    summary['d_max'] = round(float(np.max(d_m)), 3) if len(d_m) else 10.0
-except Exception as e:
-    summary['completeness_error'] = str(e)
-    d_m = np.array([]); isigi_m = np.array([]); d_th = np.array([])
-
-v0 = np.array([]); v1 = np.array([]); d_c = np.array([])
-if os.path.exists('out/careless_xval_0.mtz'):
-    xv = gemmi.read_mtz_file('out/careless_xval_0.mtz')
-    xcols = {c.label: np.array(c, dtype=np.float64) for c in xv.columns}
-    h = xcols['H'].astype(int); k = xcols['K'].astype(int); l = xcols['L'].astype(int)
-    half = xcols.get('half', np.zeros_like(h)).astype(int)
-    xI = xcols.get('I', xcols.get('F', np.zeros_like(xcols['H'])))
-    d_arr = np.array([xv.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h, k, l)])
-    m0 = half == 0; m1 = half == 1
-    map0 = {(int(hh), int(kk), int(ll)): (float(val), float(dd)) for hh, kk, ll, val, dd in zip(h[m0], k[m0], l[m0], xI[m0], d_arr[m0]) if np.isfinite(val)}
-    map1 = {(int(hh), int(kk), int(ll)): float(val) for hh, kk, ll, val in zip(h[m1], k[m1], l[m1], xI[m1]) if np.isfinite(val)}
-    common = [key for key in map0 if key in map1]
-    if len(common) >= 2:
-        v0 = np.array([map0[k][0] for k in common])
-        v1 = np.array([map1[k] for k in common])
-        d_c = np.array([map0[k][1] for k in common])
-        summary['cc_half'] = float(pearsonr(v0, v1)[0]) if len(common) >= 3 else float(np.corrcoef(v0, v1)[0, 1])
-        summary['cc_half_spearman'] = float(spearmanr(v0, v1)[0]) if len(common) >= 3 else summary['cc_half']
-
-if len(d_m) >= 2:
-    inv_d2_m = 1.0 / np.maximum(d_m ** 2, 1e-6)
-    inv_d2_t = 1.0 / np.maximum(d_th ** 2, 1e-6) if len(d_th) else np.array([])
-    inv_d2_x = 1.0 / np.maximum(d_c ** 2, 1e-6) if len(d_c) else np.array([])
-    edges = np.linspace(inv_d2_m.min(), inv_d2_m.max(), 11)
-    bins = []
-    for b in range(10):
-        bm_m = (inv_d2_m >= edges[b]) & (inv_d2_m <= edges[b+1] if b == 9 else inv_d2_m < edges[b+1])
-        bm_t = (inv_d2_t >= edges[b]) & (inv_d2_t <= edges[b+1] if b == 9 else inv_d2_t < edges[b+1]) if len(inv_d2_t) else np.array([], dtype=bool)
-        n_m_b = int(np.sum(bm_m))
-        n_t_b = max(n_m_b, int(np.sum(bm_t))) if len(bm_t) else n_m_b
-        comp_b = round(100.0 * n_m_b / max(1, n_t_b), 2) if n_t_b > 0 else 0.0
-        isig_b = round(float(np.mean(isigi_m[bm_m])), 2) if n_m_b > 0 else 0.0
-        cc_b = float('nan')
-        if len(inv_d2_x):
-            bm_x = (inv_d2_x >= edges[b]) & (inv_d2_x <= edges[b+1] if b == 9 else inv_d2_x < edges[b+1])
-            if np.sum(bm_x) >= 2 and np.std(v0[bm_x]) > 1e-12 and np.std(v1[bm_x]) > 1e-12:
-                cc_b = float(np.corrcoef(v0[bm_x], v1[bm_x])[0, 1])
-        d_hi = float(1.0 / np.sqrt(max(edges[b+1], 1e-6)))
-        d_lo = float(1.0 / np.sqrt(max(edges[b], 1e-6)))
-        bins.append({'bin': b, 'd_max': round(d_lo, 2), 'd_min': round(d_hi, 2), 'n_refl': n_m_b, 'n_theo': n_t_b, 'completeness_pct': comp_b, 'mean_isigi': isig_b, 'cc_half': round(cc_b, 4) if np.isfinite(cc_b) else None})
-    summary['resolution_bins'] = bins
-with open('out/careless_metrics.json', 'w') as fh:
-    json.dump(summary, fh, indent=2)
-"
+    python "$post_metrics_script"
   ]]></command>
   <inputs>
     <param format="mtz" name="reflections" type="data" label="Unmerged reflections file (reflections.mtz)" />
