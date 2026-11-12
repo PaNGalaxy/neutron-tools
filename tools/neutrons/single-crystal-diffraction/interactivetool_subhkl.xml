@@ -1,11 +1,11 @@
-<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.5.1">
+<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.5.2">
     <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with NDIP workflow orchestration</description>
     <creator>
         <person name="Jens Glaser"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.5.1</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.5.2</container>
     </requirements>
     <entry_points>
         <entry_point name="Trame SubHKL" label="subhkl" requires_domain="False" requires_path_in_url="True">
