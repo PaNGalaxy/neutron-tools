@@ -1,7 +1,7 @@
 <tool id="imaginex_subhkl_solve" name="IMAGINE-X subhkl Finder-Less Solve (Lattice Ladder)" profile="22.05" version="0.2.0" python_template_version="3.5">
     <description>Threshold-free Lattice-Ladder orientation search and staged zone-band / Poisson geometry refinement</description>
     <requirements>
-        <container type="docker">ghcr.io/neutrons/subhkl:1.5.0</container>
+        <container type="docker">ghcr.io/neutrons/subhkl:1.5.1</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p out &&
@@ -67,8 +67,8 @@
         <param format="h5" name="scan" type="data" label="Reduced / Merged Image Stack (scan.h5 / merged.h5)" />
         <param name="instrument" type="select" optional="false" value="CG4D" label="Instrument">
             <option value="CG4D">IMAGINE-X (CG4D)</option>
-            <option value="IMAGINE">IMAGINE (HFIR)</option>
             <option value="MANDI">MANDI (SNS)</option>
+            <option value="TOPAZ">TOPAZ (SNS)</option>
         </param>
         <param name="refinement" type="select" optional="false" value="band" label="Refinement Mode">
             <option value="band">Staged Zone-Band &amp; Detector Geometry Refinement (band)</option>
