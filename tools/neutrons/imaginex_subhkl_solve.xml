@@ -9,24 +9,33 @@
 
         ln -sf "$scan" "$scan.element_identifier" &&
 
-        #set $options = " --refinement " + str($refinement) + " --instrument " + str($instrument) + " --d-min " + str($dMin) + " --search-seed " + str($seed) + " "
+        #set $options = " --refinement " + str($refinement) + " --instrument " + str($instrument) + " "
 
-        #if str($a) != "" and str($b) != "" and str($c) != "":
-            #set $options = $options + " --cell '" + str($a) + "," + str($b) + "," + str($c) + "," + str($alpha) + "," + str($beta) + "," + str($gamma) + "' "
+        #if str($dMin) not in ('', 'None', 'Not available.'):
+            #set $options = $options + " --d-min " + str($dMin) + " "
         #end if
-        #if str($spaceGroup) != "":
+        #if str($seed) not in ('', 'None', 'Not available.'):
+            #set $options = $options + " --search-seed " + str($seed) + " "
+        #end if
+        #if str($a) not in ('', 'None', 'Not available.') and str($b) not in ('', 'None', 'Not available.') and str($c) not in ('', 'None', 'Not available.'):
+            #set $_alpha = str($alpha) if str($alpha) not in ('', 'None', 'Not available.') else '90.0'
+            #set $_beta = str($beta) if str($beta) not in ('', 'None', 'Not available.') else '90.0'
+            #set $_gamma = str($gamma) if str($gamma) not in ('', 'None', 'Not available.') else '90.0'
+            #set $options = $options + " --cell '" + str($a) + "," + str($b) + "," + str($c) + "," + $_alpha + "," + $_beta + "," + $_gamma + "' "
+        #end if
+        #if str($spaceGroup) not in ('', 'None', 'Not available.'):
             #set $options = $options + " --space-group '" + str($spaceGroup) + "' "
         #end if
-        #if str($wavelengthMin) != "":
+        #if str($wavelengthMin) not in ('', 'None', 'Not available.'):
             #set $options = $options + " --wavelength-min " + str($wavelengthMin) + " "
         #end if
-        #if str($wavelengthMax) != "":
+        #if str($wavelengthMax) not in ('', 'None', 'Not available.'):
             #set $options = $options + " --wavelength-max " + str($wavelengthMax) + " "
         #end if
-        #if str($runs) != "":
+        #if str($runs) not in ('', 'None', 'Not available.'):
             #set $options = $options + " --runs '" + str($runs) + "' "
         #end if
-        #if str($stableRuns) != "":
+        #if str($stableRuns) not in ('', 'None', 'Not available.'):
             #set $options = $options + " --stable-runs '" + str($stableRuns) + "' "
         #end if
         #if $staticMaskFile:
@@ -39,23 +48,41 @@
         #end if
 
         #if str($refinement) == "band":
-            #set $options = $options + " --refine-modes '" + str($modes) + "' --binning " + str($bandBinning) + " --search-samples " + str($samples) + " --n-candidates " + str($candidates) + " "
-            #if str($nZones) != "":
+            #if str($modes) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --refine-modes '" + str($modes) + "' "
+            #end if
+            #if str($bandBinning) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --binning " + str($bandBinning) + " "
+            #end if
+            #if str($samples) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --search-samples " + str($samples) + " "
+            #end if
+            #if str($candidates) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --n-candidates " + str($candidates) + " "
+            #end if
+            #if str($nZones) not in ('', 'None', 'Not available.'):
                 #set $options = $options + " --band-zones " + str($nZones) + " "
             #end if
-            #if str($maxiter) != "":
+            #if str($maxiter) not in ('', 'None', 'Not available.'):
                 #set $options = $options + " --band-maxiter " + str($maxiter) + " "
             #end if
             #if $pixelPolish:
                 #set $options = $options + " --pixel-polish "
-            #else:
-                #set $options = $options + " --no-pixel-polish "
             #end if
         #else:
-            #set $options = $options + " --binning " + str($poissonBinning) + " --proposal-binning " + str($proposalBinning) + " --n-candidates " + str($nOrientations) + " --max-evals " + str($maxiter) + " "
-            #if $refineGeometry:
-                #set $options = $options + " --no-fixed-geometry "
-            #else:
+            #if str($poissonBinning) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --binning " + str($poissonBinning) + " "
+            #end if
+            #if str($proposalBinning) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --proposal-binning " + str($proposalBinning) + " "
+            #end if
+            #if str($nOrientations) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --n-candidates " + str($nOrientations) + " "
+            #end if
+            #if str($maxiter) not in ('', 'None', 'Not available.'):
+                #set $options = $options + " --max-evals " + str($maxiter) + " "
+            #end if
+            #if not $refineGeometry:
                 #set $options = $options + " --fixed-geometry "
             #end if
         #end if
@@ -74,7 +101,7 @@
             <option value="band">Staged Zone-Band &amp; Detector Geometry Refinement (band)</option>
             <option value="poisson">Joint Threshold-Free Poisson Count Refinement (poisson)</option>
         </param>
-        <param name="dMin" type="float" value="2.5" label="Resolution Limit d_min (Å)" />
+        <param name="dMin" type="float" value="" optional="true" label="Override Resolution Limit d_min (Å) (blank for subhkl default)" />
         <param name="wavelengthMin" type="float" value="" optional="true" label="Override Min Wavelength (Å)" />
         <param name="wavelengthMax" type="float" value="" optional="true" label="Override Max Wavelength (Å)" />
         <param name="spaceGroup" type="text" value="" optional="true" label="Override Space Group (e.g. P 1 21 1)" />
@@ -86,24 +113,24 @@
         <param name="gamma" type="float" value="" optional="true" label="Override Unit Cell gamma (deg)" />
         <param name="runs" type="text" value="" optional="true" label="Selected Run Indices (comma-separated, blank for all)" />
         <param name="stableRuns" type="text" value="" optional="true" label="Stable Drift-Free Run Indices for Blind Search (blank for all)" />
-        <param name="modes" type="text" value="cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,per_run_trans" label="Band Refinement Modes" help="Comma-separated: cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,per_run_trans,panels" />
+        <param name="modes" type="text" value="" optional="true" label="Override Band Refinement Modes (blank for subhkl default)" help="Comma-separated: cylindrical,axial_stretch,area,global_rot,global_trans,sample,cell,per_run,per_run_trans,panels" />
         <param name="nZones" type="integer" value="" optional="true" label="Override Number of Direct-Lattice Zones in Fine Band Stage" />
-        <param name="bandBinning" type="integer" value="16" label="Band Observation Spatial Binning" />
-        <param name="samples" type="integer" value="16384" label="Blind Search Quadrature Samples" />
-        <param name="candidates" type="integer" value="4" label="Distinct Lattice-Ladder Orientation Candidates" />
+        <param name="bandBinning" type="integer" value="" optional="true" label="Override Band Observation Spatial Binning (blank for subhkl auto default)" />
+        <param name="samples" type="integer" value="" optional="true" label="Override Blind Search Quadrature Samples (blank for subhkl default)" />
+        <param name="candidates" type="integer" value="" optional="true" label="Override Distinct Lattice-Ladder Orientation Candidates (blank for subhkl default)" />
         <param name="maxiter" type="integer" value="" optional="true" label="Override Max L-BFGS-B Iterations per Band Stage" />
         <param name="pixelPolish" type="boolean" checked="false" label="Enable Assigned-Reflection Pixel Polish" />
-        <param name="poissonBinning" type="integer" value="8" label="Poisson Solve Spatial Binning" />
-        <param name="proposalBinning" type="integer" value="32" label="Poisson Proposal Spatial Binning" />
-        <param name="nOrientations" type="integer" value="8" label="Poisson Retained Candidate Orientations" />
-        <param name="nShortlist" type="integer" value="1000" label="Coarse Funk Shortlist Size" />
-        <param name="gridDeg" type="float" value="2.0" label="Coarse SO(3) Grid Spacing (deg)" />
+        <param name="poissonBinning" type="integer" value="" optional="true" label="Override Poisson Solve Spatial Binning (blank for subhkl default)" />
+        <param name="proposalBinning" type="integer" value="" optional="true" label="Override Poisson Proposal Spatial Binning (blank for subhkl default)" />
+        <param name="nOrientations" type="integer" value="" optional="true" label="Override Poisson Retained Candidate Orientations (blank for subhkl default)" />
+        <param name="nShortlist" type="integer" value="1000" optional="true" label="Coarse Funk Shortlist Size" />
+        <param name="gridDeg" type="float" value="2.0" optional="true" label="Coarse SO(3) Grid Spacing (deg)" />
         <param name="refineGeometry" type="boolean" checked="true" label="Refine Detector Geometry (Poisson mode)" />
         <param name="refineCell" type="boolean" checked="false" label="Refine Unit Cell (Poisson mode)" />
         <param name="refineGoniometer" type="boolean" checked="false" label="Refine Per-Run Goniometer (Poisson mode)" />
         <param format="h5" name="staticMaskFile" type="data" optional="true" label="Optional Static Mask File (mask.h5)" />
         <param format="h5" name="finderFile" type="data" optional="true" label="Optional Peak Finder File (leave empty for finder-less solve)" />
-        <param name="seed" type="integer" value="0" label="Random Seed" />
+        <param name="seed" type="integer" value="" optional="true" label="Override Random Seed (blank for subhkl default)" />
     </inputs>
     <outputs>
         <data format="h5" name="output" label="solve.h5 (${on_string})" from_work_dir="out/solve.h5" />
