@@ -126,6 +126,8 @@ redeploy_k8s_galaxy:
         - "tools/neutrons/**/*"
         - "tool_data/radar_pd_datatypes_conf.xml.sample"
         - "utils/register_radar_pd_datatype.py"
+        - "tool_data/subhkl_datatypes_conf.xml.sample"
+        - "utils/register_subhkl_datatype.py"
       when: always
     - when: never
   tags:
