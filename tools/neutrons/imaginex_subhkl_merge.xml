@@ -156,7 +156,7 @@ with open("out/careless_metrics.json", "w") as fh:
     <param name="studenttDof" type="float" value="4.0" optional="true" label="Student-t likelihood degrees of freedom (empty for Gaussian)" />
     <param name="dmin" type="float" value="" optional="true" label="High-resolution cutoff d_min (Angstrom)" />
     <param name="isigiCutoff" type="float" value="" optional="true" label="I/sigma(I) cutoff" />
-    <param name="mergeHalfDatasets" type="boolean" value="true" label="Merge half-datasets for CC1/2 cross-validation" />
+    <param name="mergeHalfDatasets" type="boolean" checked="true" label="Merge half-datasets for CC1/2 cross-validation" />
     <param name="anomalous" type="boolean" value="false" label="Separate anomalous pairs I(+) / I(-)" />
   </inputs>
   <outputs>
