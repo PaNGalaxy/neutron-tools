@@ -54,7 +54,7 @@
 		<conditional name="coverage">
 			<param name="use_coverage" type="boolean" checked="false" label="Use coverage" help="Whether to use a coverage mtz file." /> 
 			<when value="true">
-				<param format="mtz" name="coverage_file" type="data" label="Coverage array file" />
+				<param format="mtz,binary" name="coverage_file" type="data" label="Coverage array file" />
 			</when>
 			<when value="false">
 			</when>
@@ -70,7 +70,7 @@
 		<conditional name="phasing">
 			<param name="use_phasing" type="boolean" checked="false" label="Use phasing hint" help="Whether to provide an mtz file as a phasing hint." /> 
 			<when value="true">
-				<param format="mtz" name="phasing_file" type="data" label="Reference structure factor" help="With partial hydrogens." />
+				<param format="mtz,binary" name="phasing_file" type="data" label="Reference structure factor" help="With partial hydrogens." />
 			</when>
 			<when value="false">
 			</when>
@@ -78,13 +78,13 @@
 		<conditional name="honly">
 			<param name="use_honly" type="boolean" checked="false" label="Use H only file" help="Whether to provide an mtz file with only H." /> 
 			<when value="true">
-				<param format="mtz" name="honly_file" type="data" label="Reference structure factor" />
+				<param format="mtz,binary" name="honly_file" type="data" label="Reference structure factor" />
 			</when>
 			<when value="false">
 			</when>
 		</conditional>	
 		<repeat name="input2" title="Data Files">
-	    	<param name="file" type="data" format="mtz" label="Data File" />
+	    	<param name="file" type="data" format="mtz,binary" label="Data File" />
 	    	<param name="phi" type="float" value="0" label="Phi" /> 
 	    </repeat>
 		

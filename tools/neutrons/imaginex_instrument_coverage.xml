@@ -12,7 +12,7 @@
     <inputs>
     	<param name="phi" type="float" value="0" label="Phi"/> 
 		<param format="nxs" name="mask" type="data" label="Instrument mask file" />
-		<param format="mtz" name="input" type="data" label="Input file" />
+		<param format="mtz,binary" name="input" type="data" label="Input file" />
 		
     </inputs>
     <outputs>
