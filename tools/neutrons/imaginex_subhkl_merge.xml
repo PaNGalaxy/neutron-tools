@@ -1,4 +1,4 @@
-<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.0" python_template_version="3.5">
+<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.1" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/jglaser/careless:cuda</container>
   </requirements>
@@ -151,7 +151,7 @@ with open("out/careless_metrics.json", "w") as fh:
     python "$post_metrics_script"
   ]]></command>
   <inputs>
-    <param format="mtz" name="reflections" type="data" label="Unmerged reflections file (reflections.mtz)" />
+    <param format="mtz,binary" name="reflections" type="data" label="Unmerged reflections file (reflections.mtz)" help="Accepts subhkl reflections.mtz datasets as well as uploaded .mtz files that Galaxy auto-detect labels as binary." />
     <param name="iterations" type="integer" value="10000" label="Variational inference iterations" />
     <param name="studenttDof" type="float" value="4.0" optional="true" label="Student-t likelihood degrees of freedom (empty for Gaussian)" />
     <param name="dmin" type="float" value="" optional="true" label="High-resolution cutoff d_min (Angstrom)" />

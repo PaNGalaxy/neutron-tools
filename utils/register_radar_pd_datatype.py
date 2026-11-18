@@ -1,35 +1,52 @@
 #!/usr/bin/env python3
-"""Idempotently register RADAR-PD's opaque GSAS-II GPX datatype."""
+"""Idempotently register custom binary crystallography/diffraction datatypes (GPX, MTZ)."""
 
 from __future__ import annotations
 
 import argparse
 import os
-from pathlib import Path
 import re
 import tempfile
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 
-GPX_EXTENSION = "gpx"
+EXPECTED_EXTENSIONS = ("gpx", "mtz")
 
 
-def _datatype_element(fragment: Path) -> ET.Element:
+def _datatype_elements(fragment: Path) -> list[ET.Element]:
     root = ET.parse(fragment).getroot()
-    matches = root.findall(f"./registration/datatype[@extension='{GPX_EXTENSION}']")
-    if len(matches) != 1:
-        raise ValueError(f"Expected exactly one {GPX_EXTENSION!r} datatype in {fragment}")
-    return matches[0]
+    elements = root.findall("./registration/datatype")
+    if not elements:
+        raise ValueError(f"Expected at least one datatype element in {fragment}")
+    seen_ext: set[str] = set()
+    for el in elements:
+        ext = (el.attrib.get("extension") or "").strip()
+        if not ext:
+            raise ValueError(f"Datatype element missing 'extension' attribute in {fragment}")
+        if ext in seen_ext:
+            raise ValueError(f"Duplicate datatype extension {ext!r} in {fragment}")
+        seen_ext.add(ext)
+    for req_ext in EXPECTED_EXTENSIONS:
+        if req_ext not in seen_ext:
+            raise ValueError(f"Expected {req_ext!r} datatype in {fragment}")
+    return elements
 
 
 def register_datatype(config: Path, fragment: Path) -> bool:
-    """Add the GPX datatype to *config* and return whether it changed."""
-    datatype = _datatype_element(fragment)
+    """Add any missing datatypes from *fragment* to *config* and return whether it changed."""
+    datatypes = _datatype_elements(fragment)
     text = config.read_text(encoding="utf-8")
     ET.fromstring(text)
 
-    existing = re.search(r'<datatype\b[^>]*\bextension=["\']gpx["\']', text)
-    if existing:
+    missing: list[ET.Element] = []
+    for dt in datatypes:
+        ext = dt.attrib["extension"]
+        pattern = rf'<datatype\b[^>]*\bextension=["\']{re.escape(ext)}["\']'
+        if not re.search(pattern, text):
+            missing.append(dt)
+
+    if not missing:
         return False
 
     closing = re.search(r"^(?P<indent>[ \t]*)</registration>", text, re.MULTILINE)
@@ -37,8 +54,11 @@ def register_datatype(config: Path, fragment: Path) -> bool:
         raise ValueError(f"No </registration> element found in {config}")
 
     indent = closing.group("indent") + "    "
-    attributes = " ".join(f'{key}="{value}"' for key, value in datatype.attrib.items())
-    insertion = f"{indent}<datatype {attributes}/>\n"
+    insert_lines = []
+    for dt in missing:
+        attributes = " ".join(f'{key}="{value}"' for key, value in dt.attrib.items())
+        insert_lines.append(f"{indent}<datatype {attributes}/>\n")
+    insertion = "".join(insert_lines)
     updated = text[: closing.start()] + insertion + text[closing.start() :]
     ET.fromstring(updated)
 
@@ -69,7 +89,11 @@ def main() -> int:
     args = parser.parse_args()
 
     changed = register_datatype(args.config, args.fragment)
-    print("Registered RADAR-PD gpx datatype." if changed else "RADAR-PD gpx datatype is already registered.")
+    print(
+        "Registered custom diffraction datatypes (gpx, mtz)."
+        if changed
+        else "Custom diffraction datatypes (gpx, mtz) are already registered."
+    )
     return 0
 
 
