@@ -105,12 +105,7 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
     ).getroot()
     cfg_el = careless_root.find("./configfiles/configfile[@name='post_metrics_script']")
     assert cfg_el is not None and cfg_el.text is not None
-    script_src = cfg_el.text.strip()
-    if script_src.startswith("#raw"):
-        script_src = script_src[len("#raw") :]
-    if script_src.endswith("#end raw"):
-        script_src = script_src[: -len("#end raw")]
-    script_src = script_src.strip()
+    script_src = cfg_el.text.strip().removeprefix("#raw").removesuffix("#end raw").strip()
 
     out_dir = tmp_path / "out"
     out_dir.mkdir()
@@ -201,8 +196,12 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
     assert csv_rows[-1]["n_obs"] == "40"
 
     html_text = (out_dir / "merge_table.html").read_text(encoding="utf-8")
-    assert "BUBBLE BOBBLE HIGH SCORE // RESOLUTION SHELL HALL OF FAME" in html_text
-    assert "Copy for Word / Excel" in html_text
+    assert "BUBBLE" not in html_text.upper()
+    assert "Word / Excel" not in html_text
+    assert ">Copy</button>" in html_text
+    assert "Download .csv" not in html_text
+    assert "Georgia" in html_text
+    assert "#0a1020" in html_text and "#bae6fd" in html_text
     if shutil.which("node"):
         m_js = re.search(r"<script>([\s\S]*?)</script>", html_text)
         assert m_js is not None
