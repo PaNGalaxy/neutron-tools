@@ -1,4 +1,4 @@
-<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.1" python_template_version="3.5">
+<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.2" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/jglaser/careless:cuda</container>
   </requirements>
@@ -30,7 +30,11 @@ for extra in ("SIGEFF", "SNAPD", "DPHI", "DTX", "DTY", "DTZ"):
 print(",".join(keys))
 #end raw]]></configfile>
     <configfile name="post_metrics_script"><![CDATA[#raw
+import csv
+import html as _html
+import io
 import json
+import math
 import os
 import gemmi
 import numpy as np
@@ -39,6 +43,27 @@ from scipy.stats import pearsonr, spearmanr
 
 summary = {"status": "ok"}
 mtz = gemmi.read_mtz_file("out/merged.mtz")
+sg_obj = mtz.spacegroup or gemmi.find_spacegroup_by_name("P 1")
+summary["space_group"] = str(sg_obj.xhm() or sg_obj.short_name() or "P 1")
+summary["cell"] = [
+    round(float(mtz.cell.a), 4),
+    round(float(mtz.cell.b), 4),
+    round(float(mtz.cell.c), 4),
+    round(float(mtz.cell.alpha), 3),
+    round(float(mtz.cell.beta), 3),
+    round(float(mtz.cell.gamma), 3),
+]
+if os.path.exists("input_reflections.mtz"):
+    try:
+        in_mtz = gemmi.read_mtz_file("input_reflections.mtz")
+        wcol = next((np.array(c, dtype=np.float64) for c in in_mtz.columns if c.label == "WAVEL"), None)
+        if wcol is not None:
+            wfin = wcol[np.isfinite(wcol) & (wcol > 0)]
+            if len(wfin) > 0:
+                summary["wavelength_range"] = [round(float(np.min(wfin)), 3), round(float(np.max(wfin)), 3)]
+    except Exception:
+        pass
+
 cols = {c.label: np.array(c, dtype=np.float64) for c in mtz.columns}
 I = cols.get("I", cols.get("I(+)", np.array([])))
 SigI = cols.get("SigI", cols.get("SigI(+)", np.array([])))
@@ -46,10 +71,16 @@ valid = np.isfinite(I) & np.isfinite(SigI) & (SigI > 0)
 summary["n_merged_asu"] = int(np.sum(valid))
 summary["mean_isigi"] = float(np.mean(I[valid] / SigI[valid])) if np.any(valid) else 0.0
 
+frac_mat = np.array(mtz.cell.frac.mat, dtype=np.float64)
 n_obs = 0
+inv_d2_p = np.array([], dtype=np.float64)
 if os.path.exists("out/predictions.mtz"):
     pmtz = gemmi.read_mtz_file("out/predictions.mtz")
     n_obs = int(pmtz.nreflections)
+    pcols = {c.label: np.array(c, dtype=np.float64) for c in pmtz.columns}
+    if all(k in pcols for k in ("H", "K", "L")):
+        phkl = np.column_stack((pcols["H"], pcols["K"], pcols["L"]))
+        inv_d2_p = np.maximum(np.sum((phkl @ frac_mat) ** 2, axis=1), 1e-6)
 summary["n_observations"] = n_obs
 summary["mean_multiplicity"] = float(n_obs / max(1, summary["n_merged_asu"])) if summary["n_merged_asu"] > 0 else 0.0
 
@@ -58,23 +89,26 @@ try:
     k_m = cols["K"][valid].astype(int)
     l_m = cols["L"][valid].astype(int)
     isigi_m = I[valid] / SigI[valid]
-    d_m = np.array([mtz.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h_m, k_m, l_m)])
+    mhkl = np.column_stack((h_m, k_m, l_m)).astype(np.float64)
+    inv_d2_m = np.maximum(np.sum((mhkl @ frac_mat) ** 2, axis=1), 1e-6) if len(mhkl) else np.array([], dtype=np.float64)
+    d_m = 1.0 / np.sqrt(inv_d2_m) if len(inv_d2_m) else np.array([], dtype=np.float64)
     dmin_obs = float(np.min(d_m)) if len(d_m) else 2.0
-    theo_asu = rs.utils.generate_reciprocal_asu(mtz.cell, mtz.spacegroup, dmin_obs)
-    d_th = np.array([mtz.cell.calculate_d([int(r[0]), int(r[1]), int(r[2])]) for r in theo_asu]) if len(theo_asu) else np.array([])
+    theo_asu = rs.utils.generate_reciprocal_asu(mtz.cell, sg_obj, dmin_obs)
+    inv_d2_t = np.maximum(np.sum((np.asarray(theo_asu, dtype=np.float64) @ frac_mat) ** 2, axis=1), 1e-6) if len(theo_asu) else np.array([], dtype=np.float64)
     summary["n_theoretical_asu"] = int(len(theo_asu))
     summary["completeness_pct"] = float(100.0 * summary["n_merged_asu"] / max(1, len(theo_asu)))
     summary["d_min"] = round(dmin_obs, 3)
     summary["d_max"] = round(float(np.max(d_m)), 3) if len(d_m) else 10.0
 except Exception as e:
     summary["completeness_error"] = str(e)
-    d_m = np.array([])
-    isigi_m = np.array([])
-    d_th = np.array([])
+    inv_d2_m = np.array([], dtype=np.float64)
+    d_m = np.array([], dtype=np.float64)
+    isigi_m = np.array([], dtype=np.float64)
+    inv_d2_t = np.array([], dtype=np.float64)
 
-v0 = np.array([])
-v1 = np.array([])
-d_c = np.array([])
+v0 = np.array([], dtype=np.float64)
+v1 = np.array([], dtype=np.float64)
+inv_d2_x = np.array([], dtype=np.float64)
 if os.path.exists("out/careless_xval_0.mtz"):
     xv = gemmi.read_mtz_file("out/careless_xval_0.mtz")
     xcols = {c.label: np.array(c, dtype=np.float64) for c in xv.columns}
@@ -83,43 +117,304 @@ if os.path.exists("out/careless_xval_0.mtz"):
     l = xcols["L"].astype(int)
     half = xcols.get("half", np.zeros_like(h)).astype(int)
     xI = xcols.get("I", xcols.get("F", np.zeros_like(xcols["H"])))
-    d_arr = np.array([xv.cell.calculate_d([int(hh), int(kk), int(ll)]) for hh, kk, ll in zip(h, k, l)])
+    xhkl = np.column_stack((h, k, l)).astype(np.float64)
+    x_id2 = np.maximum(np.sum((xhkl @ frac_mat) ** 2, axis=1), 1e-6) if len(xhkl) else np.array([], dtype=np.float64)
     m0 = half == 0
     m1 = half == 1
-    map0 = {(int(hh), int(kk), int(ll)): (float(val), float(dd)) for hh, kk, ll, val, dd in zip(h[m0], k[m0], l[m0], xI[m0], d_arr[m0]) if np.isfinite(val)}
+    map0 = {(int(hh), int(kk), int(ll)): (float(val), float(id2)) for hh, kk, ll, val, id2 in zip(h[m0], k[m0], l[m0], xI[m0], x_id2[m0]) if np.isfinite(val)}
     map1 = {(int(hh), int(kk), int(ll)): float(val) for hh, kk, ll, val in zip(h[m1], k[m1], l[m1], xI[m1]) if np.isfinite(val)}
     common = [key for key in map0 if key in map1]
     if len(common) >= 2:
-        v0 = np.array([map0[k][0] for k in common])
-        v1 = np.array([map1[k] for k in common])
-        d_c = np.array([map0[k][1] for k in common])
+        v0 = np.array([map0[key][0] for key in common], dtype=np.float64)
+        v1 = np.array([map1[key] for key in common], dtype=np.float64)
+        inv_d2_x = np.array([map0[key][1] for key in common], dtype=np.float64)
         summary["cc_half"] = float(pearsonr(v0, v1)[0]) if len(common) >= 3 else float(np.corrcoef(v0, v1)[0, 1])
         summary["cc_half_spearman"] = float(spearmanr(v0, v1)[0]) if len(common) >= 3 else summary["cc_half"]
 
-if len(d_m) >= 2:
-    inv_d2_m = 1.0 / np.maximum(d_m ** 2, 1e-6)
-    inv_d2_t = 1.0 / np.maximum(d_th ** 2, 1e-6) if len(d_th) else np.array([])
-    inv_d2_x = 1.0 / np.maximum(d_c ** 2, 1e-6) if len(d_c) else np.array([])
-    edges = np.linspace(inv_d2_m.min(), inv_d2_m.max(), 11)
+if len(inv_d2_m) >= 2:
+    edges = np.linspace(float(inv_d2_m.min()), float(inv_d2_m.max()), 11)
     bins = []
     for b in range(10):
-        bm_m = (inv_d2_m >= edges[b]) & (inv_d2_m <= edges[b+1] if b == 9 else inv_d2_m < edges[b+1])
-        bm_t = (inv_d2_t >= edges[b]) & (inv_d2_t <= edges[b+1] if b == 9 else inv_d2_t < edges[b+1]) if len(inv_d2_t) else np.array([], dtype=bool)
+        lo_c = edges[b] - 1e-12 if b == 0 else edges[b]
+        hi_c = edges[b + 1] + 1e-12 if b == 9 else edges[b + 1]
+        bm_m = (inv_d2_m >= lo_c) & (inv_d2_m <= hi_c if b == 9 else inv_d2_m < hi_c)
+        bm_t = (inv_d2_t >= lo_c) & (inv_d2_t <= hi_c if b == 9 else inv_d2_t < hi_c) if len(inv_d2_t) else np.array([], dtype=bool)
+        bm_p = (inv_d2_p >= lo_c) & (inv_d2_p <= hi_c if b == 9 else inv_d2_p < hi_c) if len(inv_d2_p) else np.array([], dtype=bool)
+        n_obs_b = int(np.sum(bm_p)) if len(inv_d2_p) else None
         n_m_b = int(np.sum(bm_m))
+        mult_b = round(float(n_obs_b) / max(1, n_m_b), 2) if (n_obs_b is not None and n_m_b > 0) else None
         n_t_b = max(n_m_b, int(np.sum(bm_t))) if len(bm_t) else n_m_b
         comp_b = round(100.0 * n_m_b / max(1, n_t_b), 2) if n_t_b > 0 else 0.0
         isig_b = round(float(np.mean(isigi_m[bm_m])), 2) if n_m_b > 0 else 0.0
         cc_b = float("nan")
         if len(inv_d2_x):
-            bm_x = (inv_d2_x >= edges[b]) & (inv_d2_x <= edges[b+1] if b == 9 else inv_d2_x < edges[b+1])
+            bm_x = (inv_d2_x >= lo_c) & (inv_d2_x <= hi_c if b == 9 else inv_d2_x < hi_c)
             if np.sum(bm_x) >= 2 and np.std(v0[bm_x]) > 1e-12 and np.std(v1[bm_x]) > 1e-12:
                 cc_b = float(np.corrcoef(v0[bm_x], v1[bm_x])[0, 1])
-        d_hi = float(1.0 / np.sqrt(max(edges[b+1], 1e-6)))
+        d_hi = float(1.0 / np.sqrt(max(edges[b + 1], 1e-6)))
         d_lo = float(1.0 / np.sqrt(max(edges[b], 1e-6)))
-        bins.append({"bin": b, "d_max": round(d_lo, 2), "d_min": round(d_hi, 2), "n_refl": n_m_b, "n_theo": n_t_b, "completeness_pct": comp_b, "mean_isigi": isig_b, "cc_half": round(cc_b, 4) if np.isfinite(cc_b) else None})
+        b_doc = {
+            "bin": b,
+            "d_max": round(d_lo, 2),
+            "d_min": round(d_hi, 2),
+            "n_refl": n_m_b,
+            "n_theo": n_t_b,
+            "completeness_pct": comp_b,
+            "mean_isigi": isig_b,
+            "cc_half": round(cc_b, 4) if np.isfinite(cc_b) else None,
+        }
+        if n_obs_b is not None:
+            b_doc["n_obs"] = n_obs_b
+        if mult_b is not None:
+            b_doc["multiplicity"] = mult_b
+        bins.append(b_doc)
     summary["resolution_bins"] = bins
-with open("out/careless_metrics.json", "w") as fh:
+
+with open("out/careless_metrics.json", "w", encoding="utf-8") as fh:
     json.dump(summary, fh, indent=2)
+
+
+def _cc_star(cc_val):
+    if cc_val is None or not math.isfinite(cc_val) or cc_val < 0.0:
+        return None
+    if cc_val == 0.0:
+        return 0.0
+    return math.sqrt(max(0.0, 2.0 * cc_val / (1.0 + cc_val)))
+
+
+def _cc_tier(cc_val):
+    if cc_val is None or not math.isfinite(cc_val):
+        return "na"
+    if cc_val >= 0.80:
+        return "green"
+    if cc_val >= 0.30:
+        return "yellow"
+    return "red"
+
+
+def _ord_badge(idx1):
+    if 10 <= (idx1 % 100) <= 20:
+        return f"{idx1}TH"
+    return f"{idx1}" + {1: "ST", 2: "ND", 3: "RD"}.get(idx1 % 10, "TH")
+
+
+rows = []
+for idx, b in enumerate(summary.get("resolution_bins") or []):
+    sh = idx + 1
+    d_max = b.get("d_max")
+    d_min = b.get("d_min")
+    cc_h = b.get("cc_half")
+    rows.append({
+        "shell": sh,
+        "rank_badge": _ord_badge(sh),
+        "d_max": d_max,
+        "d_min": d_min,
+        "range_display": f"{d_max:.2f} \u2013 {d_min:.2f}" if (d_max is not None and d_min is not None) else f"Bin {sh}",
+        "range_ascii": f"{d_max:.2f} - {d_min:.2f}" if (d_max is not None and d_min is not None) else f"Bin {sh}",
+        "n_obs": b.get("n_obs"),
+        "n_unique": int(b.get("n_refl") or 0),
+        "n_theo": b.get("n_theo"),
+        "multiplicity": b.get("multiplicity"),
+        "completeness_pct": b.get("completeness_pct"),
+        "mean_isigi": b.get("mean_isigi"),
+        "cc_half": cc_h,
+        "cc_star": _cc_star(cc_h),
+        "cc_tier": _cc_tier(cc_h),
+    })
+
+ov_dmax = summary.get("d_max", rows[0]["d_max"] if rows else None)
+ov_dmin = summary.get("d_min", rows[-1]["d_min"] if rows else None)
+ov_cc = summary.get("cc_half")
+ov = {
+    "shell": "Overall",
+    "rank_badge": "ALL",
+    "d_max": ov_dmax,
+    "d_min": ov_dmin,
+    "range_display": f"{ov_dmax:.2f} \u2013 {ov_dmin:.2f}" if (ov_dmax is not None and ov_dmin is not None) else "Overall",
+    "range_ascii": f"{ov_dmax:.2f} - {ov_dmin:.2f}" if (ov_dmax is not None and ov_dmin is not None) else "Overall",
+    "n_obs": summary.get("n_observations"),
+    "n_unique": int(summary.get("n_merged_asu") or 0),
+    "n_theo": summary.get("n_theoretical_asu"),
+    "multiplicity": summary.get("mean_multiplicity"),
+    "completeness_pct": summary.get("completeness_pct"),
+    "mean_isigi": summary.get("mean_isigi"),
+    "cc_half": ov_cc,
+    "cc_star": _cc_star(ov_cc),
+    "cc_tier": _cc_tier(ov_cc),
+}
+
+csv_buf = io.StringIO()
+writer = csv.writer(csv_buf, lineterminator="\n")
+writer.writerow(["shell", "d_max_A", "d_min_A", "resolution_range_A", "n_obs", "n_unique", "n_theo", "multiplicity", "completeness_pct", "mean_isigi", "cc_half", "cc_star"])
+for r in [*rows, ov]:
+    writer.writerow([
+        r["shell"],
+        f"{r['d_max']:.2f}" if r["d_max"] is not None else "",
+        f"{r['d_min']:.2f}" if r["d_min"] is not None else "",
+        r["range_ascii"],
+        r["n_obs"] if r["n_obs"] is not None else "",
+        r["n_unique"],
+        r["n_theo"] if r["n_theo"] is not None else "",
+        f"{r['multiplicity']:.2f}" if r["multiplicity"] is not None else "",
+        f"{r['completeness_pct']:.1f}" if r["completeness_pct"] is not None else "",
+        f"{r['mean_isigi']:.2f}" if r["mean_isigi"] is not None else "",
+        f"{r['cc_half']:.4f}" if r["cc_half"] is not None else "",
+        f"{r['cc_star']:.4f}" if r["cc_star"] is not None else "",
+    ])
+csv_text = csv_buf.getvalue()
+with open("out/merge_table.csv", "w", encoding="utf-8") as fh_csv:
+    fh_csv.write(csv_text)
+
+d_cc30 = None
+for r in rows:
+    if r["cc_half"] is not None and r["cc_half"] >= 0.30 and r["d_min"] is not None and (d_cc30 is None or r["d_min"] < d_cc30):
+        d_cc30 = r["d_min"]
+
+meta_parts = [f"Space group: {_html.escape(summary['space_group'])}"]
+cv = summary["cell"]
+meta_parts.append(f"Cell: {cv[0]:.2f}, {cv[1]:.2f}, {cv[2]:.2f} \u00c5; {cv[3]:.1f}\u00b0, {cv[4]:.1f}\u00b0, {cv[5]:.1f}\u00b0")
+if "wavelength_range" in summary:
+    wl = summary["wavelength_range"]
+    meta_parts.append(f"\u03bb: {wl[0]:.2f}\u2013{wl[1]:.2f} \u00c5")
+if d_cc30 is not None:
+    meta_parts.append(f"d(CC\u00bd \u2265 0.30): {d_cc30:.2f} \u00c5")
+meta_line = " \u2022 ".join(meta_parts)
+
+fmt = lambda v, nd: f"{v:.{nd}f}" if v is not None else "\u2014"
+fmt_i = lambda v: f"{int(v):,}" if v is not None else "\u2014"
+body_html = []
+clean_rows = []
+tsv_lines = ["Shell\tResolution (\u00c5)\tN_obs\tN_unique\tN_theo\tMultiplicity\tCompleteness (%)\t<I/sigma(I)>\tCC1/2\tCC*"]
+
+for r in [*rows, ov]:
+    is_ov = r["shell"] == "Overall"
+    tr_cls = "overall-row" if is_ov else "shell-row"
+    row_str = (
+        f'<tr class="{tr_cls}">'
+        f'<td class="col-shell">{r["shell"]}</td>'
+        f'<td class="col-res">{_html.escape(r["range_display"])}</td>'
+        f'<td>{fmt_i(r["n_obs"])}</td><td>{fmt_i(r["n_unique"])}</td><td>{fmt_i(r["n_theo"])}</td>'
+        f'<td>{fmt(r["multiplicity"], 2)}</td><td>{fmt(r["completeness_pct"], 1)}</td>'
+        f'<td>{fmt(r["mean_isigi"], 2)}</td><td class="cc-cell">{fmt(r["cc_half"], 3)}</td>'
+        f'<td>{fmt(r["cc_star"], 3)}</td></tr>'
+    )
+    if is_ov:
+        foot_html = row_str
+    else:
+        body_html.append(row_str)
+
+    c_style = ' style="border-top:1px solid #000;border-bottom:2px solid #000;font-weight:bold;"' if is_ov else ""
+    clean_rows.append(
+        f"<tr{c_style}>"
+        f'<td style="padding:4px 8px;text-align:center;">{r["shell"]}</td>'
+        f'<td style="padding:4px 8px;text-align:center;">{_html.escape(r["range_display"])}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{r["n_obs"] if r["n_obs"] is not None else ""}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{r["n_unique"]}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{r["n_theo"] if r["n_theo"] is not None else ""}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{f"{r["multiplicity"]:.2f}" if r["multiplicity"] is not None else ""}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{f"{r["completeness_pct"]:.1f}" if r["completeness_pct"] is not None else ""}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{f"{r["mean_isigi"]:.2f}" if r["mean_isigi"] is not None else ""}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{f"{r["cc_half"]:.3f}" if r["cc_half"] is not None else ""}</td>'
+        f'<td style="padding:4px 8px;text-align:right;">{f"{r["cc_star"]:.3f}" if r["cc_star"] is not None else ""}</td></tr>'
+    )
+    tsv_lines.append("\t".join([
+        str(r["shell"]),
+        r["range_display"],
+        str(r["n_obs"]) if r["n_obs"] is not None else "",
+        str(r["n_unique"]),
+        str(r["n_theo"]) if r["n_theo"] is not None else "",
+        f"{r['multiplicity']:.2f}" if r["multiplicity"] is not None else "",
+        f"{r['completeness_pct']:.1f}" if r["completeness_pct"] is not None else "",
+        f"{r['mean_isigi']:.2f}" if r["mean_isigi"] is not None else "",
+        f"{r['cc_half']:.3f}" if r["cc_half"] is not None else "",
+        f"{r['cc_star']:.3f}" if r["cc_star"] is not None else "",
+    ]))
+
+title_str = "Merging and Scaling Statistics by Resolution Shell"
+clean_clip_html = (
+    '<div style="background:#ffffff;color:#000000;font-family:Calibri,Arial,sans-serif;font-size:11pt;">'
+    f'<p style="margin:0 0 6px 0;font-weight:bold;">{_html.escape(title_str)} ({meta_line})</p>'
+    '<table style="border-collapse:collapse;font-family:Calibri,Arial,sans-serif;font-size:10.5pt;color:#000000;background:#ffffff;">'
+    '<thead><tr style="border-top:2px solid #000;border-bottom:1px solid #000;font-weight:bold;">'
+    '<th style="padding:5px 8px;text-align:center;">Shell</th><th style="padding:5px 8px;text-align:center;">Resolution (\u00c5)</th>'
+    '<th style="padding:5px 8px;text-align:right;">N<sub>obs</sub></th><th style="padding:5px 8px;text-align:right;">N<sub>unique</sub></th>'
+    '<th style="padding:5px 8px;text-align:right;">N<sub>theo</sub></th><th style="padding:5px 8px;text-align:right;">Multiplicity</th>'
+    '<th style="padding:5px 8px;text-align:right;">Completeness (%)</th><th style="padding:5px 8px;text-align:right;">\u27e8I/\u03c3(I)\u27e9</th>'
+    '<th style="padding:5px 8px;text-align:right;">CC<sub>1/2</sub></th><th style="padding:5px 8px;text-align:right;">CC*</th>'
+    f"</tr></thead><tbody>{''.join(clean_rows[:-1])}</tbody><tfoot>{clean_rows[-1]}</tfoot></table></div>"
+)
+export_json = json.dumps({"clean_html": clean_clip_html, "tsv": "\n".join(tsv_lines)}).replace("</", "<\\/")
+
+html_doc = f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><title>{title_str}</title>
+<style>
+body {{ margin:0; padding:24px; background:#070911; color:#bae6fd; font-family:Georgia,'Times New Roman',Times,serif; }}
+.wrap {{ max-width:960px; margin:0 auto; background:#0a1020; border:1px solid rgba(56,189,248,0.38); border-radius:8px; overflow:hidden; box-shadow:0 18px 48px rgba(0,0,0,0.65),0 0 24px rgba(56,189,248,0.10); }}
+.bar {{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid rgba(56,189,248,0.20); }}
+h1 {{ margin:0; font-size:1.08rem; font-weight:700; color:#e0f2fe; }}
+.meta {{ font-size:0.78rem; color:rgba(147,197,253,0.78); margin-top:4px; }}
+.btns {{ display:flex; gap:6px; flex-wrap:wrap; }}
+button {{ cursor:pointer; border-radius:5px; border:1px solid rgba(56,189,248,0.55); background:rgba(14,116,144,0.22); color:#e0f2fe; font-family:Georgia,'Times New Roman',Times,serif; font-size:0.80rem; font-weight:600; padding:5px 12px; }}
+button:hover {{ background:rgba(56,189,248,0.22); border-color:#7dd3fc; color:#fff; }}
+.tbox {{ padding:14px 18px 18px; overflow-x:auto; }}
+table {{ width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; font-size:0.86rem; color:#bae6fd; }}
+th {{ padding:7px 9px; text-align:right; color:#7dd3fc; border-top:2px solid rgba(125,211,252,0.72); border-bottom:1px solid rgba(125,211,252,0.40); font-weight:700; white-space:nowrap; }}
+th.col-shell, th.col-res, td.col-shell, td.col-res {{ text-align:center; }}
+td {{ padding:5px 9px; text-align:right; border-bottom:none; white-space:nowrap; }}
+tbody tr:hover {{ background:rgba(56,189,248,0.07); }}
+.cc-cell {{ font-weight:600; color:#e0f2fe; }}
+tr.overall-row td {{ border-top:1px solid rgba(125,211,252,0.40); border-bottom:2px solid rgba(125,211,252,0.72); font-weight:700; color:#e0f2fe; }}
+.foot {{ margin-top:10px; font-size:0.74rem; color:rgba(147,197,253,0.72); }}
+</style></head>
+<body><div class="wrap">
+<div class="bar"><div>
+<h1>{title_str}</h1><div class="meta">{meta_line}</div></div>
+<div class="btns">
+<button id="btn-copy" type="button" title="Copy formatted HTML table and tab-separated values to clipboard">Copy</button>
+</div></div>
+<div class="tbox"><table><thead><tr>
+<th class="col-shell">Shell</th><th class="col-res">Resolution (\u00c5)</th><th>N<sub>obs</sub></th><th>N<sub>unique</sub></th>
+<th>N<sub>theo</sub></th><th>Multiplicity</th><th>Completeness (%)</th><th>\u27e8I/\u03c3(I)\u27e9</th><th>CC<sub>1/2</sub></th><th>CC*</th>
+</tr></thead><tbody>{''.join(body_html)}</tbody><tfoot>{foot_html}</tfoot></table>
+<div class="foot"><span>CC* = [2 CC<sub>1/2</sub> / (1 + CC<sub>1/2</sub>)]<sup>1/2</sup> (Karplus &amp; Diederichs, 2012).</span></div>
+</div></div>
+<script>
+(function() {{
+  const D = {export_json};
+  const bCopy = document.getElementById("btn-copy");
+  bCopy.addEventListener("click", async function() {{
+    let ok = false;
+    if (navigator.clipboard && window.ClipboardItem) {{
+      try {{
+        await navigator.clipboard.write([new ClipboardItem({{
+          "text/html": new Blob([D.clean_html], {{ type: "text/html" }}),
+          "text/plain": new Blob([D.tsv], {{ type: "text/plain" }})
+        }})]);
+        ok = true;
+      }} catch (_e) {{}}
+    }}
+    if (!ok) {{
+      const box = document.createElement("div");
+      box.style.cssText = "position:fixed;left:-9999px;top:0;background:#fff;color:#000;";
+      box.innerHTML = D.clean_html;
+      document.body.appendChild(box);
+      const rng = document.createRange();
+      rng.selectNodeContents(box);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(rng);
+      try {{ ok = document.execCommand("copy"); }} catch (_e2) {{}}
+      sel.removeAllRanges();
+      document.body.removeChild(box);
+    }}
+    bCopy.textContent = ok ? "\u2713 Copied" : "Copy failed";
+    setTimeout(function() {{ bCopy.textContent = "Copy"; }}, 1600);
+  }});
+}})();
+</script></body></html>
+"""
+with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
+    fh_html.write(html_doc)
 #end raw]]></configfile>
   </configfiles>
   <command detect_errors="exit_code"><![CDATA[
@@ -164,6 +459,8 @@ with open("out/careless_metrics.json", "w") as fh:
     <data format="mtz" label="predictions.mtz" name="predictions_mtz" from_work_dir="out/predictions.mtz" />
     <data format="mtz" label="xval.mtz" name="xval_mtz" from_work_dir="out/xval.mtz" />
     <data format="json" label="careless_metrics.json" name="metrics_json" from_work_dir="out/careless_metrics.json" />
+    <data format="csv" label="merge_table.csv" name="merge_table_csv" from_work_dir="out/merge_table.csv" />
+    <data format="html" label="merge_table.html" name="merge_table_html" from_work_dir="out/merge_table.html" />
   </outputs>
   <help><![CDATA[
     Polychromatic / Laue variational scaling and merging of unmerged subhkl MTZ reflections using CUDA-enabled Careless.
