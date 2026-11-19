@@ -60,6 +60,18 @@ def test_subhkl_and_careless_tools_accept_mtz_or_binary_uploads_and_emit_mtz() -
     refl_param = careless_root.find("./inputs/param[@name='reflections']")
     assert refl_param is not None
     assert refl_param.attrib.get("format") == "mtz,binary"
+    mode_param = careless_root.find("./inputs/param[@name='mode']")
+    assert mode_param is not None
+    assert mode_param.attrib.get("type") == "select"
+    mode_opts = [
+        (opt.attrib.get("value"), opt.attrib.get("selected"))
+        for opt in mode_param.findall("option")
+    ]
+    assert mode_opts == [("poly", "true"), ("mono", None)]
+    cmd_text = (careless_root.findtext("./command") or "").strip()
+    assert "careless $careless_mode --iterations=$iterations" in cmd_text
+    assert '#if $careless_mode == "poly":' in cmd_text
+    assert "--wavelength-key=WAVEL" in cmd_text
     for out_name in ("merged_mtz", "predictions_mtz", "xval_mtz"):
         out_el = careless_root.find(f"./outputs/data[@name='{out_name}']")
         assert out_el is not None
@@ -208,3 +220,50 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
         js_file = tmp_path / "merge_table_inline.js"
         js_file.write_text(m_js.group(1), encoding="utf-8")
         subprocess.run(["node", "--check", str(js_file)], check=True)
+
+    prep_el = careless_root.find("./configfiles/configfile[@name='prep_mtz_script']")
+    assert prep_el is not None and prep_el.text is not None
+    prep_src = prep_el.text.strip().removeprefix("#raw").removesuffix("#end raw").strip()
+    prep_shim = (
+        "import sys, types\n"
+        "try:\n"
+        "    import reciprocalspaceship\n"
+        "except ImportError:\n"
+        "    class _DummyDS(dict):\n"
+        "        merged = False\n"
+        "        def get_m_isym_keys(self): return ['M/ISYM']\n"
+        "        def hkl_to_asu(self): return self\n"
+        "        def write_mtz(self, p): pass\n"
+        "    rs = types.ModuleType('reciprocalspaceship')\n"
+        "    rs.read_mtz = lambda p: _DummyDS()\n"
+        "    sys.modules['reciprocalspaceship'] = rs\n"
+    )
+    prep_py = tmp_path / "run_prep_mtz.py"
+    prep_py.write_text(prep_shim + prep_src + "\n", encoding="utf-8")
+
+    import os
+
+    res_poly = subprocess.run(
+        [sys.executable, str(prep_py)],
+        cwd=str(tmp_path),
+        env={**os.environ, "CARELESS_MODE": "poly"},
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    poly_keys = res_poly.stdout.strip().split(",")
+    assert "WAVEL" in poly_keys
+    assert "harmonic_id" in poly_keys and "H_0" in poly_keys
+
+    res_mono = subprocess.run(
+        [sys.executable, str(prep_py)],
+        cwd=str(tmp_path),
+        env={**os.environ, "CARELESS_MODE": "mono"},
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    mono_keys = res_mono.stdout.strip().split(",")
+    assert "WAVEL" in mono_keys  # WAVEL stays in metadata in mono mode
+    assert "Hobs" in mono_keys
+    assert "harmonic_id" not in mono_keys and "H_0" not in mono_keys

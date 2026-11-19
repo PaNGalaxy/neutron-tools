@@ -1,9 +1,10 @@
-<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.2" python_template_version="3.5">
+<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.3" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/jglaser/careless:cuda</container>
   </requirements>
   <configfiles>
     <configfile name="prep_mtz_script"><![CDATA[#raw
+import os
 import gemmi
 import reciprocalspaceship as rs
 
@@ -23,7 +24,12 @@ ds.merged = False
 ds.write_mtz("input_unmerged.mtz")
 
 cols = {col.label for col in mtz.columns}
-keys = ["WAVEL", "THETA", "PHI", "dHKL", "H_0", "K_0", "L_0", "H", "K", "L", "image_id", "file_id", "asu_id", "harmonic_id"]
+mode = os.environ.get("CARELESS_MODE", "poly").strip().lower()
+keys = [k for k in ("WAVEL", "THETA", "PHI") if k in cols]
+if mode == "mono":
+    keys.extend(["dHKL", "Hobs", "Kobs", "Lobs", "H", "K", "L", "image_id", "file_id", "asu_id"])
+else:
+    keys.extend(["dHKL", "H_0", "K_0", "L_0", "H", "K", "L", "image_id", "file_id", "asu_id", "harmonic_id"])
 for extra in ("SIGEFF", "SNAPD", "DPHI", "DTX", "DTY", "DTZ"):
     if extra in cols:
         keys.append(extra)
@@ -41,7 +47,7 @@ import numpy as np
 import reciprocalspaceship as rs
 from scipy.stats import pearsonr, spearmanr
 
-summary = {"status": "ok"}
+summary = {"status": "ok", "mode": os.environ.get("CARELESS_MODE", "poly")}
 mtz = gemmi.read_mtz_file("out/merged.mtz")
 sg_obj = mtz.spacegroup or gemmi.find_spacegroup_by_name("P 1")
 summary["space_group"] = str(sg_obj.xhm() or sg_obj.short_name() or "P 1")
@@ -420,9 +426,14 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
   <command detect_errors="exit_code"><![CDATA[
     mkdir -p out &&
     ln -sf "$reflections" input_reflections.mtz &&
+    #set $careless_mode = str($mode) if str($mode) in ("mono", "poly") else "poly"
+    export CARELESS_MODE="$careless_mode" &&
     METADATA_KEYS=\$(python "$prep_mtz_script") &&
 
-    #set $options = " --jit-compile --wavelength-key=WAVEL "
+    #set $options = " --jit-compile "
+    #if $careless_mode == "poly":
+      #set $options = $options + " --wavelength-key=WAVEL "
+    #end if
     #if str($studenttDof) != "":
       #set $options = $options + " --studentt-likelihood-dof=" + str($studenttDof) + " "
     #end if
@@ -439,7 +450,7 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
       #set $options = $options + " --anomalous "
     #end if
 
-    careless poly --iterations=$iterations $options "\$METADATA_KEYS" input_unmerged.mtz out/careless &&
+    careless $careless_mode --iterations=$iterations $options "\$METADATA_KEYS" input_unmerged.mtz out/careless &&
     cp -f out/careless_0.mtz out/merged.mtz &&
     cp -f out/careless_predictions_0.mtz out/predictions.mtz &&
     if [ -f out/careless_xval_0.mtz ]; then cp -f out/careless_xval_0.mtz out/xval.mtz; else cp -f out/careless_0.mtz out/xval.mtz; fi &&
@@ -447,6 +458,10 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
   ]]></command>
   <inputs>
     <param format="mtz,binary" name="reflections" type="data" label="Unmerged reflections file (reflections.mtz)" help="Accepts subhkl reflections.mtz datasets as well as uploaded .mtz files that Galaxy auto-detect labels as binary." />
+    <param name="mode" type="select" label="Chromatic scaling mode" help="Select Polychromatic (poly) for steady-state / quasi-Laue harmonic deconvolution (--wavelength-key=WAVEL), or Monochromatic (mono) when harmonics are already separated (e.g. TOF-gated integration) while keeping WAVEL in scaling metadata.">
+      <option value="poly" selected="true">Polychromatic / Laue (poly)</option>
+      <option value="mono">Monochromatic / TOF-resolved (mono)</option>
+    </param>
     <param name="iterations" type="integer" value="10000" label="Variational inference iterations" />
     <param name="studenttDof" type="float" value="4.0" optional="true" label="Student-t likelihood degrees of freedom (empty for Gaussian)" />
     <param name="dmin" type="float" value="" optional="true" label="High-resolution cutoff d_min (Angstrom)" />
@@ -463,6 +478,6 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
     <data format="html" label="merge_table.html" name="merge_table_html" from_work_dir="out/merge_table.html" />
   </outputs>
   <help><![CDATA[
-    Polychromatic / Laue variational scaling and merging of unmerged subhkl MTZ reflections using CUDA-enabled Careless.
+    Variational scaling and merging (polychromatic Laue or monochromatic / TOF-resolved) of unmerged subhkl MTZ reflections using CUDA-enabled Careless.
   ]]></help>
 </tool>
