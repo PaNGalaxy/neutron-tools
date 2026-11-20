@@ -75,7 +75,7 @@ def test_subhkl_and_careless_tools_accept_mtz_or_binary_uploads_and_emit_mtz() -
     assert gpu_res.get("cuda_device_count_min") == "1"
     cmd_text = (careless_root.findtext("./command") or "").strip()
     assert "CUDA_CACHE_PATH=/tmp/cuda_cache" in cmd_text
-    assert "_GALAXY_JOB_HOME_DIR" in cmd_text
+    assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd_text
     assert "careless $careless_mode --iterations=$iterations" in cmd_text
     assert "--disable-image-scales" in cmd_text
     assert '#if $careless_mode == "poly":' in cmd_text
@@ -326,16 +326,10 @@ def test_interactivetool_subhkl_declares_local_staging_gpu_mode() -> None:
     assert "SUBHKL_STAGING_DIR=" in cmd_text
     assert "umask 0000" in cmd_text
     assert "CUDA_CACHE_PATH=/tmp/cuda_cache" in cmd_text
-    assert "_GALAXY_JOB_HOME_DIR" in cmd_text
+    assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd_text
 
 
-def test_pulsar_cleanup_trap_unlocks_0700_nv_dir_and_preserves_exit_code(
-    tmp_path: Path,
-) -> None:
-    import os
-    import stat
-    import subprocess
-
+def test_subhkl_tools_redirect_cuda_and_xdg_caches_to_container_tmp() -> None:
     xml_paths = [
         *sorted((ROOT / "tools" / "neutrons").glob("imaginex_subhkl*.xml")),
         ROOT
@@ -348,36 +342,8 @@ def test_pulsar_cleanup_trap_unlocks_0700_nv_dir_and_preserves_exit_code(
     for xp in xml_paths:
         cmd = ET.parse(xp).getroot().findtext("./command") or ""
         assert "CUDA_CACHE_PATH=/tmp/cuda_cache" in cmd, xp.name
-        assert "_GALAXY_JOB_HOME_DIR" in cmd, xp.name
+        assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd, xp.name
+        assert "XDG_CONFIG_HOME=/tmp/xdg_config" in cmd, xp.name
+        assert "_GALAXY_JOB_HOME_DIR" not in cmd, xp.name
 
-    work = tmp_path / "working"
-    home = tmp_path / "home"
-    gtmp = tmp_path / "tmp"
-    nv_dir = home / ".nv" / "ComputeCache"
-    work.mkdir()
-    nv_dir.mkdir(parents=True)
-    gtmp.mkdir()
-    os.chmod(home / ".nv", 0o700)
-    os.chmod(nv_dir, 0o700)
-
-    rendered_trap = (
-        'set -e\n'
-        'trap \'rc=$?; chmod -R a+rwX "$PWD" '
-        '${_GALAXY_JOB_HOME_DIR:+"$_GALAXY_JOB_HOME_DIR"} '
-        '${_GALAXY_JOB_TMP_DIR:+"$_GALAXY_JOB_TMP_DIR"} '
-        '2>/dev/null || true; exit $rc\' EXIT\n'
-        'exit 7\n'
-    )
-    res = subprocess.run(
-        ["/bin/sh", "-c", rendered_trap],
-        cwd=str(work),
-        env={
-            **os.environ,
-            "_GALAXY_JOB_HOME_DIR": str(home),
-            "_GALAXY_JOB_TMP_DIR": str(gtmp),
-        },
-    )
-    assert res.returncode == 7
-    assert stat.S_IMODE(os.stat(home / ".nv").st_mode) == 0o777
-    assert stat.S_IMODE(os.stat(nv_dir).st_mode) == 0o777
 
