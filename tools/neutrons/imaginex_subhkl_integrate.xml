@@ -1,9 +1,11 @@
 <tool id="imaginex_subhkl_integrate" name="IMAGINE-X subhkl Peak Integration" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.6.2</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.6.3</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
-		mkdir -p out ; 
+		umask 0000 &&
+		mkdir -p out &&
+		chmod 0777 out ; 
 		
 		ln -sf "$scan" "$scan.element_identifier" ;  
 		ln -sf "$predicted" "$predicted.element_identifier" ; 
@@ -43,7 +45,8 @@
 		#end if
 
 		python -u -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --sigmas $sigma --nominal-sigma $nominalSigma --mosaicity-bound-mrad $mosaicMrad --shape-fit-min-snr $snr --matrix-free-profile $matrixProfile --rel-border-width $relBorder --chunk-size $chunk --show-progress $options &&
-		python -u -m subhkl.io.parser mtz-exporter out/integrator.h5 out/reflections.mtz --predictions-file "$predicted.element_identifier"
+		python -u -m subhkl.io.parser mtz-exporter out/integrator.h5 out/reflections.mtz --predictions-file "$predicted.element_identifier" &&
+		chmod -R a+rwX out
     ]]></command>
     <inputs>
     

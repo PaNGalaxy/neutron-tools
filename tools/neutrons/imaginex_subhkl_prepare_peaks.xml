@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X subhkl Prepare Peaks" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.6.2</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.6.3</container>
   </requirements>
   <configfiles>
     <configfile name="sitecustomize_script"><![CDATA[#raw
@@ -93,7 +93,9 @@ except Exception:
 #end raw]]></configfile>
   </configfiles>
     <command detect_errors="exit_code"><![CDATA[
+		umask 0000 &&
 		mkdir -p out &&
+		chmod 0777 out &&
 		cp "$sitecustomize_script" sitecustomize.py &&
 		export PYTHONPATH=".:\${PYTHONPATH:-}" &&
 
@@ -110,7 +112,9 @@ except Exception:
 		    #set $input_args = $input_args + ' "' + str($Z.input) + '"'
 		#end for
 		python -u -m subhkl.io.parser reduce-batch $input_args --output-dir out --instrument $instrument $wl_opts &&
-		python -u -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup"
+		python -u -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup" &&
+		rm -f out/*.reduce.h5 &&
+		chmod -R a+rwX out
     ]]></command>
     <inputs>
 

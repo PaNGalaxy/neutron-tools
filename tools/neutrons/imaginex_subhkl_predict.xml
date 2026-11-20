@@ -1,9 +1,11 @@
 <tool id="imaginex_subhkl_predict" name="IMAGINE-X subhkl Peak Prediction" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.6.2</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.6.3</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
-		mkdir -p out ; 
+		umask 0000 &&
+		mkdir -p out &&
+		chmod 0777 out ; 
 		
 		## Link input files to preserve element_identifier extensions
 		ln -sf "$scan" "$scan.element_identifier" ;  
@@ -21,7 +23,8 @@
 			#set $options = $options + " --space-group '" + str($space) + "' " 
 		#end if
 
-		python -u -m subhkl.io.parser peak-predictor "$scan.element_identifier" $instrument "$indexer.element_identifier" out/peak_predictor.h5 --d-min $dMin $options ;
+		python -u -m subhkl.io.parser peak-predictor "$scan.element_identifier" $instrument "$indexer.element_identifier" out/peak_predictor.h5 --d-min $dMin $options &&
+		chmod -R a+rwX out
 
     ]]></command>
     <inputs>

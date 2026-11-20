@@ -1,11 +1,13 @@
-<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.6.2">
-    <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with NDIP workflow orchestration</description>
+<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.6.3">
+    <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with local-staging GPU execution</description>
     <creator>
         <person name="Jens Glaser"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.6.2</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.6.3</container>
+        <resource type="cuda_device_count_min">1</resource>
+        <resource type="gpu_memory_min">4096</resource>
     </requirements>
     <entry_points>
         <entry_point name="Trame SubHKL" label="subhkl" requires_domain="False" requires_path_in_url="True">
@@ -19,10 +21,16 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">subhkl</environment_variable>
         <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
         <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
+        <environment_variable name="SUBHKL_EXEC_MODE">local</environment_variable>
         <environment_variable name="JAX_PLATFORMS">cpu</environment_variable>
+        <environment_variable name="XLA_PYTHON_CLIENT_PREALLOCATE">false</environment_variable>
     </environment_variables>
     <command detect_errors="exit_code"><![CDATA[
-        export JAX_PLATFORMS=cpu &&
+        umask 0000 &&
+        mkdir -p "\$PWD/subhkl_staging" &&
+        chmod 0777 "\$PWD/subhkl_staging" &&
+        export TMPDIR="\$PWD/subhkl_staging" SUBHKL_STAGING_DIR="\$PWD/subhkl_staging" &&
+        export SUBHKL_EXEC_MODE=local JAX_PLATFORMS=cpu XLA_PYTHON_CLIENT_PREALLOCATE=false &&
         #set $p_opt = ""
         #if $indexed_h5:
             ln -sf "$indexed_h5" input_peaks.h5 &&
