@@ -68,10 +68,18 @@ def test_subhkl_and_careless_tools_accept_mtz_or_binary_uploads_and_emit_mtz() -
         for opt in mode_param.findall("option")
     ]
     assert mode_opts == [("poly", "true"), ("mono", None)]
+    gpu_res = {
+        el.attrib.get("type"): (el.text or "").strip()
+        for el in careless_root.findall("./requirements/resource")
+    }
+    assert gpu_res.get("cuda_device_count_min") == "1"
     cmd_text = (careless_root.findtext("./command") or "").strip()
     assert "careless $careless_mode --iterations=$iterations" in cmd_text
+    assert "--disable-image-scales" in cmd_text
     assert '#if $careless_mode == "poly":' in cmd_text
     assert "--wavelength-key=WAVEL" in cmd_text
+    assert "--wilson-prior-b=" in cmd_text
+    assert "--lorentz-correction" in cmd_text
     for out_name in ("merged_mtz", "predictions_mtz", "xval_mtz"):
         out_el = careless_root.find(f"./outputs/data[@name='{out_name}']")
         assert out_el is not None
@@ -109,8 +117,10 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
     import subprocess
     import sys
 
-    import gemmi
-    import numpy as np
+    import pytest
+
+    gemmi = pytest.importorskip("gemmi")
+    np = pytest.importorskip("numpy")
 
     careless_root = ET.parse(
         ROOT / "tools" / "neutrons" / "imaginex_subhkl_merge.xml"
@@ -141,8 +151,21 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
     in_mtz.set_cell_for_all(uc)
     in_mtz.add_dataset("in")
     in_mtz.add_column("WAVEL", "W")
+    in_mtz.add_column("THETA", "R")
+    in_mtz.add_column("PHI", "R")
+    in_mtz.add_column("BATCH", "I")
+    in_mtz.add_column("DPHI", "R")
+    in_mtz.add_column("H_0", "H")
+    in_mtz.add_column("Hobs", "H")
+    in_mtz.add_column("harmonic_id", "I")
     in_mtz.set_data(
-        np.asarray([[h, k, l, 2.0 + 0.2 * i] for i, (h, k, l) in enumerate(hkls)], dtype=np.float32)
+        np.asarray(
+            [
+                [h, k, l, 2.0 + 0.2 * i, 15.0 + i, -40.0 + 5.0 * i, 1000 * (i % 2), 0.0, h, h, 1]
+                for i, (h, k, l) in enumerate(hkls)
+            ],
+            dtype=np.float32,
+        )
     )
     in_mtz.write_to_file(str(tmp_path / "input_reflections.mtz"))
 
@@ -225,17 +248,31 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
     assert prep_el is not None and prep_el.text is not None
     prep_src = prep_el.text.strip().removeprefix("#raw").removesuffix("#end raw").strip()
     prep_shim = (
-        "import sys, types\n"
+        "import sys, types, gemmi, numpy as np\n"
         "try:\n"
         "    import reciprocalspaceship\n"
         "except ImportError:\n"
+        "    class _DummySeries:\n"
+        "        def __init__(self, arr):\n"
+        "            self._arr = np.asarray(arr)\n"
+        "        def to_numpy(self):\n"
+        "            return self._arr\n"
         "    class _DummyDS(dict):\n"
         "        merged = False\n"
+        "        index = None\n"
         "        def get_m_isym_keys(self): return ['M/ISYM']\n"
         "        def hkl_to_asu(self): return self\n"
         "        def write_mtz(self, p): pass\n"
+        "    def _read_mtz(p):\n"
+        "        m = gemmi.read_mtz_file(p)\n"
+        "        arr = np.array(m, copy=False)\n"
+        "        ds = _DummyDS()\n"
+        "        for idx, col in enumerate(m.columns):\n"
+        "            ds[col.label] = _DummySeries(arr[:, idx])\n"
+        "        return ds\n"
         "    rs = types.ModuleType('reciprocalspaceship')\n"
-        "    rs.read_mtz = lambda p: _DummyDS()\n"
+        "    rs.read_mtz = _read_mtz\n"
+        "    rs.DataSeries = lambda arr, index=None, dtype=None: _DummySeries(arr)\n"
         "    sys.modules['reciprocalspaceship'] = rs\n"
     )
     prep_py = tmp_path / "run_prep_mtz.py"
@@ -252,8 +289,9 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
         text=True,
     )
     poly_keys = res_poly.stdout.strip().split(",")
-    assert "WAVEL" in poly_keys
-    assert "harmonic_id" in poly_keys and "H_0" in poly_keys
+    assert poly_keys == ["WAVEL", "THETA", "PHI", "RUN"]
+    assert "DPHI" not in poly_keys  # constant column filtered out (prevents 0/0 NaN)
+    assert "harmonic_id" not in poly_keys and "H_0" not in poly_keys
 
     res_mono = subprocess.run(
         [sys.executable, str(prep_py)],
@@ -264,6 +302,30 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
         text=True,
     )
     mono_keys = res_mono.stdout.strip().split(",")
-    assert "WAVEL" in mono_keys  # WAVEL stays in metadata in mono mode
-    assert "Hobs" in mono_keys
-    assert "harmonic_id" not in mono_keys and "H_0" not in mono_keys
+    assert mono_keys == ["WAVEL", "THETA", "PHI", "RUN"]
+
+
+def test_interactivetool_subhkl_declares_local_staging_gpu_mode() -> None:
+    it_root = ET.parse(
+        ROOT
+        / "tools"
+        / "neutrons"
+        / "single-crystal-diffraction"
+        / "interactivetool_subhkl.xml"
+    ).getroot()
+    gpu_res = {
+        el.attrib.get("type"): (el.text or "").strip()
+        for el in it_root.findall("./requirements/resource")
+    }
+    assert gpu_res.get("cuda_device_count_min") == "1"
+    assert gpu_res.get("gpu_memory_min") == "4096"
+    env_vars = {
+        el.attrib.get("name"): (el.text or "").strip()
+        for el in it_root.findall("./environment_variables/environment_variable")
+    }
+    assert env_vars.get("SUBHKL_EXEC_MODE") == "local"
+    assert env_vars.get("JAX_PLATFORMS") == "cpu"
+    assert env_vars.get("XLA_PYTHON_CLIENT_PREALLOCATE") == "false"
+    cmd_text = (it_root.findtext("./command") or "").strip()
+    assert "SUBHKL_STAGING_DIR=" in cmd_text
+    assert "umask 0000" in cmd_text

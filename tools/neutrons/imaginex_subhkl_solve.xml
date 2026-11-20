@@ -1,10 +1,12 @@
 <tool id="imaginex_subhkl_solve" name="IMAGINE-X subhkl Finder-Less Solve (Lattice Ladder)" profile="22.05" version="0.2.0" python_template_version="3.5">
     <description>Threshold-free Lattice-Ladder orientation search and staged zone-band / Poisson geometry refinement</description>
     <requirements>
-        <container type="docker">ghcr.io/neutrons/subhkl:1.6.2</container>
+        <container type="docker">ghcr.io/neutrons/subhkl:1.6.3</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        umask 0000 &&
         mkdir -p out &&
+        chmod 0777 out &&
         export CUDA_VISIBLE_DEVICES=0 &&
 
         ln -sf "$scan" "$scan.element_identifier" &&
@@ -88,7 +90,8 @@
         #end if
 
         python -m subhkl.io.parser solve "$scan.element_identifier" out/solve.h5 $options &&
-        python -m subhkl.io.parser rainbow-visualize out/solve.h5 --images "$scan.element_identifier" --instrument "$instrument" -o out/rainbow_zones.html
+        python -m subhkl.io.parser rainbow-visualize out/solve.h5 --images "$scan.element_identifier" --instrument "$instrument" -o out/rainbow_zones.html &&
+        chmod -R a+rwX out
     ]]></command>
     <inputs>
         <param format="h5" name="scan" type="data" label="Reduced / Merged Image Stack (scan.h5 / merged.h5)" />

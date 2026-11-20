@@ -1,38 +1,48 @@
-<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.1.3" python_template_version="3.5">
+<tool id="imaginex_subhkl_merge" name="IMAGINE-X subhkl Careless Merge" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
     <container type="docker">ghcr.io/jglaser/careless:cuda</container>
+    <resource type="cuda_device_count_min">1</resource>
+    <resource type="gpu_memory_min">4096</resource>
   </requirements>
   <configfiles>
     <configfile name="prep_mtz_script"><![CDATA[#raw
-import os
 import gemmi
+import numpy as np
 import reciprocalspaceship as rs
 
 mtz = gemmi.read_mtz_file("input_reflections.mtz")
 c = mtz.cell
 na = 90.0 if abs(c.alpha - 90) < 0.2 else (120.0 if abs(c.alpha - 120) < 0.2 else c.alpha)
 nb = 90.0 if abs(c.beta - 90) < 0.2 else (120.0 if abs(c.beta - 120) < 0.2 else c.beta)
-ng = 90.0 if abs(c.gamma - 90) < 0.2 else (120.0 if abs(c.gamma - 120) < 0.2 else c.gamma)
+ng = 90.0 if abs(c.gamma - 90) < 0.2 else (120.0 if abs(c.gamma - 90) < 0.2 else c.gamma)
 mtz.cell.set(c.a, c.b, c.c, na, nb, ng)
 mtz.write_to_file("input_cell.mtz")
 ds = rs.read_mtz("input_cell.mtz")
 if "SIGI" in ds:
     ds = ds[ds["SIGI"] > 0]
+if "BATCH" in ds and "RUN" not in ds:
+    ds["RUN"] = rs.DataSeries(
+        (ds["BATCH"].to_numpy().astype(int) // 1000).astype(np.float32),
+        index=ds.index,
+        dtype="R",
+    )
 if not ds.get_m_isym_keys():
     ds = ds.hkl_to_asu()
 ds.merged = False
 ds.write_mtz("input_unmerged.mtz")
 
-cols = {col.label for col in mtz.columns}
-mode = os.environ.get("CARELESS_MODE", "poly").strip().lower()
-keys = [k for k in ("WAVEL", "THETA", "PHI") if k in cols]
-if mode == "mono":
-    keys.extend(["dHKL", "Hobs", "Kobs", "Lobs", "H", "K", "L", "image_id", "file_id", "asu_id"])
-else:
-    keys.extend(["dHKL", "H_0", "K_0", "L_0", "H", "K", "L", "image_id", "file_id", "asu_id", "harmonic_id"])
-for extra in ("SIGEFF", "SNAPD", "DPHI", "DTX", "DTY", "DTZ"):
-    if extra in cols:
+# Restrict neural-scaler metadata strictly to non-constant physical beam/detector/run
+# coordinates -- never Miller indices/asu_id (overfitting) or constant columns (0/0 NaN).
+keys = [
+    k
+    for k in ("WAVEL", "THETA", "PHI")
+    if k in ds and float(np.nanstd(ds[k].to_numpy())) > 1e-6
+]
+for extra in ("RUN", "DPHI", "DTX", "DTY", "DTZ"):
+    if extra in ds and float(np.nanstd(ds[extra].to_numpy())) > 1e-6:
         keys.append(extra)
+if not keys and "WAVEL" in ds:
+    keys.append("WAVEL")
 print(",".join(keys))
 #end raw]]></configfile>
     <configfile name="post_metrics_script"><![CDATA[#raw
@@ -424,18 +434,24 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
 #end raw]]></configfile>
   </configfiles>
   <command detect_errors="exit_code"><![CDATA[
+    umask 0000 &&
     mkdir -p out &&
+    chmod 0777 out &&
+    export TF_FORCE_GPU_ALLOW_GROWTH=true &&
     ln -sf "$reflections" input_reflections.mtz &&
     #set $careless_mode = str($mode) if str($mode) in ("mono", "poly") else "poly"
     export CARELESS_MODE="$careless_mode" &&
     METADATA_KEYS=\$(python "$prep_mtz_script") &&
 
-    #set $options = " --jit-compile "
+    #set $options = " --jit-compile --disable-image-scales "
     #if $careless_mode == "poly":
       #set $options = $options + " --wavelength-key=WAVEL "
     #end if
     #if str($studenttDof) != "":
       #set $options = $options + " --studentt-likelihood-dof=" + str($studenttDof) + " "
+    #end if
+    #if str($wilsonPriorB) not in ("", "None"):
+      #set $options = $options + " --wilson-prior-b=" + str($wilsonPriorB) + " "
     #end if
     #if str($dmin) != "":
       #set $options = $options + " --dmin=" + str($dmin) + " "
@@ -449,12 +465,16 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
     #if $anomalous:
       #set $options = $options + " --anomalous "
     #end if
+    #if $lorentzCorrection:
+      #set $options = $options + " --lorentz-correction "
+    #end if
 
     careless $careless_mode --iterations=$iterations $options "\$METADATA_KEYS" input_unmerged.mtz out/careless &&
     cp -f out/careless_0.mtz out/merged.mtz &&
     cp -f out/careless_predictions_0.mtz out/predictions.mtz &&
     if [ -f out/careless_xval_0.mtz ]; then cp -f out/careless_xval_0.mtz out/xval.mtz; else cp -f out/careless_0.mtz out/xval.mtz; fi &&
-    python "$post_metrics_script"
+    python "$post_metrics_script" &&
+    chmod -R a+rwX out
   ]]></command>
   <inputs>
     <param format="mtz,binary" name="reflections" type="data" label="Unmerged reflections file (reflections.mtz)" help="Accepts subhkl reflections.mtz datasets as well as uploaded .mtz files that Galaxy auto-detect labels as binary." />
@@ -464,10 +484,12 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
     </param>
     <param name="iterations" type="integer" value="10000" label="Variational inference iterations" />
     <param name="studenttDof" type="float" value="4.0" optional="true" label="Student-t likelihood degrees of freedom (empty for Gaussian)" />
+    <param name="wilsonPriorB" type="float" value="" optional="true" label="Wilson prior B-factor override (Å², empty for Careless default)" />
     <param name="dmin" type="float" value="" optional="true" label="High-resolution cutoff d_min (Angstrom)" />
     <param name="isigiCutoff" type="float" value="" optional="true" label="I/sigma(I) cutoff" />
     <param name="mergeHalfDatasets" type="boolean" checked="true" label="Merge half-datasets for CC1/2 cross-validation" />
     <param name="anomalous" type="boolean" value="false" label="Separate anomalous pairs I(+) / I(-)" />
+    <param name="lorentzCorrection" type="boolean" value="false" label="Apply Lorentz wavelength correction" />
   </inputs>
   <outputs>
     <data format="mtz" label="merged.mtz" name="merged_mtz" from_work_dir="out/merged.mtz" />
