@@ -1,9 +1,10 @@
 <tool id="imaginex_subhkl_integrate" name="IMAGINE-X subhkl Peak Integration" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.6.3</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.6.4</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		umask 0000 &&
+		export CUDA_CACHE_PATH=/tmp/cuda_cache XDG_CACHE_HOME=/tmp/xdg_cache XDG_CONFIG_HOME=/tmp/xdg_config &&
 		mkdir -p out &&
 		chmod 0777 out ; 
 		

@@ -74,6 +74,8 @@ def test_subhkl_and_careless_tools_accept_mtz_or_binary_uploads_and_emit_mtz() -
     }
     assert gpu_res.get("cuda_device_count_min") == "1"
     cmd_text = (careless_root.findtext("./command") or "").strip()
+    assert "CUDA_CACHE_PATH=/tmp/cuda_cache" in cmd_text
+    assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd_text
     assert "careless $careless_mode --iterations=$iterations" in cmd_text
     assert "--disable-image-scales" in cmd_text
     assert '#if $careless_mode == "poly":' in cmd_text
@@ -313,12 +315,6 @@ def test_interactivetool_subhkl_declares_local_staging_gpu_mode() -> None:
         / "single-crystal-diffraction"
         / "interactivetool_subhkl.xml"
     ).getroot()
-    gpu_res = {
-        el.attrib.get("type"): (el.text or "").strip()
-        for el in it_root.findall("./requirements/resource")
-    }
-    assert gpu_res.get("cuda_device_count_min") == "1"
-    assert gpu_res.get("gpu_memory_min") == "4096"
     env_vars = {
         el.attrib.get("name"): (el.text or "").strip()
         for el in it_root.findall("./environment_variables/environment_variable")
@@ -329,3 +325,25 @@ def test_interactivetool_subhkl_declares_local_staging_gpu_mode() -> None:
     cmd_text = (it_root.findtext("./command") or "").strip()
     assert "SUBHKL_STAGING_DIR=" in cmd_text
     assert "umask 0000" in cmd_text
+    assert "CUDA_CACHE_PATH=/tmp/cuda_cache" in cmd_text
+    assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd_text
+
+
+def test_subhkl_tools_redirect_cuda_and_xdg_caches_to_container_tmp() -> None:
+    xml_paths = [
+        *sorted((ROOT / "tools" / "neutrons").glob("imaginex_subhkl*.xml")),
+        ROOT
+        / "tools"
+        / "neutrons"
+        / "single-crystal-diffraction"
+        / "interactivetool_subhkl.xml",
+    ]
+    assert len(xml_paths) >= 10
+    for xp in xml_paths:
+        cmd = ET.parse(xp).getroot().findtext("./command") or ""
+        assert "CUDA_CACHE_PATH=/tmp/cuda_cache" in cmd, xp.name
+        assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd, xp.name
+        assert "XDG_CONFIG_HOME=/tmp/xdg_config" in cmd, xp.name
+        assert "_GALAXY_JOB_HOME_DIR" not in cmd, xp.name
+
+

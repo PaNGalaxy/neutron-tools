@@ -1,6 +1,6 @@
 <tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X subhkl Prepare Peaks" profile="22.05" version="0.2.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.6.3</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.6.4</container>
   </requirements>
   <configfiles>
     <configfile name="sitecustomize_script"><![CDATA[#raw
@@ -94,6 +94,7 @@ except Exception:
   </configfiles>
     <command detect_errors="exit_code"><![CDATA[
 		umask 0000 &&
+		export CUDA_CACHE_PATH=/tmp/cuda_cache XDG_CACHE_HOME=/tmp/xdg_cache XDG_CONFIG_HOME=/tmp/xdg_config &&
 		mkdir -p out &&
 		chmod 0777 out &&
 		cp "$sitecustomize_script" sitecustomize.py &&

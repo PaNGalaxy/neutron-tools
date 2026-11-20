@@ -435,6 +435,7 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
   </configfiles>
   <command detect_errors="exit_code"><![CDATA[
     umask 0000 &&
+    export CUDA_CACHE_PATH=/tmp/cuda_cache XDG_CACHE_HOME=/tmp/xdg_cache XDG_CONFIG_HOME=/tmp/xdg_config &&
     mkdir -p out &&
     chmod 0777 out &&
     export TF_FORCE_GPU_ALLOW_GROWTH=true &&
