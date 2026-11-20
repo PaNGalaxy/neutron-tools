@@ -3,7 +3,11 @@
     <container type="docker">ghcr.io/neutrons/subhkl:1.6.3</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
-		mkdir out ; 
+		umask 0000 &&
+		export CUDA_CACHE_PATH=/tmp/cuda_cache XDG_CACHE_HOME=/tmp/xdg_cache XDG_CONFIG_HOME=/tmp/xdg_config &&
+		trap 'rc=\$?; chmod -R a+rwX "\$PWD" \${_GALAXY_JOB_HOME_DIR:+"\$_GALAXY_JOB_HOME_DIR"} \${_GALAXY_JOB_TMP_DIR:+"\$_GALAXY_JOB_TMP_DIR"} 2>/dev/null || true; exit \$rc' EXIT &&
+		mkdir -p out &&
+		chmod 0777 out ; 
 		
 		## This tool requires more than the default shared memory size. You can unset this if you configure Docker to launch shm-size=128gb
 		export CUDA_VISIBLE_DEVICES=0 ; 

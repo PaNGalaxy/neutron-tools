@@ -94,6 +94,8 @@ except Exception:
   </configfiles>
     <command detect_errors="exit_code"><![CDATA[
 		umask 0000 &&
+		export CUDA_CACHE_PATH=/tmp/cuda_cache XDG_CACHE_HOME=/tmp/xdg_cache XDG_CONFIG_HOME=/tmp/xdg_config &&
+		trap 'rc=\$?; chmod -R a+rwX "\$PWD" \${_GALAXY_JOB_HOME_DIR:+"\$_GALAXY_JOB_HOME_DIR"} \${_GALAXY_JOB_TMP_DIR:+"\$_GALAXY_JOB_TMP_DIR"} 2>/dev/null || true; exit \$rc' EXIT &&
 		mkdir -p out &&
 		chmod 0777 out &&
 		cp "$sitecustomize_script" sitecustomize.py &&
