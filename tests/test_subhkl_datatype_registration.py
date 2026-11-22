@@ -307,23 +307,27 @@ def test_careless_post_metrics_script_emits_csv_and_html_tables(tmp_path: Path) 
     assert mono_keys == ["WAVEL", "THETA", "PHI", "RUN"]
 
 
-def test_interactivetool_subhkl_declares_local_staging_gpu_mode() -> None:
+def test_subhkl_rainbow_zones_declares_galaxy_shared_storage_mode() -> None:
     it_root = ET.parse(
         ROOT
         / "tools"
         / "neutrons"
         / "single-crystal-diffraction"
-        / "interactivetool_subhkl.xml"
+        / "subhkl_rainbow_zones.xml"
     ).getroot()
+    assert it_root.attrib.get("id") == "nova-subhkl-rainbow-zones"
     env_vars = {
         el.attrib.get("name"): (el.text or "").strip()
         for el in it_root.findall("./environment_variables/environment_variable")
     }
-    assert env_vars.get("SUBHKL_EXEC_MODE") == "local"
+    assert env_vars.get("SUBHKL_EXEC_MODE") == "galaxy"
+    assert env_vars.get("SUBHKL_SHARED_DIR") == "/gpfs/neutronsfs/scratch/subhkl_shared"
     assert env_vars.get("JAX_PLATFORMS") == "cpu"
     assert env_vars.get("XLA_PYTHON_CLIENT_PREALLOCATE") == "false"
     cmd_text = (it_root.findtext("./command") or "").strip()
     assert "SUBHKL_STAGING_DIR=" in cmd_text
+    assert "SUBHKL_SHARED_DIR=" in cmd_text
+    assert "HDF5_USE_FILE_LOCKING=FALSE" in cmd_text
     assert "umask 0000" in cmd_text
     assert "CUDA_CACHE_PATH=/tmp/cuda_cache" in cmd_text
     assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd_text
@@ -336,7 +340,7 @@ def test_subhkl_tools_redirect_cuda_and_xdg_caches_to_container_tmp() -> None:
         / "tools"
         / "neutrons"
         / "single-crystal-diffraction"
-        / "interactivetool_subhkl.xml",
+        / "subhkl_rainbow_zones.xml",
     ]
     assert len(xml_paths) >= 10
     for xp in xml_paths:
