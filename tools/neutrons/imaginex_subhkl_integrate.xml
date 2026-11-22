@@ -1,15 +1,17 @@
-<tool id="imaginex_subhkl_integrate" name="IMAGINE-X subhkl Peak Integration" profile="22.05" version="0.2.0" python_template_version="3.5">
+<tool id="imaginex_subhkl_integrate" name="IMAGINE-X subhkl Peak Integration" profile="22.05" version="0.3.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.6.6</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.7.0</container>
   </requirements>
     <command detect_errors="exit_code"><![CDATA[
 		umask 0000 &&
 		export CUDA_CACHE_PATH=/tmp/cuda_cache XDG_CACHE_HOME=/tmp/xdg_cache XDG_CONFIG_HOME=/tmp/xdg_config &&
+		export SUBHKL_SHARED_DIR="\${SUBHKL_SHARED_DIR:-/gpfs/neutronsfs/scratch/subhkl_shared}" HDF5_USE_FILE_LOCKING=FALSE &&
 		mkdir -p out &&
 		chmod 0777 out ; 
 		
 		ln -sf "$scan" "$scan.element_identifier" ;  
 		ln -sf "$predicted" "$predicted.element_identifier" ; 
+		trap 'python -u -m subhkl.io.parser cleanup-shared "$predicted.element_identifier" --if-ephemeral || true' EXIT ;
 		
 		#if $staticMaskFile:
 			ln -sf "$staticMaskFile" "$staticMaskFile.element_identifier" ; 
@@ -47,12 +49,13 @@
 
 		python -u -m subhkl.io.parser integrator "$scan.element_identifier" $instrument "$predicted.element_identifier" out/integrator.h5 --sigmas $sigma --nominal-sigma $nominalSigma --mosaicity-bound-mrad $mosaicMrad --shape-fit-min-snr $snr --matrix-free-profile $matrixProfile --rel-border-width $relBorder --chunk-size $chunk --show-progress $options &&
 		python -u -m subhkl.io.parser mtz-exporter out/integrator.h5 out/reflections.mtz --predictions-file "$predicted.element_identifier" &&
+		python -u -m subhkl.io.parser cleanup-shared "$predicted.element_identifier" --if-ephemeral &&
 		chmod -R a+rwX out
     ]]></command>
     <inputs>
     
-		<param format="h5" name="scan" type="data" label="Master scan file (scan.h5 / merged.h5)" />
-		<param format="h5" name="predicted" type="data" label="Predicted peaks file (peak_predictor.h5)" />
+		<param format="h5,json" name="scan" type="data" label="Master scan file or Shared Pointer (scan.ref.json / merged.h5)" />
+		<param format="h5,json" name="predicted" type="data" label="Predicted peaks file or Shared Pointer (peak_predictor.ref.json / peak_predictor.h5)" />
 		<param format="h5" name="staticMaskFile" type="data" optional="true" label="Static mask file" />
 		<param name="instrument" type="select" optional="false" value="CG4D" label="Instrument" > 
 			<option value="CG4D">IMAGINE-X (CG4D)</option>

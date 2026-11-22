@@ -1,11 +1,11 @@
-<tool id="nova-neutrons-trame-subhkl" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.6.6">
-    <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with local-staging GPU execution</description>
+<tool id="nova-subhkl-rainbow-zones" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.7.0">
+    <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with three-tier Galaxy GPU runner orchestration</description>
     <creator>
         <person name="Jens Glaser"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.6.6</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.7.0</container>
     </requirements>
     <entry_points>
         <entry_point name="Trame SubHKL" label="subhkl" requires_domain="False" requires_path_in_url="True">
@@ -19,7 +19,8 @@
         <environment_variable name="EP_PATH" inject="entry_point_path_for_label">subhkl</environment_variable>
         <environment_variable name="OIDC_ID_TOKEN_AZURE" inject="oidc_id_token_azure"/>
         <environment_variable name="OIDC_ID_TOKEN_PINGFED" inject="oidc_id_token_pingfed"/>
-        <environment_variable name="SUBHKL_EXEC_MODE">local</environment_variable>
+        <environment_variable name="SUBHKL_EXEC_MODE">galaxy</environment_variable>
+        <environment_variable name="SUBHKL_SHARED_DIR">/gpfs/neutronsfs/scratch/subhkl_shared</environment_variable>
         <environment_variable name="JAX_PLATFORMS">cpu</environment_variable>
         <environment_variable name="XLA_PYTHON_CLIENT_PREALLOCATE">false</environment_variable>
     </environment_variables>
@@ -29,7 +30,10 @@
         mkdir -p "\$PWD/subhkl_staging" &&
         chmod 0777 "\$PWD/subhkl_staging" &&
         export TMPDIR="\$PWD/subhkl_staging" SUBHKL_STAGING_DIR="\$PWD/subhkl_staging" &&
-        export SUBHKL_EXEC_MODE=local JAX_PLATFORMS=cpu XLA_PYTHON_CLIENT_PREALLOCATE=false &&
+        export SUBHKL_EXEC_MODE="\${SUBHKL_EXEC_MODE:-galaxy}" &&
+        export SUBHKL_SHARED_DIR="\${SUBHKL_SHARED_DIR:-/gpfs/neutronsfs/scratch/subhkl_shared}" &&
+        export HDF5_USE_FILE_LOCKING=FALSE &&
+        export JAX_PLATFORMS=cpu XLA_PYTHON_CLIENT_PREALLOCATE=false &&
         #set $p_opt = ""
         #if $indexed_h5:
             ln -sf "$indexed_h5" input_peaks.h5 &&
@@ -43,8 +47,8 @@
         subhkl-nova-app $p_opt $img_opt --instrument "$instrument" --host 0.0.0.0 --port 8081 --server timeout=0 > >(tee -a $output) 2> >(tee -a $output >&2)
     ]]></command>
     <inputs>
-        <param format="h5" name="indexed_h5" type="data" optional="true" label="Solved / Indexed / Integrated SubHKL HDF5 (solve.h5, indexer.h5, integrator.h5)"/>
-        <param format="h5" name="images_h5" type="data" optional="true" label="Detector Image HDF5 (scan.h5 / merged.h5)"/>
+        <param format="h5,json" name="indexed_h5" type="data" optional="true" label="Solved / Indexed / Integrated SubHKL HDF5 (solve.h5, indexer.h5, integrator.h5)"/>
+        <param format="h5,json" name="images_h5" type="data" optional="true" label="Detector Image HDF5 or Shared Scan Pointer (scan.ref.json / merged.h5)"/>
         <param name="instrument" type="select" optional="true" value="CG4D" label="Instrument">
             <option value="CG4D" selected="true">IMAGINE-X (CG4D — Cylindrical)</option>
             <option value="MANDI">MANDI (SNS — Spherical)</option>
