@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+import sys
 import xml.etree.ElementTree as ET
 
-from utils.register_subhkl_datatype import register_datatype
-
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from utils.register_subhkl_datatype import register_datatype  # noqa: E402
+
 FRAGMENT = ROOT / "tool_data" / "subhkl_datatypes_conf.xml.sample"
 
 
@@ -349,5 +352,25 @@ def test_subhkl_tools_redirect_cuda_and_xdg_caches_to_container_tmp() -> None:
         assert "XDG_CACHE_HOME=/tmp/xdg_cache" in cmd, xp.name
         assert "XDG_CONFIG_HOME=/tmp/xdg_config" in cmd, xp.name
         assert "_GALAXY_JOB_HOME_DIR" not in cmd, xp.name
+
+
+def test_subhkl_cleanup_shared_worker_tool_contract(tmp_path: Path) -> None:
+    cleanup_xml = ROOT / "tools" / "neutrons" / "imaginex_subhkl_cleanup_shared.xml"
+    root = ET.parse(cleanup_xml).getroot()
+    assert root.attrib.get("id") == "imaginex_subhkl_cleanup_shared"
+    container = root.findtext("./requirements/container") or ""
+    assert container.strip() == "ghcr.io/neutrons/subhkl:1.7.0"
+    cmd_text = root.findtext("./command") or ""
+    assert "SUBHKL_SHARED_DIR=" in cmd_text
+    assert "JAX_PLATFORMS=cpu" in cmd_text
+    cfg_raw = root.findtext("./configfiles/configfile[@name='cleanup_script']") or ""
+    assert "cleanup_shared_artifact" in cfg_raw
+    cfg_src = (
+        cfg_raw.replace("#raw", "").replace("#end raw", "").strip() + "\n"
+    )
+    script_p = tmp_path / "cleanup_script.py"
+    script_p.write_text(cfg_src, encoding="utf-8")
+    compile(cfg_src, str(script_p), "exec")
+
 
 
