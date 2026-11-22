@@ -32,6 +32,7 @@
         export TMPDIR="\$PWD/subhkl_staging" SUBHKL_STAGING_DIR="\$PWD/subhkl_staging" &&
         export SUBHKL_EXEC_MODE="\${SUBHKL_EXEC_MODE:-galaxy}" &&
         export SUBHKL_SHARED_DIR="\${SUBHKL_SHARED_DIR:-/gpfs/neutronsfs/scratch/subhkl_shared}" &&
+        export HDF5_USE_FILE_LOCKING=FALSE &&
         export JAX_PLATFORMS=cpu XLA_PYTHON_CLIENT_PREALLOCATE=false &&
         #set $p_opt = ""
         #if $indexed_h5:

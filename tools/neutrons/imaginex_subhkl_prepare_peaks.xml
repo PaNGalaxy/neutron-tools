@@ -114,7 +114,7 @@ except Exception:
 		    #set $input_args = $input_args + ' "' + str($Z.input) + '"'
 		    #set $src_file_opts = $src_file_opts + ' --source-file "' + str($Z.input) + '"'
 		#end for
-		export SUBHKL_SHARED_DIR="\${SUBHKL_SHARED_DIR:-/gpfs/neutronsfs/scratch/subhkl_shared}" &&
+		export SUBHKL_SHARED_DIR="\${SUBHKL_SHARED_DIR:-/gpfs/neutronsfs/scratch/subhkl_shared}" HDF5_USE_FILE_LOCKING=FALSE &&
 		LOCAL_SCRATCH="\$(mktemp -d -p "\${SUBHKL_STAGING_DIR:-\${TMPDIR:-/tmp}}" subhkl_reduce_XXXXXX)" &&
 		trap 'rm -rf "\$LOCAL_SCRATCH"' EXIT &&
 		python -u -m subhkl.io.parser reduce-batch $input_args --output-dir "\$LOCAL_SCRATCH" --instrument $instrument $wl_opts &&
