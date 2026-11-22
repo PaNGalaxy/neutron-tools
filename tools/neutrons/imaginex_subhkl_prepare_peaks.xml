@@ -1,6 +1,6 @@
-<tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X subhkl Prepare Peaks" profile="22.05" version="0.2.0" python_template_version="3.5">
+<tool id="imaginex_subhkl_prepare_peaks" name="IMAGINE-X subhkl Prepare Peaks" profile="22.05" version="0.3.0" python_template_version="3.5">
   <requirements>
-    <container type="docker">ghcr.io/neutrons/subhkl:1.6.6</container>
+    <container type="docker">ghcr.io/neutrons/subhkl:1.7.0</container>
   </requirements>
   <configfiles>
     <configfile name="sitecustomize_script"><![CDATA[#raw
@@ -109,12 +109,17 @@ except Exception:
 		#end if
 
 		#set $input_args = ""
+		#set $src_file_opts = ""
 		#for $Z in $inputs:
 		    #set $input_args = $input_args + ' "' + str($Z.input) + '"'
+		    #set $src_file_opts = $src_file_opts + ' --source-file "' + str($Z.input) + '"'
 		#end for
-		python -u -m subhkl.io.parser reduce-batch $input_args --output-dir out --instrument $instrument $wl_opts &&
-		python -u -m subhkl.io.parser merge-images "out/*.reduce.h5" out/scan_master.h5 $a $b $c $alpha $beta $gamma "$spaceGroup" &&
-		rm -f out/*.reduce.h5 &&
+		export SUBHKL_SHARED_DIR="\${SUBHKL_SHARED_DIR:-/gpfs/neutronsfs/scratch/subhkl_shared}" &&
+		LOCAL_SCRATCH="\$(mktemp -d -p "\${SUBHKL_STAGING_DIR:-\${TMPDIR:-/tmp}}" subhkl_reduce_XXXXXX)" &&
+		trap 'rm -rf "\$LOCAL_SCRATCH"' EXIT &&
+		python -u -m subhkl.io.parser reduce-batch $input_args --output-dir "\$LOCAL_SCRATCH" --instrument $instrument $wl_opts &&
+		python -u -m subhkl.io.parser merge-images "\$LOCAL_SCRATCH/*.reduce.h5" "\$LOCAL_SCRATCH/scan_master.h5" $a $b $c $alpha $beta $gamma "$spaceGroup" --shared-pointer-out out/scan_ref.json --instrument "$instrument" $src_file_opts &&
+		rm -rf "\$LOCAL_SCRATCH" &&
 		chmod -R a+rwX out
     ]]></command>
     <inputs>
@@ -139,7 +144,7 @@ except Exception:
 
     </inputs>
     <outputs>
-		<data format="h5" label="scan.h5" name="output" from_work_dir="out/scan_master.h5" />
+		<data format="json" label="scan.ref.json" name="output" from_work_dir="out/scan_ref.json" />
     </outputs>
     <help><![CDATA[
         Reduce raw NeXus files into per-bank 2D count images and merge into a master scan.h5 stack for subhkl solve.
