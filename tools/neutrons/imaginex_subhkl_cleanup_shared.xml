@@ -1,0 +1,65 @@
+<tool id="imaginex_subhkl_cleanup_shared" name="IMAGINE-X subhkl Shared Storage Cleanup" profile="22.05" version="0.3.0" python_template_version="3.5">
+    <description>Remove superseded SubHKL shared-filesystem intermediates on a worker node</description>
+    <requirements>
+        <container type="docker">ghcr.io/neutrons/subhkl:1.7.0</container>
+    </requirements>
+    <configfiles>
+        <configfile name="cleanup_script"><![CDATA[#raw
+import sys
+from subhkl.io.shared_storage import cleanup_shared_artifact
+
+if_ephem = str(sys.argv[1]).strip().lower() in ("true", "1", "yes")
+raw_net = sys.argv[2] if len(sys.argv) > 2 else ""
+ptr_arg = sys.argv[3] if len(sys.argv) > 3 else ""
+
+targets = [s.strip() for s in raw_net.split(",") if s.strip()]
+if ptr_arg.strip():
+    targets.append(ptr_arg.strip())
+
+removed = 0
+for tgt in targets:
+    if cleanup_shared_artifact(tgt, only_if_delete_after_use=if_ephem):
+        print(f"[subhkl] Deleted shared intermediate for '{tgt}'", flush=True)
+        removed += 1
+
+print(
+    f"[subhkl] Shared cleanup worker finished ({removed}/{len(targets)} removed).",
+    flush=True,
+)
+#end raw]]></configfile>
+    </configfiles>
+    <command detect_errors="exit_code"><![CDATA[
+        umask 0000 &&
+        export CUDA_CACHE_PATH=/tmp/cuda_cache XDG_CACHE_HOME=/tmp/xdg_cache XDG_CONFIG_HOME=/tmp/xdg_config &&
+        export SUBHKL_SHARED_DIR="\${SUBHKL_SHARED_DIR:-/gpfs/neutronsfs/scratch/subhkl_shared}" HDF5_USE_FILE_LOCKING=FALSE &&
+        export JAX_PLATFORMS=cpu XLA_PYTHON_CLIENT_PREALLOCATE=false &&
+        #set $ptr_path = ""
+        #if $pointer:
+            ln -sf "$pointer" pointer_input.json &&
+            #set $ptr_path = "pointer_input.json"
+        #end if
+        python -u "$cleanup_script" "$ifEphemeral" '$networkPath' "$ptr_path" > "$output" 2>&1
+    ]]></command>
+    <inputs>
+        <param format="json,h5" name="pointer" type="data" optional="true" label="Shared Pointer Dataset (scan.ref.json / peak_predictor.ref.json)"/>
+        <param name="networkPath" type="text" value="" optional="true" label="Comma-separated Shared Network Path(s) (subhkl_shared_&lt;uuid&gt;_*.h5)">
+            <sanitizer invalid_char="">
+                <valid initial="string.ascii_letters,string.digits">
+                    <add value="_"/>
+                    <add value="-"/>
+                    <add value="."/>
+                    <add value="/"/>
+                    <add value=":"/>
+                    <add value=","/>
+                </valid>
+            </sanitizer>
+        </param>
+        <param name="ifEphemeral" type="boolean" checked="false" truevalue="true" falsevalue="false" label="Only delete pointer targets marked delete_after_use=true"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="cleanup.log"/>
+    </outputs>
+    <help><![CDATA[
+        Lightweight CPU worker utility that deletes superseded `subhkl_shared_<uuid>_*.h5` intermediates from `SUBHKL_SHARED_DIR` when the interactive UI container mounts `SUBHKL_SHARED_DIR` read-only (`ro`).
+    ]]></help>
+</tool>
