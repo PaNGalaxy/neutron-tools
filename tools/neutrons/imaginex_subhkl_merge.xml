@@ -5,6 +5,36 @@
     <resource type="gpu_memory_min">4096</resource>
   </requirements>
   <configfiles>
+    <configfile name="host_banner_script"><![CDATA[#raw
+import os
+import re
+import socket
+
+def _detect_host() -> str:
+    for env_k in ("PULSAR_HOSTNAME", "HOST_HOSTNAME", "SLURM_NODELIST"):
+        val = os.environ.get(env_k, "").strip()
+        if val:
+            return val.split(".")[0]
+    nv_ver = "/proc/driver/nvidia/version"
+    if os.path.isfile(nv_ver):
+        try:
+            with open(nv_ver, encoding="utf-8", errors="ignore") as f:
+                head = f.readline()
+            m = re.search(r"\((?:[^@()\s]+@)([A-Za-z0-9._-]+)\)", head)
+            if m:
+                cand = m.group(1).split(".")[0]
+                if (
+                    cand.lower() not in {"localhost", "build", "mockbuild"}
+                    and "releng" not in cand.lower()
+                ):
+                    return cand
+        except OSError:
+            pass
+    host = socket.gethostname().strip()
+    return host.split(".")[0] if host else "PULSAR"
+
+print(_detect_host())
+#end raw]]></configfile>
     <configfile name="prep_mtz_script"><![CDATA[#raw
 import gemmi
 import numpy as np
@@ -58,6 +88,9 @@ import reciprocalspaceship as rs
 from scipy.stats import pearsonr, spearmanr
 
 summary = {"status": "ok", "mode": os.environ.get("CARELESS_MODE", "poly")}
+_rhost = os.environ.get("CARELESS_RUNNER_HOST", "").strip()
+if _rhost:
+    summary["runner_host"] = _rhost
 mtz = gemmi.read_mtz_file("out/merged.mtz")
 sg_obj = mtz.spacegroup or gemmi.find_spacegroup_by_name("P 1")
 summary["space_group"] = str(sg_obj.xhm() or sg_obj.short_name() or "P 1")
@@ -440,6 +473,9 @@ with open("out/merge_table.html", "w", encoding="utf-8") as fh_html:
     chmod 0777 out &&
     export TF_FORCE_GPU_ALLOW_GROWTH=true &&
     ln -sf "$reflections" input_reflections.mtz &&
+    CARELESS_RUNNER_HOST=\$(python "$host_banner_script") &&
+    export CARELESS_RUNNER_HOST &&
+    echo "[pulsar] Runner host: \$CARELESS_RUNNER_HOST" &&
     #set $careless_mode = str($mode) if str($mode) in ("mono", "poly") else "poly"
     export CARELESS_MODE="$careless_mode" &&
     METADATA_KEYS=\$(python "$prep_mtz_script") &&
