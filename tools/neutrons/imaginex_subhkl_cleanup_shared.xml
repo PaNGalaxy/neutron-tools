@@ -1,7 +1,7 @@
 <tool id="imaginex_subhkl_cleanup_shared" name="IMAGINE-X subhkl Shared Storage Cleanup" profile="22.05" version="0.3.0" python_template_version="3.5">
     <description>Remove superseded SubHKL shared-filesystem intermediates on a worker node</description>
     <requirements>
-        <container type="docker">ghcr.io/neutrons/subhkl:1.7.2</container>
+        <container type="docker">ghcr.io/neutrons/subhkl:1.7.3</container>
     </requirements>
     <configfiles>
         <configfile name="cleanup_script"><![CDATA[#raw

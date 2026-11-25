@@ -359,7 +359,7 @@ def test_subhkl_cleanup_shared_worker_tool_contract(tmp_path: Path) -> None:
     root = ET.parse(cleanup_xml).getroot()
     assert root.attrib.get("id") == "imaginex_subhkl_cleanup_shared"
     container = root.findtext("./requirements/container") or ""
-    assert container.strip() == "ghcr.io/neutrons/subhkl:1.7.2"
+    assert container.strip() == "ghcr.io/neutrons/subhkl:1.7.3"
     cmd_text = root.findtext("./command") or ""
     assert "SUBHKL_SHARED_DIR=" in cmd_text
     assert "JAX_PLATFORMS=cpu" in cmd_text
