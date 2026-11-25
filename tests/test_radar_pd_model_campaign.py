@@ -124,7 +124,7 @@ def test_live_snapshot_passes_the_cache_as_an_argument_not_a_new_shell_command(t
     renderer.render('ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-'+'a'*40,output,tool='live_snapshot')
     node=ET.parse(output).getroot()
     command=str(Template(node.findtext('command'),searchList=[dict(packet='packet.zip',result_bundle='out.zip',
-        response_cache_output='cache-out.zip',console_output='console.txt',preparation_provenance='provenance.json',
+        response_cache_output='cache-out.zip',console_output='console.txt',preparation_provenance='provenance.json',resource_probe='resource-probe.py',
         response_cache='cache-in.zip' if cache else None)]))
     bootstrap="python() { printf '%s\\0' \"$@\" > args.bin; }\n"
     subprocess.run(['/bin/sh','-c',bootstrap+command],cwd=tmp_path,check=True)

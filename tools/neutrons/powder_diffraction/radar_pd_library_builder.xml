@@ -11,6 +11,7 @@
         #import shlex
         touch '$library_archive' '$library_manifest' '$console_output' &&
         trap "chmod a+r '$library_archive' '$library_manifest' '$console_output' >/dev/null 2>&1 || true" EXIT &&
+        python '$resource_probe' > '$console_output' 2>&1 &&
         set -euo pipefail &&
         mkdir -p cif_inputs archive_inputs library_output &&
         python /opt/radar-pd/scripts/cif_source_archive.py '$cif_archive' &&
@@ -18,6 +19,14 @@
         find archive_inputs -type f -iname '*.cif' -exec cp -n {} cif_inputs/ \; &&
         python /opt/radar-pd/scripts/ndip_runner.py build-library --cif-dir cif_inputs --library-mode '$library_mode' --reviewed-occupancy-excess '$reviewed_occupancy_excess' --occupancy-review-note ${shlex.quote(str($occupancy_review_note))} --radiation '$radiation' --base-db-root "\${RADAR_PD_DB_ROOT}/database_${radiation}" --output-root library_output --manifest-output '$library_manifest' --archive '$library_archive' > >(tee -a '$console_output') 2> >(tee -a '$console_output' >&2)
     ]]></command>
+    <configfiles>
+        <configfile name="resource_probe"><![CDATA[import json, os
+from gpx_recipe.symmetry.resources import allocation
+names = ('GALAXY_SLOTS', 'GALAXY_MEMORY_MB')
+reported = {name: int(os.environ[name]) if os.environ.get(name, '').isascii() and os.environ.get(name, '').isdecimal() and 0 < int(os.environ[name]) < 2**40 else None for name in names}
+print('[RADAR RESOURCE ALLOCATION] ' + json.dumps(dict(schema='radar-resource-allocation/v1', reported=reported, capacity=allocation(4), scope='Allocation capacity, not a measurement of simultaneous CPU use.'), sort_keys=True))
+]]></configfile>
+    </configfiles>
     <inputs>
         <param name="cif_archive" type="data" format="zip" label="Prepared CIF source bundle" help="A ZIP containing one or more CIF files with distinct filenames, including files in different folders. Filename collisions are rejected before extraction. RADAR-PD Interactive prepares this bundle automatically from loose CIFs, ZIP archives, and reusable Galaxy CIF datasets."/>
         <param name="library_name" type="text" value="custom_candidate_library" label="Scientific library name" help="A short name that will identify this reusable library in Galaxy History and in later RADAR-PD runs.">

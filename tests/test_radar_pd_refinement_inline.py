@@ -57,12 +57,15 @@ def test_real_cheetah_command_selects_exactly_one_literal_request(tmp_path, mode
     source = tmp_path / 'source.gpx'
     source.write_bytes(b'unchanged source bytes')
     worker = tmp_path / 'fake_worker.py'
+    probe = tmp_path / 'resource_probe.py'
+    probe.write_text("print('[RADAR RESOURCE ALLOCATION] test probe')\n")
     worker.write_text("from pathlib import Path\nimport sys\nPath('worker-called').touch()\nPath(sys.argv[5]).write_bytes(Path(sys.argv[3]).read_bytes())\n")
     result = tmp_path / 'result.json'
     command = tool.findtext('command').replace('/opt/radar-pd/scripts/ndip_refinement.py', str(worker))
     rendered = str(Template(command, searchList=[dict(
         action='run', source_gpx=str(source), result_bundle=str(result),
         console_output=str(tmp_path / 'console.txt'), request_decoder=str(script), inline_request=str(inline),
+        resource_probe=str(probe),
         recipe_request_b64=b64 if mode in {'inline', 'both'} else '',
         recipe_request=str(legacy) if mode in {'legacy', 'both'} else None)]))
     rendered = re.sub(r'(?m)^(\s*)python\s', lambda match: match[1] + shlex.quote(sys.executable) + ' ', rendered)
@@ -74,6 +77,7 @@ def test_real_cheetah_command_selects_exactly_one_literal_request(tmp_path, mode
         assert run.returncode == 0, run.stderr.decode()
         assert (tmp_path / 'worker-called').exists()
         assert result.read_bytes() == raw
+        assert (tmp_path / 'console.txt').read_text().startswith('[RADAR RESOURCE ALLOCATION]')
     else:
         assert run.returncode != 0
         assert not (tmp_path / 'worker-called').exists()
