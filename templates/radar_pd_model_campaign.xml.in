@@ -1,4 +1,4 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.9" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.10" profile="22.05">
     <description>run reviewed planning, preparation, training and model jobs with allocated resources</description>
     <requirements><container type="docker">@IMMUTABLE_MODELS_IMAGE@</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -53,6 +53,7 @@ else:
 ]]></configfile>
     </configfiles>
     <inputs>
+        <param name="preparation_examples_batch_v1" type="hidden" value="1"/>
         <param name="action" type="select" label="Reviewed model operation">
             <option value="native">Inspect, simulate, prepare or train</option>
             <option value="admission">Validate a prepared structural library for this scan</option>

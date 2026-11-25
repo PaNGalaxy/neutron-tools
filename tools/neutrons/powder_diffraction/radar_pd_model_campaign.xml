@@ -1,6 +1,6 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.9" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.10" profile="22.05">
     <description>run reviewed planning, preparation, training and model jobs with allocated resources</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6:models-81b9d1e3eb5eb353b1a9f4e8f57ec1c21b1dc6ec</container></requirements>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:52acf836ac8525cde98a4a3cb06f159be32c072d14ef4f40c80aee250336e347</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$result_bundle' '$console_output' '$preparation_certificate' &&
         trap "chmod a+r '$result_bundle' '$console_output' '$preparation_certificate' >/dev/null 2>&1 || true" EXIT &&
@@ -65,6 +65,7 @@ else:
 ]]></configfile>
     </configfiles>
     <inputs>
+        <param name="preparation_examples_batch_v1" type="hidden" value="1"/>
         <param name="action" type="select" label="Reviewed model operation">
             <option value="native">Inspect, simulate, prepare or train</option>
             <option value="admission">Validate a prepared structural library for this scan</option>
