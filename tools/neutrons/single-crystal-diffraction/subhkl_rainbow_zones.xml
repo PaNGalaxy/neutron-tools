@@ -1,11 +1,11 @@
-<tool id="nova-subhkl-rainbow-zones" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.7.2">
+<tool id="nova-subhkl-rainbow-zones" tool_type="interactive" name="IMAGINE-X SubHKL Diffraction Parallax" profile="22.05" version="1.7.3">
     <description>Interactive Laue zone &amp; Lattice-Ladder solve explorer with three-tier Galaxy GPU runner orchestration</description>
     <creator>
         <person name="Jens Glaser"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.7.2</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/neutrons/subhkl:1.7.3</container>
     </requirements>
     <entry_points>
         <entry_point name="Trame SubHKL" label="subhkl" requires_domain="False" requires_path_in_url="True">
