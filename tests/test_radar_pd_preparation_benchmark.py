@@ -168,8 +168,8 @@ def test_embedded_decoder_accepts_data_objects_only(tmp_path,value):
 def test_cuda_controls_request_hardware_without_fabricating_cpu_entitlement(tmp_path,path):
     tool=expanded(path) if path==CUDA_TRAINING else ET.parse(path).getroot()
     assert tool.attrib['hidden']=='true'
-    assert tool.attrib['version']=='0.1.10'
-    assert tool.findtext('./requirements/container') == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:cb760029d8bc606bb1888a1d8c4dd24553b3ba397302795eafbe4afc6c8cab0a"
+    assert tool.attrib['version']=='0.1.11'
+    assert tool.findtext('./requirements/container') == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:cf93e41ed15beff7a67881f9418a6a65e20f221922b68525d2f1341728230738"
     resources={r.attrib['type']:r.text for r in tool.findall('./requirements/resource')}
     assert resources['cuda_device_count_min']=='1' and resources['gpu_memory_min']=='4096'
     assert resources['cuda_version_min']=='12.6'

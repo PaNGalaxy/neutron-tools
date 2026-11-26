@@ -511,9 +511,9 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.7.40"
+    assert root.attrib.get("version") == "0.7.43"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:38547a00c548f84a7cd8bbf858b4a651b53bd0aeafc75037d1b9f91b61eb6df3"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:3de3a88bd7d13be0ce64039584405bdc8d05e3b7bdebe26e70973af9af3b0b50"
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
     secret = credential.find("./secret[@name='api_key']")
@@ -530,16 +530,16 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.47"
+    assert root.attrib.get("version") == "0.5.48"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:eeaa1206a6845ec9833d9097f47b5e071b9ab0ed2aaac632b2a86f74633abe19"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:f628d24476435716112c401c59389669569aa2bd8aac3fd400d1fcad42b77037"
 
 
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
     builder = _root("radar_pd_library_builder.xml")
     analyze = _root("radar_pd_analyze.xml")
-    assert builder.attrib["version"] == "0.3.21"
-    assert builder.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:eeaa1206a6845ec9833d9097f47b5e071b9ab0ed2aaac632b2a86f74633abe19"  # Scientific library contracts are retained; both workers share the allocation guard.
+    assert builder.attrib["version"] == "0.3.22"
+    assert builder.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:f628d24476435716112c401c59389669569aa2bd8aac3fd400d1fcad42b77037"  # Scientific library contracts are retained; both workers share the allocation guard.
     policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
     assert policy is not None
     assert [(option.attrib["value"], option.attrib.get("selected"))
@@ -564,8 +564,8 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     stage_projects = root.find("./outputs/collection[@name='stage_projects']")
 
     assert root.attrib.get("id") == "neutrons_radar_pd_refine_recipe_prototype"
-    assert root.attrib.get("version") == "0.3.21"
-    assert container is not None and container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:eeaa1206a6845ec9833d9097f47b5e071b9ab0ed2aaac632b2a86f74633abe19"
+    assert root.attrib.get("version") == "0.3.22"
+    assert container is not None and container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:f628d24476435716112c401c59389669569aa2bd8aac3fd400d1fcad42b77037"
     assert "/opt/radar-pd/scripts/ndip_refinement.py" in command
     assert "'$recipe_request'" in command
     assert source is not None and source.attrib.get("format") == "binary"
@@ -577,16 +577,16 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
 
 def test_model_worker_uses_the_reviewed_shared_native_kernel_image() -> None:
     root = _root("radar_pd_model_campaign.xml")
-    assert root.attrib["version"] == "0.3.12"
-    assert root.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:7922c6a5de3ddcd86b00497be3128441ecc2a9e94ab00b1cc12e1414408a97ea"
+    assert root.attrib["version"] == "0.3.14"
+    assert root.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:91dd02092bcb8114a1a3c7fe352d912380571bda3169f2ab2c196e12ed9a6c6a"
 
 
 def test_live_snapshot_worker_publishes_verified_projects_without_credentials() -> None:
     root = _root("radar_pd_live_snapshot.xml")
-    assert root.attrib["version"] == "0.1.15"
+    assert root.attrib["version"] == "0.1.17"
     # Galaxy strips and joins command lines; shell continuations become argv spaces.
     assert not any(line.rstrip().endswith("\\") for line in root.findtext("command").splitlines())
-    assert root.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:7922c6a5de3ddcd86b00497be3128441ecc2a9e94ab00b1cc12e1414408a97ea"
+    assert root.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:91dd02092bcb8114a1a3c7fe352d912380571bda3169f2ab2c196e12ed9a6c6a"
     assert {p.attrib["name"] for p in root.findall("./inputs/param")} == {
         "packet", "response_cache", "preparation_evidence", "dispatch_key"
     }
