@@ -193,6 +193,29 @@ def test_monitor_profile_publishes_fit_plots_and_gpx_but_not_the_heavy_archive()
     assert 'metadata["arrays_npz"] = arrays_destination.name' in publisher
 
 
+@pytest.mark.parametrize('profile,separate,expected', [
+    ('full', None, False), ('full', False, False), ('full', True, True),
+    ('monitor', None, False), ('monitor', False, False), ('monitor', True, False),
+])
+def test_diagnostics_remain_archived_unless_separate_publication_is_explicit(profile, separate, expected):
+    root = _root('radar_pd_analyze.xml')
+    option = root.find('./inputs/section[@name="reproducibility"]/param[@name="publish_diagnostics"]')
+    assert option is not None and option.get('type') == 'boolean' and option.get('checked') == 'false'
+    assert 'complete results archive' in option.get('help', '')
+    parameters = {} if separate is None else {'publish_diagnostics': separate}
+    diagnostic_filter = root.findtext('./outputs/collection[@name="diagnostics"]/filter')
+    assert eval(diagnostic_filter, {'__builtins__': {}},
+                {'output_profile': profile, 'reproducibility': parameters}) is expected
+    # This preference only filters duplicate Galaxy datasets. It neither
+    # changes the native run nor suppresses diagnostics from the archive.
+    command = root.findtext('command')
+    assert 'publish_diagnostics' not in command
+    archive_filter = root.findtext('./outputs/data[@name="results_archive"]/filter')
+    assert eval(archive_filter, {'__builtins__': {}}, {'output_profile': profile}) is (profile == 'full')
+    assert root.find('./outputs/collection[@name="gpx_projects"]/filter') is None
+    assert root.find('./outputs/collection[@name="plots"]/filter') is None
+
+
 @pytest.mark.parametrize("outcome", ["fitted", "no_refinement", "corrupt"])
 def test_monitor_curve_publisher_preserves_receipt_or_explicit_absence(tmp_path, monkeypatch, outcome):
     root = _root("radar_pd_analyze.xml")

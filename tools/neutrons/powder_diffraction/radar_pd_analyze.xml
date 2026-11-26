@@ -674,6 +674,7 @@ print(f"Published {published} interactive plot sidecar file(s).")
 
         <section name="reproducibility" title="10. Run identity and reproducibility" expanded="true">
             <param name="run_name" type="text" optional="true" label="Run name" help="Defaults to the diffraction dataset name. Use a meaningful name for mapped scans or repeated measurements."/>
+            <param name="publish_diagnostics" type="boolean" checked="false" label="Also publish each diagnostic file in History (advanced)" help="All diagnostic files are preserved in the complete results archive and its result viewer. Enable separate History files only when needed; many small files can delay result publication."/>
             <conditional name="configuration_override">
                 <param name="config_kind" type="select" label="Configuration source" help="Most users should generate the configuration from the controls above. A saved YAML is useful in automated or mapped workflows.">
                     <option value="guided" selected="true">Generate a reproducible configuration from this form</option>
@@ -726,7 +727,7 @@ print(f"Published {published} interactive plot sidecar file(s).")
             <filter>output_profile == 'full'</filter>
         </data>
         <collection type="list" name="diagnostics" label="RADAR-PD diagnostics">
-            <filter>output_profile == 'full'</filter>
+            <filter>output_profile == 'full' and reproducibility.get('publish_diagnostics', False)</filter>
             <discover_datasets pattern="__designation_and_ext__" directory="portal/diagnostics" visible="false"/>
         </collection>
     </outputs>
@@ -742,6 +743,6 @@ print(f"Published {published} interactive plot sidecar file(s).")
 
 **Rapid Hypothesis Mode** performs coarse mixture search, symmetry-aware lattice nudging, higher-resolution pattern scoring, and focused GSAS-II refinement ranking. **Full RADAR-PD** performs sequential residual-aware impurity discovery and refinement. The Balanced profile is recommended for a first Full run.
 
-The primary outputs are numbered in the History. Start with **Result overview**, then open the curated plot and table collections. Send **Complete results archive** to **RADAR-PD Utility: Explore Results** for the integrated dashboard; one archive restores the report, plots, tables, CIFs, and GPX checkpoints together. Send an element from **GSAS-II handoff projects** to **RADAR-PD Utility: Refine in GSAS-II** to continue the refinement in the hosted native GSAS-II desktop.
+The primary outputs are numbered in the History. Start with **Result overview**, then open the curated plot and table collections. Send **Complete results archive** to **RADAR-PD Utility: Explore Results** for the integrated dashboard; one archive restores the report, plots, tables, CIFs, GPX checkpoints, and all diagnostic files together. Diagnostic files are available in the viewer's file browser. The advanced option in Section 10 also publishes each diagnostic as a separate History dataset when needed. Send an element from **GSAS-II handoff projects** to **RADAR-PD Utility: Refine in GSAS-II** to continue the refinement in the hosted native GSAS-II desktop.
     ]]></help>
 </tool>
