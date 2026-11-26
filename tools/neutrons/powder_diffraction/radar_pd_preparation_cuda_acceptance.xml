@@ -1,7 +1,7 @@
-<tool id="neutrons_radar_pd_preparation_cuda_acceptance_prototype" name="RADAR-PD Diagnostic: CUDA trainer acceptance" version="0.1.8" hidden="true" profile="22.05">
+<tool id="neutrons_radar_pd_preparation_cuda_acceptance_prototype" name="RADAR-PD Diagnostic: CUDA trainer acceptance" version="0.1.9" hidden="true" profile="22.05">
     <description>verify actual GPU kernels, recovery and portable inference using fixed synthetic controls</description>
     <requirements>
-        <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:66553145aa4b2358c898f53596951fe3d17cb4812d1cf8d6a5801c0ae3836c67</container>
+        <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:3ea1f0f75abd1ef8bb0dc3db04ddf3955f00bc0437d29b17ff3457d729cad0de</container>
         <resource type="cores_min">1</resource>
         <resource type="ram_min">8192</resource>
         <resource type="cuda_device_count_min">1</resource>
