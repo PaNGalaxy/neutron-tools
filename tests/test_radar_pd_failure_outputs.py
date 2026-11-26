@@ -27,6 +27,9 @@ def test_failed_analysis_keeps_original_error_and_all_declared_outputs(tmp_path)
                    '[FATAL] Main-phase refinement failed\n')
     for name in ('summary.json', 'state.json', 'results.zip'):
         (portal / name).touch()
+    partial = portal / 'diagnostics' / 'native' / 'partial.log'
+    partial.parent.mkdir(parents=True)
+    partial.write_text('Partial native evidence before collection failure\n')
     result = subprocess.run([sys.executable, str(script(tmp_path)), str(portal), str(log), '7'], capture_output=True)
     assert result.returncode == 0, result.stderr
     summary = json.loads((portal / 'summary.json').read_text())
@@ -38,6 +41,8 @@ def test_failed_analysis_keeps_original_error_and_all_declared_outputs(tmp_path)
         assert (portal / name).stat().st_size > 0
     with zipfile.ZipFile(portal / 'results.zip') as z:
         assert 'Gaussian variance' in z.read('FAILURE.txt').decode()
+        assert z.read('ndip/diagnostics/native/partial.log') == partial.read_bytes()
+        assert json.loads(z.read('ndip/summary.json'))['status'] == 'failed'
 
 
 def test_failure_does_not_overwrite_existing_scientific_evidence(tmp_path):

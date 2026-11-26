@@ -232,6 +232,12 @@ archive = portal / "results.zip"
 if not archive.is_file() or archive.stat().st_size == 0:
     with zipfile.ZipFile(archive, "w") as handle:
         handle.writestr("FAILURE.txt", "\n".join(reasons) + "\n")
+        # A failed collection may already have useful partial diagnostics.
+        # Preserve them with the other portal files even when individual
+        # diagnostic HDAs were not requested.
+        for path in sorted(portal.rglob("*")):
+            if path.is_file() and path.resolve() != archive.resolve():
+                handle.write(path, arcname="ndip/" + path.relative_to(portal).as_posix())
 if not console.is_file() or console.stat().st_size == 0:
     console.write_text("\n".join(reasons) + "\n", encoding="utf-8")
         ]]></configfile>
