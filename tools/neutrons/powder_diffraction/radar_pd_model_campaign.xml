@@ -1,6 +1,6 @@
-<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.14" profile="22.05">
+<tool id="neutrons_radar_pd_model_campaign_prototype" name="RADAR-PD Utility: Model Campaign" version="0.3.15" profile="22.05">
     <description>run reviewed planning, preparation, training and model jobs with allocated resources</description>
-    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:91dd02092bcb8114a1a3c7fe352d912380571bda3169f2ab2c196e12ed9a6c6a</container></requirements>
+    <requirements><container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:d4048bfda513dcbfb91f08663133771970fffc603e2da68751dbecf21ed3dc1e</container></requirements>
     <command detect_errors="exit_code"><![CDATA[
         touch '$result_bundle' '$console_output' '$preparation_certificate' &&
         trap "chmod a+r '$result_bundle' '$console_output' '$preparation_certificate' >/dev/null 2>&1 || true" EXIT &&
