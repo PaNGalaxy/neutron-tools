@@ -536,9 +536,9 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.7.57"
+    assert root.attrib.get("version") == "0.7.58"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:626bd82fc2dcdd39614c584ccbdf94b57cdce7801175449b56c3324c6940b2d4"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:345ee9dbe77a9a4c0704e480b35b90d02a3ce2fafd27577abd889d4b7e40b3fd"
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
     secret = credential.find("./secret[@name='api_key']")
@@ -555,9 +555,9 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.52"
+    assert root.attrib.get("version") == "0.5.53"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:4b301e53b6b94abaf0ecb57a37032dc1cf3c20a5c012f9f61d167fdb7a241420"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:b0abf027160744a1d5cf540ae40bfd93b412224277627215732ce72bef0333d3"
 
 
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
