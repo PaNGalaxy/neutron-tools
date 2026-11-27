@@ -589,8 +589,8 @@ def test_reviewed_refinement_uses_the_matching_scientific_image() -> None:
     stage_projects = root.find("./outputs/collection[@name='stage_projects']")
 
     assert root.attrib.get("id") == "neutrons_radar_pd_refine_recipe_prototype"
-    assert root.attrib.get("version") == "0.3.25"
-    assert container is not None and container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:cce96c87e99fc675f51f788a7653653e67efed1b0d0f0d1322adc64ccaa88c8e"
+    assert root.attrib.get("version") == "0.3.26"
+    assert container is not None and container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:ed7141990cc2be9091912b3ce4cc6ebf258bf7c97ca76bd45816d2b0b8399176"
     assert "/opt/radar-pd/scripts/ndip_refinement.py" in command
     assert "'$recipe_request'" in command
     assert source is not None and source.attrib.get("format") == "binary"
