@@ -1,8 +1,8 @@
-<tool id="neutrons_radar_pd_preparation_cuda_training_prototype" name="RADAR-PD Diagnostic: CUDA structural training" version="0.1.13" hidden="true" profile="22.05">
+<tool id="neutrons_radar_pd_preparation_cuda_training_prototype" name="RADAR-PD Diagnostic: CUDA structural training" version="0.1.14" hidden="true" profile="22.05">
     <macros><import>radar_pd_preparation_benchmark.macros</import></macros>
     <description>train the complete reviewed structural cohort on one CUDA device with portable CPU inference</description>
     <requirements>
-        <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:31c47ba7906e5ae3d43521b460315a6c137eff0f5c63070840a8e682c74c5be4</container>
+        <container type="docker">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:ffca4923d8dd9b336008bf953e3500216566221e6677b3189e929145e814b22d</container>
         <resource type="cores_min">4</resource>
         <resource type="cores_max">4</resource>
         <resource type="ram_min">8192</resource>
