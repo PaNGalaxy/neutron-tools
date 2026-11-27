@@ -4,6 +4,8 @@ import pickle
 import sys
 import types
 import hashlib
+import ast
+import os
 import pytest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -534,9 +536,9 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.7.56"
+    assert root.attrib.get("version") == "0.7.57"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:8a52323160503f6fa2207a24550023697689f824e18715b24c42afb53472c19c"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:626bd82fc2dcdd39614c584ccbdf94b57cdce7801175449b56c3324c6940b2d4"
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
     secret = credential.find("./secret[@name='api_key']")
@@ -553,16 +555,16 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.51"
+    assert root.attrib.get("version") == "0.5.52"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:1bf02c9a709287e5389d7abc00734cf90337352f96b67d55baf0505d890d8e94"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:4b301e53b6b94abaf0ecb57a37032dc1cf3c20a5c012f9f61d167fdb7a241420"
 
 
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
     builder = _root("radar_pd_library_builder.xml")
     analyze = _root("radar_pd_analyze.xml")
-    assert builder.attrib["version"] == "0.3.23"
-    assert builder.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:d33ee3f7529d5770b73219b1224270de505f843dc5154ef5d05fb15fba780e9f"  # Scientific library contracts are retained; both workers share the allocation guard.
+    assert builder.attrib["version"] == "0.3.24"
+    assert builder.findtext("./requirements/container") == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:4b301e53b6b94abaf0ecb57a37032dc1cf3c20a5c012f9f61d167fdb7a241420"  # Scientific library contracts are retained; both workers share the allocation guard.
     policy = builder.find("./inputs/param[@name='reviewed_occupancy_excess']")
     assert policy is not None
     assert [(option.attrib["value"], option.attrib.get("selected"))
@@ -665,3 +667,26 @@ def test_gsasii_collection_prefers_final_joint_cell_model(tmp_path, monkeypatch)
     with redirect_stdout(output):
         exec(compile(selector, '<select_project>', 'exec'), {})
     assert Path(output.getvalue().strip()) == final.resolve()
+
+
+@pytest.mark.parametrize("layout", ["database_neutron", "database_xray", "flat"])
+def test_fallback_publication_uses_runtime_catalog_root(tmp_path, monkeypatch, layout):
+    publisher = _root("radar_pd_analyze.xml").findtext(
+        "./configfiles/configfile[@name='publish_gpx_fallback']", default="")
+    root = tmp_path / "immutable_catalog"
+    catalog = root / "catalog_deduplicated.csv" if layout == "flat" else root / layout / "catalog_deduplicated.csv"
+    catalog.parent.mkdir(parents=True)
+    catalog.write_text("id,pretty_formula\nfixture,Si\n")
+    monkeypatch.setenv("RADAR_PD_DB_ROOT", str(root))
+    names = {"catalog_root", "catalog_candidates", "phase_catalog"}
+    nodes = [node for node in ast.parse(publisher).body
+             if isinstance(node, ast.Assign) and any(
+                 isinstance(target, ast.Name) and target.id in names for target in node.targets)]
+    namespace = {"Path": Path, "os": os, "work": tmp_path / "work"}
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), "<catalog fallback>", "exec"), namespace)
+    assert namespace["phase_catalog"] == catalog
+    custom = tmp_path / "work/custom_database/library_output/catalog_deduplicated.csv"
+    custom.parent.mkdir(parents=True)
+    custom.write_text("id,pretty_formula\ncustom,Cu\n")
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), "<catalog fallback>", "exec"), namespace)
+    assert namespace["phase_catalog"] == custom

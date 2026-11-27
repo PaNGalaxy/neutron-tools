@@ -1,11 +1,11 @@
-<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.51">
+<tool id="neutrons_radar_pd_analyze_prototype" name="RADAR-PD Analyze" profile="22.05" version="0.5.52">
     <description>identify and refine phases in neutron or X-ray powder diffraction data</description>
     <creator>
         <person name="Lalit Yadav"/>
         <organization url="https://www.ornl.gov/" name="ORNL"/>
     </creator>
     <requirements>
-        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:1bf02c9a709287e5389d7abc00734cf90337352f96b67d55baf0505d890d8e94</container>
+        <container type="docker" shell="/bin/bash">ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:4b301e53b6b94abaf0ecb57a37032dc1cf3c20a5c012f9f61d167fdb7a241420</container>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $config_path = 'generated_config.yaml'
@@ -319,6 +319,7 @@ raise SystemExit(ndip_runner.main())
         <configfile name="publish_gpx_fallback"><![CDATA[
 import inspect
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -394,10 +395,12 @@ ndip_outputs.build_gpx_index = _build_gpx_index
 if not any(_fallback_main_project(path, run_root) for path in run_root.rglob("*.gpx")):
     raise SystemExit(0)
 
+catalog_root = Path(os.environ.get("RADAR_PD_DB_ROOT", "/opt/radar-pd/data"))
 catalog_candidates = [
     work / "custom_database" / "library_output" / "catalog_deduplicated.csv",
-    Path("/opt/radar-pd/data/database_neutron/catalog_deduplicated.csv"),
-    Path("/opt/radar-pd/data/database_xray/catalog_deduplicated.csv"),
+    catalog_root / "database_neutron" / "catalog_deduplicated.csv",
+    catalog_root / "database_xray" / "catalog_deduplicated.csv",
+    catalog_root / "catalog_deduplicated.csv",
 ]
 phase_catalog = next((path for path in catalog_candidates if path.is_file()), None)
 collect_kwargs = {
