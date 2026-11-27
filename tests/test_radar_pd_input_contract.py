@@ -555,9 +555,9 @@ def test_analyze_uses_the_scientific_contract_checked_release_image() -> None:
     root = _root("radar_pd_analyze.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.5.55"
+    assert root.attrib.get("version") == "0.5.56"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:ec56c42fa640936baaa707d9b8c10b62d30bf1cb6ba9affe6705aac53e2ce965"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:60a51e98afe0c21514d86ed7d780cee8db175da7959bd8c3d3ccf8e4e85b8f28"
 
 
 def test_library_builder_and_analyze_share_reviewed_occupancy_contract() -> None:
