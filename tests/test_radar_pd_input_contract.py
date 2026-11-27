@@ -534,9 +534,9 @@ def test_nova_interactive_uses_the_smoke_tested_release_image() -> None:
     root = _root("radar_pd_nova.xml")
     container = root.find("./requirements/container")
 
-    assert root.attrib.get("version") == "0.7.54"
+    assert root.attrib.get("version") == "0.7.55"
     assert container is not None
-    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:b161bdf07d48ac893ad1c2ddba97416a8da10eedd1c3f49e3515fa091234d398"
+    assert container.text == "ghcr.io/lalityadav07/impurity_detection_gsas_ver6@sha256:b4a77b580aa4b4335b972742696ced2c4e979331c290684c78a6e67e120cc1aa"
     credential = root.find("./requirements/credentials[@name='ornl_illumine']")
     assert credential is not None and credential.attrib.get("optional") == "true"
     secret = credential.find("./secret[@name='api_key']")
